@@ -6,12 +6,12 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 ## Todo
 
 1. Create gihub account, list you id with your name below
-
+2. Create a webgen doc at 
 
 
 ## participants
 
-* [Jonas Almeida](http://www.github.com/jonasalmeida)
+* [Jonas Almeida](http://www.github.com/jonasalmeida), [notebook](https://beta.observablehq.com/@jonasalmeida/webgen).
 * 
 
 
