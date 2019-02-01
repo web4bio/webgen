@@ -1,18 +1,22 @@
 live at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
 
 # [Web Genomics](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/)
-Precision Medicine requires an ever growing Biomedical BigData reference. This growth is particularly striking for pathologies with a genomic basis, like Cancer. Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized Genomic Data Commons (gdc.cancer.gov) as a data ecosystem that the scientific community, including the citizen scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) that help find novel associations between genomic features and cancer phenotypes.
+Precision Medicine requires an ever growing Biomedical BigData reference. This growth is particularly striking for pathologies with a genomic basis, like Cancer. Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized Genomic Data Commons (gdc.cancer.gov) as a data ecosystem that the scientific community, including the citizen scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) that help find novel associations between genomic features and cancer phenotypes. For more information see [Stony Brook University VIP page](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/).
 
 ## Todo
 
-1. Create gihub account, list you id with your name below
-2. Create a webgen doc at 
+1. Create gihub account, list you id with your name below.
+2. Create a webgen doc at https://beta.observablehq.com.
 
 
 ## participants
 
 * [Jonas Almeida](http://www.github.com/jonasalmeida), [notebook](https://beta.observablehq.com/@jonasalmeida/webgen).
-* 
+* ...
+
+
+## WebConferencing
+https://global.gotomeeting.com/join/744703413 
 
 
 
