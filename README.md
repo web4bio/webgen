@@ -21,7 +21,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Chinonso Nwabueze](http://www.github.com/conwabueze)
 * [Carolyn Bremer](http://www.github.com/cgbrem)
 * [Erika Nemeth](http://www.github.com/enemeth19)
-* [SAM WANG](http://www.github.com/)
+* [SAM WANG](http://www.github.com/a1179639594)
 * ...
 
 
