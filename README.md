@@ -16,7 +16,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 
 ## WebConferencing
-https://global.gotomeeting.com/join/744703413 
+[https://global.gotomeeting.com/join/744703413](https://global.gotomeeting.com/join/744703413) 
 
 ...
 
