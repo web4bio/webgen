@@ -1,37 +1,34 @@
-## Welcome to GitHub Pages
+live at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
 
-You can use the [editor on GitHub](https://github.com/web4bio/webgen/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+# [Web Genomics](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/)
+Precision Medicine requires an ever growing Biomedical BigData reference. This growth is particularly striking for pathologies with a genomic basis, like Cancer. Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized Genomic Data Commons (gdc.cancer.gov) as a data ecosystem that the scientific community, including the citizen scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) that help find novel associations between genomic features and cancer phenotypes.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Issues: Cancer Genomics, Web Technologies, JavaScript, Artificial Intelligence, scalable distributed computing, social coding, patient-centered cancer prevention and treatment.
 
-### Markdown
+Methods & Technologies: Web Technologies (JavaScript, Apps), Cancer Genomics, Computational Statistics, Artificial Intelligence, Precision Medicine
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+Disciplines: Applied Mathematics and Statistics, Biomedical Engineering, Biomedical Informatics, Computer Engineering, Computer Science
 
-```markdown
-Syntax highlighted code block
+Interests / Preparation by Major: Pre-existing knowledge of programming, particularly JavaScript, will be favored as it indicates an innate interest in social coding (user-facing application development). This is applicable to all students, regardless of focus being on Mathematics or Molecular Biology.
 
-# Header 1
-## Header 2
-### Header 3
+Faculty: 
+    Richard Moffitt (Department of Biomedical Informatics)
+    Jonas S Almeida (Department of Biomedical Informatics)
 
-- Bulleted
-- List
+Team Section: 04
 
-1. Numbered
-2. List
+Team Established: Spring 2019
 
-**Bold** and _Italic_ and `Code` text
+Meeting Time: Friday 11:00-11:53am (Spring 2019)
 
-[Link](url) and ![Image](src)
-```
+Meeting Location: HSCENT 3-045B
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Contact: richard.moffitt@stonybrookmedicine.edu
 
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/web4bio/webgen/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+Links: 
+    * https://github.com/mathbiol/gdc
+    * https://github.com/mathbiol/gdcfun
+    * https://beta.observablehq.com/@youdymoo/gdcfun
+    * http://bit.ly/tcgascope
+    * http://bit.ly/loadsparcs
+    * http://bit.ly/pqiSuffolk
