@@ -12,6 +12,15 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 ## participants
 
 * [Jonas Almeida](http://www.github.com/jonasalmeida), [notebook](https://beta.observablehq.com/@jonasalmeida/webgen).
+* [Fenghsi](http://www.github.com/fenghsi),
+* [Wen Cheng](http://www.github.com/wencheng921)
+* [Anthony Xiang](http://www.github.com/axian0420)
+* [Chantelle Dsilva](http://www.github.com/chantelle-dsilva)
+* [Hunter Jimenez](http://www.github.com/hunterjimenezsbu)
+* [Chinonso Nwabueze](http://www.github.com/conwabueze)
+* [Carolyn Bremer](http://www.github.com/cgbrem)
+* [Erika Nemeth](http://www.github.com/enemeth19)
+* [SAM WANG](http://www.github.com/)
 * ...
 
 
