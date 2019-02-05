@@ -54,7 +54,7 @@ Meeting Time: Friday 11:00-11:53am (Spring 2019)
 
 Meeting Location: HSCENT 3-045B
 
-Contact: richard.moffitt@stonybrookmedicine.edu
+Contact: richard . moffitt @ stonybrookmedicine . edu
 
 Links: 
     * https://github.com/mathbiol/gdc
