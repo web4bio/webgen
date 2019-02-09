@@ -25,6 +25,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Erika Nemeth](http://www.github.com/enemeth19), [notebook](https://beta.observablehq.com/@enemeth19/untitled).
 * [Sam Wang](http://www.github.com/a1179639594), [notebook](https://beta.observablehq.com/d/b7a6a4041b651e43) <- dead link
 * [Anuki Liyanage](https://github.com/ANUKI11),[notebook](https://beta.observablehq.com/d/5b2b3e5478e038fa)
+* [Kevin Chang](https://github.com/Xnonx14)
 
 
 ## WebConferencing
