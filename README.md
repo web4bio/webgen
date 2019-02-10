@@ -26,6 +26,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Sam Wang](http://www.github.com/a1179639594), [notebook](https://beta.observablehq.com/d/b7a6a4041b651e43) <- dead link
 * [Anuki Liyanage](https://github.com/ANUKI11),[notebook](https://beta.observablehq.com/d/5b2b3e5478e038fa)
 * [Kevin Chang](https://github.com/Xnonx14)
+* [Jonathan Krog](https://github.com/Jonathan-Krog), [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
 
 
 ## WebConferencing
