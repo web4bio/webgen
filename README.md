@@ -30,7 +30,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
 
 ## WebConferencing
-[https://global.gotomeeting.com/join/744703413](https://global.gotomeeting.com/join/744703413) 
+[Go to Meeting (Web Conference)](http://bit.ly/sbubmi) 
 
 ...
 
