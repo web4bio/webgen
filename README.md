@@ -11,7 +11,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 4. Start checking your fellow participant's notebooks and github activity.
 5. Study [GDC](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) (Genomics Data Commons) [API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retieve data. So the next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
 
-## participants
+## Participants
 
 * [Jonas Almeida](http://www.github.com/jonasalmeida), [notebook](https://beta.observablehq.com/@jonasalmeida/webgen).
 * [Richard Moffitt](https://github.com/rmoffitt), [notebook](https://beta.observablehq.com/@rmoffitt/webgen)
@@ -27,7 +27,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Anuki Liyanage](https://github.com/ANUKI11),[notebook](https://beta.observablehq.com/d/5b2b3e5478e038fa)
 * [Kevin Chang](https://github.com/Xnonx14),[notebook](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook)
 * [Jonathan Krog](https://github.com/Jonathan-Krog), [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
-
+* [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
 
 ## WebConferencing
 [https://global.gotomeeting.com/join/744703413](https://global.gotomeeting.com/join/744703413) 
