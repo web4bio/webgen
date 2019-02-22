@@ -10,6 +10,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 3. Have a look at [freecodecamp.org](https://www.freecodecamp.org) as reference for JS leaning.
 4. Start checking your fellow participant's notebooks and github activity.
 5. Study [GDC](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) (Genomics Data Commons) [API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retieve data. So the next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
+6. Research your chosen GDC tool to discuss next week (3/1) at (https://gdc.cancer.gov/access-data/gdc-community-tools)
 
 ## participants
 
