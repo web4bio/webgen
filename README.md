@@ -5,7 +5,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 ## To Do
 
-1. Create a Github account, request access to this project, list you id with your name below.
+1. Create a Github account, request access to this project, list your id with your name below.
 2. Create a WebGen doc at https://beta.observablehq.com (use your Github credentials). Publish it.
 3. Have a look at [freecodecamp.org](https://www.freecodecamp.org) as reference for JS learning.
 4. Start checking your fellow participants' notebooks and Github activity.
