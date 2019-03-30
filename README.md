@@ -3,13 +3,13 @@ live at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
 # [Web Genomics](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/)
 Precision Medicine requires an ever growing Biomedical BigData reference. This growth is particularly striking for pathologies with a genomic basis, like Cancer. Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized Genomic Data Commons ([gdc.cancer.gov](https://gdc.cancer.gov), also article [PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) that help find novel associations between genomic features and cancer phenotypes. For more information see [Stony Brook University VIP page](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/).
 
-## Todo
+## To Do
 
-1. Create gihub account, request access to this project, list you id with your name below.
-2. Create a webgen doc at https://beta.observablehq.com (use your github credentials). Publish it.
-3. Have a look at [freecodecamp.org](https://www.freecodecamp.org) as reference for JS leaning.
-4. Start checking your fellow participant's notebooks and github activity.
-5. Study [GDC](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) (Genomics Data Commons) [API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retieve data. So the next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
+1. Create a Github account, request access to this project, list you id with your name below.
+2. Create a WebGen doc at https://beta.observablehq.com (use your Github credentials). Publish it.
+3. Have a look at [freecodecamp.org](https://www.freecodecamp.org) as reference for JS learning.
+4. Start checking your fellow participants' notebooks and Github activity.
+5. Study [GDC](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) (Genomics Data Commons) [API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retrieve data. So the next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
 6. Review official GDC tools (https://gdc.cancer.gov/access-data/gdc-community-tools)
 7. Check out some existing work (https://github.com/oncojs)
 
@@ -31,7 +31,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Jonathan Krog](https://github.com/Jonathan-Krog), [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
 * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
 
-## WebConferencing
+## Web Conferencing
 [Go to Meeting (Web Conference)](http://bit.ly/sbubmi) 
 
 ...
