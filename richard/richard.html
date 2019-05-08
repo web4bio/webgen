@@ -6,15 +6,17 @@ This page runs richard.js
 <script src = "richard.js"></script>
 <script src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
 
+
 <div id=div1></div>
 <div id=div2></div>
+<div id=div3></div>
 
 <script> 
   let url = 'https://api.gdc.cancer.gov/projects'
   let body = ({
   'fields': "disease_type,name,program.name,project_id,summary.case_count",
   'from': 0,
-  'size': 1000
+  'size': 10
   })
   let projectData = betterFetch(url,body)
 </script>
@@ -31,7 +33,21 @@ This page runs richard.js
   });
 </script>
 
+<input type="text" id="fname" onchange="myFunction()">
+<script>
+    function myFunction() {
+      var x = document.getElementById("fname");
+      document.getElementById("div3").innerHTML = '<p> fibonacci(input): '+fibonacci(x.value)+'</p>'
+    }
+</script>
 
+<script>
+  document.getElementById("div2").innerHTML += '<p> fibonacci(0): '+fibonacci(0)+'</p>'
+  document.getElementById("div2").innerHTML += '<p> fibonacci(1): '+fibonacci(1)+'</p>'
+  document.getElementById("div2").innerHTML += '<p> fibonacci(2): '+fibonacci(2)+'</p>'
+  document.getElementById("div2").innerHTML += '<p> fibonacci(3): '+fibonacci(3)+'</p>'
+  document.getElementById("div2").innerHTML += '<p> fibonacci(4): '+fibonacci(4)+'</p>'
+</script>
 
 
 

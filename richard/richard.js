@@ -28,4 +28,19 @@ getCaseCounts = function(projectData) {
   return caseCounts
 };
 
+fibonacci = function(x) {
+  if(x<2){
+    return 1
+  }
+  let a = 1.0
+  let b = 1.0
+  let c = 2.0
+  for(i = 2;i <= x; i++){
+    c = a+b
+    a = b
+    b = c
+  }
+  return c
+};
+
 console.log('richard.js finished');
