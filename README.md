@@ -34,7 +34,16 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 ## Web Conferencing
 [Go to Meeting (Web Conference)](http://bit.ly/sbubmi) 
 
-...
+## API
+* GDC https://api.gdc.cancer.gov
+  * [documentation](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/#api-endpoints)
+  * [example](https://api.gdc.cancer.gov/projects?fields=disease_type&size=2)
+* firebrowse http://firebrowse.org
+  * [documentation](http://firebrowse.org/api-docs/)
+  * [example](http://firebrowse.org/api/v1/Samples/mRNASeq?format=json&gene=GATA6&cohort=PAAD&page=1&page_size=2&sort_by=tcga_participant_barcode)
+* All of us https://public.api.researchallofus.org
+  * [documentation] ?
+  * [example] ?
 
 ____
 
