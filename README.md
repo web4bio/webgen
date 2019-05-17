@@ -30,11 +30,11 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Jonathan Krog](https://github.com/Jonathan-Krog), [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
 * [Chantelle Dsilva](http://www.github.com/chantelle-dsilva), [notebook](https://beta.observablehq.com/@chantelle-dsilva/webgen), [chantelleeliza.dsilva]
 
-### Allumni
-* [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
-* [Chinonso Nwabueze](http://www.github.com/conwabueze)
+#### Alumni
+  * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
+  * [Chinonso Nwabueze](http://www.github.com/conwabueze)
 
-## API
+## APIs
 * GDC https://api.gdc.cancer.gov
   * [documentation](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/#api-endpoints)
   * [example](https://api.gdc.cancer.gov/projects?fields=disease_type&size=2)
@@ -44,8 +44,9 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * All of us https://public.api.researchallofus.org
   * [documentation] ?
   * [example] ?
-
 ____
+
+## Course information
 
 Issues: Cancer Genomics, Web Technologies, JavaScript, Artificial Intelligence, scalable distributed computing, social coding, patient-centered cancer prevention and treatment.
 
@@ -69,13 +70,17 @@ Meeting Location: HSCENT 3-045B
 
 Contact: richard . moffitt @ stonybrookmedicine . edu
 
-Links: 
-    * https://github.com/mathbiol/gdc
-    * https://github.com/mathbiol/gdcfun
-    * https://beta.observablehq.com/@youdymoo/gdcfun
-    * http://bit.ly/tcgascope
-    * http://bit.ly/loadsparcs
-    * http://bit.ly/pqiSuffolk
+## Links
+* Active friends of the project
+  * [cloud4bio github](https://github.com/cloud4bio/cloud4bio.github.com)
+  * [episphere github](https://github.com/episphere) and [observable](https://observablehq.com/@episphere)
+* Previous related work
+  * https://github.com/mathbiol/gdc
+  * https://github.com/mathbiol/gdcfun
+  * https://beta.observablehq.com/@youdymoo/gdcfun
+  * http://bit.ly/tcgascope
+  * http://bit.ly/loadsparcs
+  * http://bit.ly/pqiSuffolk
 
 
 ____
