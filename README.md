@@ -47,6 +47,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 ____
 
 ## Course information
+Participation in this project may count for SBU students as part of the [VIP program](https://www.stonybrook.edu/commcms/vertically-integrated-projects/prospective_students/how_credits_count), or [BMI 530](https://bmi.stonybrookmedicine.edu/courses) Software Development in Biomedical Informatics, or under another listing in your home department.
 
 Issues: Cancer Genomics, Web Technologies, JavaScript, Artificial Intelligence, scalable distributed computing, social coding, patient-centered cancer prevention and treatment.
 
@@ -60,11 +61,9 @@ Faculty:
     Richard Moffitt (Department of Biomedical Informatics)
     Jonas S Almeida (Department of Biomedical Informatics)
 
-Team Section: 04
-
 Team Established: Spring 2019
 
-Meeting Time: Friday 11:00-11:53am (Spring 2019)
+Meeting Time: Friday 11:00-11:53am
 
 Meeting Location: HSCENT 3-045B
 
