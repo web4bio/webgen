@@ -72,8 +72,10 @@ Contact: richard . moffitt @ stonybrookmedicine . edu
 
 ## Links
 * Active friends of the project
-  * [cloud4bio github](https://github.com/cloud4bio/cloud4bio.github.com)
-  * [episphere github](https://github.com/episphere) and [observable](https://observablehq.com/@episphere)
+  * SBU's Integrative Informatics workshop [wiki](https://sites.google.com/mathbiol.org/integrativeinformatics/home)
+  * NCI Division of Cancer Epidemiology and Genetics
+    * cloud4bio [github](https://github.com/cloud4bio/cloud4bio.github.com) and [wiki](https://sites.google.com/mathbiol.org/cloud4bio/home)
+    * episphere [github](https://github.com/episphere) and [observable](https://observablehq.com/@episphere)
 * Previous related work
   * https://github.com/mathbiol/gdc
   * https://github.com/mathbiol/gdcfun
