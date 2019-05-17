@@ -1,4 +1,5 @@
-live at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
+Live at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
+Conference call via [google meet](https://sbubmi.page.link/vip) Fridays at 11AM EST
 
 # [Web Genomics](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/)
 Precision Medicine requires an ever growing Biomedical BigData reference. This growth is particularly striking for pathologies with a genomic basis, like Cancer. Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized Genomic Data Commons ([gdc.cancer.gov](https://gdc.cancer.gov), also article [PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) that help find novel associations between genomic features and cancer phenotypes. For more information see [Stony Brook University VIP page](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/).
@@ -17,22 +18,21 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 * [Jonas Almeida](http://www.github.com/jonasalmeida), [notebook](https://beta.observablehq.com/@jonasalmeida/webgen). [firebrowse](https://github.com/episphere/firebrowse)
 * [Richard Moffitt](https://github.com/rmoffitt), [sandbox notebook](https://beta.observablehq.com/@rmoffitt/webgen), [project page](/richard/richard.html), [clean notebook](https://observablehq.com/@rmoffitt/tcgaplots)
-* [Fenghsi](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
+* [Fenghsi Yu](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
 * [Wen Cheng](http://www.github.com/wencheng921), [notebook](https://beta.observablehq.com/@wencheng921/webgen)
 * [Anthony Xiang](http://www.github.com/axian0420), [notebook](https://beta.observablehq.com/@axian0420/webgen/4), [anthony.xiang@stonybrook.edu]
-* [Chantelle Dsilva](http://www.github.com/chantelle-dsilva), [notebook](https://beta.observablehq.com/@chantelle-dsilva/webgen), [chantelleeliza.dsilva]
 * [Hunter Jimenez](http://www.github.com/hunterjimenezsbu), [notebook](https://beta.observablehq.com/@huntsmna817/webgen)
-* [Chinonso Nwabueze](http://www.github.com/conwabueze)
 * [Carolyn Bremer](http://www.github.com/cgbrem), [notebook](https://beta.observablehq.com/@cgbrem/web-genomics), [carolyn.bremer@stonybrook.edu]
 * [Erika Nemeth](http://www.github.com/enemeth19), [notebook](https://beta.observablehq.com/@enemeth19/webgen) [erika.nemeth@stonybrook.edu]
 * [Sam Wang](http://www.github.com/SuperZam), [notebook](https://observablehq.com/@superzam/web-genomics/5),[sammy.wang@stonybrook.edu]
 * [Anuki Liyanage](https://github.com/ANUKI11),[notebook](https://observablehq.com/@anuki11/webgen/2)
 * [Kevin Chang](https://github.com/Xnonx14),[notebook](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook),[kevin.chang.1@stonybrook.edu]
 * [Jonathan Krog](https://github.com/Jonathan-Krog), [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
-* [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
+* [Chantelle Dsilva](http://www.github.com/chantelle-dsilva), [notebook](https://beta.observablehq.com/@chantelle-dsilva/webgen), [chantelleeliza.dsilva]
 
-## Web Conferencing
-[Go to Meeting (Web Conference)](http://bit.ly/sbubmi) 
+### Allumni
+* [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
+* [Chinonso Nwabueze](http://www.github.com/conwabueze)
 
 ## API
 * GDC https://api.gdc.cancer.gov
