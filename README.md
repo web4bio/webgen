@@ -73,6 +73,9 @@ Contact: richard . moffitt @ stonybrookmedicine . edu
 ## Links
 * Related work
   * [CbioPortal](https://www.cbioportal.org/)
+  * [Regulome explorer](http://explorer.cancerregulome.org/)
+  * [IntOGen](www.intogen.org/)
+  * [Xena](genome-cancer.ucsc.edu)
   * [TCGA Splicing Variation Database](http://tsvdb.com/) [github](https://github.com/wenjie1991/TSVdb)
 * Active friends of the project
   * SBU's Integrative Informatics workshop [wiki](https://sites.google.com/mathbiol.org/integrativeinformatics/home)
