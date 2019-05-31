@@ -29,6 +29,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Kevin Chang](https://github.com/Xnonx14),[notebook](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook),[kevin.chang.1@stonybrook.edu]
 * [Jonathan Krog](https://github.com/Jonathan-Krog), [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
 * [Chantelle Dsilva](http://www.github.com/chantelle-dsilva), [notebook](https://beta.observablehq.com/@chantelle-dsilva/webgen), [chantelleeliza.dsilva]
+* [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu), [notebook](https://observablehq.com/@zhenghaozhu/webgen), [zhenghao.zhu@stonybrook.edu]
 
 #### Alumni
   * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
