@@ -27,7 +27,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Fenghsi Yu](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
 * [Wen Cheng](http://www.github.com/wencheng921), [notebook](https://beta.observablehq.com/@wencheng921/webgen)
 * [Anthony Xiang](http://www.github.com/axian0420), [notebook](https://beta.observablehq.com/@axian0420/webgen/4), [anthony.xiang@stonybrook.edu]
-* [Hunter Jimenez](http://www.github.com/hunterjimenezsbu), [notebook](https://beta.observablehq.com/@huntsmna817/webgen)
+* [Hunter Jimenez](http://www.github.com/hunterjimenezsbu), [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing)
 * [Carolyn Bremer](http://www.github.com/cgbrem), [notebook](https://beta.observablehq.com/@cgbrem/web-genomics), [carolyn.bremer@stonybrook.edu]
 * [Erika Nemeth](http://www.github.com/enemeth19), [notebook](https://beta.observablehq.com/@enemeth19/webgen) [erika.nemeth@stonybrook.edu]
 * [Sam Wang](http://www.github.com/SuperZam), [notebook](https://observablehq.com/@superzam/web-genomics/5),[sammy.wang@stonybrook.edu]
