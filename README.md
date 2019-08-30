@@ -19,11 +19,11 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | Name & github  | Notebook | Observable | other |
 | --- | --- | --- | --- |
 | [Richard Moffitt](https://github.com/rmoffitt)  | [notebook](https://docs.google.com/document/d/1tjo-rafpYEwuRS9hhp6eQ8UvNseNXmcvcHEvZuKuAJw)| [sandbox](https://beta.observablehq.com/@rmoffitt/webgen), [GDC tool](https://observablehq.com/@rmoffitt/tcgaplots)  | [project page](/richard/richard.html) |
-| Content   | Content   | Content   | Content   |
+| [Jonas Almeida](http://www.github.com/jonasalmeida)   |    | [notebook](https://beta.observablehq.com/@jonasalmeida/webgen)    | [firebrowse](https://github.com/episphere/firebrowse)   |
 | Content   | Content   | Content   | Content   |
 | Content   | Content   | Content   | Content   |
 
-* [Jonas Almeida](http://www.github.com/jonasalmeida), [notebook](https://beta.observablehq.com/@jonasalmeida/webgen). [firebrowse](https://github.com/episphere/firebrowse)
+
 * [Fenghsi Yu](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
 * [Wen Cheng](http://www.github.com/wencheng921), [notebook](https://beta.observablehq.com/@wencheng921/webgen)
 * [Anthony Xiang](http://www.github.com/axian0420), [notebook](https://beta.observablehq.com/@axian0420/webgen/4), [anthony.xiang@stonybrook.edu]
