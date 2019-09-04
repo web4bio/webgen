@@ -16,7 +16,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 ## Participants
 
-| Name & github  | Notebook | Observable | other |
+| Name & GitHub  | Notebook | Observable | Other |
 | --- | --- | --- | --- |
 | [Richard Moffitt](https://github.com/rmoffitt)  | [notebook](https://docs.google.com/document/d/1tjo-rafpYEwuRS9hhp6eQ8UvNseNXmcvcHEvZuKuAJw)| [sandbox](https://beta.observablehq.com/@rmoffitt/webgen), [GDC tool](https://observablehq.com/@rmoffitt/tcgaplots)  | [project page](/richard/richard.html) |
 | [Jonas Almeida](http://www.github.com/jonasalmeida)   |    | [notebook](https://beta.observablehq.com/@jonasalmeida/webgen)    | [firebrowse](https://github.com/episphere/firebrowse)   |
