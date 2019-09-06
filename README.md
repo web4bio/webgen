@@ -24,7 +24,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Carolyn Bremer](http://www.github.com/cgbrem) | [notebook](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit)|[notebook](https://observablehq.com/@cgbrem/web-genomics) | [carolyn.bremer@stonybrook.edu] |
 | [Erika Nemeth](http://www.github.com/enemeth19) | [notebook](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing) | [notebook](https://observablehq.com/@enemeth19/webgen) | [erika.nemeth@stonybrook.edu] |
 | [Ethan Earlie](https://github.com/Ethan-Earlie) | [Google Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen) | [ethan.earlie@stonybrook.edu](ethan.earlie@stonybrook.edu) |
-| [Hunter Jimenez](http://www.github.com/hunterjimenezsbu) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen) | [hunter.jimenez@stonybrook.edu](hunter.jimenez@stonybrook.edu) |
+| [Hunter Jimenez](http://www.github.com/hunterjimenezsbu) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [hunter.jimenez@stonybrook.edu](hunter.jimenez@stonybrook.edu) |
 
 * [Fenghsi Yu](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
 * [Wen Cheng](http://www.github.com/wencheng921), [notebook](https://beta.observablehq.com/@wencheng921/webgen)
