@@ -21,6 +21,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Richard Moffitt](https://github.com/rmoffitt)  | [notebook](https://docs.google.com/document/d/1tjo-rafpYEwuRS9hhp6eQ8UvNseNXmcvcHEvZuKuAJw)| [sandbox](https://beta.observablehq.com/@rmoffitt/webgen), [GDC tool](https://observablehq.com/@rmoffitt/tcgaplots)  | [project page](/richard/richard.html) |
 | [Jonas Almeida](http://www.github.com/jonasalmeida)   |    | [notebook](https://beta.observablehq.com/@jonasalmeida/webgen)    | [firebrowse](https://github.com/episphere/firebrowse)   |
 | [Anthony Xiang](http://www.github.com/axian0420)   | [notebook](https://docs.google.com/document/d/1_yPKVaUQYhm_nESCsvcH_5MymwL7CxrM1Hj6tCABnLk/)   | [notebook](https://observablehq.com/@axian0420/webgen-second-edition)   | [anthony.xiang@stonybrook.edu]   |
+| [Carolyn Bremer](http://www.github.com/cgbrem) | [notebook](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit)| [carolyn.bremer@stonybrook.edu] |
 | [Erika Nemeth](http://www.github.com/enemeth19) | [notebook](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing) | [notebook](https://observablehq.com/@enemeth19/webgen) | [erika.nemeth@stonybrook.edu] |
 | [Ethan Earlie](https://github.com/Ethan-Earlie) | [Google Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen) | [ethan.earlie@stonybrook.edu](ethan.earlie@stonybrook.edu) |
 
@@ -28,7 +29,6 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 * [Fenghsi Yu](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
 * [Wen Cheng](http://www.github.com/wencheng921), [notebook](https://beta.observablehq.com/@wencheng921/webgen)
 * [Hunter Jimenez](http://www.github.com/hunterjimenezsbu), [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing)
-* [Carolyn Bremer](http://www.github.com/cgbrem), [notebook](https://beta.observablehq.com/@cgbrem/web-genomics), [carolyn.bremer@stonybrook.edu]
 * [Sam Wang](http://www.github.com/SuperZam), [notebook](https://observablehq.com/@superzam/web-genomics/5),[sammy.wang@stonybrook.edu]
 * [Anuki Liyanage](https://github.com/ANUKI11),[notebook](https://observablehq.com/@anuki11/webgen/2)
 * [Kevin Chang](https://github.com/Xnonx14),[notebook](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook),[kevin.chang.1@stonybrook.edu]
