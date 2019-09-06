@@ -22,7 +22,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Jonas Almeida](http://www.github.com/jonasalmeida)   |    | [notebook](https://beta.observablehq.com/@jonasalmeida/webgen)    | [firebrowse](https://github.com/episphere/firebrowse)   |
 | [Anthony Xiang](http://www.github.com/axian0420)   | [notebook](https://docs.google.com/document/d/1_yPKVaUQYhm_nESCsvcH_5MymwL7CxrM1Hj6tCABnLk/)   | [notebook](https://observablehq.com/@axian0420/webgen-second-edition)   | [anthony.xiang@stonybrook.edu]   |
 | [Erika Nemeth](http://www.github.com/enemeth19) | [notebook](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing) | [notebook](https://observablehq.com/@enemeth19/webgen) | [erika.nemeth@stonybrook.edu] |
-| [Ethan Earlie](https://github.com/Ethan-Earlie) | [Google Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen) | [ethan.earlie@stonybrook.edu] |
+| [Ethan Earlie](https://github.com/Ethan-Earlie) | [Google Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen) | [ethan.earlie@stonybrook.edu](ethan.earlie@stonybrook.edu) |
 
 
 * [Fenghsi Yu](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
