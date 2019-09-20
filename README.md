@@ -25,7 +25,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen), [Data Exploration](https://observablehq.com/@enemeth19/webgen-data-exploration) | [erika.nemeth@stonybrook.edu](erika.nemeth@stonybrook.edu)|
 | [Ethan Earlie](https://github.com/Ethan-Earlie) | [Google Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen) | [ethan.earlie@stonybrook.edu](ethan.earlie@stonybrook.edu) |
 | [Hunter Jimenez](http://www.github.com/hunterjimenezsbu) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [hunter.jimenez@stonybrook.edu](hunter.jimenez@stonybrook.edu) |
-| [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [notebook](https://observablehq.com/@zhenghaozhu/webgen) | |  [zhenghao.zhu@stonybrook.edu](zhenhao.zhu@stonybrook.edu)|
+| [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [notebook](https://docs.google.com/document/u/1/d/1EDb0N4R6-k8yil0_kmgNnWCTXEYKSJ9paCZIH35OxVg/edit?usp=drive_web&ouid=112004187736081988690) | [observable notebook](https://observablehq.com/@zhenghaozhu/webgen) |  [zhenghao.zhu@stonybrook.edu](zhenhao.zhu@stonybrook.edu)|
 
 #### Alumni
   * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
