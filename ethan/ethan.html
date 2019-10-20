@@ -1,31 +1,47 @@
 <body>
 
-<h1 align="center" style="color:green;font-size:40px;">
-  Stony Brook University's VIP WebGen Team
-
-  <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-</h1>
-
-<script type="text/javascript" src = "ethan.js"></script>
-
-<div id=div1></div>
+  <!--
+    Uses a user input for the cohort list and gene list. These input lists should be comma seperated values.
+  -->
 
 
-
-<script type="text/javascript">
-  // Fetching Sample Data with Firebrowse:
-  var gene = 'GATA6';
-  var cohort = 'BRCA';
-  var dataFetched = fetchData(gene,cohort);
+  <h1 align="center" style="color:green;font-size:42px;">
+    Stony Brook University's VIP WebGen Team
   
-  // If the data is fetched properly, then construct plot:
-  dataFetched.then(function(TCGA_Expression) {
-    var expressionArray = TCGA_Expression.mRNASeq.map(x => (Number.parseFloat(x.expression_log2).toPrecision(3)));
-    var expressionCounts = getCounts(expressionArray);
-    var dataToPlot = getDataToPlot(expressionCounts);
-    Plotly.plot('div1', dataToPlot[0],dataToPlot[1]);
-  });
-</script>
-
-</body>
+    <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  
+  </h1>
+  
+  
+  <script type="text/javascript" src = "ethan.js"></script>
+  
+  <div id=div0 style="margin-top:50px"></div>
+  
+  
+  <script type="text/javascript">
+    // Fetching Sample Data with Firebrowse:
+    var cohort_list = prompt('Enter Cohort List').toUpperCase().split(',');
+    var gene_list = prompt('Enter Gene List').toUpperCase().split(',');
+    var dataFetched = getExpressionList(gene_list,cohort_list);
+    
+    // If the data is fetched properly, then construct plot:
+    dataFetched.then(function(TCGA_Expression) {
+      var expressionArray = getExpressionArray(TCGA_Expression);
+      var expressionCounts = getCounts(expressionArray);
+      var dataToPlotInfo = getDataToPlot(expressionCounts,gene_list,cohort_list);
+      var dataToPlotArray = dataToPlotInfo[0];
+      var layoutArray = dataToPlotInfo[1];
+  
+      // Create plot for each gene/cohort combination:
+      for (var i = 0; i < dataToPlotArray.length; i ++) {
+        if (i>0) {
+          addElement("div"+i);
+        };
+        Plotly.newPlot("div"+i, dataToPlotArray[i], layoutArray[i]);
+      };
+    });
+  
+  </script>
+  
+  </body>
