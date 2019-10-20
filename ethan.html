@@ -1,0 +1,31 @@
+<body>
+
+<h1 align="center" style="color:green;font-size:40px;">
+  Stony Brook University's VIP WebGen Team
+
+  <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</h1>
+
+<script type="text/javascript" src = "ethan.js"></script>
+
+<div id=div1></div>
+
+
+
+<script type="text/javascript">
+  // Fetching Sample Data with Firebrowse:
+  var gene = 'GATA6';
+  var cohort = 'BRCA';
+  var dataFetched = fetchData(gene,cohort);
+  
+  // If the data is fetched properly, then construct plot:
+  dataFetched.then(function(TCGA_Expression) {
+    var expressionArray = TCGA_Expression.mRNASeq.map(x => (Number.parseFloat(x.expression_log2).toPrecision(3)));
+    var expressionCounts = getCounts(expressionArray);
+    var dataToPlot = getDataToPlot(expressionCounts);
+    Plotly.plot('div1', dataToPlot[0],dataToPlot[1]);
+  });
+</script>
+
+</body>
