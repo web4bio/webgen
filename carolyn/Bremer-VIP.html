@@ -1,0 +1,89 @@
+
+<body>
+    Bremer-VIP.js
+
+   
+    <div id=div1></div>
+
+    <script src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src = "Bremer-VIP.js"></script>
+    <script>
+        let queryJSON = {
+            format: 'json',
+            gene: 'GATA6',
+            cohort: 'PAAD',
+            protocol: 'RSEM',
+            page: 1,
+            page_size: 250,
+            sort_by: 'tcga_participant_barcode'
+        }
+        
+        let hosturl = 'https://firebrowse.herokuapp.com';
+        let endpointurl = 'http://firebrowse.org/api/v1/Samples/mRNASeq?';
+        let overall = hosturl + '?' + endpointurl + '?';
+        let query = jQuery.param(queryJSON);
+        
+        //potential cause of problem, async and await
+        getURL = async function(url, body){
+            return (await fetch(url + body)).json();
+        }
+
+        let x_axis = getURL(overall, query);
+
+        let queryJSON2 = {
+        format: 'json',
+        gene: 'KRAS',
+        cohort: 'PAAD',
+        protocol: 'RSEM',
+        page: 1,
+        page_size: 183,
+        sort_by: 'tcga_participant_barcode'
+        }
+
+        let query2 = jQuery.param(queryJSON2);
+
+        let y_axis = getURL(overall, query2);    
+
+        let plotData = {
+        x: [],
+        y: [],
+        text: [],
+        mode: 'markers',
+        type: 'scatter'
+        };
+
+        //changed 'forEach' to 'for...of'
+        const getX = async (plotData,mRNASeq) => {
+            for await (let ob of mRNASeq) {
+                plotData.x.push(ob.expression_log2);
+                plotData.text.push(ob.tcga_participant_barcode);
+            }
+            return plotData;
+        };
+
+        // x_axis.mRNASeq.forEach(
+        //     async (ob) => {
+        //         await plotData.x.push(ob.expression_log2);
+        //         await plotData.text.push(ob.tcga_participant_barcode);
+        // });
+
+        const getY = async (plotData, mRNASeq) => {
+            for await (let ob of mRNASeq) {
+                plotData.y.push(ob.expression_log2);
+            }
+            return plotData;
+        };
+
+        // y_axis.mRNASeq.forEach(
+        //     async (ob) => {
+        //         await plotData.y.push(ob.expression_log2);
+        // });
+
+        //the way I'm calling getX and getY may be the problem here
+        let plotDataX = getX(plotData, (x_axis.mRNASeq)); 
+        let plotDataY = getY(plotData, (y_axis.mRNASeq));
+
+        Plotly.newPlot(div1, [plotDataY])
+    </script>
+</body>
