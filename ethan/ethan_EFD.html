@@ -1,0 +1,43 @@
+<body>
+
+  <!--
+    Uses a user input for the cohort list and gene list. These input lists should be comma seperated values.
+  -->
+
+
+  <h1 align="center" style="color:green;font-size:42px;font-family:'Courier New', Courier, monospace;">
+    Stony Brook University's VIP WebGen Team
+  
+    <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  
+  </h1>
+  
+  
+  <script type="text/javascript" src = "ethan_EFD.js"></script>
+  
+  <div id=div0 style="margin-top:50px"></div>
+  
+  
+  <script type="text/javascript">
+    // Fetching Sample Data with Firebrowse:
+    var cohort_list = prompt('Enter Cohort List').toUpperCase().split(',');
+    var gene_list = prompt('Enter Gene List').toUpperCase().split(',');
+    var dataToPlotInfo = ethan_getEFDdata(cohort_list, gene_list);
+    
+    dataToPlotInfo.then(function(data) {
+      var dataToPlotArray = data[0];
+      var layoutArray = data[1];
+  
+      // Create plot for each gene/cohort combination:
+      for (var i = 0; i < dataToPlotArray.length; i ++) {
+        if (i>0) {
+          addElement("div"+i,"div0");
+        };
+        Plotly.newPlot("div"+i, dataToPlotArray[i], layoutArray[i]);
+    };
+  });
+  
+  </script>
+  
+  </body>
