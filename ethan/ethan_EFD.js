@@ -54,69 +54,7 @@ getExpressionArray = function(array) {
   return expressionArray;
 };
 
-getDataToPlotTest = function(array, cohort_list_arg, gene_list_arg) {
-  var dataToPlotArray = [];
-  var layoutArray = [];
 
-  var geneCohortComboList = [];
-  for (var k = 0; k < cohort_list_arg.length; k ++) {
-    for (var h = 0; h < gene_list_arg.length; h ++) {
-      geneCohortComboList.push([gene_list_arg[h], cohort_list_arg[k]]);
-    };
-  };
-
-  for (var i = 0; i < array.length; i ++) {  
-    var gene = geneCohortComboList[i][0];
-    var cohort = geneCohortComboList[i][1];
-    var expressionLevels = array[i];
-
-    var dataToPlot = [
-      {
-      x: expressionLevels,
-      type: 'histogram'
-      }
-    ];
-    dataToPlotArray.push(dataToPlot);
-  
-
-    var layoutTemp = {
-      title: {
-        text:'Distribution of Expression Levels in '+cohort,
-        font: {
-          family: 'Courier New, monospace',
-          size: 24
-        },
-        xref: 'paper',
-        x: 2,
-      },
-      xaxis: {
-        title: {
-          text: gene+' Expression Level',
-          font: {
-            family: 'Courier New, monospace',
-            size: 18,
-            color: '#7f7f7f'
-          }
-        },
-      },
-      yaxis: {
-        title: {
-          text: 'Frequency',
-          font: {
-            family: 'Courier New, monospace',
-            size: 18,
-            color: '#7f7f7f'
-          }
-        }
-      }
-    };
-    layoutArray.push(layoutTemp);
-  };
-  return [dataToPlotArray, layoutArray];
-};
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 getDataToPlot = function(array, cohort_list_arg, gene_list_arg) {
   var dataToPlotArray = [];
   var layoutArray = [];
