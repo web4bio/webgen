@@ -1,4 +1,4 @@
-The EDF files are for Expression Frequency Distribution. They are for building the histogram plots for the distribution 
+The EFD files are for Expression Frequency Distribution. They are for building the histogram plots for the distribution 
 of gene expression in each different cancer cohorts.
 
 The ethan_getExpressionJSONarray.js is a JavaScript file containing the function: ethan_getExpressionJSONarray. This function
