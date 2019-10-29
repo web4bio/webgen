@@ -136,7 +136,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
     y: yValues,
     z: expressionValues,
     type: 'heatmap',
-    colorscale: 'colorscaleValue',
+    colorscale: colorscaleValue,
     showscale: true
   }];
 
