@@ -10,12 +10,12 @@
   <!--
     This code bellow sets up the main heading.
   -->
-  <h1 align="center" style="color:green;font-size:42px;font-family:''Times New Roman', monospace;">
+  <h1 align="center" style="color:green;font-size:42px;font-family:'Times New Roman';">
     Stony Brook University's VIP WebGen Team
   
     <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script type="text/javascript" src = "SCRAP.js"></script>
+    <script type="text/javascript" src = "ethan.js"></script>
   </h1>
 
   <!--
@@ -107,18 +107,14 @@
       
 
       dataToPlotInfo.then(function(data) {
-        //console.log(data);
-        console.log(data);
         var dataToPlot = data[0];
         var layoutArray = data[1];
         
-        console.log(dataToPlot);
         // Create plot for each gene/cohort combination:
         for (var i = 0; i < dataToPlot.length; i ++) {
           if (i>0) {
             addElement("div"+i,"div0");
           };
-          console.log(dataToPlot[i]);
           Plotly.newPlot("div"+i, dataToPlot[i], layoutArray[i]);
         };
       });
