@@ -2,6 +2,9 @@ Live at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
 Conference call via [google meet](https://sbubmi.page.link/vip) Fridays at 11AM EST
 
 # [Web Genomics](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/)
+
+[![Join the chat at https://gitter.im/web4bio/webgen](https://badges.gitter.im/web4bio/webgen.svg)](https://gitter.im/web4bio/webgen?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Precision Medicine requires an ever growing Biomedical BigData reference. This growth is particularly striking for pathologies with a genomic basis, like Cancer. Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized Genomic Data Commons ([gdc.cancer.gov](https://gdc.cancer.gov), also article [PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) that help find novel associations between genomic features and cancer phenotypes. For more information see [Stony Brook University VIP page](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)).
 
 ## To Do
