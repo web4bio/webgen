@@ -52,10 +52,10 @@
     This code bellow sets up the plotting tool header and info.
   -->
   <h2>
-    RNA-Seq Visualization Tool:
+    mRNA-Seq Visualization Tool:
   </h2>
   <body>
-    The tool below is used to visualize RNA Sequencing Data pulled from the Genomic Data Commons.
+    The tool below is used to visualize mRNA Sequencing Data pulled from the Genomic Data Commons.
     <br>
     In order to use this tool, specify the list of cancer cohorts and the list of genes you wish to study (or use the example).
     <br>
@@ -75,6 +75,7 @@
     <option value="default">Visualization Type</option>
     <option value="histogram">Histogram</option>
     <option value="heatmap">Heat Map</option>
+    <option value="heatmap_norm">Normalized Heat Map</option>
   </select>
   <br>
   <button onclick="setExampleVars()" id='exampleButton' style="width: 2.25cm;height: 1cm;">
@@ -88,7 +89,7 @@
   <!--
     This code bellow initializes the first div element.
   -->
-  <div id=div0 style="margin-top:50px"></div>
+  <div id=div0></div>
   
   <!--
     This code bellow contains the JS code for building the plots to display.
@@ -96,20 +97,27 @@
   <script type="text/javascript">
     // Wait for user input to build plots:
     function setVars() {
-      cohort_list = document.getElementById('cohort_list').value.toUpperCase().split(',');
-      gene_list = document.getElementById('gene_list').value.toUpperCase().split(',');
+      var cohort_list = document.getElementById('cohort_list').value.toUpperCase().split(',');  
+      var gene_list = document.getElementById('gene_list').value.toUpperCase().split(',');
+      var cohort_list = cohort_list.map(x => x.trim());
+      var gene_list = gene_list.map(x => x.trim());
       
+      // Remove any current div elements if they're there:
+      removeElements();
+
       // Check what type of plot the user wants:
       plot_type = document.getElementById('plot_type').value.toLowerCase();
+      var normalize = false;
+      if (plot_type == 'heatmap_norm') {
+        var normalize = true;
+      };
 
       // Fetch RNA sequence data and display requested plots:
-      var dataToPlotInfo = ethan_getEFDdata(cohort_list, gene_list, plot_type);
-      
+      var dataToPlotInfo = ethan_getEFDdata(cohort_list, gene_list, plot_type, normalize);
 
       dataToPlotInfo.then(function(data) {
         var dataToPlot = data[0];
         var layoutArray = data[1];
-        
         // Create plot for each gene/cohort combination:
         for (var i = 0; i < dataToPlot.length; i ++) {
           if (i>0) {
@@ -127,9 +135,9 @@
   <script>
   // This script is to set the cohort and gene list examples if the user clicks the use example button:
   function setExampleVars() {
-      document.getElementById('cohort_list').value = 'BRCA, PAAD';
-      document.getElementById('gene_list').value = 'TP53, GATA6';
-      document.getElementById('plot_type').value = 'histogram';
+      document.getElementById('cohort_list').value = 'ACC, BRCA, PAAD, SARC';
+      document.getElementById('gene_list').value = 'ABI1, ABL2, ACSL3, BRCA1, EGFR, GATA6, KRAS, TP53';
+      document.getElementById('plot_type').value = 'heatmap_norm';
     };
   </script>
   

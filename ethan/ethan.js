@@ -2,13 +2,12 @@
 
 // Master Function for Expression Frequency Distribution (EFD) Data to Plot:
 
-ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg, plot_type) {
-  var dataFetched = await getExpressionList(cohort_list_arg, gene_list_arg);
-  var expressionArray = getExpressionArray(dataFetched);
+ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg, plot_type, normalize) {
+  var expressionArray = await getExpressionArray(cohort_list_arg, gene_list_arg);
   if (plot_type == 'histogram') {
     var dataToReturn = getDataToPlotForHistogram(expressionArray, cohort_list_arg, gene_list_arg);
-  } else if (plot_type == 'heatmap') {
-    var dataToReturn = getDataToPlotForHeatmap(expressionArray, cohort_list_arg, gene_list_arg);
+  } else if (plot_type == 'heatmap' || plot_type == 'heatmap_norm') {
+    var dataToReturn = getDataToPlotForHeatmap(expressionArray, cohort_list_arg, gene_list_arg, normalize);
   }
   return await dataToReturn;  
 };
@@ -17,41 +16,54 @@ ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg, plot_type) {
 // Helper Functions:
 
 // Async function to fetch requested RNA seq data from GDC with Firebrowse for particular cohort and gene:
-fetchData = async function(cohort_arg, gene_arg) {
+
+fetchData = async function(cohort_list_arg, gene_list_arg) {
   var queryJSON = {
       format: 'json',
-      gene: gene_arg,
-      cohort: cohort_arg,
+      gene: gene_list_arg,
+      cohort: cohort_list_arg,
       page: 1,
       page_size: 5000,
-      sort_by: 'tcga_participant_barcode'
+      sort_by: 'cohort'
   };
   const hosturl = 'https://firebrowse.herokuapp.com';
   const endpointurl='http://firebrowse.org/api/v1/Samples/mRNASeq';
-  const result = await fetch(hosturl +'?'+endpointurl +'?' + jQuery.param(queryJSON));
+
+  var cohortQueryString = cohort_list_arg.join('%2C%20');
+  var geneQueryString = gene_list_arg.join('%2C');
+  var queryString = 'format=json&gene='+geneQueryString+'&cohort='+cohortQueryString+'&protocol=RSEM&page='+ 
+  queryJSON.page.toString()+'&page_size='+queryJSON.page_size.toString()+'&sort_by='+queryJSON.sort_by;
+
+  const result = await fetch(hosturl +'?'+endpointurl +'?' + queryString);
 
   return result.json();
 };
 
-// Function to get the RNA seq data for each cohort/gene combination between a list of cohorts and a list of genes:
-getExpressionList = async function (cohort_list_arg, gene_list_arg) {
-  var TCGA_expression_list = [];
 
-  for (var i = 0; i < cohort_list_arg.length; i ++) {
-    for (var j = 0; j < gene_list_arg.length; j ++) {
-      var queryResult = await fetchData(cohort_list_arg[i], gene_list_arg[j]);
-      TCGA_expression_list.push(queryResult);
+// Function to get the gene expression data into a more usable form:
+getExpressionArray = async function(cohort_list_arg, gene_list_arg) {
+  var expressionArray = [];
+  
+  var TCGA_expression_JSON = await fetchData(cohort_list_arg,gene_list_arg);
+  var TCGA_expression_list = TCGA_expression_JSON.mRNASeq;
+  
+
+  var cohortGeneComboList = [];
+  for (var k = 0; k < cohort_list_arg.length; k ++) {
+    for (var h = 0; h < gene_list_arg.length; h ++) {
+      cohortGeneComboList.push([cohort_list_arg[k], gene_list_arg[h]]);
     };
   };
 
-  return TCGA_expression_list;
-}; 
+  var filteredArray = [];
+  for (var i = 0; i < cohortGeneComboList.length; i ++) {
+    var filteredArrayTemp = TCGA_expression_list.filter(TCGA_expression => TCGA_expression.cohort === cohortGeneComboList[i][0]
+      && TCGA_expression.gene === cohortGeneComboList[i][1]);
+    filteredArray.push(filteredArrayTemp);
+  };
 
-// Function to get the gene expression data into a more usable form:
-getExpressionArray = function(array) {
-  var expressionArray = [];
-  for (var i = 0; i < array.length; i ++) {
-    var expressionArrayTemp = array[i].mRNASeq.map(x => (Number.parseFloat(x.expression_log2)));
+  for (var i = 0; i < filteredArray.length; i ++) {
+    var expressionArrayTemp = filteredArray[i].map(x => (Number.parseFloat(x.expression_log2)));
     expressionArray.push(expressionArrayTemp);
   };
 
@@ -63,16 +75,16 @@ getDataToPlotForHistogram = function(array, cohort_list_arg, gene_list_arg) {
   var dataToPlotArray = [];
   var layoutArray = [];
 
-  var geneCohortComboList = [];
+  var cohortGeneComboList = [];
   for (var k = 0; k < cohort_list_arg.length; k ++) {
     for (var h = 0; h < gene_list_arg.length; h ++) {
-      geneCohortComboList.push([gene_list_arg[h], cohort_list_arg[k]]);
+      cohortGeneComboList.push([cohort_list_arg[k], gene_list_arg[h]]);
     };
   };
 
   for (var i = 0; i < array.length; i ++) {  
-    var gene = geneCohortComboList[i][0];
-    var cohort = geneCohortComboList[i][1];
+    var cohort = cohortGeneComboList[i][0];
+    var gene = cohortGeneComboList[i][1];
     var expressionLevels = array[i];
 
     var dataToPlot = [
@@ -121,22 +133,33 @@ getDataToPlotForHistogram = function(array, cohort_list_arg, gene_list_arg) {
 };
 
 // Function to set up data to plot a heat map for RNA Seq expression for the cohort and gene lists:
-getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
+getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg, normalize) {
   var expressionValues = array;
   var xValues = cohort_list_arg;
   var yValues = gene_list_arg;
-
   var colorscaleValue = [
     [0, '#3D9970'],
     [1, '#001f3f']
   ];
-  
+
+  if (normalize == true) {
+    var expressionValuesNorm = [];
+    for (i = 0; i < expressionValues.length; i++) {
+      var expressionValuesNormTemp = array[i].map(x => x/Math.max(...array.map(x => Math.max(...x))));
+      expressionValuesNorm.push(expressionValuesNormTemp);
+    };
+
+    var expressionValues = expressionValuesNorm;
+    var colorscaleValue = 'Greens';
+  };
+
   var dataToPlot = [{
     x: xValues,
     y: yValues,
     z: expressionValues,
     type: 'heatmap',
     colorscale: colorscaleValue,
+    reversescale: true,
     showscale: true
   }];
 
@@ -144,7 +167,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
     title: 'Gene Expression Heat Map'
   }];
 
-  return [[dataToPlot], layout];
+  return [[dataToPlot], [layout]];
 };
 
 // Function to append div elemnts to an HTML document with an existing div element with id='oldDivID'.
@@ -158,3 +181,18 @@ addElement = function(newDivID, oldDivID) {
   var currentDiv = document.getElementById(oldDivID); 
   document.getElementById(oldDivID).appendChild(newDiv); 
 }
+
+// This function will remove the current div elements if they exist:
+removeElements = function() {
+  var i = 1;
+  var continueBool = true;
+  while (continueBool == true) {
+    divToRemove = document.getElementById("div"+i);
+    if(divToRemove) {
+      $(divToRemove).remove();
+      i++;
+    } else {
+      var continueBool = false;
+    };
+  };
+};
