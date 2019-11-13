@@ -137,6 +137,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg, normal
   var expressionValues = array;
   var xValues = cohort_list_arg;
   var yValues = gene_list_arg;
+  var reversescaleValue = false;
   var colorscaleValue = [
     [0, '#3D9970'],
     [1, '#001f3f']
@@ -151,6 +152,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg, normal
 
     var expressionValues = expressionValuesNorm;
     var colorscaleValue = 'Greens';
+    var reversescaleValue = true;
   };
 
   var dataToPlot = [{
@@ -159,7 +161,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg, normal
     z: expressionValues,
     type: 'heatmap',
     colorscale: colorscaleValue,
-    reversescale: true,
+    reversescale: reversescaleValue,
     showscale: true
   }];
 
