@@ -121,9 +121,9 @@
         // Create plot for each gene/cohort combination:
         for (var i = 0; i < dataToPlot.length; i ++) {
           if (i>0) {
-            addElement("div"+i,"div0");
+            addElement("div"+i,"div"+(i-1));
           };
-          Plotly.newPlot("div"+i, dataToPlot[i], layoutArray[i]);
+          Plotly.newPlot("div"+i, dataToPlot[i], layoutArray[i], {responsive: true});
         };
       });
     };
@@ -135,8 +135,8 @@
   <script>
   // This script is to set the cohort and gene list examples if the user clicks the use example button:
   function setExampleVars() {
-      document.getElementById('cohort_list').value = 'BRCA, PAAD, SARC';
-      document.getElementById('gene_list').value = 'BRCA1, EGFR, GATA6, KRAS, TP53';
+      document.getElementById('cohort_list').value = 'ACC, BRCA, PAAD, SARC';
+      document.getElementById('gene_list').value = 'ABL2, BRCA1, EGFR, GATA6, KRAS, TP53';
       document.getElementById('plot_type').value = 'heatmap_norm';
     };
   </script>

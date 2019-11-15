@@ -179,9 +179,9 @@ addElement = function(newDivID, oldDivID) {
   var newDiv = document.createElement("div"); 
   newDiv.setAttribute('id',newDivID);
   newDiv.setAttribute("style","margin-top:50px"); 
+  
   // add the newly created element and its content into the DOM 
-  var currentDiv = document.getElementById(oldDivID); 
-  document.getElementById(oldDivID).appendChild(newDiv); 
+  document.getElementById(oldDivID).after(newDiv); 
 }
 
 // This function will remove the current div elements if they exist:
