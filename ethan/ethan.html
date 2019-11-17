@@ -1,130 +1,113 @@
 <body>
-  <!--
-    NEXT STEPS: Make the code more robust to users entering in invalid cohort and gene codes. Have the page update the plots displayed
-    every time the Submit button is pressed.
-  -->
+
+  <!-- Next Steps: Bring in control data for comparison and have distribution functions displayed better.-->
+
   <!--
     Uses a user input for the cohort list and gene list. These input lists should be comma seperated values.
   -->
 
   <!--
-    This code bellow sets up the main heading.
+    This code bellow is for import jobs.
   -->
-  <h1 align="center" style="color:green;font-size:42px;font-family:'Times New Roman';">
-    Stony Brook University's VIP WebGen Team
-  
+  <head>
     <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="ethan_style.css">
     <script type="text/javascript" src = "ethan.js"></script>
-  </h1>
-
+  </head>
+  
   <!--
-    This code bellow sets up the sub heading.
+    This code bellow sets up the main heading.
   -->
-  <h2 align="center">
-    This page is for the Vertically Integrated Project team on Web Genomics at Stony Brook University.
-  </h2>
-
-  <!--
-    This code bellow sets up the team mission statement text.
-  -->
-  <h2>
-    <br>
-    Team Mission Statement:
-  </h2>
-
   <body>
-    Precision Medicine requires an ever growing Biomedical BigData reference. 
-    This growth is particularly striking for pathologies with a genomic basis, like Cancer. 
-    <br>
-    Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized 
-    Genomic Data Commons as a data ecosystem that the scientific community, 
-    including the citizen scientist, can populate with analytical applications. 
-    The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) 
-    that help find novel associations between genomic features and cancer phenotypes. 
-    <br>
-    For more information see the relevant links at the bottom of the page.
-    <br>
-    <br>
-  </body>
-
-  <!--
-    This code bellow sets up the plotting tool header and info.
-  -->
-  <h2>
-    mRNA-Seq Visualization Tool:
-  </h2>
-  <body>
-    The tool below is used to visualize mRNA Sequencing Data pulled from the Genomic Data Commons.
-    <br>
-    In order to use this tool, specify the list of cancer cohorts and the list of genes you wish to study (or use the example).
-    <br>
-    For information about valid cancer cohort and gene codes, visit the 'Firebrowse by The Broad Institute' link at the bottom of the page. 
-    <br>
-    <br>
-  </body>
+    <h1 class="PageTitle">WebGen's mRNA-Seq Visualization API</h1>
   
   <!--
     This code bellow sets up the user input text fields and buttons.
   -->
-  <input id='cohort_list' placeholder="Enter List of Cohorts Here" style="width: 4cm;">
-  <br>
-  <input id='gene_list' placeholder="Enter List of Genes Here" style="width: 4cm;">
-  <br>
-  <select id='plot_type'>
-    <option value="default">Visualization Type</option>
-    <option value="histogram">Histogram</option>
-    <option value="heatmap">Heat Map</option>
-    <option value="heatmap_norm">Normalized Heat Map</option>
-  </select>
-  <br>
-  <button onclick="setExampleVars()" id='exampleButton' style="width: 2.25cm;height: 1cm;">
+  <input class="CohortGenesInput" id='cohort_list' placeholder="Enter List of Cancer Cohorts Here">
+  <input class="CohortGenesInput" id='gene_list' placeholder="Enter List of Genes Here">
+  <button class="exampleSubmitButton" onclick="setExampleVars()" id='exampleButton'>
     Use Example
   </button>
-  <br>
-  <button onclick="setVars()" id='button1' style="width: 2.25cm;height: 1cm;">
+  <button class="exampleSubmitButton" onclick="setVars()" id='button1'>
     Submit
   </button>
 
   <!--
     This code bellow initializes the first div element.
   -->
-  <div id=div0></div>
+  <div id=div0 style="margin-top:25px"></div>
+
+  <!--
+    This code bellow creates button for alert message on an error.
   
+  -->
+  <span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
+  
+
   <!--
     This code bellow contains the JS code for building the plots to display.
   -->
   <script type="text/javascript">
     // Wait for user input to build plots:
     function setVars() {
+      // Reset page formatting:
+      document.getElementById('div0').innerHTML="";
+      document.getElementById('links').style.position = 'absolute';                      // Move links to stay at the bottom of the page.
+      
+      // Removes existing divs if they're there:
+      removeElements();
+
+      // Display loader:
+      document.getElementById('div0').className = 'loader';                              // Create the loader.
+
+      // Set user input variables:
       var cohort_list = document.getElementById('cohort_list').value.toUpperCase().split(',');  
       var gene_list = document.getElementById('gene_list').value.toUpperCase().split(',');
       var cohort_list = cohort_list.map(x => x.trim());
       var gene_list = gene_list.map(x => x.trim());
-      
-      // Remove any current div elements if they're there:
-      removeElements();
 
-      // Check what type of plot the user wants:
-      plot_type = document.getElementById('plot_type').value.toLowerCase();
-      var normalize = false;
-      if (plot_type == 'heatmap_norm') {
-        var normalize = true;
-      };
+      // Check the cohort list to be valid:
+      validCohorts = checkCohortList(cohort_list);
+      if (validCohorts == false) {
+        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+        showError('cohortError');
+        return;
+      }
 
       // Fetch RNA sequence data and display requested plots:
-      var dataToPlotInfo = ethan_getEFDdata(cohort_list, gene_list, plot_type, normalize);
+      var dataToPlotInfo = ethan_getEFDdata(cohort_list, gene_list);
 
+      // Once data is returned, build the plots:
       dataToPlotInfo.then(function(data) {
+        //Check that the fetch worked:
+        if (data == 'Error: Invalid Input Fields for Query.') {
+          document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
+          showError('geneError');
+          return;
+        }
+
         var dataToPlot = data[0];
         var layoutArray = data[1];
-        // Create plot for each gene/cohort combination:
-        for (var i = 0; i < dataToPlot.length; i ++) {
-          if (i>0) {
-            addElement("div"+i,"div"+(i-1));
-          };
-          Plotly.newPlot("div"+i, dataToPlot[i], layoutArray[i], {responsive: true});
+
+        // Get the genes with no mRNA-Seq data results:
+        var emptyGenesArray = data[2];
+        var j = 0;
+        if (emptyGenesArray.length > 0) {
+          var j = 1;
         };
+
+        // Create plot for each gene/cohort combination:
+        var L = dataToPlot.length
+        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+        for (var i = j; i < L+j; i ++) {
+          if (i>0) {
+            addElement("div"+i,"div"+(i-1));                                               // Append new Div elements.
+          };
+          Plotly.newPlot("div"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create all plots
+        };
+        document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
       });
     };
   </script>
@@ -135,9 +118,8 @@
   <script>
   // This script is to set the cohort and gene list examples if the user clicks the use example button:
   function setExampleVars() {
-      document.getElementById('cohort_list').value = 'ACC, BRCA, PAAD, SARC';
-      document.getElementById('gene_list').value = 'ABL2, BRCA1, EGFR, GATA6, KRAS, TP53';
-      document.getElementById('plot_type').value = 'heatmap_norm';
+      document.getElementById('cohort_list').value = 'BRCA, SARC';
+      document.getElementById('gene_list').value = 'BRCA1, EGFR, KRAS, TP53';
     };
   </script>
   
@@ -145,19 +127,15 @@
   <!--
     This code bellow is to display relevant hyperlinks for the page.
   -->
-  <h3 style="font-size: 24px;">
-    <br>
-    Relevant Links
-  </h3>
-
-  <center style="font-size: 16px;">
+  <div id="links" class="relevantLinks">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <a href="https://github.com/web4bio/webgen">Team GitHub Page</a>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University's VIP Team Page</a>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="https://portal.gdc.cancer.gov">National Cancer Institute's Genomic Data Commons</a>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <a href="http://firebrowse.org/">Firebrowse by The Broad Institute</a>
-  </center>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University's VIP Page</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://portal.gdc.cancer.gov">NCI's Genomic Data Commons</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="http://firebrowse.org/">Firebrowse by the Broad Institute</a>
+  </div>
 
 </body>
