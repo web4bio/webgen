@@ -1,0 +1,14 @@
+{
+  "name": "@seitzej/pca-from-cluster-v2",
+  "main": "5f9a58ed064765dc@147.js",
+  "version": "147.0.0",
+  "homepage": "https://observablehq.com/@seitzej/pca-from-cluster-v2",
+  "author": {
+    "name": "Eric Seitz",
+    "url": "https://observablehq.com/@seitzej"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}
