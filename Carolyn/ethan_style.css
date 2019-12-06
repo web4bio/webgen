@@ -1,0 +1,145 @@
+/* CSS File for VIP WebGen Site for mRNA-Seq Data Visualization */
+
+.PageTitle {
+    font-family: 'Roboto', sans-serif;
+    color: #4db6ac;
+    text-align: center;
+    font-size: 45px;
+    font-style: italic;
+    margin-bottom: 28px;
+    width: 100%
+}
+
+.CohortGenesInput {
+	border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 30%;
+    font-size: 17px;
+    text-align: center;
+	padding: 4px 7px;
+    outline: 1;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 2px   
+}
+
+.relevantLinks {
+	float: left;
+    padding-bottom: 10px;
+    position: absolute;
+	padding-top: 50px;
+	text-align: center;
+	bottom: 0px;
+	width: 100%;
+}
+
+.loader {
+    position: absolute;
+    left: 50%;
+    top: 60%;
+    z-index: 1;
+    width: 150px;
+    height: 150px;
+    margin: -75px 0 0 -75px;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #4db6ac;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* The alert message box */
+.alert {
+    padding: 20px;
+    background-color: #f44336; /* Red */
+    color: white;
+    margin-bottom: 15px;
+}
+
+/* The warning message box */
+.warning {
+    padding: 20px;
+    background-color: #eca31b;
+    color: white;
+    margin-bottom: 15px;
+}
+  
+/* The close button */
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+  
+/* When moving the mouse over the close button */
+.closebtn:hover {
+    color: black;
+}
+
+select {
+    padding: 5px 8px;
+    width: 30%;
+    border-radius: 5px;
+    box-shadow: none;
+    display: block;
+    margin: 0 auto;
+    position: relative;
+    left: 35%;
+    text-align-last: center
+}
+
+.exampleSubmitButton {
+    padding: 5px 8px;
+    width: 15%;
+    position: relative;
+    left: 35%;
+    color: rgb(0, 0, 0); 
+    background: transparent;
+    border-radius: 5px;
+    box-shadow: none;
+    border: 2px solid rgb(0, 0, 0);
+    
+}
+
+.exampleSubmitButton:hover {      
+    background-color: rgb(37, 41, 43);      
+    color: white; 
+}
+
+#cohort_list, #gene_list {
+    width: 500px;
+}
+
+.nav-wrapper {
+    background-color:#4db6ac;
+}
+
+.tabs .tab a{
+    color: #4db6ac;
+} /*Teal color to the text*/
+
+.tabs .tab a:hover {
+    background-color:#eee;
+    color:#4db6ac;
+} /*Text color on hover*/
+
+.tabs .tab a.active {
+    background-color:#eee;
+    color:#4db6ac;
+} /*Background and text color when a tab is active*/
+
+.tabs .indicator {
+    background-color:#4db6ac;
+} /*Color of underline*/

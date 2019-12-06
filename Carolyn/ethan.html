@@ -1,0 +1,221 @@
+<body>
+
+  <!-- Next Steps: Bring in control data for comparison and have distribution functions displayed better.-->
+
+  <!--
+    Uses a user input for the cohort list and gene list. These input lists should be comma seperated values.
+  -->
+
+  <!--
+    This code bellow is for import jobs.
+  -->
+  <head>
+     <!-- Compiled and minified CSS -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+     <!-- Compiled and minified JavaScript -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+     
+             
+    <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="ethan_style.css">
+    <script type="text/javascript" src = "ethan_master.js"></script>
+    <script type="text/javascript" src = "ethan_data_import.js"></script>
+    <script type="text/javascript" src = "ethan_mRNASeq_histogram.js"></script>
+    <script type="text/javascript" src = "ethan_mRNASeq_heatmaps.js"></script>
+    <script type="text/javascript" src = "ethan_doc_manipulation.js"></script>
+  </head>
+  
+  <!--
+    This code bellow sets up the main heading.
+  -->
+  <body>
+      <div class="navbar-fixed">
+          <nav>
+          <div class="nav-wrapper">
+            <a href="#" style="font-style: italic;" class="brand-logo center">WebGen</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+              <li><a href="sass.html">API</a></li>
+              <li><a href="badges.html">About</a></li>
+            </ul>
+          </div>
+          </nav>
+      </div>
+  
+  <!--
+    This code bellow sets up the user input text fields and buttons.
+  -->
+
+  <div class="center-align">
+      <div class="row center-align">
+      <input class="center-align" id='cohort_list' placeholder="Enter List of Cancer Cohorts Here">
+      </div>
+      <div class="row center-align">
+      <input class="center-align" id='gene_list' placeholder="Enter List of Genes Here">
+      </div>
+    </div>
+  
+    <div class="center-align">
+        <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
+        <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='button1'>Submit</button>
+    </div>
+
+  <div class="tabs_container">  
+    <div class="row">
+      <ul class="tabs">
+        <li class="tab col s6"><a class="active" href="#test1">Heatmap</a></li>
+        <li class="tab col s6"><a href="#test2">Histogram</a></li>
+      </ul>
+      <div id="test1" class="col s12">
+        <div id=div0 style="margin-top:25px"></div>
+      </div>
+      <div id="test2" class="col s12">
+        <div id=divHisto0 style="margin-top:25px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    This code bellow initializes the first div element.
+  -->
+
+  <!--
+    This code bellow creates button for alert message on an error.
+  
+  -->
+  <span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
+  
+
+  <!--
+    This code bellow contains the JS code for building the plots to display.
+  -->
+  <script type="text/javascript">
+    // Wait for user input to build plots:
+    function setVars() {
+      // Reset page formatting:
+      document.getElementById('div0').innerHTML="";
+      document.getElementById('links').style.position = 'absolute';                      // Move links to stay at the bottom of the page.
+      
+      // Removes existing divs if they're there:
+      removeElements();
+
+      // Display loader:
+      document.getElementById('div0').className = 'loader';                              // Create the loader.
+
+      // Set user input variables:
+      var cohort_list = document.getElementById('cohort_list').value.toUpperCase().split(',');  
+      var gene_list = document.getElementById('gene_list').value.toUpperCase().split(',');
+      var cohort_list = cohort_list.map(x => x.trim());
+      var gene_list = gene_list.map(x => x.trim());
+      var amountOfCohorts = amount(cohort_list);
+      console.log(amountOfCohorts);
+
+      // Check the cohort list to be valid:
+      validCohorts = checkCohortList(cohort_list);
+      if (validCohorts == false) {
+        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+        showError('cohortError');
+        return;
+      }
+
+      // Fetch RNA sequence data and display requested plots:
+      var dataToPlotInfo = ethan_getEFDdata(cohort_list, gene_list);
+
+      // Once data is returned, build the plots:
+      dataToPlotInfo.then(function(data) {
+        //Check that the fetch worked:
+        if (data == 'Error: Invalid Input Fields for Query.') {
+          document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
+          showError('geneError');
+          return;
+        }
+
+        var dataToPlot = data[0];
+        var layoutArray = data[1];
+
+        // Get the genes with no mRNA-Seq data results:
+        var emptyGenesArray = data[2];
+        console.log(emptyGenesArray);
+        var j = 0;
+        if (emptyGenesArray.length > 0) {
+          var j = 1;
+        };
+
+
+        // Create plot for each gene/cohort combination:
+        var L = dataToPlot.length;
+        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+        var histogramData = [];
+        var newDiv = document.createElement("myDiv"); 
+
+        for (var i = j; i < L+j; i ++) {
+          console.log("i = " + i);
+          if(i == 0)
+            Plotly.newPlot("div"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot
+          if (i>0 && i < 3) {
+            addElement("div"+i,"div"+(i-1));                                                 // append div
+            Plotly.newPlot("div"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot
+          };
+          // creates div for histograms
+          if(i == 3) {
+            addElement("divHisto"+i,"divHisto0");   
+            histogramData.push(dataToPlot[i-j]);
+            Plotly.newPlot("divHisto"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot                                           
+          }
+          // keeps adding to histogram divider
+          if(i > 3) {
+            addElement("divHisto"+i,"divHisto"+(i-1)); 
+            histogramData.push(dataToPlot[i-j]);  
+            Plotly.newPlot("divHisto"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot                                                                                     
+          }
+          if(i == (L+j-1)){
+          var histogramLayout = {
+            grid: {rows: 3, columns: 2, pattern: 'independent'},
+          };
+          var newDiv = document.createElement("myDiv"); 
+          addElement(newDiv, "divHisto10");
+          Plotly.newPlot(newDiv, histogramData, histogramLayout);
+          }
+        };
+        document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
+      });
+    };
+  </script>
+
+  <!--
+    This code bellow is for if the user wants to use the example input cohort and gene lists.
+  -->
+  <script>
+  // This script is to set the cohort and gene list examples if the user clicks the use example button:
+  function setExampleVars() {
+      document.getElementById('cohort_list').value = 'BRCA, SARC';
+      document.getElementById('gene_list').value = 'BRCA1, EGFR, KRAS, TP53';
+    };
+  </script>
+
+<script> 
+    var elem = document.querySelector('.tabs');
+    var options = {}
+    var instance = M.Tabs.init(elem, options);
+</script>
+  
+
+ 
+
+  <!--
+    This code bellow is to display relevant hyperlinks for the page.
+  -->
+  <div id="links" class="relevantLinks">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://github.com/web4bio/webgen">Team GitHub Page</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University's VIP Page</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://portal.gdc.cancer.gov">NCI's Genomic Data Commons</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="http://firebrowse.org/">Firebrowse by the Broad Institute</a>
+  </div>
+
+</body>
