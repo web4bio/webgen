@@ -1,20 +1,14 @@
-<html>
-
-<head></head>
-
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Hello UMAP-js</title>
+<link rel="stylesheet" type="text/css" href="./inspector.css">
 <body>
-	<form name="apiForm" method="POST">
-		<input type="hidden" name="rowids">
-		<input type="hidden" name="annot">
+<script type="module">
 
-		<script type="text/javascript">
-			document.apiForm.rowids.value="6364,2919,6348,6347";
-document.apiForm.annot.value="";
-document.apiForm.action = "https://david.ncifcrf.gov/list.jsp";
-document.apiForm.submit();
-		</script>
+import define from "./index.js";
+import {Runtime, Library, Inspector} from "./runtime.js";
 
-	</form>
-</body>
+const runtime = new Runtime();
+const main = runtime.module(define, Inspector.into(document.body));
 
-</html>
+</script>
