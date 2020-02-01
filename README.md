@@ -30,6 +30,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Hunter Jimenez](https://observablehq.com/@huntsmna817/webgen) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [hunter.jimenez@stonybrook.edu](hunter.jimenez@stonybrook.edu) |
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [notebook](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [observable notebook](https://observablehq.com/@zhenghaozhu/webgen) |  [zhenghao.zhu@stonybrook.edu](zhenhao.zhu@stonybrook.edu)|
 | [Ki Oh](https://github.com/fluffyshoes) | [observable notebook](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  [ki.oh@stonybrookmedicine.edu](ki.oh@stonybrookmedicine.edu)|
+| [Anthony Li](https://github.com/anthonyli22) | [docs notebook](https://docs.google.com/document/d/1wMNmPHckFBkMaLHZSFEaQchs5s_s-Q0ah3yk-mWXltY/edit?usp=sharing) | [observable notebook](https://observablehq.com/@anthonyli22/webgen-notebook) | anthony.li@stonybrook.edu |
 
 #### Alumni
   * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
