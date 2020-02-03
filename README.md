@@ -29,7 +29,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Ethan Earlie](https://github.com/Ethan-Earlie) | [Google Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://ethan-earlie.github.io/sbu-webgen/)  | [ethan.earlie@stonybrook.edu](ethan.earlie@stonybrook.edu) |
 | [Hunter Jimenez](https://observablehq.com/@huntsmna817/webgen) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [hunter.jimenez@stonybrook.edu](hunter.jimenez@stonybrook.edu) |
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [notebook](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [observable notebook](https://observablehq.com/@zhenghaozhu/webgen) |  [zhenghao.zhu@stonybrook.edu](zhenhao.zhu@stonybrook.edu)|
-| [Ki Oh](https://github.com/fluffyshoes) | [observable notebook](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  [ki.oh@stonybrookmedicine.edu](ki.oh@stonybrookmedicine.edu)|
+| [Ki Oh](https://github.com/fluffyshoes) | | [observable notebook](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  [ki.oh@stonybrookmedicine.edu](ki.oh@stonybrookmedicine.edu)|
 | [Anthony Li](https://github.com/anthonyli22) | [docs notebook](https://docs.google.com/document/d/1wMNmPHckFBkMaLHZSFEaQchs5s_s-Q0ah3yk-mWXltY/edit?usp=sharing) | [observable notebook](https://observablehq.com/@anthonyli22/webgen-notebook) | anthony.li@stonybrook.edu |
 
 #### Alumni
