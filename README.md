@@ -31,6 +31,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [notebook](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [observable notebook](https://observablehq.com/@zhenghaozhu/webgen) | zhenghao.zhu@stonybrook.edu |
 | [Ki Oh](https://github.com/KO-BMI) | | [observable notebook](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  ki.oh@stonybrookmedicine.edu |
 | [Anthony Li](https://github.com/anthonyli22) | [docs notebook](https://docs.google.com/document/d/1wMNmPHckFBkMaLHZSFEaQchs5s_s-Q0ah3yk-mWXltY/edit?usp=sharing) | [observable notebook](https://observablehq.com/@anthonyli22/webgen-notebook) | anthony.li@stonybrook.edu |
+| [Shweta Sankaranarayanan](https://github.com/shweta98) | [docs notebook](https://docs.google.com/document/d/1HwBXeBZIZml27XivGczKvx8-qzy2ckKpikwXD4BLAwM/edit?usp=sharing) | [observable notebook](https://observablehq.com/@shweta98/webgen) | shweta.sankaranarayanan@stonybrook.edu |
 
 #### Alumni
   * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
@@ -66,7 +67,7 @@ Disciplines: Applied Mathematics and Statistics, Biomedical Engineering, Biomedi
 
 Interests / Preparation by Major: Pre-existing knowledge of programming, particularly JavaScript, will be favored as it indicates an innate interest in social coding (user-facing application development). This is applicable to all students, regardless of focus being on Mathematics or Molecular Biology.
 
-Faculty: 
+Faculty:
     Richard Moffitt (Department of Biomedical Informatics)
     Jonas S Almeida (Department of Biomedical Informatics)
 
