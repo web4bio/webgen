@@ -21,16 +21,18 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 | Name & GitHub  | Google Doc | Observable | Other |
 | --- | --- | --- | --- |
-| [Richard Moffitt](https://github.com/rmoffitt)  | [notebook](https://docs.google.com/document/d/1tjo-rafpYEwuRS9hhp6eQ8UvNseNXmcvcHEvZuKuAJw)| [sandbox](https://beta.observablehq.com/@rmoffitt/webgen), [GDC tool](https://observablehq.com/@rmoffitt/tcgaplots)  | [project page](/richard/richard.html) |
-| [Jonas Almeida](http://www.github.com/jonasalmeida)   |    | [notebook](https://beta.observablehq.com/@jonasalmeida/webgen)    | [firebrowse](https://github.com/episphere/firebrowse)   |
-| [Anthony Xiang](http://www.github.com/axian0420)   | [notebook](https://docs.google.com/document/d/1_yPKVaUQYhm_nESCsvcH_5MymwL7CxrM1Hj6tCABnLk/)   | [notebook](https://observablehq.com/@axian0420/webgen-second-edition)   | anthony.xiang@stonybrook.edu   |
+| [Richard Moffitt](https://github.com/rmoffitt) | [notebook](https://docs.google.com/document/d/1tjo-rafpYEwuRS9hhp6eQ8UvNseNXmcvcHEvZuKuAJw) | [sandbox](https://beta.observablehq.com/@rmoffitt/webgen), [GDC tool](https://observablehq.com/@rmoffitt/tcgaplots) | [project page](/richard/richard.html) |
+| [Jonas Almeida](http://www.github.com/jonasalmeida) |  | [notebook](https://beta.observablehq.com/@jonasalmeida/webgen)    | [firebrowse](https://github.com/episphere/firebrowse) |
+| [Anthony Xiang](https://github.com/anthonyxiang1) | [notebook](https://docs.google.com/document/d/1_yPKVaUQYhm_nESCsvcH_5MymwL7CxrM1Hj6tCABnLk/) | [notebook](https://observablehq.com/@axian0420/webgen-second-edition)   | anthony.xiang@stonybrook.edu |
 | [Carolyn Bremer](http://www.github.com/cgbrem) | [notebook](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit)|[notebook](https://observablehq.com/@cgbrem/web-gen-fall-19) | carolyn.bremer@stonybrook.edu |
-| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen), [Data Exploration](https://observablehq.com/@enemeth19/webgen-data-exploration) | [erika.nemeth@stonybrook.edu](erika.nemeth@stonybrook.edu)|
-| [Ethan Earlie](https://github.com/Ethan-Earlie) | [Google Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://ethan-earlie.github.io/sbu-webgen/)  | [ethan.earlie@stonybrook.edu](ethan.earlie@stonybrook.edu) |
-| [Hunter Jimenez](https://observablehq.com/@huntsmna817/webgen) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [hunter.jimenez@stonybrook.edu](hunter.jimenez@stonybrook.edu) |
-| [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [notebook](https://docs.google.com/document/u/1/d/1EDb0N4R6-k8yil0_kmgNnWCTXEYKSJ9paCZIH35OxVg/edit?usp=drive_web&ouid=112004187736081988690) | [observable notebook](https://observablehq.com/@zhenghaozhu/webgen) |  [zhenghao.zhu@stonybrook.edu](zhenhao.zhu@stonybrook.edu)|
-| [Ki Oh](https://github.com/fluffyshoes) | [observable notebook](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  [ki.oh@stonybrookmedicine.edu](ki.oh@stonybrookmedicine.edu)|
-| [Nayan Pasari](https://github.com/npasari) | [observable notebook](https://observablehq.com/@npasari) |  [nayan.pasari@stonybrook.edu](nayan.pasari@stonybrook.edu)| [notebook] (https://docs.google.com/document/d/1_kkYin5DIjNYtF-V1zWa_XXBUPlYzdKntx3vztvuXi0/edit) |
+| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen), [Data Exploration](https://observablehq.com/@enemeth19/webgen-data-exploration) | erika.nemeth@stonybrook.edu |
+| [Ethan Earlie](https://github.com/Ethan-Earlie) | [Fall 2019 Notebook](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit), [Spring 2020 Notebook](https://docs.google.com/document/d/191hM2TKbnvBdRZ5mPvVA5l0GHax2LF8Qagp38CCfnmA/edit) | [Observable Notebook](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://ethan-earlie.github.io/sbu-webgen/)  | ethan.earlie@stonybrook.edu |
+| [Hunter Jimenez](https://github.com/hunterjimenezsbu) | [notebook](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [Observable Notebook](https://observablehq.com/@huntsmna817/webgen) | hunter.jimenez@stonybrook.edu |
+| [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [notebook](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [observable notebook](https://observablehq.com/@zhenghaozhu/webgen) | zhenghao.zhu@stonybrook.edu |
+| [Ki Oh](https://github.com/KO-BMI) | | [observable notebook](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  ki.oh@stonybrookmedicine.edu |
+| [Shweta Sankaranarayanan](https://github.com/shweta98) | [docs notebook](https://docs.google.com/document/d/1HwBXeBZIZml27XivGczKvx8-qzy2ckKpikwXD4BLAwM/edit?usp=sharing) | [observable notebook](https://observablehq.com/@shweta98/webgen) | shweta.sankaranarayanan@stonybrook.edu |
+| [Adit Anand](https://github.com/19aanand) | [Google Docs Notebook](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Observable Notebook](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) | adit.anand@stonybrook.edu |
+| [Nayan Pasari](https://github.com/npasari) | [observable notebook](https://observablehq.com/@npasari) |  [nayan.pasari@stonybrook.edu](nayan.pasari@stonybrook.edu)| [notebook] (https://docs.google.com/document/d/1_kkYin5DIjNYtF-V1zWa_XXBUPlYzdKntx3vztvuXi0/edit)
 
 #### Alumni
   * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
@@ -66,7 +68,7 @@ Disciplines: Applied Mathematics and Statistics, Biomedical Engineering, Biomedi
 
 Interests / Preparation by Major: Pre-existing knowledge of programming, particularly JavaScript, will be favored as it indicates an innate interest in social coding (user-facing application development). This is applicable to all students, regardless of focus being on Mathematics or Molecular Biology.
 
-Faculty: 
+Faculty:
     Richard Moffitt (Department of Biomedical Informatics)
     Jonas S Almeida (Department of Biomedical Informatics)
 
