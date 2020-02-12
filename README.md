@@ -32,6 +32,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Ki Oh](https://github.com/KO-BMI) | | [observable notebook](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  ki.oh@stonybrookmedicine.edu |
 | [Shweta Sankaranarayanan](https://github.com/shweta98) | [docs notebook](https://docs.google.com/document/d/1HwBXeBZIZml27XivGczKvx8-qzy2ckKpikwXD4BLAwM/edit?usp=sharing) | [observable notebook](https://observablehq.com/@shweta98/webgen) | shweta.sankaranarayanan@stonybrook.edu |
 | [Adit Anand](https://github.com/19aanand) | [Google Docs Notebook](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Observable Notebook](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) | adit.anand@stonybrook.edu |
+| [Nayan Pasari](https://github.com/npasari) | [observable notebook](https://observablehq.com/@npasari) |  [nayan.pasari@stonybrook.edu](nayan.pasari@stonybrook.edu)| [notebook] (https://docs.google.com/document/d/1_kkYin5DIjNYtF-V1zWa_XXBUPlYzdKntx3vztvuXi0/edit)
 
 #### Alumni
   * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
