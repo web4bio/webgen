@@ -1,4 +1,4 @@
-// Function to set up data to use for a Plotly Histagram for each cohort and gene combination:
+// Function to set up data to use for a Plotly Histogram for each cohort and gene combination:
 
 getDataToPlotForHistogram = function(array, cohort_list_arg, gene_list_arg) {
   // Initialize results to return:
