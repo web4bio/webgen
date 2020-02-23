@@ -6,7 +6,7 @@
 
 // Master Function for Expression Frequency Distribution (EFD) Data to Plot:
 
-ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg) {
+getEFDdata = async function(cohort_list_arg, gene_list_arg) {
   // Getting mRNA-Seq data from GDC:
   var expressionArrayResults = await getExpressionArray(cohort_list_arg, gene_list_arg);
   var expressionArray = expressionArrayResults[0];
