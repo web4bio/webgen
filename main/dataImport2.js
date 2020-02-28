@@ -1,11 +1,12 @@
 // Function to get the gene expression data into a more usable form:
 
-getExpressionArray = async function(cohort_list_arg, gene_list_arg) {
+getExpressionArray = async function(cohortQuery, geneQuery) {
+
   // Initialize result to return:
   var expressionArray = [];
 
   // Run the fetch:
-  var TCGA_expression_JSON = await fetchExpressionData(cohort_list_arg, gene_list_arg);
+  var TCGA_expression_JSON = await fetchExpressionData(cohortQuery, geneQuery);
 
   // Check the fetch worked properly:
   if (TCGA_expression_JSON == '') {
@@ -17,11 +18,11 @@ getExpressionArray = async function(cohort_list_arg, gene_list_arg) {
 
   // Build a list of all cohort and gene combinations:
   var cohortGeneComboList = [];
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
   for (var k = 0; k < numCohorts; k++) {
     for (var h = 0; h < numGenes; h++) {
-      cohortGeneComboList.push([cohort_list_arg[k], gene_list_arg[h]]);
+      cohortGeneComboList.push([cohortQuery[k], geneQuery[h]]);
     };
   };
 

@@ -1,25 +1,28 @@
 // Function to fetch requested GDC RNA-seq data (i.e., expression) from Firebrowse for particular [cohort] and [gene]:
 
-fetchExpressionData = async function(cohort_list_arg, gene_list_arg) {
-  // Set up query:
+fetchExpressionData = async function(cohortQuery, geneQuery) {
+  
+  // Set up fields and host/endpoint urls:
   var queryJSON = {
       format: 'json',
-      cohort: cohort_list_arg,
-      gene: gene_list_arg,
+      cohort: cohortQuery,
+      gene: geneQuery,
       page: 1,
-      page_size: 2000 * cohort_list_arg.length * gene_list_arg.length,
+      page_size: 2000 * cohortQuery.length * geneQuery.length,
       sort_by: 'tcga_participant_barcode'                               // Allows order of individuals while sorting for cohort/gene sets later
   };
   const hosturl = 'https://firebrowse.herokuapp.com';
   const endpointurl='http://firebrowse.org/api/v1/Samples/mRNASeq';
 
-  // The code below is specific for expression data, and allows for querying multiple cohorts & genes at once.
-  var cohortQueryString = cohort_list_arg.join('%2C%20');
-  var geneQueryString = gene_list_arg.join('%2C');
+  // Querying multiple cohorts & genes at once:
+  // .join() creates and returns a new string by concatenating all of the elements in an array (or an array-like object), 
+  // separated by commas or a specified separator string
+  var cohortQueryString = cohortQuery.join(); 
+  var geneQueryString = geneQuery.join();
   var queryString = 'format=json&gene=' + geneQueryString + '&cohort=' + cohortQueryString + '&protocol=RSEM&page=' + 
   queryJSON.page.toString() + '&page_size=' + queryJSON.page_size.toString() + '&sort_by=' + queryJSON.sort_by;
 
-  // Performing8 fetch:
+  // Performing fetch:
   const result = await fetch(hosturl + '?' + endpointurl + '?' + queryString);
 
   // Monitoring the performance of the fetch:
