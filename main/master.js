@@ -6,9 +6,9 @@
 
 // Master Function for Expression Frequency Distribution (EFD) Data to Plot:
 
-ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg) {
+getEFDdata = async function(cohortQuery, geneQuery) {
   // Getting mRNA-Seq data from GDC:
-  var expressionArrayResults = await getExpressionArray(cohort_list_arg, gene_list_arg);
+  var expressionArrayResults = await getExpressionArray(cohortQuery, geneQuery);
   var expressionArray = expressionArrayResults[0];
   var emptyGenesArray = expressionArrayResults[1];
 
@@ -18,20 +18,20 @@ ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg) {
   };
 
   // Remove any genes with no mRNA-Seq results:
-  var gene_list_arg = gene_list_arg.filter(gene => emptyGenesArray.includes(gene) == false);
+  var geneQuery = geneQuery.filter(gene => emptyGenesArray.includes(gene) == false);
 
   // Get results to plot the heatmap:
-  var heatmapVar = getDataToPlotForHeatmap(expressionArray, cohort_list_arg, gene_list_arg);
+  var heatmapVar = getDataToPlotForHeatmap(expressionArray, cohortQuery, geneQuery);
   var dataToReturn = heatmapVar[0];
   var layoutToReturn = heatmapVar[1];
 
   // Get results to plot the normalized heatmap:
-  var normHeatmapVar = getDataToPlotForNormalizedAverageHeatmap(expressionArray, cohort_list_arg, gene_list_arg);
+  var normHeatmapVar = getDataToPlotForNormalizedAverageHeatmap(expressionArray, cohortQuery, geneQuery);
   dataToReturn.push(normHeatmapVar[0]);
   layoutToReturn.push(normHeatmapVar[1]);
 
   // Get results to plot the histograms:
-  var histogramVar = getDataToPlotForHistogram(expressionArray, cohort_list_arg, gene_list_arg);
+  var histogramVar = getDataToPlotForHistogram(expressionArray, cohortQuery, geneQuery);
   var histogramVarLength = histogramVar[0].length;
   for (var i = 0; i < histogramVarLength; i++) {
     dataToReturn.push(histogramVar[0][i]);

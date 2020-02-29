@@ -6,9 +6,9 @@
 
 // Master Function for Expression Frequency Distribution (EFD) Data to Plot:
 
-ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg) {
+ethan_getEFDdata = async function(cohortQuery, geneQuery) {
   // Getting mRNA-Seq data from GDC:
-  var expressionArrayResults = await getExpressionArray(cohort_list_arg, gene_list_arg);
+  var expressionArrayResults = await getExpressionArray(cohortQuery, geneQuery);
   var expressionArray = expressionArrayResults[0];
   var emptyGenesArray = expressionArrayResults[1];
 
@@ -18,20 +18,20 @@ ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg) {
   };
 
   // Remove any genes with no mRNA-Seq results:
-  var gene_list_arg = gene_list_arg.filter(gene => emptyGenesArray.includes(gene) == false);
+  var geneQuery = geneQuery.filter(gene => emptyGenesArray.includes(gene) == false);
 
   // Get results to plot the heatmap:
-  var heatmapVar = getDataToPlotForHeatmap(expressionArray, cohort_list_arg, gene_list_arg);
+  var heatmapVar = getDataToPlotForHeatmap(expressionArray, cohortQuery, geneQuery);
   var dataToReturn = heatmapVar[0];
   var layoutToReturn = heatmapVar[1];
 
   // Get results to plot the normalized heatmap:
-  var normHeatmapVar = getDataToPlotForNormalizedAverageHeatmap(expressionArray, cohort_list_arg, gene_list_arg);
+  var normHeatmapVar = getDataToPlotForNormalizedAverageHeatmap(expressionArray, cohortQuery, geneQuery);
   dataToReturn.push(normHeatmapVar[0]);
   layoutToReturn.push(normHeatmapVar[1]);
 
   // Get results to plot the histograms:
-  var histogramVar = getDataToPlotForHistogram(expressionArray, cohort_list_arg, gene_list_arg);
+  var histogramVar = getDataToPlotForHistogram(expressionArray, cohortQuery, geneQuery);
   var histogramVarLength = histogramVar[0].length;
   for (var i = 0; i < histogramVarLength; i++) {
     dataToReturn.push(histogramVar[0][i]);
@@ -47,22 +47,22 @@ ethan_getEFDdata = async function(cohort_list_arg, gene_list_arg) {
 
 // Async function to fetch requested RNA seq data from GDC with Firebrowse for particular cohort and gene:
 
-fetchData = async function(cohort_list_arg, gene_list_arg) {
+fetchData = async function(cohortQuery, geneQuery) {
   // Set up query:
   var queryJSON = {
       format: 'json',
-      gene: gene_list_arg,
-      cohort: cohort_list_arg,
+      gene: geneQuery,
+      cohort: cohortQuery,
       page: 1,
-      page_size: 2000*cohort_list_arg.length*gene_list_arg.length,
+      page_size: 2000*cohortQuery.length*geneQuery.length,
       sort_by: 'tcga_participant_barcode'                           // Allows order of individuals while sorting for cohort/gene sets later
   };
   const hosturl = 'https://firebrowse.herokuapp.com';
   const endpointurl='http://firebrowse.org/api/v1/Samples/mRNASeq';
 
   // The code below is specific for mRNA Seq data and allows for querying multiple cohorts & genes at once.
-  var cohortQueryString = cohort_list_arg.join('%2C%20');
-  var geneQueryString = gene_list_arg.join('%2C');
+  var cohortQueryString = cohortQuery.join('%2C%20');
+  var geneQueryString = geneQuery.join('%2C');
   var queryString = 'format=json&gene='+geneQueryString+'&cohort='+cohortQueryString+'&protocol=RSEM&page='+ 
   queryJSON.page.toString()+'&page_size='+queryJSON.page_size.toString()+'&sort_by='+queryJSON.sort_by;
 
@@ -82,12 +82,12 @@ fetchData = async function(cohort_list_arg, gene_list_arg) {
 
 
 // Function to get the gene expression data into a more usable form:
-getExpressionArray = async function(cohort_list_arg, gene_list_arg) {
+getExpressionArray = async function(cohortQuery, geneQuery) {
   // Initialize result to return:
   var expressionArray = [];
   
   // Run the fetch:
-  var TCGA_expression_JSON = await fetchData(cohort_list_arg,gene_list_arg);
+  var TCGA_expression_JSON = await fetchData(cohortQuery,geneQuery);
 
   // Check the fetched worked properly:
   if (TCGA_expression_JSON == '') {
@@ -99,11 +99,11 @@ getExpressionArray = async function(cohort_list_arg, gene_list_arg) {
 
   // Build a list of all cohort and gene combinations:
   var cohortGeneComboList = [];
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
   for (var k = 0; k < numCohorts; k ++) {
     for (var h = 0; h < numGenes; h ++) {
-      cohortGeneComboList.push([cohort_list_arg[k], gene_list_arg[h]]);
+      cohortGeneComboList.push([cohortQuery[k], geneQuery[h]]);
     };
   };
 
@@ -141,19 +141,19 @@ getExpressionArray = async function(cohort_list_arg, gene_list_arg) {
 };
 
 
-// Function to set up data to use for a Plotly Histagram for each cohort and gene combination:
-getDataToPlotForHistogram = function(array, cohort_list_arg, gene_list_arg) {
+// Function to set up data to use for a Plotly Histogram for each cohort and gene combination:
+getDataToPlotForHistogram = function(array, cohortQuery, geneQuery) {
   // Initialize results to return:
   var dataToPlotArray = [];
   var layoutArray = [];
 
   // Build a list of all cohort and gene combinations:
   var cohortGeneComboList = [];
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
   for (var k = 0; k < numCohorts; k ++) {
     for (var h = 0; h < numGenes; h ++) {
-      cohortGeneComboList.push([cohort_list_arg[k], gene_list_arg[h]]);
+      cohortGeneComboList.push([cohortQuery[k], geneQuery[h]]);
     };
   };
 
@@ -214,12 +214,12 @@ getDataToPlotForHistogram = function(array, cohort_list_arg, gene_list_arg) {
 
 
 // Function to set up data to plot a heat map for RNA Seq expression for the cohort and gene lists:
-getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
+getDataToPlotForHeatmap = function(array, cohortQuery, geneQuery) {
   // Create a heatmap for each cohort:  
 
   // Get number of cohorts and number of genes:
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
 
   // Initialize results to return:
   var dataToPlotArray = [];
@@ -242,7 +242,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
 
     // Buiild heatmap of gene expression values for all patients in the cohort:
     var dataToPlotTemp = [{
-      y: gene_list_arg,
+      y: geneQuery,
       z: expressionValuesTemp,
       type: 'heatmap',
       colorscale: 'RdBu',
@@ -252,7 +252,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
     // Set heatmap layout:
     var layoutTemp = {
       title: {
-        text:'Gene Expression Heatmap for '+cohort_list_arg[i],
+        text:'Gene Expression Heatmap for ' + cohortQuery[i],
         font: {
           family: 'Courier New, monospace',
           size: 24
@@ -271,14 +271,14 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
 
 
 // Function to set up data to plot a normalized heat map for RNA Seq expression for the cohort and gene lists:
-getDataToPlotForNormalizedAverageHeatmap = function(array, cohort_list_arg, gene_list_arg) {
+getDataToPlotForNormalizedAverageHeatmap = function(array, cohortQuery, geneQuery) {
   // Averaging function:
   let Average = arr => arr.reduce((a,b) => a+b,0)/arr.length;
   
   // Initialize Variables:
   var expressionValues = array;
-  var xValues = cohort_list_arg;
-  var yValues = gene_list_arg;
+  var xValues = cohortQuery;
+  var yValues = geneQuery;
   
   // Normalize all expression values after averaging:
   var expressionValuesNorm = [];
@@ -293,8 +293,8 @@ getDataToPlotForNormalizedAverageHeatmap = function(array, cohort_list_arg, gene
 
   // Set up expression values to fit the format of the heatmap:
   var expressionValuesToPlot = [];
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
   for (var j = 0; j < numGenes; j++) {
     var tempRow = [];
     for (var k = 0; k < numCohorts; k++) {
@@ -406,16 +406,16 @@ showWarning = function(emptyGeneArray_arg) {
 
 
 // This function checks that the user input cohort list is valid:
-checkCohortList = function(cohort_list_arg) {
+checkCohortList = function(cohortQuery) {
   // List of valid cohorts:
   var validCohortList = ['ACC','BLCA','BRCA','CESC','CHOL','COAD','COADREAD','DLBC','ESCA','FPPP','GBM','GBMLGG','HNSC',
                          'KICH','KIPAN','KIRC','KIRP','LAML','LGG','LIHC','LUAD','LUSC','MESO','OV','PAAD','PCPG','PRAD',
                          'READ','SARC','SKCM','STAD','STES','TGCT','THCA','THYM','UCEC','UCS','UVM'];
 
   // Check the cohort list:
-  numCohorts = cohort_list_arg.length;
+  numCohorts = cohortQuery.length;
   for (var i = 0; i < numCohorts; i++) {
-    var statusTemp = validCohortList.includes(cohort_list_arg[i]);
+    var statusTemp = validCohortList.includes(cohortQuery[i]);
     if (statusTemp == false) {
       return false;
     };

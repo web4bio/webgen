@@ -12,12 +12,12 @@ addElement = function(newDivID, oldDivID) {
 }
 
 
-// This function will remove the current div elements if they exist:
+// Removes the current div elements if they exist:
 removeElements = function() {
   var i = 1;
   var continueBool = true;
   while (continueBool == true) {
-    divToRemove = document.getElementById("div"+i);
+    divToRemove = document.getElementById("div" + i);
     if(divToRemove) {
       $(divToRemove).remove();
       i++;
@@ -28,20 +28,20 @@ removeElements = function() {
 };
 
 
-// This functino is to display the error message:
+// Displays the error message:
 showError = function(errorType) {
   // Create div1 and set it to be alert class:
   addElement('div1','div0');
   var divElement = document.getElementById('div1');
   divElement.className = 'alert';
 
-  // Create span clone from span0 to add to div1:
+  // Creates span clone from span0 to add to div1:
   var span = document.getElementById('span0');
   var spanElement = span.cloneNode(true);
   spanElement.setAttribute('id','span1');
   divElement.appendChild(spanElement);
 
-  // Add the error message to the div:
+  // Adds the error message to the div:
   if (errorType == 'geneError') {
     divElement.innerHTML += "Error: ".bold() + "Invalid Gene Fields for Query";
   } else if (errorType == 'cohortError') {
@@ -73,16 +73,16 @@ showWarning = function(emptyGeneArray_arg) {
 
 
 // This function checks that the user input cohort list is valid:
-checkCohortList = function(cohort_list_arg) {
+checkCohortList = function(cohortQuery) {
   // List of valid cohorts:
   var validCohortList = ['ACC','BLCA','BRCA','CESC','CHOL','COAD','COADREAD','DLBC','ESCA','FPPP','GBM','GBMLGG','HNSC',
                          'KICH','KIPAN','KIRC','KIRP','LAML','LGG','LIHC','LUAD','LUSC','MESO','OV','PAAD','PCPG','PRAD',
                          'READ','SARC','SKCM','STAD','STES','TGCT','THCA','THYM','UCEC','UCS','UVM'];
 
   // Check the cohort list:
-  numCohorts = cohort_list_arg.length;
+  numCohorts = cohortQuery.length;
   for (var i = 0; i < numCohorts; i++) {
-    var statusTemp = validCohortList.includes(cohort_list_arg[i]);
+    var statusTemp = validCohortList.includes(cohortQuery[i]);
     if (statusTemp == false) {
       return false;
     };
@@ -92,9 +92,9 @@ checkCohortList = function(cohort_list_arg) {
 };
 
 // This function counts the amount of genes
-amount = function(cohort_list_arg) {
+amount = function(cohortQuery) {
   var total = 0;
-  numCohorts = cohort_list_arg.length;
+  numCohorts = cohortQuery.length;
   for (var i = 0; i < numCohorts; i++) {
       total++;
   };

@@ -4,7 +4,7 @@ The JS files are now more modulated:
 
 1) master.js contains the master function communicating the user input from the HTML file to the helper JS functions to    fetch the correct mRNA-Seq data from the GDC using FireBrowse and Jonas' herokuapp. This function then returns the data to    build the Plotly Plots in the HTML Doc.
 
-2) dataImport.js contains the fetchmRNASeqData() function which is a function optimized for fetching mRNA-Seq data from    the GDC for the visualization processes to come later. This file also contains the getExpressionArray() function which        utlizes the fetchmRNASeqData() function to fetch data from the GDC and returns an array containing the expression arrays      for each cohort/gene combination, as well as information about genes that have missing mRNA-Seq data.
+2) dataImport.js contains the fetchExpressionData() function which is a function optimized for fetching mRNA-Seq data from    the GDC for the visualization processes to come later. This file also contains the getExpressionArray() function which        utlizes the fetchExpressionData() function to fetch data from the GDC and returns an array containing the expression arrays      for each cohort/gene combination, as well as information about genes that have missing mRNA-Seq data.
 
 3) mRNASeq_histogram.js contains the function for building the histograms for the mRNA-Seq data that is returned from      getExpressionArray().
 
@@ -15,4 +15,4 @@ The JS files are now more modulated:
 6) getExpressionJSONarray.js is a contains the function: ethan_getExpressionJSONarray(). This function
    is useful for inputing a list of cancer cohorts and a list of genes to get back an array of JSONs where each JSON
    contains the cohort, the gene, and RNA Sequencing data pulled from the GDC for that cohort & gene.
-   NOTE: This function is not involved in the current web app process and is not incorporated into the HTML file. This script          was solely developed to share. Also, this functions process for fetching the GDC data is not as optimized as the              fetchmRNASeqData() function is and will thus have lower performance for a larger number of cohorts & genes.
+   NOTE: This function is not involved in the current web app process and is not incorporated into the HTML file. This script          was solely developed to share. Also, this functions process for fetching the GDC data is not as optimized as the              fetchExpressionData() function is and will thus have lower performance for a larger number of cohorts & genes.

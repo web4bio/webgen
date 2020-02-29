@@ -1,11 +1,11 @@
 // Function to set up data to plot a heat map for RNA Seq expression for the cohort and gene lists:
 
-getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
+getDataToPlotForHeatmap = function(array, cohortQuery, geneQuery) {
   // Create a heatmap for each cohort:  
 
   // Get number of cohorts and number of genes:
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
 
   // Initialize results to return:
   var dataToPlotArray = [];
@@ -23,12 +23,12 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
     // Build an expression array for each cohort, containing the expression values of all genes given:
     var expressionValuesTemp = [];
     for (var j = 0; j < numGenes; j++){
-      expressionValuesTemp.push(array[j + i*numGenes]);                                   // z must have dimension: numPatients-by-numGenes
+      expressionValuesTemp.push(array[j + i * numGenes]);                                   // z must have dimension: numPatients-by-numGenes
     };
 
     // Buiild heatmap of gene expression values for all patients in the cohort:
     var dataToPlotTemp = [{
-      y: gene_list_arg,
+      y: geneQuery,
       z: expressionValuesTemp,
       type: 'heatmap',
       colorscale: 'RdBu',
@@ -38,7 +38,7 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
     // Set heatmap layout:
     var layoutTemp = {
       title: {
-        text:'Gene Expression Heatmap for '+cohort_list_arg[i],
+        text:'Gene Expression Heatmap for ' + cohortQuery[i],
         font: {
           family: 'Courier New, monospace',
           size: 24
@@ -57,14 +57,14 @@ getDataToPlotForHeatmap = function(array, cohort_list_arg, gene_list_arg) {
 
 
 // Function to set up data to plot a normalized heat map for RNA Seq expression for the cohort and gene lists:
-getDataToPlotForNormalizedAverageHeatmap = function(array, cohort_list_arg, gene_list_arg) {
+getDataToPlotForNormalizedAverageHeatmap = function(array, cohortQuery, geneQuery) {
   // Averaging function:
   let Average = arr => arr.reduce((a,b) => a+b,0)/arr.length;
   
   // Initialize Variables:
   var expressionValues = array;
-  var xValues = cohort_list_arg;
-  var yValues = gene_list_arg;
+  var xValues = cohortQuery;
+  var yValues = geneQuery;
   
   // Normalize all expression values after averaging:
   var expressionValuesNorm = [];
@@ -79,8 +79,8 @@ getDataToPlotForNormalizedAverageHeatmap = function(array, cohort_list_arg, gene
 
   // Set up expression values to fit the format of the heatmap:
   var expressionValuesToPlot = [];
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
   for (var j = 0; j < numGenes; j++) {
     var tempRow = [];
     for (var k = 0; k < numCohorts; k++) {

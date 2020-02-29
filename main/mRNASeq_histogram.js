@@ -1,17 +1,17 @@
-// Function to set up data to use for a Plotly Histagram for each cohort and gene combination:
+// Function to set up data to use for a Plotly Histogram for each cohort and gene combination:
 
-getDataToPlotForHistogram = function(array, cohort_list_arg, gene_list_arg) {
+getDataToPlotForHistogram = function(array, cohortQuery, geneQuery) {
   // Initialize results to return:
   var dataToPlotArray = [];
   var layoutArray = [];
 
   // Build a list of all cohort and gene combinations:
   var cohortGeneComboList = [];
-  var numCohorts = cohort_list_arg.length;
-  var numGenes = gene_list_arg.length;
-  for (var k = 0; k < numCohorts; k ++) {
-    for (var h = 0; h < numGenes; h ++) {
-      cohortGeneComboList.push([cohort_list_arg[k], gene_list_arg[h]]);
+  var numCohorts = cohortQuery.length;
+  var numGenes = geneQuery.length;
+  for (var k = 0; k < numCohorts; k++) {
+    for (var h = 0; h < numGenes; h++) {
+      cohortGeneComboList.push([cohortQuery[k], geneQuery[h]]);
     };
   };
 
