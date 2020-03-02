@@ -1,13 +1,11 @@
 <body>
 
-  <!-- Next Steps: Bring in control data for comparison and have distribution functions displayed better.-->
-
   <!--
-    Uses a user input for the cohort list and gene list. These input lists should be comma seperated values.
+    Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
   -->
 
   <!--
-    This code bellow is for import jobs.
+    Importing jobs:
   -->
   <head>
      <!-- Compiled and minified CSS -->
@@ -16,20 +14,19 @@
      <!-- Compiled and minified JavaScript -->
      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-     
-             
     <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="ethan_style.css">
-    <script type="text/javascript" src = "ethan_master.js"></script>
-    <script type="text/javascript" src = "ethan_data_import.js"></script>
-    <script type="text/javascript" src = "ethan_mRNASeq_histogram.js"></script>
-    <script type="text/javascript" src = "ethan_mRNASeq_heatmaps.js"></script>
-    <script type="text/javascript" src = "ethan_doc_manipulation.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript" src = "master.js"></script>
+    <script type="text/javascript" src = "fetchExpressionData.js"></script>
+    <script type="text/javascript" src = "dataImport2.js"></script>
+    <script type="text/javascript" src = "mRNASeq_histogram.js"></script>
+    <script type="text/javascript" src = "mRNASeq_heatmaps.js"></script>
+    <script type="text/javascript" src = "docManipulation.js"></script>
   </head>
   
   <!--
-    This code bellow sets up the main heading.
+    Setting up the main heading:
   -->
   <body>
       <div class="navbar-fixed">
@@ -45,9 +42,8 @@
       </div>
   
   <!--
-    This code bellow sets up the user input text fields and buttons.
+    Setting up the user input text fields and buttons.
   -->
-
   <div class="center-align">
       <div class="row center-align">
       <input class="center-align" id='cohort_list' placeholder="Enter List of Cancer Cohorts Here">
@@ -78,18 +74,13 @@
   </div>
 
   <!--
-    This code bellow initializes the first div element.
-  -->
-
-  <!--
-    This code bellow creates button for alert message on an error.
-  
+    Creating a button for alert message on an error:
   -->
   <span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
   
 
   <!--
-    This code bellow contains the JS code for building the plots to display.
+    The JS code for building the plots to display:
   -->
   <script type="text/javascript">
     // Wait for user input to build plots:
@@ -121,7 +112,7 @@
       }
 
       // Fetch RNA sequence data and display requested plots:
-      var dataToPlotInfo = ethan_getEFDdata(cohort_list, gene_list);
+      var dataToPlotInfo = getEFDdata(cohort_list, gene_list);
 
       // Once data is returned, build the plots:
       dataToPlotInfo.then(function(data) {
@@ -185,10 +176,10 @@
   </script>
 
   <!--
-    This code bellow is for if the user wants to use the example input cohort and gene lists.
+    Setting up the ability to use the example input cohort and gene lists:
   -->
   <script>
-  // This script is to set the cohort and gene list examples if the user clicks the use example button:
+  // Setting the cohort and gene list examples if the user clicks the use example button:
   function setExampleVars() {
       document.getElementById('cohort_list').value = 'BRCA, SARC';
       document.getElementById('gene_list').value = 'BRCA1, EGFR, KRAS, TP53';
@@ -200,12 +191,9 @@
     var options = {}
     var instance = M.Tabs.init(elem, options);
 </script>
-  
-
- 
 
   <!--
-    This code bellow is to display relevant hyperlinks for the page.
+    Displaying relevant hyperlinks for the page:
   -->
   <div id="links" class="relevantLinks">
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
