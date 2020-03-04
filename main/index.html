@@ -18,11 +18,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script type="text/javascript" src = "master.js"></script>
+<<<<<<< HEAD
     <script type="text/javascript" src = "fetchExpressionData.js"></script>
     <script type="text/javascript" src = "dataImport2.js"></script>
     <script type="text/javascript" src = "mRNASeq_histogram.js"></script>
     <script type="text/javascript" src = "mRNASeq_heatmaps.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
+=======
+    <script type="text/javascript" src = "dataImport.js"></script>
+    <script type="text/javascript" src = "mRNASeq_histogram.js"></script>
+    <script type="text/javascript" src = "mRNASeq_heatmaps.js"></script>
+    <script type="text/javascript" src = "docManipulation.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+>>>>>>> kevin_homepage_styling
   </head>
   
   <!--
@@ -41,6 +50,7 @@
           </nav>
       </div>
   
+<<<<<<< HEAD
   <!--
     Setting up the user input text fields and buttons.
   -->
@@ -50,26 +60,95 @@
       </div>
       <div class="row center-align">
       <input class="center-align" id='gene_list' placeholder="Enter List of Genes Here">
-      </div>
-    </div>
-  
-    <div class="center-align">
-        <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
-        <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='button1'>Submit</button>
-    </div>
+=======
+      <!-- <div class = "parent-container">
+        <div id = "left">
+          <select class="js-example-basic-single" name="state">
+            <option value="AL">Alabama</option>
+              ...
+            <option value="WY">Wyoming</option>
+          </select>
+        </div>
+        <div id = "right">
+          <select class="js-example-basic-single2" name="state">
+            <option value="AL">Alabama</option>
+              ...
+            <option value="WY">Wyoming</option>
+          </select>
+        </div>
+      </div> -->
 
-  <div class="tabs_container">  
-    <div class="row">
-      <ul class="tabs">
-        <li class="tab col s6"><a class="active" href="#test1">Heatmap</a></li>
-        <li class="tab col s6"><a href="#test2">Histogram</a></li>
-      </ul>
-      <div id="test1" class="col s12">
-        <div id=div0 style="margin-top:25px"></div>
+      <!-- <select class="js-example-basic-single" name="state" multiple="multiple" style = "width: 30%;">
+        <option value="AL">Alabama</option>
+        <option value="WY">Wyoming</option>
+      </select>
+
+      <select class="js-example-basic-single2" name="state" multiple="multiple" style = "width: 30%;">
+        <option value="AL">Alabama</option>
+        <option value="WY">Wyoming</option>
+      </select>
+
+      <select class="js-example-basic-single3" name="state" multiple="multiple" style = "width: 30%;">
+        <option value="AL">Alabama</option>
+        <option value="WY">Wyoming</option>
+      </select> -->
+
+      <div class = "parent-container">
+        <div id = "left">
+          <select class="js-example-basic-single" name="state" multiple="multiple" style = "width: 70%;">
+            <optgroup label = "Adrenal Gland">
+              <option value = "BRCA1">Adrenoid Cystic Carcinoma</option>
+            </optgroup>
+            <optgroup label = "Breast">
+              <option value = "BRCA1">Breast Fibroepithelial Tumors</option>
+              <option value = "BRCA2">Breast Invasive Carcinoma (Firehose)</option>
+              <option value = "BRCA2">Breast Invasive Carcinoma (Nature 2012)</option>
+            </optgroup>
+            <optgroup label = "CNS/Brain" id = "CNS-Brain">
+              <option value = "BRCA1">Brain Lower Grade Giloma (Firehose)</option>
+              <option value = "BRCA2">Glioblastoma (Firehose)</option>
+              <option value = "BRCA2">Medulloblastoma (Nature 2012)</option>
+              <option value = "BRCA2">Phechromocytoma and Paraganglioma (Firehose)</option>
+            </optgroup>
+            <optgroup label = "Prostate">
+              <option value = "BRCA1">Metastatic Prostate Adenocarcinoma (Nature 2012)</option>
+              <option value = "BRCA2">Prostate Adenocarcinoma (Nature 2017)</option>
+              <option value = "BRCA2">Prostate Adenocarcinoma (Firehose)</option>
+            </optgroup>
+            <optgroup label = "Thyroid">
+              <option value = "BRCA1">Poorly-Differentiated and Anaplastic Thyroid Cancers (JCI 2016)</option>
+              <option value = "BRCA2">Thyroid Carcinoma (Firehose)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div id = "right">
+          <select class="js-example-basic-single2" name="state" multiple="multiple" style = "width: 70%;">
+            <option value="gene1">gene1</option>
+            <option value="gene2">gene2</option>
+            <option value="gene3">gene3</option>
+            <option value="gene4">gene4</option>
+            <option value="gene5">gene5</option>
+            <option value="gene6">gene6</option>
+            <option value="gene1">gene7</option>
+            <option value="gene2">gene8</option>
+            <option value="gene3">gene9</option>
+            <option value="gene4">gene10</option>
+            <option value="gene5">gene11</option>
+            <option value="gene6">gene12</option>
+          </select>
+        </div>
+>>>>>>> kevin_homepage_styling
       </div>
-      <div id="test2" class="col s12">
-        <div id=divHisto0 style="margin-top:25px"></div>
+      
+      <div class = "homepage-button-container">
+        <div id = "homepage-button-container-left"></div>
+        <div id = "homepage-button-container-center">
+          <button>Submit Options</button>
+        </div>
+        <div id = "homepage-button-container-right"></div>
       </div>
+<<<<<<< HEAD
     </div>
   </div>
 
@@ -171,10 +250,25 @@
           }
         };
         document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
+=======
+
+  <script>
+    $(document).ready(function() {
+      $('.js-example-basic-single').select2({
+        placeholder: "Select Cancer Types/Subtypes"
       });
-    };
+      $('.js-example-basic-single2').select2({
+        placeholder: "Select Mutation(s)"
+>>>>>>> kevin_homepage_styling
+      });
+      $('.js-example-basic-single3').select2({
+        placeholder: "Select Graph Type(s)"
+      });
+      // $('.js-example-basic-single2').select2();
+    });
   </script>
 
+<<<<<<< HEAD
   <!--
     Setting up the ability to use the example input cohort and gene lists:
   -->
@@ -191,6 +285,13 @@
     var options = {}
     var instance = M.Tabs.init(elem, options);
 </script>
+=======
+
+  
+  
+
+ 
+>>>>>>> kevin_homepage_styling
 
   <!--
     Displaying relevant hyperlinks for the page:
