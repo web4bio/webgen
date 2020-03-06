@@ -1,5 +1,4 @@
-// Function to set up data to plot a heat map for RNA Seq expression for the cohort and gene lists:
-
+// Set up data to plot a heat map for RNA Seq expression for the cohort and gene lists:
 getDataToPlotForHeatmap = function(array, cohortQuery, geneQuery) {
   // Create a heatmap for each cohort:  
 
@@ -56,7 +55,7 @@ getDataToPlotForHeatmap = function(array, cohortQuery, geneQuery) {
 };
 
 
-// Function to set up data to plot a normalized heat map for RNA Seq expression for the cohort and gene lists:
+// Set up data to plot a normalized heat map for RNA Seq expression for the cohort and gene lists:
 getDataToPlotForNormalizedAverageHeatmap = function(array, cohortQuery, geneQuery) {
   // Averaging function:
   let Average = arr => arr.reduce((a,b) => a+b,0)/arr.length;

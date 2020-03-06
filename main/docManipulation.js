@@ -1,6 +1,5 @@
-// Function to append div elemnts to an HTML document with an existing div element with id='oldDivID'.
-// This function is useful for when you have a variable amount of plots to display on the page:
-
+// Append div elemnts to an HTML document with an existing div element with id='oldDivID'.
+// Useful for when you have a variable amount of plots to display on the page:
 addElement = function(newDivID, oldDivID) { 
   // create a new div element 
   var newDiv = document.createElement("div"); 
@@ -50,7 +49,7 @@ showError = function(errorType) {
 };
 
 
-// This function displays a warning for genes that don't have mRNA-Seq data:
+// Display a warning for genes that don't have mRNA-Seq data:
 showWarning = function(emptyGeneArray_arg) {
   // Create div1 and set it to be warning class:
   //addElement('div1','div0');
@@ -72,7 +71,7 @@ showWarning = function(emptyGeneArray_arg) {
 }
 
 
-// This function checks that the user input cohort list is valid:
+// Check that the user input cohort list is valid:
 checkCohortList = function(cohortQuery) {
   // List of valid cohorts:
   var validCohortList = ['ACC','BLCA','BRCA','CESC','CHOL','COAD','COADREAD','DLBC','ESCA','FPPP','GBM','GBMLGG','HNSC',
@@ -91,7 +90,7 @@ checkCohortList = function(cohortQuery) {
   return true;
 };
 
-// This function counts the amount of genes
+// Counts the amount of genes
 amount = function(cohortQuery) {
   var total = 0;
   numCohorts = cohortQuery.length;

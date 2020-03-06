@@ -66,7 +66,7 @@ fetchData = async function(cohortQuery, geneQuery) {
   var queryString = 'format=json&gene='+geneQueryString+'&cohort='+cohortQueryString+'&protocol=RSEM&page='+ 
   queryJSON.page.toString()+'&page_size='+queryJSON.page_size.toString()+'&sort_by='+queryJSON.sort_by;
 
-  // The code below monitors the perfomance of the fetch:
+  // Monitor the perfomance of the fetch:
   var fetchStart = performance.now();
 
   // Perform fetch:
@@ -81,7 +81,7 @@ fetchData = async function(cohortQuery, geneQuery) {
 };
 
 
-// Function to get the gene expression data into a more usable form:
+// Get the gene expression data into a more usable form:
 getExpressionArray = async function(cohortQuery, geneQuery) {
   // Initialize result to return:
   var expressionArray = [];
@@ -141,7 +141,7 @@ getExpressionArray = async function(cohortQuery, geneQuery) {
 };
 
 
-// Function to set up data to use for a Plotly Histogram for each cohort and gene combination:
+// Set up data to use for a Plotly Histogram for each cohort and gene combination:
 getDataToPlotForHistogram = function(array, cohortQuery, geneQuery) {
   // Initialize results to return:
   var dataToPlotArray = [];
@@ -213,7 +213,7 @@ getDataToPlotForHistogram = function(array, cohortQuery, geneQuery) {
 };
 
 
-// Function to set up data to plot a heat map for RNA Seq expression for the cohort and gene lists:
+// Set up data to plot a heat map for RNA Seq expression for the cohort and gene lists:
 getDataToPlotForHeatmap = function(array, cohortQuery, geneQuery) {
   // Create a heatmap for each cohort:  
 
@@ -270,7 +270,7 @@ getDataToPlotForHeatmap = function(array, cohortQuery, geneQuery) {
 };
 
 
-// Function to set up data to plot a normalized heat map for RNA Seq expression for the cohort and gene lists:
+// Set up data to plot a normalized heat map for RNA Seq expression for the cohort and gene lists:
 getDataToPlotForNormalizedAverageHeatmap = function(array, cohortQuery, geneQuery) {
   // Averaging function:
   let Average = arr => arr.reduce((a,b) => a+b,0)/arr.length;
@@ -332,7 +332,7 @@ getDataToPlotForNormalizedAverageHeatmap = function(array, cohortQuery, geneQuer
 };
 
 
-// Function to append div elemnts to an HTML document with an existing div element with id='oldDivID'.
+// Append div elemnts to an HTML document with an existing div element with id='oldDivID'.
 // This function is useful for when you have a variable amount of plots to display on the page:
 addElement = function(newDivID, oldDivID) { 
   // create a new div element 
@@ -345,7 +345,7 @@ addElement = function(newDivID, oldDivID) {
 }
 
 
-// This function will remove the current div elements if they exist:
+// Remove the current div elements if they exist:
 removeElements = function() {
   var i = 1;
   var continueBool = true;
@@ -361,7 +361,7 @@ removeElements = function() {
 };
 
 
-// This functino is to display the error message:
+// Display the error message:
 showError = function(errorType) {
   // Create div1 and set it to be alert class:
   addElement('div1','div0');
@@ -383,7 +383,7 @@ showError = function(errorType) {
 };
 
 
-// This function displays a warning for genes that don't have mRNA-Seq data:
+// Displays a warning for genes that don't have mRNA-Seq data:
 showWarning = function(emptyGeneArray_arg) {
   // Create div1 and set it to be warning class:
   //addElement('div1','div0');
@@ -405,7 +405,7 @@ showWarning = function(emptyGeneArray_arg) {
 }
 
 
-// This function checks that the user input cohort list is valid:
+// Check that the user input cohort list is valid:
 checkCohortList = function(cohortQuery) {
   // List of valid cohorts:
   var validCohortList = ['ACC','BLCA','BRCA','CESC','CHOL','COAD','COADREAD','DLBC','ESCA','FPPP','GBM','GBMLGG','HNSC',
