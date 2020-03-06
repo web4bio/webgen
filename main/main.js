@@ -8,7 +8,7 @@
 
 ethan_getEFDdata = async function(cohortQuery, geneQuery) {
   // Getting mRNA-Seq data from GDC:
-  var expressionArrayResults = await getExpressionArray(cohortQuery, geneQuery);
+  var expressionArrayResults = await getExpressionValuesOnly(cohortQuery, geneQuery);
   var expressionArray = expressionArrayResults[0];
   var emptyGenesArray = expressionArrayResults[1];
 
@@ -82,7 +82,7 @@ fetchData = async function(cohortQuery, geneQuery) {
 
 
 // Get the gene expression data into a more usable form:
-getExpressionArray = async function(cohortQuery, geneQuery) {
+getExpressionValuesOnly = async function(cohortQuery, geneQuery) {
   // Initialize result to return:
   var expressionArray = [];
   
