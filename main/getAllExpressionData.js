@@ -1,5 +1,15 @@
-// Fetch requested GDC RNA-seq data (i.e., expression) from Firebrowse for particular [cohort] and [gene]:
-fetchExpressionData = async function(cohortQuery, geneQuery) {
+// Returns the following mRNASeq-associated data from Firebrowse as a 1-D array, where each element of the array 
+// is associated with a particular cohort-gene pair. Selections of cohort and gene are made by the user.
+    // cohort
+    // expression_log2
+    // gene
+    // geneID
+    // protocol
+    // sample_type
+    // tcga_participant_barcode
+    // z-score
+
+getAllExpressionData = async function(cohortQuery, geneQuery) {
   
   // Set up host and endpoint urls
   const hosturl = 'https://firebrowse.herokuapp.com';
@@ -17,18 +27,17 @@ fetchExpressionData = async function(cohortQuery, geneQuery) {
   };
 
   // Assemble a string by concatenating all fields and field values for endpoint url
-    // .join() is used to concatenate multiple genes and/or cohorts, separated by commas
   const endpointurl_fieldsWithValues = 
       'format=' + endpointurl_presets.format + 
-      '&gene=' + geneQuery.join() + 
-      '&cohort=' + cohortQuery.join() + 
+      '&gene=' + geneQuery + 
+      '&cohort=' + cohortQuery + 
       '&protocol=' + endpointurl_presets.protocol +
       '&page=' + endpointurl_presets.page + 
       '&page_size=' + endpointurl_presets.page_size.toString() + 
       '&sort_by=' + endpointurl_presets.sort_by;
 
   // Fetch data from stitched api:
-  const fetchedExpressionData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues);
+  var fetchedExpressionData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues);
 
   // Monitor the performance of the fetch:
   const fetchStart = performance.now();
@@ -36,6 +45,11 @@ fetchExpressionData = async function(cohortQuery, geneQuery) {
   console.log("Performance of fetch: ");
   console.log(fetchTime);
 
-  return fetchedExpressionData.json();
+  // Check if the fetch worked properly:
+  if (fetchedExpressionData == '')
+      return ['Error: Invalid Input Fields for Query.', 0];
+  else {
+      return fetchedExpressionData.json();
+  }
 
 }
