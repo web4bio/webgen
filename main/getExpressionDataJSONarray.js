@@ -50,7 +50,7 @@ fetchExpressionData = async function(cohortQuery, geneQuery) {
   var queryString = 'format=json&gene='+geneQueryString+'&cohort='+cohortQueryString+'&protocol=RSEM&page='+ 
   queryJSON.page.toString()+'&page_size='+queryJSON.page_size.toString()+'&sort_by='+queryJSON.sort_by;
 
-  // The code below monitors the perfomance of the fetch:
+  // Monitor the perfomance of the fetch:
   var fetchStart = performance.now();
 
   // Perform fetch:
