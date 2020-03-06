@@ -18,20 +18,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script type="text/javascript" src = "master.js"></script>
-<<<<<<< HEAD
-    <script type="text/javascript" src = "fetchExpressionData.js"></script>
-    <script type="text/javascript" src = "dataImport2.js"></script>
-    <script type="text/javascript" src = "mRNASeq_histogram.js"></script>
-    <script type="text/javascript" src = "mRNASeq_heatmaps.js"></script>
-    <script type="text/javascript" src = "docManipulation.js"></script>
-=======
     <script type="text/javascript" src = "dataImport.js"></script>
     <script type="text/javascript" src = "mRNASeq_histogram.js"></script>
     <script type="text/javascript" src = "mRNASeq_heatmaps.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
->>>>>>> kevin_homepage_styling
   </head>
   
   <!--
@@ -50,17 +42,6 @@
           </nav>
       </div>
   
-<<<<<<< HEAD
-  <!--
-    Setting up the user input text fields and buttons.
-  -->
-  <div class="center-align">
-      <div class="row center-align">
-      <input class="center-align" id='cohort_list' placeholder="Enter List of Cancer Cohorts Here">
-      </div>
-      <div class="row center-align">
-      <input class="center-align" id='gene_list' placeholder="Enter List of Genes Here">
-=======
       <!-- <div class = "parent-container">
         <div id = "left">
           <select class="js-example-basic-single" name="state">
@@ -138,7 +119,6 @@
             <option value="gene6">gene12</option>
           </select>
         </div>
->>>>>>> kevin_homepage_styling
       </div>
       
       <div class = "homepage-button-container">
@@ -148,109 +128,6 @@
         </div>
         <div id = "homepage-button-container-right"></div>
       </div>
-<<<<<<< HEAD
-    </div>
-  </div>
-
-  <!--
-    Creating a button for alert message on an error:
-  -->
-  <span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
-  
-
-  <!--
-    The JS code for building the plots to display:
-  -->
-  <script type="text/javascript">
-    // Wait for user input to build plots:
-    function setVars() {
-      // Reset page formatting:
-      document.getElementById('div0').innerHTML="";
-      document.getElementById('links').style.position = 'absolute';                      // Move links to stay at the bottom of the page.
-      
-      // Removes existing divs if they're there:
-      removeElements();
-
-      // Display loader:
-      document.getElementById('div0').className = 'loader';                              // Create the loader.
-
-      // Set user input variables:
-      var cohort_list = document.getElementById('cohort_list').value.toUpperCase().split(',');  
-      var gene_list = document.getElementById('gene_list').value.toUpperCase().split(',');
-      var cohort_list = cohort_list.map(x => x.trim());
-      var gene_list = gene_list.map(x => x.trim());
-      var amountOfCohorts = amount(cohort_list);
-      console.log(amountOfCohorts);
-
-      // Check the cohort list to be valid:
-      validCohorts = checkCohortList(cohort_list);
-      if (validCohorts == false) {
-        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
-        showError('cohortError');
-        return;
-      }
-
-      // Fetch RNA sequence data and display requested plots:
-      var dataToPlotInfo = getEFDdata(cohort_list, gene_list);
-
-      // Once data is returned, build the plots:
-      dataToPlotInfo.then(function(data) {
-        //Check that the fetch worked:
-        if (data == 'Error: Invalid Input Fields for Query.') {
-          document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
-          showError('geneError');
-          return;
-        }
-
-        var dataToPlot = data[0];
-        var layoutArray = data[1];
-
-        // Get the genes with no mRNA-Seq data results:
-        var emptyGenesArray = data[2];
-        console.log(emptyGenesArray);
-        var j = 0;
-        if (emptyGenesArray.length > 0) {
-          var j = 1;
-        };
-
-
-        // Create plot for each gene/cohort combination:
-        var L = dataToPlot.length;
-        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
-        var histogramData = [];
-        var newDiv = document.createElement("myDiv"); 
-
-        for (var i = j; i < L+j; i ++) {
-          console.log("i = " + i);
-          if(i == 0)
-            Plotly.newPlot("div"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot
-          if (i>0 && i < 3) {
-            addElement("div"+i,"div"+(i-1));                                                 // append div
-            Plotly.newPlot("div"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot
-          };
-          // creates div for histograms
-          if(i == 3) {
-            addElement("divHisto"+i,"divHisto0");   
-            histogramData.push(dataToPlot[i-j]);
-            Plotly.newPlot("divHisto"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot                                           
-          }
-          // keeps adding to histogram divider
-          if(i > 3) {
-            addElement("divHisto"+i,"divHisto"+(i-1)); 
-            histogramData.push(dataToPlot[i-j]);  
-            Plotly.newPlot("divHisto"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot                                                                                     
-          }
-          if(i == (L+j-1)){
-          var histogramLayout = {
-            grid: {rows: 3, columns: 2, pattern: 'independent'},
-          };
-          var newDiv = document.createElement("myDiv"); 
-          addElement(newDiv, "divHisto10");
-          Plotly.newPlot(newDiv, histogramData, histogramLayout);
-          }
-        };
-        document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
-=======
 
   <script>
     $(document).ready(function() {
@@ -259,7 +136,6 @@
       });
       $('.js-example-basic-single2').select2({
         placeholder: "Select Mutation(s)"
->>>>>>> kevin_homepage_styling
       });
       $('.js-example-basic-single3').select2({
         placeholder: "Select Graph Type(s)"
@@ -268,30 +144,11 @@
     });
   </script>
 
-<<<<<<< HEAD
-  <!--
-    Setting up the ability to use the example input cohort and gene lists:
-  -->
-  <script>
-  // Setting the cohort and gene list examples if the user clicks the use example button:
-  function setExampleVars() {
-      document.getElementById('cohort_list').value = 'BRCA, SARC';
-      document.getElementById('gene_list').value = 'BRCA1, EGFR, KRAS, TP53';
-    };
-  </script>
-
-<script> 
-    var elem = document.querySelector('.tabs');
-    var options = {}
-    var instance = M.Tabs.init(elem, options);
-</script>
-=======
 
   
   
 
  
->>>>>>> kevin_homepage_styling
 
   <!--
     Displaying relevant hyperlinks for the page:
