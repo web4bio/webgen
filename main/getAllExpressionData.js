@@ -36,11 +36,14 @@ getAllExpressionData = async function(cohortQuery, geneQuery) {
       '&page_size=' + endpointurl_presets.page_size.toString() + 
       '&sort_by=' + endpointurl_presets.sort_by;
 
+    
+  // Monitor the performance of the fetch:
+  const fetchStart = performance.now();
+
   // Fetch data from stitched api:
   var fetchedExpressionData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues);
 
   // Monitor the performance of the fetch:
-  const fetchStart = performance.now();
   var fetchTime = performance.now() - fetchStart;
   console.log("Performance of fetch: ");
   console.log(fetchTime);
