@@ -18,10 +18,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script type="text/javascript" src = "master.js"></script>
-    <script type="text/javascript" src = "dataImport.js"></script>
+    <script type="text/javascript" src = "dataImport2.js"></script>
     <script type="text/javascript" src = "mRNASeq_histogram.js"></script>
     <script type="text/javascript" src = "mRNASeq_heatmaps.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
+    <script type="text/javascript" src = "populateSelectBoxes.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
   </head>
@@ -42,81 +43,43 @@
           </nav>
       </div>
   
-      <!-- <div class = "parent-container">
-        <div id = "left">
-          <select class="js-example-basic-single" name="state">
-            <option value="AL">Alabama</option>
-              ...
-            <option value="WY">Wyoming</option>
-          </select>
-        </div>
-        <div id = "right">
-          <select class="js-example-basic-single2" name="state">
-            <option value="AL">Alabama</option>
-              ...
-            <option value="WY">Wyoming</option>
-          </select>
-        </div>
-      </div> -->
-
-      <!-- <select class="js-example-basic-single" name="state" multiple="multiple" style = "width: 30%;">
-        <option value="AL">Alabama</option>
-        <option value="WY">Wyoming</option>
-      </select>
-
-      <select class="js-example-basic-single2" name="state" multiple="multiple" style = "width: 30%;">
-        <option value="AL">Alabama</option>
-        <option value="WY">Wyoming</option>
-      </select>
-
-      <select class="js-example-basic-single3" name="state" multiple="multiple" style = "width: 30%;">
-        <option value="AL">Alabama</option>
-        <option value="WY">Wyoming</option>
-      </select> -->
 
       <div class = "parent-container">
         <div id = "left">
-          <select class="js-example-basic-single" name="state" multiple="multiple" style = "width: 70%;">
+          <select class="cancer-type-select-box" id = "cancer-type-select-box" name="state" multiple="multiple" style = "width: 70%;">
             <optgroup label = "Adrenal Gland">
               <option value = "BRCA1">Adrenoid Cystic Carcinoma</option>
             </optgroup>
             <optgroup label = "Breast">
-              <option value = "BRCA1">Breast Fibroepithelial Tumors</option>
-              <option value = "BRCA2">Breast Invasive Carcinoma (Firehose)</option>
-              <option value = "BRCA2">Breast Invasive Carcinoma (Nature 2012)</option>
+              <option value = "Breast Fibroepithelial Tumors">Breast Fibroepithelial Tumors</option>
+              <option value = "Breast Invasive Carcinoma (Firehose)">Breast Invasive Carcinoma (Firehose)</option>
+              <option value = "Breast Invasive Carcinoma (Nature 2012)">Breast Invasive Carcinoma (Nature 2012)</option>
             </optgroup>
             <optgroup label = "CNS/Brain" id = "CNS-Brain">
-              <option value = "BRCA1">Brain Lower Grade Giloma (Firehose)</option>
-              <option value = "BRCA2">Glioblastoma (Firehose)</option>
-              <option value = "BRCA2">Medulloblastoma (Nature 2012)</option>
-              <option value = "BRCA2">Phechromocytoma and Paraganglioma (Firehose)</option>
+              <option value = "Brain Lower Grade Giloma (Firehose)">Brain Lower Grade Giloma (Firehose)</option>
+              <option value = "Glioblastoma (Firehose)">Glioblastoma (Firehose)</option>
+              <option value = "Medulloblastoma (Nature 2012)">Medulloblastoma (Nature 2012)</option>
+              <option value = "Phechromocytoma and Paraganglioma (Firehose)">Phechromocytoma and Paraganglioma (Firehose)</option>
+            </optgroup>
+            <optgroup label = "Pancreas">
+              <option value = "PAAD Basal">Basal</option>
+              <option value = "PAAD Classical">Classical</option>
             </optgroup>
             <optgroup label = "Prostate">
-              <option value = "BRCA1">Metastatic Prostate Adenocarcinoma (Nature 2012)</option>
-              <option value = "BRCA2">Prostate Adenocarcinoma (Nature 2017)</option>
-              <option value = "BRCA2">Prostate Adenocarcinoma (Firehose)</option>
+              <option value = "Metastatic Prostate Adenocarcinoma (Nature 2012)">Metastatic Prostate Adenocarcinoma (Nature 2012)</option>
+              <option value = "Prostate Adenocarcinoma (Nature 2017)">Prostate Adenocarcinoma (Nature 2017)</option>
+              <option value = "Prostate Adenocarcinoma (Firehose)">Prostate Adenocarcinoma (Firehose)</option>
             </optgroup>
             <optgroup label = "Thyroid">
-              <option value = "BRCA1">Poorly-Differentiated and Anaplastic Thyroid Cancers (JCI 2016)</option>
-              <option value = "BRCA2">Thyroid Carcinoma (Firehose)</option>
+              <option value = "Poorly-Differentiated and Anaplastic Thyroid Cancers (JCI 2016)">Poorly-Differentiated and Anaplastic Thyroid Cancers (JCI 2016)</option>
+              <option value = "Thyroid Carcinoma (Firehose)">Thyroid Carcinoma (Firehose)</option>
             </optgroup>
           </select>
         </div>
 
         <div id = "right">
-          <select class="js-example-basic-single2" name="state" multiple="multiple" style = "width: 70%;">
-            <option value="gene1">gene1</option>
-            <option value="gene2">gene2</option>
-            <option value="gene3">gene3</option>
-            <option value="gene4">gene4</option>
-            <option value="gene5">gene5</option>
-            <option value="gene6">gene6</option>
-            <option value="gene1">gene7</option>
-            <option value="gene2">gene8</option>
-            <option value="gene3">gene9</option>
-            <option value="gene4">gene10</option>
-            <option value="gene5">gene11</option>
-            <option value="gene6">gene12</option>
+          <select class="gene-type-select-box" id = "gene-type-select-box" name="state" multiple="multiple" style = "width: 70%;">
+            <!-- Javascript will dynamically fill this select box -->
           </select>
         </div>
       </div>
@@ -124,18 +87,20 @@
       <div class = "homepage-button-container">
         <div id = "homepage-button-container-left"></div>
         <div id = "homepage-button-container-center">
-          <button>Submit Options</button>
+          <button id = "submit-options-button">Submit Options</button>
         </div>
         <div id = "homepage-button-container-right"></div>
       </div>
 
   <script>
     $(document).ready(function() {
-      $('.js-example-basic-single').select2({
-        placeholder: "Select Cancer Types/Subtypes"
+      $('.cancer-type-select-box').select2({
+        placeholder: "Select Cancer Types/Subtypes",
+        tags: true
       });
-      $('.js-example-basic-single2').select2({
-        placeholder: "Select Mutation(s)"
+      $('.gene-type-select-box').select2({
+        placeholder: "Select Mutation(s)",
+        tags: true
       });
       $('.js-example-basic-single3').select2({
         placeholder: "Select Graph Type(s)"
