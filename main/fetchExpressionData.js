@@ -9,6 +9,7 @@
     // tcga_participant_barcode
     // z-score
 
+// Function to fetch expression data from firebrowse:
 fetchExpressionData = async function(cohortQuery, geneQuery) {
   
   // Set up host and endpoint urls

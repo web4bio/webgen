@@ -1,12 +1,13 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
 // indepVarType is the type of independent variable for the plot (probably either 'cohort' or 'mutatedGene')
+    // NOTE: The function is currently only set to handle indepVarType='cohort'
 // indepVar is the independent variable (ex1: 'PAAD', ex2: 'TP53')
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
 
-// NOTE: This function will only build one heatmap for a given indepVar. If there are multiple independent variable to visualize
-// (ex: 'PAAD' and 'SARC') then this function could be could iteratively for each independent variable to construct multipl plots
+// NOTE: This function will only build one heatmap for a given indepVar. If there are multiple independent variables to visualize
+// (ex: 'PAAD' and 'SARC') then this function could be called iteratively for each independent variable to construct multiple plots
 
 createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
 
@@ -19,7 +20,7 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
             width = 1250 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    // Define minZ and maxZ for the color interpolator:
+    // Define minZ and maxZ for the color interpolator (this may become a user defined value later on):
     var minZ = -2
     var maxZ = 2
 
