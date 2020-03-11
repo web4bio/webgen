@@ -14,6 +14,15 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
     var myGroups = d3.map(dataInput, function(d){return d.tcga_participant_barcode;}).keys();
     var myVars = d3.map(dataInput, function(d){return d.gene;}).keys();
 
+    // Set up the figure dimensions:
+        var margin = {top: 80, right: 30, bottom: 30, left: 60},
+            width = 1250 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+    // Define minZ and maxZ for the color interpolator:
+    var minZ = -2
+    var maxZ = 2
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////// Build the Axis and Color Scales Below ///////////////////////////////////////////////////
@@ -45,7 +54,7 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
         .select(".domain").remove()
 
     // Position scale for the legend:
-    var yScale = d3.scaleLinear().domain([-2, 2]).range([height,0]);
+    var yScale = d3.scaleLinear().domain([minZ, maxZ]).range([height,0]);
     var legendAxis = d3.axisRight()
         .scale(yScale)
         .tickSize(5)
@@ -59,16 +68,16 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
 
     // Create arr array to build legend:
     var arr = [];
-    var step = (4) / (1000 - 1);
+    var step = (maxZ - minZ) / (1000 - 1);
     for (var i = 0; i < 1000; i++) {
-      arr.push(-2 + (step * i));
+      arr.push(minZ + (step * i));
     };
 
     // Build color scale
     interpolateRdBkGn = d3.interpolateRgbBasis(["green","black","red"])
     var myColor = d3.scaleSequential()
         .interpolator(interpolateRdBkGn)                          // A different d3 interpolator can be used here for a different color gradient
-        .domain([-2, 2])                                          // This domain scale will change the coloring of the heatmap.
+        .domain([minZ, maxZ])                                          // This domain scale will change the coloring of the heatmap.
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +95,7 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
     
     // Build the scroll over tool:
     // create a tooltip
-    var tooltip = d3.select("body")
+    var tooltip = d3.select("#heatmapRef")
         .append("div")
         .style("opacity", 0)
         .attr("class", "tooltip")

@@ -23,7 +23,7 @@
 // then use the .then(function(finalResult)) method to use the finalResult inside the Promise that is returned.
 
 getExpressionDataJSONarray  = async function(cohortQuery, geneQuery) {
-  var dataFetched = await getAllExpressionData(cohortQuery,geneQuery);
+  var dataFetched = await fetchExpressionData(cohortQuery,geneQuery);
   var results = dataFetched.mRNASeq;
 
   return await results;

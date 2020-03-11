@@ -1,4 +1,4 @@
-// Returns the following mRNASeq-associated data from Firebrowse as a 1-D array, where each element of the array 
+// Executes a fetch for the following mRNASeq-associated data from Firebrowse as a 1-D array, where each element of the array 
 // is associated with a particular cohort-gene pair. Selections of cohort and gene are made by the user.
     // cohort
     // expression_log2
@@ -9,7 +9,7 @@
     // tcga_participant_barcode
     // z-score
 
-getAllExpressionData = async function(cohortQuery, geneQuery) {
+fetchExpressionData = async function(cohortQuery, geneQuery) {
   
   // Set up host and endpoint urls
   const hosturl = 'https://firebrowse.herokuapp.com';

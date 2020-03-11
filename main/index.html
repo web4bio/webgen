@@ -8,20 +8,26 @@
     Importing jobs:
   -->
   <head>
-     <!-- Compiled and minified CSS -->
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-     <!-- Compiled and minified JavaScript -->
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <!-- Load color palettes -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
     <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script type="text/javascript" src = "master.js"></script>
-    <script type="text/javascript" src = "getAllExpressionData.js"></script>
-    <script type="text/javascript" src = "getExpressionValuesOnly.js"></script>
-    <script type="text/javascript" src = "mRNASeq_histogram.js"></script>
-    <script type="text/javascript" src = "mRNASeq_heatmaps.js"></script>
+    <script type="text/javascript" src = "fetchExpressionData.js"></script>
+    <script type="text/javascript" src = "getExpressionDataJSONarray.js"></script>
+    <script type="text/javascript" src = "createHeatmap.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
   </head>
   
@@ -46,10 +52,10 @@
   -->
   <div class="center-align">
       <div class="row center-align">
-      <input class="center-align" id='cohort_list' placeholder="Enter List of Cancer Cohorts Here">
+      <input class="center-align" id='cohortQuery' placeholder="Enter List of Cancer Cohorts Here">
       </div>
       <div class="row center-align">
-      <input class="center-align" id='gene_list' placeholder="Enter List of Genes Here">
+      <input class="center-align" id='geneQuery' placeholder="Enter List of Genes Here">
       </div>
     </div>
   
@@ -61,14 +67,14 @@
   <div class="tabs_container">  
     <div class="row">
       <ul class="tabs">
-        <li class="tab col s6"><a class="active" href="#test1">Heatmap</a></li>
-        <li class="tab col s6"><a href="#test2">Histogram</a></li>
+        <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
+        <li class="tab col s6"><a href="#boxWhiskRef">Box and Whisker Plots</a></li>
       </ul>
-      <div id="test1" class="col s12">
+      <div id="heatmapRef" class="col s12">
         <div id=div0 style="margin-top:25px"></div>
       </div>
-      <div id="test2" class="col s12">
-        <div id=divHisto0 style="margin-top:25px"></div>
+      <div id="boxWhiskRef" class="center-align">
+        <div id=divBoxWhisk0 style="margin-top:25px"></div>
       </div>
     </div>
   </div>
@@ -87,24 +93,24 @@
     function setVars() {
       // Reset page formatting:
       document.getElementById('div0').innerHTML="";
-      document.getElementById('links').style.position = 'absolute';                      // Move links to stay at the bottom of the page.
+      //document.getElementById('links').style.position = 'absolute';                      // Move links to stay at the bottom of the page.
       
-      // Removes existing divs if they're there:
-      removeElements();
+      // Removes existing div and svg elements if they're there:
+      removeDIVelements();
+      removeSVGelements();
 
       // Display loader:
       document.getElementById('div0').className = 'loader';                              // Create the loader.
 
       // Set user input variables:
-      var cohort_list = document.getElementById('cohort_list').value.toUpperCase().split(',');  
-      var gene_list = document.getElementById('gene_list').value.toUpperCase().split(',');
-      var cohort_list = cohort_list.map(x => x.trim());
-      var gene_list = gene_list.map(x => x.trim());
-      var amountOfCohorts = amount(cohort_list);
-      console.log(amountOfCohorts);
+      var cohortQuery = document.getElementById('cohortQuery').value.toUpperCase().split(',');  
+      var geneQuery = document.getElementById('geneQuery').value.toUpperCase().split(',');
+      var cohortQuery = cohortQuery.map(x => x.trim());
+      var geneQuery = geneQuery.map(x => x.trim());
+      var amountOfCohorts = amount(cohortQuery);
 
       // Check the cohort list to be valid:
-      validCohorts = checkCohortList(cohort_list);
+      validCohorts = checkCohortList(cohortQuery);
       if (validCohorts == false) {
         document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
         showError('cohortError');
@@ -112,65 +118,81 @@
       }
 
       // Fetch RNA sequence data and display requested plots:
-      var dataToPlotInfo = getEFDdata(cohort_list, gene_list);
+      var dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
 
       // Once data is returned, build the plots:
       dataToPlotInfo.then(function(data) {
-        //Check that the fetch worked:
+        // Check that the fetch worked:
         if (data == 'Error: Invalid Input Fields for Query.') {
           document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
           showError('geneError');
           return;
         }
+        
+        // If the fetched worked, build the plots:
 
-        var dataToPlot = data[0];
-        var layoutArray = data[1];
-
-        // Get the genes with no mRNA-Seq data results:
-        var emptyGenesArray = data[2];
-        console.log(emptyGenesArray);
-        var j = 0;
-        if (emptyGenesArray.length > 0) {
-          var j = 1;
+        // Display Warning for any infalid genes:
+        var myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
+        var emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
+        if (emptyGeneArray.length > 0) {
+          showWarning(emptyGeneArray)
         };
 
+        // Set up the figure dimensions:
+        var margin = {top: 80, right: 30, bottom: 30, left: 60},
+            width = 1250 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
 
-        // Create plot for each gene/cohort combination:
-        var L = dataToPlot.length;
         document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
-        var histogramData = [];
-        var newDiv = document.createElement("myDiv"); 
 
-        for (var i = j; i < L+j; i ++) {
-          console.log("i = " + i);
-          if(i == 0)
-            Plotly.newPlot("div"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot
-          if (i>0 && i < 3) {
-            addElement("div"+i,"div"+(i-1));                                                 // append div
-            Plotly.newPlot("div"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot
-          };
-          // creates div for histograms
-          if(i == 3) {
-            addElement("divHisto"+i,"divHisto0");   
-            histogramData.push(dataToPlot[i-j]);
-            Plotly.newPlot("divHisto"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot                                           
-          }
-          // keeps adding to histogram divider
-          if(i > 3) {
-            addElement("divHisto"+i,"divHisto"+(i-1)); 
-            histogramData.push(dataToPlot[i-j]);  
-            Plotly.newPlot("divHisto"+i, dataToPlot[i-j], layoutArray[i-j], {responsive: true});  // Create plot                                                                                     
-          }
-          if(i == (L+j-1)){
-          var histogramLayout = {
-            grid: {rows: 3, columns: 2, pattern: 'independent'},
-          };
-          var newDiv = document.createElement("myDiv"); 
-          addElement(newDiv, "divHisto10");
-          Plotly.newPlot(newDiv, histogramData, histogramLayout);
-          }
+        // Build a heatmap for each cancer cohort:
+        console.log(cohortQuery.length);
+        for (var i=0; i< cohortQuery.length; i++) {
+            
+            // Append an svg object:
+            var svg = d3.select("#heatmapRef").append("svg")
+                .attr("viewBox", `0 0 1250 500`)
+                //.attr("width", width + margin.left + margin.right)
+                //.attr("height", height + margin.top + margin.bottom)
+                .attr("id", 'svg'+i)
+                .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+            // Filter the data for the given cohort:
+            var dataFiltered = data.filter(function(d) {return d.cohort == cohortQuery[i]});
+
+            // Create the heatmap:
+            createHeatmap('cohort', cohortQuery[i], dataFiltered, svg);
         };
-        document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
+
+        // Box and Whisker Plot to be added below:
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Below is dummy data to display an example box and whisker plot for the time being:
+        var y0 = []
+        var y1 = [];
+        for (var i = 0; i < 50; i ++) {
+          y0[i] = Math.random();
+          y1[i] = Math.random() + 1;
+        }
+        var trace1 = {
+          y: y0,
+          type: 'box'
+        };
+        var trace2 = {
+          y: y1,
+          type: 'box'
+        };
+        var dataBoxPlot = [trace1, trace2];
+        var layout = {
+        title: 'd3 Gene Expression Box and Whisker Plot to Added Here'
+        };
+        Plotly.newPlot(divBoxWhisk0, dataBoxPlot, layout, {responsive:true});
+        // Above is dummy data to display an example box and whisker plot for the time being:
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        //document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
       });
     };
   </script>
@@ -181,8 +203,8 @@
   <script>
   // Setting the cohort and gene list examples if the user clicks the use example button:
   function setExampleVars() {
-      document.getElementById('cohort_list').value = 'BRCA, SARC';
-      document.getElementById('gene_list').value = 'BRCA1, EGFR, KRAS, TP53';
+      document.getElementById('cohortQuery').value = 'BRCA, SARC';
+      document.getElementById('geneQuery').value = 'BRCA1, EGFR, KRAS, TP53';
     };
   </script>
 
@@ -194,7 +216,7 @@
 
   <!--
     Displaying relevant hyperlinks for the page:
-  -->
+  
   <div id="links" class="relevantLinks">
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <a href="https://github.com/web4bio/webgen">Team GitHub Page</a>
@@ -205,5 +227,6 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <a href="http://firebrowse.org/">Firebrowse by the Broad Institute</a>
   </div>
+  -->
 
 </body>
