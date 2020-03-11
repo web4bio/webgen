@@ -12,13 +12,28 @@ addElement = function(newDivID, oldDivID) {
 
 
 // Removes the current div elements if they exist:
-removeElements = function() {
+removeDIVelements = function() {
   var i = 1;
   var continueBool = true;
   while (continueBool == true) {
     divToRemove = document.getElementById("div" + i);
     if(divToRemove) {
       $(divToRemove).remove();
+      i++;
+    } else {
+      var continueBool = false;
+    };
+  };
+};
+
+// Removes the current svg elements if they exist:
+removeSVGelements = function() {
+  var i = 0;
+  var continueBool = true;
+  while (continueBool == true) {
+    svgToRemove = document.getElementById("svg" + i);
+    if(svgToRemove) {
+      $(svgToRemove).remove();
       i++;
     } else {
       var continueBool = false;
