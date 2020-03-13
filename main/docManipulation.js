@@ -28,6 +28,7 @@ removeDIVelements = function() {
 
 // Function to remove the current svg elements if they exist:
 removeSVGelements = function() {
+  var i = 0;
   var continueBool = true;
   while (continueBool == true) {
     svgToRemove = document.getElementById("svgHeatMap");
