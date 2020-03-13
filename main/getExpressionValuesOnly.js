@@ -1,10 +1,7 @@
 // Returns a 2-D array, where each element in the first (outer) level of the array is a cohort-gene pair, and each 
 // element in the second (inner) level of the array is an expression_log2 value. 
 // Information about genes that have missing mRNA-Seq data is also returned.
-  // NOTE: This function will likely not be usef much if at all for future functionalities and 
-  //       The getExpressionDataJSONarray.js function is preferable 
 
-// Function to get only the expression values in a nested array with no other data attached:
 getExpressionValuesOnly = async function(cohortQuery, geneQuery) {
 
   // expressionDataTemp is a 1-D array where each element provides data for a cohort-gene pair for a tcga_participant

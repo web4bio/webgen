@@ -57,27 +57,18 @@
       <input class="center-align" id='geneQuery' placeholder="Enter List of Genes Here">
       </div>
     </div>
-    
-    <!--
-    Setting up the buttons.
-  -->
+  
     <div class="center-align">
         <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
         <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='button1'>Submit</button>
     </div>
-  
-  <!--
-    Setting up the tabs.
-  -->
+
   <div class="tabs_container">  
     <div class="row">
       <ul class="tabs">
         <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
         <li class="tab col s6"><a href="#boxWhiskRef">Box and Whisker Plots</a></li>
       </ul>
-      <!--
-        Setting up the plots to go under each tab.
-      -->
       <div id="heatmapRef" class="col s12">
         <div id=div0 style="margin-top:25px"></div>
       </div>
@@ -101,6 +92,7 @@
     function setVars() {
       // Reset page formatting:
       document.getElementById('div0').innerHTML="";
+      //document.getElementById('links').style.position = 'absolute';                      // Move links to stay at the bottom of the page.
       
       // Removes existing div and svg elements if they're there:
       removeDIVelements();
@@ -138,7 +130,7 @@
         
         // If the fetched worked, build the plots:
 
-        // Display Warning for any invalid genes:
+        // Display Warning for any infalid genes:
         var myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
         var emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
         if (emptyGeneArray.length > 0) {
@@ -153,11 +145,14 @@
         document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
 
         // Build a heatmap for each cancer cohort:
+        console.log(cohortQuery.length);
         for (var i=0; i< cohortQuery.length; i++) {
             
             // Append an svg object:
             var svg = d3.select("#heatmapRef").append("svg")
-                .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
+                .attr("viewBox", `0 0 1250 500`)
+                //.attr("width", width + margin.left + margin.right)
+                //.attr("height", height + margin.top + margin.bottom)
                 .attr("id", 'svg'+i)
                 .append("g")
                 .attr("transform",
@@ -212,13 +207,25 @@
     };
   </script>
 
-<!--
-    Setting tabs:
-  -->
 <script> 
     var elem = document.querySelector('.tabs');
     var options = {}
     var instance = M.Tabs.init(elem, options);
 </script>
+
+  <!--
+    Displaying relevant hyperlinks for the page:
+  
+  <div id="links" class="relevantLinks">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://github.com/web4bio/webgen">Team GitHub Page</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University's VIP Page</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://portal.gdc.cancer.gov">NCI's Genomic Data Commons</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="http://firebrowse.org/">Firebrowse by the Broad Institute</a>
+  </div>
+  -->
 
 </body>
