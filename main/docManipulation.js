@@ -31,7 +31,7 @@ removeSVGelements = function() {
   var i = 0;
   var continueBool = true;
   while (continueBool == true) {
-    svgToRemove = document.getElementById("svg" + i);
+    svgToRemove = document.getElementById("svgHeatMap");
     if(svgToRemove) {
       $(svgToRemove).remove();
       i++;

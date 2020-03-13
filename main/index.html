@@ -152,26 +152,19 @@
 
         document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
 
-        // Build a heatmap for each cancer cohort:
-        for (var i=0; i< cohortQuery.length; i++) {
-            
-            // Append an svg object:
-            var svg = d3.select("#heatmapRef").append("svg")
-                .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
-                .attr("id", 'svg'+i)
-                .append("g")
-                .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
+        // Build the heatmap:
+        // Append an svg object:
+        var svg = d3.select("#heatmapRef").append("svg")
+            .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
+            .attr("id", 'svgHeatMap')
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
 
-            // Filter the data for the given cohort:
-            var dataFiltered = data.filter(function(d) {return d.cohort == cohortQuery[i]});
-
-            // Create the heatmap:
-            createHeatmap('cohort', cohortQuery[i], dataFiltered, svg);
-        };
+        // Create the heatmap:
+        createHeatmap('cohort', cohortQuery, data, svg);
 
         // Box and Whisker Plot to be added below:
-
         /////////////////////////////////////////////////////////////////////////////////////
         // Below is dummy data to display an example box and whisker plot for the time being:
         var y0 = []
