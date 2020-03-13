@@ -6,10 +6,7 @@
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
 
-// NOTE: This function will only build one heatmap for a given indepVar. If there are multiple independent variables to visualize
-// (ex: 'PAAD' and 'SARC') then this function could be called iteratively for each independent variable to construct multiple plots
-
-createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
+createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
 
     // Set the columns to be the set of TCGA Patient Barcodes names 'myGroups' and the rows to be the set of expression z-score's called 'myVars'
     var myGroups = d3.map(dataInput, function(d){return d.tcga_participant_barcode;}).keys();
@@ -75,7 +72,7 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
     };
 
     // Build color scale
-    interpolateRdBkGn = d3.interpolateRgbBasis(["green","black","red"])
+    interpolateRdBkGn = d3.interpolateRgbBasis(["blue","white","red"])
     var myColor = d3.scaleSequential()
         .interpolator(interpolateRdBkGn)                          // A different d3 interpolator can be used here for a different color gradient
         .domain([minZ, maxZ])                                          // This domain scale will change the coloring of the heatmap.
@@ -117,7 +114,9 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
     var mousemove = function(d) {
         tooltip
         // Choose what the tooltip will display (this can be customized to display other data):
-        .html("Expression Level: " + d.expression_log2.toFixed(5) +' , '+ "Expression Z Score: " + d["z-score"].toFixed(5))
+        .html("Expression Level: " + d.expression_log2.toFixed(5) +' , '+ 
+              "Expression Z Score: " + d["z-score"].toFixed(5) +' , '+
+              "Cohort: " +d.cohort)
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")
     }
@@ -196,7 +195,7 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
             .attr("y", -25)
             .attr("text-anchor", "left")
             .style("font-size", "26px")
-            .text("Gene Expression Heatmap for "+indepVar)
+            .text("Gene Expression Heatmap for "+indepVars.join(' and '))
 
     } else if (indepVarType == 'mutatedGene') {
 
@@ -206,7 +205,7 @@ createHeatmap = async function(indepVarType, indepVar, dataInput, svgObject) {
         .attr("y", -25)
         .attr("text-anchor", "left")
         .style("font-size", "26px")
-        .text("Gene Expression Heatmap for Patients with a mutated "+indepVar+" Gene")
+        .text("Gene Expression Heatmap for Patients with a mutated "+indepVars+" Gene")
     };
 
 
