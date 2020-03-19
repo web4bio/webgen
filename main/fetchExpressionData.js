@@ -23,7 +23,7 @@ fetchExpressionData = async function(cohortQuery, geneQuery) {
       cohort: cohortQuery,     
       protocol: 'RSEM',
       page: '1',
-      page_size: 2000 * cohortQuery.length * geneQuery.length,
+      page_size: 2001,
       sort_by: 'tcga_participant_barcode' 
   };
 
