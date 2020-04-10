@@ -23,6 +23,17 @@
     margin-bottom: 2px   
 }
 
+.select-wrapper .caret{
+    right: 25%;
+}
+
+.select-wrapper input.select-dropdown {
+    width: 50%;
+    text-align-last: center;
+    left: 25%;
+}
+
+
 .relevantLinks {
 	float: left;
     padding-bottom: 10px;
@@ -88,15 +99,14 @@
     color: black;
 }
 
-select {
+.select {
     padding: 5px 8px;
     width: 30%;
     border-radius: 5px;
     box-shadow: none;
-    display: block;
     margin: 0 auto;
     position: relative;
-    left: 35%;
+    left: 0%;
     text-align-last: center
 }
 

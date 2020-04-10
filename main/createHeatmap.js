@@ -8,7 +8,7 @@
 
 createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
 
-    // Set the columns to be the set of TCGA Patient Barcodes names 'myGroups' and the rows to be the set of expression z-score's called 'myVars'
+    // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of expression z-score's called 'myVars'
     var myGroups = d3.map(dataInput, function(d){return d.tcga_participant_barcode;}).keys();
     var myVars = d3.map(dataInput, function(d){return d.gene;}).keys();
 

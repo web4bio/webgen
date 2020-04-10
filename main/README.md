@@ -4,7 +4,7 @@ index.html and style.css set up the web app, which is hosted by GitHub.
 
 The .js files are modulated as described below:
 
-1) **fetchExpressionData.js** contains the fetchExpressionData() function, which returns the following mRNASeq-associated data from Firebrowse as a 1-D array, where each element of the array is a JSON associated with a particular cohort-gene pair of the form:
+1) **fetchExpressionData.js** contains the fetchExpressionData() function, which returns the following mRNASeq-associated data from Firebrowse as a 1-D array, where each element of the array is a JSON object containing data for a particular cohort-gene pair of the form:
 * cohort
 * expression_log2
 * gene
