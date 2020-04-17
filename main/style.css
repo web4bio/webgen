@@ -153,3 +153,17 @@
 .tabs .indicator {
     background-color:#4db6ac;
 } /*Color of underline*/
+
+::placeholder {
+    color: #000000;
+    font-weight: 700;
+    text-align: center;
+}
+
+#cancerQuerySelectBox {
+    margin-bottom: 8px;
+}
+
+#geneQuerySelectBox {
+    margin-bottom: 8px;
+}
