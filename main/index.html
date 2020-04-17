@@ -160,6 +160,7 @@
         showError('cohortError');
         return;
       }
+    }
 
       // Fetch RNA sequence data and display requested plots:
       var dataToPlotInfo = getExpressionDataJSONarray(cohortQuerySelectBox, geneQuery);
@@ -229,7 +230,7 @@
 
         //document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
       });
-    };
+      // $('.js-example-basic-single2').select2();
   </script>
 
   <!--
