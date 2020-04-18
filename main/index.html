@@ -32,6 +32,9 @@ Importing jobs:
   <script type="text/javascript" src = "getExpressionDataJSONarray.js"></script>
   <script type="text/javascript" src = "createHeatmap.js"></script>
   <script type="text/javascript" src = "docManipulation.js"></script>
+  <script type="text/javascript" src = "fetchCohortData.js"></script>
+  <script type="text/javascript" src = "getCohortIDs.js"></script>
+  <script type="text/javascript" src = "getCohortDescriptions.js"></script>
 
 </head>
   
@@ -54,63 +57,51 @@ Importing jobs:
   </div>
 
   <!--
-  Initializing select element for cohortQuery
+  Set up select for cohortQuery
   -->
-  <script>
-    var cohortQuery = 0;
-    // Attach an event handler to the document
-    document.addEventListener("DOMContentLoaded", function(){
-      var elems = document.querySelector("select");
-      var instances = M.FormSelect.init(elems);
-      elems.onchange = selectThem;
-      function selectThem() {
-        cohortQuery = instances.getSelectedValues();
-        console.log(cohortQuery);
-      }
-    })
-  </script>
+  <div class="input" id="cohortQuery">
 
-  <!--
-  Set up options for cohortQuery select
-  -->
-  <div class="input-field col s12" id="cohortQuery"></div>
-    <select multiple>
-      <option value = "ACC">Adrenocortical carcinoma</option>
-      <option value = "BLCA">Bladder Urothelial Carcinoma</option>  
-      <option value = "BRCA">Breast invasive carcinoma</option>
-      <option value = "CESC">Cervical squamous cell carcinoma and endocervical adenocarcinoma</option>
-      <option value = "CHOL">Cholangiocarcinoma</option>
-      <option value = "COAD">Colon adenocarcinoma</option>
-      <option value = "DLBC">Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</option>
-      <option value = "ESCA">Esophageal carcinoma</option>
-      <option value = "FPPP">FFPE Pilot Phase II</option>
-      <option value = "GBM">Glioblastoma multiforme</option>
-      <option value = "HNSC">Head and Neck squamous cell carcinoma</option>
-      <option value = "KICH">Kidney Chromophobe</option>
-      <option value = "KIRC">Kidney renal clear cell carcinoma</option>
-      <option value = "KIRP">Kidney renal papillary cell carcinoma</option>
-      <option value = "LAML">Acute Myeloid Leukemia</option>
-      <option value = "LGG">Brain Lower Grade Glioma</option>
-      <option value = "LIHC">Liver hepatocellular carcinoma</option>
-      <option value = "LUAD">Lung adenocarcinoma</option>
-      <option value = "LUSC">Lung squamous cell carcinoma</option>
-      <option value = "MESO">	Mesothelioma</option>
-      <option value = "OV">Ovarian serous cystadenocarcinoma</option>
-      <option value = "PAAD">Pancreatic adenocarcinoma</option>
-      <option value = "PCPG">Pheochromocytoma and Paraganglioma</option>
-      <option value = "PRAD">Prostate adenocarcinoma</option>
-      <option value = "READ">Rectum adenocarcinoma</option>
-      <option value = "SARC">Sarcoma</option>
-      <option value = "SKCM">Skin Cutaneous Melanoma</option>
-      <option value = "STAD">Stomach adenocarcinoma</option>
-      <option value = "TGCT">Testicular Germ Cell Tumors</option>
-      <option value = "THCA">Thyroid carcinoma</option>
-      <option value = "THYM">Thymoma</option>
-      <option value = "UCEC">Uterine Corpus Endometrial Carcinoma</option>
-      <option value = "UCS">Uterine Carcinosarcoma</option>
-      <option value = "UVM">Uveal Melanoma</option>
+    <select multiple id="selectCohort">
+      <option value="mySpecialDefault">red</option>
+      <option value="myOtherSpecialDefault">blue</option>
     </select>
-    <label>Materialize Multiple Select</label>
+
+    <script>
+      var select = document.getElementById("selectCohort");
+      console.log(select);
+      var options = getCohortDescriptions();
+      console.log(options);
+      var values = getCohortIDs();
+      console.log(values);
+      options.then(function(response) {
+        console.log(response);
+        for(var i = 0; i < response.length; i++) {
+          var opt = response[i];
+          var val = response[i];
+          var el = document.createElement("option");
+          el.textContent = opt;
+          el.value = val;
+          select.prepend(el);
+          console.log(select);
+        }
+      });
+    </script>
+
+    <script>
+      var cohortQuery = 0;
+      document.addEventListener("DOMContentLoaded", function(){
+        var elems = document.querySelector("select");
+        
+        // Initialize Materialize select object:
+        var instances = M.FormSelect.init(elems);      
+        
+        function selectThem() {
+          cohortQuery = instances.getSelectedValues();
+          console.log(cohortQuery);
+        }
+      })
+    </script>
+
   </div>
 
   <div class="center-align">
