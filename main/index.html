@@ -1,8 +1,9 @@
-<body>
+<!DOCTYPE html>
+<html lang='en'>
 
-  <!--
-    Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
-  -->
+<!--
+  Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
+-->
 
   <!--
     Importing jobs:
@@ -30,6 +31,9 @@
     <script type="text/javascript" src = "getExpressionDataJSONarray.js"></script>
     <script type="text/javascript" src = "createHeatmap.js"></script>
     <script type = "text/javascript" src = "createViolinPlot.js"></script>
+    <script type="text/javascript" src = "fetchCohortData.js"></script>
+    <script type="text/javascript" src = "getCohortIDs.js"></script>
+    <script type="text/javascript" src = "getCohortDescriptions.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
   </head>
   
@@ -37,252 +41,252 @@
     Setting up the main heading:
   -->
   <body>
-      <div class="navbar-fixed">
-          <nav>
-          <div class="nav-wrapper">
-            <a href="#" style="font-style: italic;" class="brand-logo center">WebGen</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down">
-              <li><a href="sass.html">API</a></li>
-              <li><a href="badges.html">About</a></li>
-            </ul>
-          </div>
-          </nav>
-      </div>
-  
+    <div class="navbar-fixed">
+        <nav>
+        <div class="nav-wrapper">
+          <a href="#" style="font-style: italic;" class="brand-logo center">WebGen</a>
+          <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="sass.html">API</a></li>
+            <li><a href="badges.html">About</a></li>
+          </ul>
+        </div>
+        </nav>
+    </div>
+
+<!--
+  Setting up the user input text fields and buttons.
+-->
+
   <!--
-    Setting up the user input text fields and buttons.
+    Initializing form
   -->
+  <script>
+    var cohortQuery = 0;
+    document.addEventListener('DOMContentLoaded', function () {
+      var elems = document.querySelector('select');
+      var instances = M.FormSelect.init(elems);
+      elems.onchange = selectThem;
+      function selectThem() {
+          cohortQuery = instances.getSelectedValues();
+          console.log(cohortQuery);
+      }
+  });
+  </script>
 
-    <!--
-      Initializing form
-    -->
-    <script>
-      var cohortQuery = 0;
-      document.addEventListener('DOMContentLoaded', function () {
-        var elems = document.querySelector('select');
-        var instances = M.FormSelect.init(elems);
-        elems.onchange = selectThem;
-        function selectThem() {
-            cohortQuery = instances.getSelectedValues();
-            console.log(cohortQuery);
-        }
-    });
-    </script>
-
-  <div class = "input-field col s12" id = 'cohortQuery'></div>
-    <select multiple>
-          <option value = "ACC">Adrenocortical carcinoma</option>
-            <option value = "BLCA">Bladder Urothelial Carcinoma</option>  
-            <option value = "BRCA">Breast invasive carcinoma</option>
-            <option value = "CESC">Cervical squamous cell carcinoma and endocervical adenocarcinoma</option>
-            <option value = "CHOL">Cholangiocarcinoma</option>
-            <option value = "COAD">Colon adenocarcinoma</option>
-            <option value = "DLBC">Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</option>
-            <option value = "ESCA">Esophageal carcinoma</option>
-            <option value = "FPPP">FFPE Pilot Phase II</option>
-            <option value = "GBM">Glioblastoma multiforme</option>
-            <option value = "HNSC">Head and Neck squamous cell carcinoma</option>
-            <option value = "KICH">Kidney Chromophobe</option>
-            <option value = "KIRC">Kidney renal clear cell carcinoma</option>
-            <option value = "KIRP">Kidney renal papillary cell carcinoma</option>
-            <option value = "LAML">Acute Myeloid Leukemia</option>
-            <option value = "LGG">Brain Lower Grade Glioma</option>
-            <option value = "LIHC">Liver hepatocellular carcinoma</option>
-            <option value = "LUAD">Lung adenocarcinoma</option>
-            <option value = "LUSC">Lung squamous cell carcinoma</option>
-            <option value = "MESO">	Mesothelioma</option>
-            <option value = "OV">Ovarian serous cystadenocarcinoma</option>
-            <option value = "PAAD">Pancreatic adenocarcinoma</option>
-            <option value = "PCPG">Pheochromocytoma and Paraganglioma</option>
-            <option value = "PRAD">Prostate adenocarcinoma</option>
-            <option value = "READ">Rectum adenocarcinoma</option>
-            <option value = "SARC">Sarcoma</option>
-            <option value = "SKCM">Skin Cutaneous Melanoma</option>
-            <option value = "STAD">Stomach adenocarcinoma</option>
-            <option value = "TGCT">Testicular Germ Cell Tumors</option>
-            <option value = "THCA">Thyroid carcinoma</option>
-            <option value = "THYM">Thymoma</option>
-            <option value = "UCEC">Uterine Corpus Endometrial Carcinoma</option>
-            <option value = "UCS">Uterine Carcinosarcoma</option>
-            <option value = "UVM">Uveal Melanoma</option>
-          </select>
-          <label>Materialize Multiple Select</label>
-  </div>
+<div class = "input-field col s12" id = 'cohortQuery'></div>
+  <select multiple>
+        <option value = "ACC">Adrenocortical carcinoma</option>
+          <option value = "BLCA">Bladder Urothelial Carcinoma</option>  
+          <option value = "BRCA">Breast invasive carcinoma</option>
+          <option value = "CESC">Cervical squamous cell carcinoma and endocervical adenocarcinoma</option>
+          <option value = "CHOL">Cholangiocarcinoma</option>
+          <option value = "COAD">Colon adenocarcinoma</option>
+          <option value = "DLBC">Lymphoid Neoplasm Diffuse Large B-cell Lymphoma</option>
+          <option value = "ESCA">Esophageal carcinoma</option>
+          <option value = "FPPP">FFPE Pilot Phase II</option>
+          <option value = "GBM">Glioblastoma multiforme</option>
+          <option value = "HNSC">Head and Neck squamous cell carcinoma</option>
+          <option value = "KICH">Kidney Chromophobe</option>
+          <option value = "KIRC">Kidney renal clear cell carcinoma</option>
+          <option value = "KIRP">Kidney renal papillary cell carcinoma</option>
+          <option value = "LAML">Acute Myeloid Leukemia</option>
+          <option value = "LGG">Brain Lower Grade Glioma</option>
+          <option value = "LIHC">Liver hepatocellular carcinoma</option>
+          <option value = "LUAD">Lung adenocarcinoma</option>
+          <option value = "LUSC">Lung squamous cell carcinoma</option>
+          <option value = "MESO">	Mesothelioma</option>
+          <option value = "OV">Ovarian serous cystadenocarcinoma</option>
+          <option value = "PAAD">Pancreatic adenocarcinoma</option>
+          <option value = "PCPG">Pheochromocytoma and Paraganglioma</option>
+          <option value = "PRAD">Prostate adenocarcinoma</option>
+          <option value = "READ">Rectum adenocarcinoma</option>
+          <option value = "SARC">Sarcoma</option>
+          <option value = "SKCM">Skin Cutaneous Melanoma</option>
+          <option value = "STAD">Stomach adenocarcinoma</option>
+          <option value = "TGCT">Testicular Germ Cell Tumors</option>
+          <option value = "THCA">Thyroid carcinoma</option>
+          <option value = "THYM">Thymoma</option>
+          <option value = "UCEC">Uterine Corpus Endometrial Carcinoma</option>
+          <option value = "UCS">Uterine Carcinosarcoma</option>
+          <option value = "UVM">Uveal Melanoma</option>
+        </select>
+        <label>Materialize Multiple Select</label>
+</div>
 
 <div class="center-align">
-  <div class = "row center-align">
-    <input class = "center-align" id = 'geneQuery' placeholder = "Enter List of Genes Here">
+<div class = "row center-align">
+  <input class = "center-align" id = 'geneQuery' placeholder = "Enter List of Genes Here">
+</div>
+</div>
+
+  <!--
+  Setting up the buttons.
+-->
+  <div class="center-align">
+      <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
+      <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='button1'>Submit</button>
+  </div>
+
+<!--
+  Setting up the tabs.
+-->
+<div class="tabs_container">  
+  <div class="row">
+    <ul class="tabs">
+      <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
+      <!-- <li class="tab col s6"><a href="#boxWhiskRef">Box and Whisker Plots</a></li> -->
+      <li class="tab col s6"><a href="#violinPlotRef">Violin Plot</a></li>
+    </ul>
+    <!--
+      Setting up the plots to go under each tab.
+    -->
+    <div id="heatmapRef" class="col s12">
+      <div id=div0 style="margin-top:25px"></div>
+    </div>
+    <!-- <div id="boxWhiskRef" class="col s12">
+      <div id=divBoxWhisk0 style="margin-top:25px" align="center"></div>
+    </div> -->
+    <div id = "violinPlotRef" class = "col s12">
+      <div id = divViolinPlot0 style = "margin-top:25px" aligh = "center"></div>
+    </div>
   </div>
 </div>
 
-    <!--
-    Setting up the buttons.
-  -->
-    <div class="center-align">
-        <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
-        <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='button1'>Submit</button>
-    </div>
-  
-  <!--
-    Setting up the tabs.
-  -->
-  <div class="tabs_container">  
-    <div class="row">
-      <ul class="tabs">
-        <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
-        <li class="tab col s6"><a href="#boxWhiskRef">Box and Whisker Plots</a></li>
-        <li class="tab col s6"><a href="#violinPlotRef">Violin Plot</a></li>
-      </ul>
-      <!--
-        Setting up the plots to go under each tab.
-      -->
-      <div id="heatmapRef" class="col s12">
-        <div id=div0 style="margin-top:25px"></div>
-      </div>
-      <div id="boxWhiskRef" class="col s12">
-        <div id=divBoxWhisk0 style="margin-top:25px" align="center"></div>
-      </div>
-      <div id = "violinPlotRef" class = "col s12">
-        <div id = divViolinPlot0 style = "margin-top:25px" aligh = "center"></div>
-      </div>
-    </div>
-  </div>
+<!--
+  Creating a button for alert message on an error:
+-->
+<span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
 
-  <!--
-    Creating a button for alert message on an error:
-  -->
-  <span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
-  
-
-  <!--
-    The JS code for building the plots to display:
-  -->
-  <script type="text/javascript">
-    // Wait for user input to build plots:
-    function setVars() {
-      // Reset page formatting:
-      document.getElementById('div0').innerHTML="";
-      
-      // Removes existing div and svg elements if they're there:
-      removeDIVelements();
-      removeSVGelements();
-
-      // Display loader:
-      document.getElementById('div0').className = 'loader';                              // Create the loader.
-
-      var geneQuery = document.getElementById('geneQuery').value.toUpperCase().split(',');
-      //var cohortQuery = cohortQuery.map(x => x.trim());
-      var geneQuery = geneQuery.map(x => x.trim());
-      var amountOfCohorts = amount(cohortQuery);
-
-      // Check the cohort list to be valid:
-      validCohorts = checkCohortList(cohortQuery);
-      if (validCohorts == false) {
-        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
-        showError('cohortError');
-        return;
-      }
-
-      // Fetch RNA sequence data and display requested plots:
-      var dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
-
-      // Once data is returned, build the plots:
-      dataToPlotInfo.then(function(data) {
-        // Check that the fetch worked:
-        if (data == 'Error: Invalid Input Fields for Query.') {
-          document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
-          showError('geneError');
-          return;
-        }
-        
-        // If the fetched worked, build the plots:
-
-        // Display Warning for any invalid genes:
-        var myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
-        var emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
-        if (emptyGeneArray.length > 0) {
-          showWarning(emptyGeneArray)
-        };
-
-        // Set up the figure dimensions:
-        var margin = {top: 80, right: 30, bottom: 30, left: 60},
-            width = 1250 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
-
-        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
-
-        // Build the heatmap:
-        // Append an svg object:
-        var svg = d3.select("#heatmapRef").append("svg")
-            .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
-            .attr("id", 'svgHeatMap')
-            .append("g")
-            .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
-
-        // Create the heatmap:
-        createHeatmap('cohort', cohortQuery, data, svg);
-
-        //Build the violin plot
-        //Append an svg object:
-        var violinPlotSvg = d3.select("#violinPlotRef").append("svg")
-            .attr("viewBox", `0 0 1250 500`)
-            .attr("id", "svgViolinPlot")
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
-        //Create the violin plot
-        createViolinPlot("cohort", cohortQuery, data, violinPlotSvg);
-
-        // Box and Whisker Plot to be added below:
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Below is dummy data to display an example box and whisker plot for the time being:
-        var y0 = []
-        var y1 = [];
-        for (var i = 0; i < 50; i ++) {
-          y0[i] = Math.random();
-          y1[i] = Math.random() + 1;
-        }
-        var trace1 = {
-          y: y0,
-          type: 'box'
-        };
-        var trace2 = {
-          y: y1,
-          type: 'box'
-        };
-        var dataBoxPlot = [trace1, trace2];
-        var layout = {
-        title: 'd3 Gene Expression Box and Whisker Plot to Added Here'
-        };
-        Plotly.newPlot(divBoxWhisk0, dataBoxPlot, layout);
-        // Above is dummy data to display an example box and whisker plot for the time being:
-        /////////////////////////////////////////////////////////////////////////////////////
-
-        //document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
-      });
-    };
-  </script>
-
-  <!--
-    Setting up the ability to use the example input cohort and gene lists:
-  -->
-  <script>
-  // Setting the cohort and gene list examples if the user clicks the use example button:
-  function setExampleVars() {
-      document.getElementById('cohortQuery').value = 'BRCA, SARC';
-      document.getElementById('geneQuery').value = 'BRCA1, EGFR, KRAS, TP53';
-    };
-  </script>
 
 <!--
-    Setting tabs:
-  -->
+  The JS code for building the plots to display:
+-->
+<script type="text/javascript">
+  // Wait for user input to build plots:
+  function setVars() {
+    // Reset page formatting:
+    document.getElementById('div0').innerHTML="";
+    
+    // Removes existing div and svg elements if they're there:
+    removeDIVelements();
+    removeSVGelements();
+
+    // Display loader:
+    document.getElementById('div0').className = 'loader';                              // Create the loader.
+
+    var geneQuery = document.getElementById('geneQuery').value.toUpperCase().split(',');
+    //var cohortQuery = cohortQuery.map(x => x.trim());
+    var geneQuery = geneQuery.map(x => x.trim());
+    var amountOfCohorts = amount(cohortQuery);
+
+    // Check the cohort list to be valid:
+    validCohorts = checkCohortList(cohortQuery);
+    if (validCohorts == false) {
+      document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+      showError('cohortError');
+      return;
+    }
+
+    // Fetch RNA sequence data and display requested plots:
+    var dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
+
+    // Once data is returned, build the plots:
+    dataToPlotInfo.then(function(data) {
+      // Check that the fetch worked:
+      if (data == 'Error: Invalid Input Fields for Query.') {
+        document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
+        showError('geneError');
+        return;
+      }
+      
+      // If the fetched worked, build the plots:
+
+      // Display Warning for any invalid genes:
+      var myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
+      var emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
+      if (emptyGeneArray.length > 0) {
+        showWarning(emptyGeneArray)
+      };
+
+      // Set up the figure dimensions:
+      var margin = {top: 80, right: 30, bottom: 30, left: 60},
+          width = 1250 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+      document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+
+      // Build the heatmap:
+      // Append an svg object:
+      var svg = d3.select("#heatmapRef").append("svg")
+          .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
+          .attr("id", 'svgHeatMap')
+          .append("g")
+          .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+      // Create the heatmap:
+      createHeatmap('cohort', cohortQuery, data, svg);
+
+      //Build the violin plot
+      //Append an svg object:
+      var violinPlotSvg = d3.select("#violinPlotRef").append("svg")
+          .attr("viewBox", `0 0 1250 500`)
+          .attr("id", "svgViolinPlot")
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      
+      //Create the violin plot
+      createViolinPlot("cohort", cohortQuery, data, violinPlotSvg);
+
+      // Box and Whisker Plot to be added below:
+
+      /////////////////////////////////////////////////////////////////////////////////////
+      // Below is dummy data to display an example box and whisker plot for the time being:
+      var y0 = []
+      var y1 = [];
+      for (var i = 0; i < 50; i ++) {
+        y0[i] = Math.random();
+        y1[i] = Math.random() + 1;
+      }
+      var trace1 = {
+        y: y0,
+        type: 'box'
+      };
+      var trace2 = {
+        y: y1,
+        type: 'box'
+      };
+      var dataBoxPlot = [trace1, trace2];
+      var layout = {
+      title: 'd3 Gene Expression Box and Whisker Plot to Added Here'
+      };
+      Plotly.newPlot(divBoxWhisk0, dataBoxPlot, layout);
+      // Above is dummy data to display an example box and whisker plot for the time being:
+      /////////////////////////////////////////////////////////////////////////////////////
+
+      //document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
+    });
+  };
+</script>
+
+<!--
+  Setting up the ability to use the example input cohort and gene lists:
+-->
+<script>
+// Setting the cohort and gene list examples if the user clicks the use example button:
+function setExampleVars() {
+    document.getElementById('cohortQuery').value = 'BRCA, SARC';
+    document.getElementById('geneQuery').value = 'BRCA1, EGFR, KRAS, TP53';
+  };
+</script>
+
+<!--
+  Setting tabs:
+-->
 <script> 
-    var elem = document.querySelector('.tabs');
-    var options = {}
-    var instance = M.Tabs.init(elem, options);
+  var elem = document.querySelector('.tabs');
+  var options = {}
+  var instance = M.Tabs.init(elem, options);
 </script>
 
 </body>
