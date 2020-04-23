@@ -29,6 +29,7 @@
     <script type="text/javascript" src = "getSigMutationArray.js"></script>
     <script type="text/javascript" src = "getExpressionDataJSONarray.js"></script>
     <script type="text/javascript" src = "createHeatmap.js"></script>
+    <script type = "text/javascript" src = "createViolinPlot.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
   </head>
   
@@ -130,6 +131,7 @@
       <ul class="tabs">
         <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
         <li class="tab col s6"><a href="#boxWhiskRef">Box and Whisker Plots</a></li>
+        <li class="tab col s6"><a href="#violinPlotRef">Violin Plot</a></li>
       </ul>
       <!--
         Setting up the plots to go under each tab.
@@ -139,6 +141,9 @@
       </div>
       <div id="boxWhiskRef" class="col s12">
         <div id=divBoxWhisk0 style="margin-top:25px" align="center"></div>
+      </div>
+      <div id = "violinPlotRef" class = "col s12">
+        <div id = divViolinPlot0 style = "margin-top:25px" aligh = "center"></div>
       </div>
     </div>
   </div>
@@ -217,6 +222,17 @@
 
         // Create the heatmap:
         createHeatmap('cohort', cohortQuery, data, svg);
+
+        //Build the violin plot
+        //Append an svg object:
+        var violinPlotSvg = d3.select("#violinPlotRef").append("svg")
+            .attr("viewBox", `0 0 1250 500`)
+            .attr("id", "svgViolinPlot")
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+        //Create the violin plot
+        createViolinPlot("cohort", cohortQuery, data, violinPlotSvg);
 
         // Box and Whisker Plot to be added below:
 
