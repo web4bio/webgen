@@ -28,16 +28,11 @@ removeDIVelements = function() {
 
 // Function to remove the current svg elements if they exist:
 removeSVGelements = function() {
-  var i = 0;
-  var continueBool = true;
-  while (continueBool == true) {
-    svgToRemove = document.getElementById("svgHeatMap");
-    if(svgToRemove) {
-      $(svgToRemove).remove();
-      i++;
-    } else {
-      var continueBool = false;
-    };
+  svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
+
+  for (var i=0; i < svgElementsArray.length; i++) {
+    svgToRemove = document.getElementById(svgElementsArray[i]);
+    $(svgToRemove).remove();
   };
 };
 
