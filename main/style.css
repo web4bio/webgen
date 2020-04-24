@@ -92,7 +92,7 @@
 
   #homepage-button-container-left, #homepage-button-container-right {
       flex-basis: 600px;
-      background-color: red;
+      background-color: black;
   }
 
   #homepage-button-container-center {
@@ -118,9 +118,21 @@
 }
 
 #cancerQuerySelectBox {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 #geneQuerySelectBox {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+#mainWindowButtonDiv {
+    display: table;
+    margin: 0 auto;
+    border: 1px solid black;
+}
+
+#mainWindowExampleButton {
+    border: 1px solid red;
+    width:100%
 }

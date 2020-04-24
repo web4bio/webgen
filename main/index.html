@@ -1,8 +1,9 @@
-<body>
+<!DOCTYPE html>
+<html lang='en'>
 
-  <!--
-    Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
-  -->
+<!--
+  Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
+-->
 
   <!--
     Importing jobs:
@@ -35,6 +36,10 @@
     <script type="text/javascript" src = "getSigMutationArray.js"></script>
     <script type="text/javascript" src = "getExpressionDataJSONarray.js"></script>
     <script type="text/javascript" src = "createHeatmap.js"></script>
+    <script type = "text/javascript" src = "createViolinPlot.js"></script>
+    <script type="text/javascript" src = "fetchCohortData.js"></script>
+    <script type="text/javascript" src = "getCohortIDs.js"></script>
+    <script type="text/javascript" src = "getCohortDescriptions.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
     <script type ="text/javascript" src = "fillSelectBoxes.js"></script>
   </head>
@@ -43,36 +48,23 @@
     Setting up the main heading:
   -->
   <body>
-      <div class="navbar-fixed">
-          <nav>
-          <div class="nav-wrapper">
-            <a href="#" style="font-style: italic;" class="brand-logo center">WebGen</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down">
-              <li><a href="sass.html">API</a></li>
-              <li><a href="badges.html">About</a></li>
-            </ul>
-          </div>
-          </nav>
-      </div>
-  
-  <!--
-    Setting up the user input text fields and buttons.
-  -->
+    <div class="navbar-fixed">
+        <nav>
+        <div class="nav-wrapper">
+          <a href="#" style="font-style: italic;" class="brand-logo center">WebGen</a>
+          <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="sass.html">API</a></li>
+            <li><a href="badges.html">About</a></li>
+          </ul>
+        </div>
+        </nav>
+    </div>
 
-    <!--
-      Initializing form
-    -->
+<!--
+  Setting up the user input text fields and buttons.
+-->
+
     <script>
-      var cohortQuerySelectBox = 0;
-      document.addEventListener('DOMContentLoaded', function () {
-        var elems = document.querySelector('select');
-        var instances = M.FormSelect.init(elems);
-        elems.onchange = selectThem;
-        function selectThem() {
-            cohortQuerySelectBox = instances.getSelectedValues();
-            console.log(cohortQuerySelectBox);
-        }
-      });
       $(document).ready(function() {
         $('.cancerTypeMultipleSelection').select2({
           placeholder: "Select Cancer Type(s)"
@@ -97,9 +89,9 @@
       </select>
   </div>
 
-    <!--
-    Setting up the buttons.
-  -->
+  <!--
+  Setting up the buttons.
+-->
     <div class="center-align">
         <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
         <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='button1'>Submit</button>
@@ -108,29 +100,31 @@
   <!--
     Setting up the tabs.
   -->
+<div class="tabs_container">  
   <div class="tabs_container">  
-    <div class="row">
-      <ul class="tabs">
-        <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
-        <li class="tab col s6"><a href="#boxWhiskRef">Box and Whisker Plots</a></li>
-      </ul>
-      <!--
-        Setting up the plots to go under each tab.
-      -->
-      <div id="heatmapRef" class="col s12">
-        <div id=div0 style="margin-top:25px"></div>
-      </div>
-      <div id="boxWhiskRef" class="col s12">
-        <div id=divBoxWhisk0 style="margin-top:25px" align="center"></div>
-      </div>
+<div class="tabs_container">  
+  <div class="row">
+    <ul class="tabs">
+      <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
+      <!-- <li class="tab col s6"><a href="#boxWhiskRef">Box and Whisker Plots</a></li> -->
+      <li class="tab col s6"><a href="#violinPlotRef">Violin Plot</a></li>
+    </ul>
+    <!--
+      Setting up the plots to go under each tab.
+    -->
+    <div id="heatmapRef" class="col s12">
+      <div id=div0 style="margin-top:25px"></div>
+    </div>
+    <!-- <div id="boxWhiskRef" class="col s12">
+      <div id=divBoxWhisk0 style="margin-top:25px" align="center"></div>
     </div>
   </div>
+</div>
 
-  <!--
-    Creating a button for alert message on an error:
-  -->
-  <span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
-  
+<!--
+  Creating a button for alert message on an error:
+-->
+<span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
 
   <!--
     The JS code for building the plots to display:
@@ -247,10 +241,21 @@
   </script>
 
 <!--
-    Setting tabs:
-  -->
+  Setting up the ability to use the example input cohort and gene lists:
+-->
+<script>
+// Setting the cohort and gene list examples if the user clicks the use example button:
+function setExampleVars() {
+    document.getElementById('cohortQuery').value = 'BRCA, SARC';
+    document.getElementById('geneQuery').value = 'BRCA1, EGFR, KRAS, TP53';
+  };
+</script>
+
+<!--
+  Setting tabs:
+-->
 <script> 
-    var elem = document.querySelector('.tabs');
-    var options = {}
-    var instance = M.Tabs.init(elem, options);
+  var elem = document.querySelector('.tabs');
+  var options = {}
+  var instance = M.Tabs.init(elem, options);
 </script>

@@ -1,5 +1,7 @@
-Live at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
-Conference call via [Google Meet](https://sbubmi.page.link/vip) Fridays at 11AM EST
+Live Web App at [web4bio.github.io/webgen/main](https://web4bio.github.io/webgen/main)                          
+Live README at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)
+
+Conference call via [Zoom](https://sbubmi.page.link/vip) Fridays at 11AM EST
 
 # [Web Genomics](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/)
 
