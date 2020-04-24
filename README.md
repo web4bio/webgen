@@ -1,5 +1,5 @@
-Live Web App at [web4bio.github.io/webgen/main](https://web4bio.github.io/webgen/main)!
-Live README at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)!
+Live Web App at [web4bio.github.io/webgen/main](https://web4bio.github.io/webgen/main)                          
+Live README at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)
 
 Conference call via [Zoom](https://sbubmi.page.link/vip) Fridays at 11AM EST
 
