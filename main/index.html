@@ -37,7 +37,6 @@
     <script type="text/javascript" src = "getExpressionDataJSONarray.js"></script>
     <script type="text/javascript" src = "createHeatmap.js"></script>
     <script type = "text/javascript" src = "createViolinPlot.js"></script>
-    <script type="text/javascript" src = "fetchCohortData.js"></script>
     <script type="text/javascript" src = "getCohortIDs.js"></script>
     <script type="text/javascript" src = "getCohortDescriptions.js"></script>
     <script type="text/javascript" src = "docManipulation.js"></script>
@@ -142,22 +141,29 @@
       // Display loader:
       document.getElementById('div0').className = 'loader';                              // Create the loader.
 
-      var geneQuery = document.getElementById('geneQuery').value.toUpperCase().split(',');
-      //var cohortQuerySelectBox = cohortQuerySelectBox.map(x => x.trim());
-      var geneQuery = geneQuery.map(x => x.trim());
-      var amountOfCohorts = amount(cohortQuerySelectBox);
+      // Gene gene and cohort query values from select2 box:
+      var geneQuery = $('.geneMultipleSelection').select2('data').map(
+                        geneInfo => geneInfo.text);
+      var cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
+                        cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+      
+      console.log(geneQuery);
+      console.log(cohortQuery);
+
+      // Get number of cohorts:
+      var amountOfCohorts = amount(cohortQuery);
 
       // Check the cohort list to be valid:
-      validCohorts = checkCohortList(cohortQuerySelectBox);
+      validCohorts = checkCohortList(cohortQuery);
       if (validCohorts == false) {
         document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
         showError('cohortError');
         return;
-      }
-    }
+      };
+    
 
       // Fetch RNA sequence data and display requested plots:
-      var dataToPlotInfo = getExpressionDataJSONarray(cohortQuerySelectBox, geneQuery);
+      var dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
 
       // Once data is returned, build the plots:
       dataToPlotInfo.then(function(data) {
@@ -194,7 +200,7 @@
                 "translate(" + margin.left + "," + margin.top + ")");
 
         // Create the heatmap:
-        createHeatmap('cohort', cohortQuerySelectBox, data, svg);
+        createHeatmap('cohort', cohortQuery, data, svg);
 
         // Box and Whisker Plot to be added below:
 
@@ -225,6 +231,7 @@
         //document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
       });
       // $('.js-example-basic-single2').select2();
+    };
   </script>
 
   <!--
