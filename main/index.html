@@ -114,8 +114,8 @@
     <div id="heatmapRef" class="col s12">
       <div id=div0 style="margin-top:25px"></div>
     </div>
-    <!-- <div id="boxWhiskRef" class="col s12">
-      <div id=divBoxWhisk0 style="margin-top:25px" align="center"></div>
+    <div id="violinPlotRef" class="col s12">
+      <div id=svgViolinPlot style="margin-top:25px" align="center"></div>
     </div>
   </div>
 </div>
@@ -192,7 +192,7 @@
 
         // Build the heatmap:
         // Append an svg object:
-        var svg = d3.select("#heatmapRef").append("svg")
+        var svgHeatMap = d3.select("#heatmapRef").append("svg")
             .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
             .attr("id", 'svgHeatMap')
             .append("g")
@@ -200,12 +200,25 @@
                 "translate(" + margin.left + "," + margin.top + ")");
 
         // Create the heatmap:
-        createHeatmap('cohort', cohortQuery, data, svg);
+        createHeatmap('cohort', cohortQuery, data, svgHeatMap);
+
+        // Build the violin plot:
+        // Append an svg object:
+        var svgViolinPlot = d3.select("#violinPlotRef").append("svg")
+            .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
+            .attr("id", 'svgVioliinPlot')
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+        // Create the heatmap:
+        createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);
 
         // Box and Whisker Plot to be added below:
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Below is dummy data to display an example box and whisker plot for the time being:
+        /*
         var y0 = []
         var y1 = [];
         for (var i = 0; i < 50; i ++) {
@@ -226,6 +239,7 @@
         };
         Plotly.newPlot(divBoxWhisk0, dataBoxPlot, layout);
         // Above is dummy data to display an example box and whisker plot for the time being:
+        */
         /////////////////////////////////////////////////////////////////////////////////////
 
         //document.getElementById('links').style.position = 'relative';                      // Move links to stay at the bottom of the page.
