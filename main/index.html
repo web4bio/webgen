@@ -112,7 +112,7 @@
       <div id=div0 style="margin-top:25px"></div>
     </div>
     <div id="violinPlotRef" class="col s12">
-      <div id=svgViolinPlot style="margin-top:25px" align="center"></div>
+      <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
     </div>
   </div>
 </div>
@@ -125,6 +125,7 @@
     function setVars() {
       // Reset page formatting:
       document.getElementById('div0').innerHTML="";
+      document.getElementById('svgViolinDiv0').innerHTML="";
       
       // Removes existing div and svg elements if they're there:
       removeDIVelements();
@@ -132,6 +133,7 @@
 
       // Display loader:
       document.getElementById('div0').className = 'loader';                              // Create the loader.
+      document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
 
       // Gene gene and cohort query values from select2 box:
       var geneQuery = $('.geneMultipleSelection').select2('data').map(
@@ -148,6 +150,7 @@
         // Check that the fetch worked:
         if (data == 'Error: Invalid Input Fields for Query.') {
           document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
+          document.getElementById('svgViolinDiv0').classList.remove('loader');             // Remove the loader.
           showError('geneError');
           return;
         }
@@ -167,6 +170,7 @@
             height = 500 - margin.top - margin.bottom;
 
         document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+        document.getElementById('svgViolinDiv0').classList.remove('loader');               // Remove the loader.
 
         // Build the heatmap:
         // Append an svg object:
@@ -184,7 +188,7 @@
         // Append an svg object:
         var svgViolinPlot = d3.select("#violinPlotRef").append("svg")
             .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
-            .attr("id", 'svgVioliinPlot')
+            .attr("id", 'svgViolinPlot')
             .append("g")
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");

@@ -64,7 +64,6 @@ showError = function(errorType) {
 // NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
 showWarning = function(emptyGeneArray_arg) {
   // Create div1 and set it to be warning class:
-  //addElement('div1','div0');
   var divElement = document.getElementById('div0');
   divElement.className = 'warning';
 
