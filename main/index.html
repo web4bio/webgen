@@ -139,7 +139,7 @@
       var cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                         cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
       
-                        
+
       // Fetch RNA sequence data and display requested plots:
       var dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
 
@@ -175,7 +175,7 @@
             .attr("id", 'svgHeatMap')
             .append("g")
             .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
+                "translate(" + (margin.left+5) + "," + margin.top + ")");
 
         // Create the heatmap:
         createHeatmap('cohort', cohortQuery, data, svgHeatMap);
