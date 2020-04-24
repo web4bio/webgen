@@ -62,7 +62,6 @@
 <!--
   Setting up the user input text fields and buttons.
 -->
-
     <script>
       $(document).ready(function() {
         $('.cancerTypeMultipleSelection').select2({
@@ -100,8 +99,6 @@
     Setting up the tabs.
   -->
 <div class="tabs_container">  
-  <div class="tabs_container">  
-<div class="tabs_container">  
   <div class="row">
     <ul class="tabs">
       <li class="tab col s6"><a class="active" href="#heatmapRef">Heatmap</a></li>
@@ -119,11 +116,6 @@
     </div>
   </div>
 </div>
-
-<!--
-  Creating a button for alert message on an error:
--->
-<span class="closebtn" id='span0' onclick="this.parentElement.style.display='none';">&times;</span>
 
   <!--
     The JS code for building the plots to display:
@@ -147,21 +139,7 @@
       var cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                         cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
       
-      console.log(geneQuery);
-      console.log(cohortQuery);
-
-      // Get number of cohorts:
-      var amountOfCohorts = amount(cohortQuery);
-
-      // Check the cohort list to be valid:
-      validCohorts = checkCohortList(cohortQuery);
-      if (validCohorts == false) {
-        document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
-        showError('cohortError');
-        return;
-      };
-    
-
+                        
       // Fetch RNA sequence data and display requested plots:
       var dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
 

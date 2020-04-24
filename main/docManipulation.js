@@ -38,6 +38,7 @@ removeSVGelements = function() {
 
 
 // Function to display the error message:
+// NOTE: errors are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
 showError = function(errorType) {
   // Create div1 and set it to be alert class:
   addElement('div1','div0');
@@ -60,6 +61,7 @@ showError = function(errorType) {
 
 
 // Function to display a warning for genes that don't have mRNA-Seq data:
+// NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
 showWarning = function(emptyGeneArray_arg) {
   // Create div1 and set it to be warning class:
   //addElement('div1','div0');
