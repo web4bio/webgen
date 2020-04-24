@@ -10,6 +10,7 @@
     width: 100%
 }
 
+
 .CohortGenesInput {
 	border: 1px solid #ccc;
     border-radius: 10px;
@@ -20,7 +21,11 @@
     outline: 1;
     display: block;
     margin: 0 auto;
-    margin-bottom: 2px   
+    margin-bottom: 2px;
+}
+
+input#geneQuery.center-align {
+    width: 50%;
 }
 
 .select-wrapper .caret{
@@ -33,6 +38,10 @@
     left: 25%;
 }
 
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: black;
+    opacity: 1; /* Firefox */
+  }
 
 .relevantLinks {
 	float: left;
