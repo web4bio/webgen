@@ -191,7 +191,7 @@
             .attr("id", 'svgViolinPlot')
             .append("g")
             .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
+                "translate(" + (margin.left-20) + "," + margin.top + ")");
 
         // Create the heatmap:
         createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);

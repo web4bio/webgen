@@ -1,8 +1,11 @@
 createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 {
     var margin = {top: 10, right: 30, bottom: 30, left: 40},
-    width = 800 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    width = 1250 - margin.left - margin.right,
+    height = 440 - margin.top - margin.bottom;
+
+    // Filter out null values:
+    dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
 
     var myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
     var myVarsTemp = d3.map(dataInput, function(d){return d.expression_log2}).keys();
@@ -29,7 +32,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     var x = d3.scaleBand()
         .range([0, width])
         .domain(myGroups)
-        .padding(0.15)     // This is important: it is the space between 2 groups. 0 means no padding. 1 is the maximum.
+        .padding(0.2)     // This is important: it is the space between 2 groups. 0 means no padding. 1 is the maximum.
     
     svgObject.append("g")
     .attr("transform", "translate(0," + height + ")")
@@ -47,7 +50,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     .rollup(function(d) 
     {   // For each key..
         input = d.map(function(g) 
-        {
+        {   
             return g.expression_log2;
         });    // Keep the variable called expression_log2
         bins = histogram(input)   // And compute the binning on it.
@@ -60,18 +63,19 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     for(i in sumstat)
     {
         allBins = sumstat[i].value
-        expressionLevels = myVars;
-        largest = d3.max(expressionLevels)
+        console.log(allBins);
+        lengths = allBins.map(function(a){return a.length;})
+        longest = d3.max(lengths)
 
-        if (largest > maxNum) 
+        if (longest > maxNum) 
         {
-            maxNum = largest;
+            maxNum = longest;
         }
     }
 
     // The maximum width of a violin must be x.bandwidth = the width dedicated to a group
     var xNum = d3.scaleLinear()
-        .range([0, x.bandwidth()*0.2])
+        .range([0, x.bandwidth()])
         .domain([-maxNum ,maxNum])
 
     // Add the shape to this svg!
@@ -86,8 +90,8 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
         .style("stroke", "none")
         .style("fill","#69b3a2")
         .attr("d", d3.area()
-            .x0(function(d){ return(xNum(-d.length) + 60) } )
-            .x1(function(d){ return(xNum(d.length) + 60) } )
+            .x0(function(d){ return(xNum(-d.length)) } )
+            .x1(function(d){ return(xNum(d.length)) } )
             .y(function(d){ return(y(d.x0)) } )
             .curve(d3.curveCatmullRom)    // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
         )
