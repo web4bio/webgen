@@ -1,5 +1,5 @@
-createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
-{
+createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject) {
+
     var margin = {top: 10, right: 30, bottom: 30, left: 40},
     width = 1250 - margin.left - margin.right,
     height = 440 - margin.top - margin.bottom;
@@ -7,7 +7,21 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
 
+    // Get myGroups of genes:
     var myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
+
+    // Sort myGroups by median expression:
+    function compareGeneExpressionMedian(a,b) {
+        aArray = d3.map(dataInput.filter(x => x.gene == a), function(d){return d.expression_log2;}).keys();
+        bArray = d3.map(dataInput.filter(x => x.gene == b), function(d){return d.expression_log2;}).keys();
+        aMedian = median(aArray);
+        bMedian = median(bArray);
+
+        return aMedian - bMedian;
+    };
+    myGroups.sort(function(a,b) {return compareGeneExpressionMedian(a,b)});
+
+    // Get myVars of expressionValues:
     var myVarsTemp = d3.map(dataInput, function(d){return d.expression_log2}).keys();
 
     var myVars = [];
@@ -40,7 +54,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 
     // Features density estimation:
     // The value passed to kernelEpanechnikov determines smoothness:
-    var kde = kernelDensityEstimator(kernelEpanechnikov(1), y.ticks(50))
+    var kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50))
     
     // Compute the binning for each group of the dataset
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
@@ -113,6 +127,23 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     };
 };
 
+
+// Helper functino for median:
+function median(values){
+    if(values.length ===0) return 0;
+  
+    values.sort(function(a,b){
+      return a-b;
+    });
+  
+    var half = Math.floor(values.length / 2.0);
+  
+    if (values.length % 2) {
+      return Number(values[half]);
+    };
+    
+    return (Number(values[half - 1]) + Number(values[half])) / 2;
+};
 
 // Helper functions for kernel density estimation from (https://gist.github.com/mbostock/4341954):
 
