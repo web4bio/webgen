@@ -141,6 +141,14 @@ input#geneQuery.center-align {
     background-color:#4db6ac;
 } /*Color of underline*/
 
+.tabs .tab a:hover, .tabs .tab a.active {
+    color: #4db6ac;
+}
+
+.tabs .tab a{
+    color: #4db6ac;
+}
+
 ::placeholder {
     color: #000000;
     font-weight: 700;
