@@ -10,6 +10,11 @@
     width: 100%
 }
 
+.submitButtons {
+    position: relative;
+    left: 39.9%;
+}
+
 .loader {
     position: absolute;
     left: 50%;
