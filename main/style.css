@@ -10,11 +10,6 @@
     width: 100%
 }
 
-.submitButtons {
-    position: relative;
-    left: 39.9%;
-}
-
 .loader {
     position: absolute;
     left: 50%;
@@ -170,4 +165,20 @@ input#geneQuery.center-align {
 #mainWindowExampleButton {
     border: 1px solid red;
     width:100%
+}
+
+#mainWindowButtons {
+    margin-bottom: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+#exampleButton {
+    width: 15%;
+    margin-left: 34.4%;
+}
+
+#submitButton {
+    width: 15%;
+    margin-right: 35%;
 }
