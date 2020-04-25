@@ -166,3 +166,15 @@ input#geneQuery.center-align {
     border: 1px solid red;
     width:100%
 }
+
+#mainWindowButtons {
+    margin-bottom: 10px;
+}
+
+#exampleButton {
+    width: 15%
+}
+
+#submitButton {
+    width: 15%
+}
