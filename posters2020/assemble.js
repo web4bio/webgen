@@ -38,10 +38,6 @@ assemble=async(index='presentations.json')=>{
         //debugger
     }
 
-    // final overview slide
-    let overviewDiv = document.createElement('div')
-    overviewDiv.innerHTML='<div id="overview" class="step" data-x="0000" data-y="0" data-z="460" data-rotate-x="0" data-rotate-y="-7" data-rotate-y="-10" data-rotate-z="-15" data-scale="7"></div>'
-    div.appendChild(overviewDiv.children[0])
 }
 
 window.onload=_=>{assemble()}
