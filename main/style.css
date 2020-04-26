@@ -141,6 +141,14 @@ input#geneQuery.center-align {
     background-color:#4db6ac;
 } /*Color of underline*/
 
+.tabs .tab a:hover, .tabs .tab a.active {
+    color: #4db6ac;
+}
+
+.tabs .tab a{
+    color: #4db6ac;
+}
+
 ::placeholder {
     color: #000000;
     font-weight: 700;
@@ -165,4 +173,20 @@ input#geneQuery.center-align {
 #mainWindowExampleButton {
     border: 1px solid red;
     width:100%
+}
+
+#mainWindowButtons {
+    margin-bottom: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+#exampleButton {
+    width: 15%;
+    margin-left: 34.4%;
+}
+
+#submitButton {
+    width: 15%;
+    margin-right: 35%;
 }

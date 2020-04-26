@@ -33,7 +33,7 @@ fillGeneSelectBox = async function() {
         if(a.hugoSymbol > b.hugoSymbol) { return 1; }
         return 0;
     })
-    console.log(geneList)
+    
     for(i = 0; i < geneList.length; i++) {
         var currentOption = document.createElement("option");
         currentOption.value = geneList[i].hugoSymbol;
@@ -69,6 +69,4 @@ fetchCohortData = async function() {
   
   }
   
-
-
-
+// END OF PROGRAM

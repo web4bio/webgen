@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>WebGen 2020</title>
+    
+    <meta name="description" content="Slide presentation for WebGen 2020" />
+    <meta name="author" content="Bartek Szopka" />
+
+    <link hre f="//fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    <link href="css/impress-common.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <div id="intro" class="step slide" data-x="0" data-y="0" data-z="2000">
+        <h3 style="color:maroon">WebGen</h3>
+        <p>Something about WebGen here.</p>
+    </div>
+
+    <div id="index" class="step slide" data-x="0" data-y="0" data-z="1000">
+        <h3 style="color:maroon">WebGen</h3>
+        <p>next slides will assemble automatically from <a href='presentations.json' target="_blank">presentations.json</a></p>
+    </div>
+    
+</div>
+
+<div id="impress-toolbar"></div>
+
+<div class="hint">
+    <p>Use a spacebar or arrow keys to navigate. <br/>
+       Press 'P' to launch speaker console.</p>
+</div>
+<script>
+if ("ontouchstart" in document.documentElement) { 
+    document.querySelector(".hint").innerHTML = "<p>Swipe left or right to navigate</p>";
+}
+</script>
+
+<script src="assemble.js"></script>
+<script src="js/impress.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
