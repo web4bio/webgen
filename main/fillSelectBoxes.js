@@ -63,5 +63,11 @@ fetchCohortData = async function() {
     }
   
   }
-  
+
+getValidGeneList = async function() {
+    var validGeneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/validGeneList.json").then(response => response.json());
+    validGeneList = validGeneList.map(geneInfo => geneInfo.hugoSymbol);
+
+    return await validGeneList
+}  
 // END OF PROGRAM

@@ -63,15 +63,39 @@
   Setting up the user input text fields and buttons.
 -->
     <script>
-      $(document).ready(function() {
-        $('.cancerTypeMultipleSelection').select2({
-          placeholder: "Select Cancer Type(s)"
+      // Get the list of valid genes users can search for:
+      validGeneListFetch = getValidGeneList();
+      validGeneListFetch.then(function(validGeneList){
+
+        $(document).ready(function() {
+
+          // For Cancer Type Select2 Drop down:
+          $('.cancerTypeMultipleSelection').select2({
+            placeholder: "Select Cancer Type(s)"
+          });
+
+          // For Gene Select2 Drop down:
+          $('.geneMultipleSelection').select2({
+            tags: true,
+            createTag: function (params) {
+              // If the gene entered is not valid, don't create new tag:
+              if (~validGeneList.includes(params.term.toUpperCase()) === -1) {
+                return null;
+              }
+              
+              // If the gene entered is valid, create new tag:
+              return {
+                id: params.term.toUpperCase(),
+                text: params.term.toUpperCase()
+              }
+            },
+            placeholder: "Select Gene(s)"
+          });
+
+          // Fill the Select2 Boxes:
+          fillCancerTypeSelectBox();
+          fillGeneSelectBox();
         });
-        $('.geneMultipleSelection').select2({
-          placeholder: "Select Gene(s)"
-        });
-        fillCancerTypeSelectBox();
-        fillGeneSelectBox();
       });
     </script>
 
