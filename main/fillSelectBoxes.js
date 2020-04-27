@@ -28,11 +28,6 @@ fillCancerTypeSelectBox = async function() {
 fillGeneSelectBox = async function() {
     let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
     var selectBox = document.getElementById("geneMultipleSelection");
-    geneList.sort(function(a, b){
-        if(a.hugoSymbol < b.hugoSymbol) { return -1; }
-        if(a.hugoSymbol > b.hugoSymbol) { return 1; }
-        return 0;
-    })
     
     for(i = 0; i < geneList.length; i++) {
         var currentOption = document.createElement("option");
