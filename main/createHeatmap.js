@@ -47,7 +47,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
 
     // Append the y axis for the heatmap:
     svgObject.append("g")
-        .style("font-size", 10.5)
+        .style("font-size", 9.5)
         .call(d3.axisLeft(y).tickSize(0))
         .select(".domain").remove()
 

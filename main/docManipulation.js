@@ -182,7 +182,7 @@ function setVars() {
         .attr("id", 'svgHeatMap')
         .append("g")
         .attr("transform",
-            "translate(" + (margin.left+5) + "," + margin.top + ")");
+            "translate(" + (margin.left) + "," + margin.top + ")");
 
     // Create the heatmap:
     createHeatmap('cohort', cohortQuery, data, svgHeatMap);
@@ -194,7 +194,7 @@ function setVars() {
         .attr("id", 'svgViolinPlot')
         .append("g")
         .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + (margin.left-20) + "," + margin.top + ")");
 
     // Create the heatmap:
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);
