@@ -190,3 +190,8 @@ input#geneQuery.center-align {
     width: 15%;
     margin-right: 35%;
 }
+
+.page-footer {
+    background-color: #4db6ac;
+    margin-top: 660px;
+}
