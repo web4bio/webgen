@@ -9,6 +9,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 
     // Get myGroups of genes:
     var myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
+    var numOfGenes = myGroups.length;
 
     // Sort myGroups by median expression:
     function compareGeneExpressionMedian(a,b) {
@@ -49,19 +50,38 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
         .padding(0.01)     // This is important: it is the space between 2 groups. 0 means no padding. 1 is the maximum.
     
     svgObject.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x))
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
 
     // Features density estimation:
     // The value passed to kernelEpanechnikov determines smoothness:
     var kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50))
     
+    /*Each entry in geneStatistics will be an array of the following format:
+    1) Gene name
+    2) Average gene expression level
+    3) Median gene expression level
+    4) Maximum gene expression level
+    5) Mininum gene expression level
+    */
+    var geneStatistics = [];
+    var currentGene;
+
     // Compute the binning for each group of the dataset
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
-        .key(function(d) { return d.gene;})
+        .key(function(d) 
+        {
+            return d.gene;
+        })
         .rollup(function(d) {                                              // For each key..
             input = d.map(function(g) { return g.expression_log2;});
-            density = kde(input)                                           // Implement kernel density estimation
+            if(geneStatistics.length < numOfGenes)
+            {
+                geneStatistics.push([average(input), median(input),
+                    Math.max.apply(null, input), Math.min.apply(null, input)]);
+            }
+
+            density = kde(input);                                           // Implement kernel density estimation
             return(density);
         })
         .entries(dataInput)
@@ -84,6 +104,14 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
         .range([0, x.bandwidth()])
         .domain([-maxNum ,maxNum])
 
+
+    var tooltip = d3.select("body").append("div")
+        .append("div")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .text("");
+
     // Add the shape to this svg!
     svgObject
     .selectAll("myViolin")
@@ -92,7 +120,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     .append("g")
     .attr("transform", function(d){ return("translate(" + x(d.key) +" , 0)")}) // Translation on the right to be at the group position
     .append("path")
-        .datum(function(d){return(d.value)})     // So now we are working bin per bin
+        .datum(function(d){console.log(d);return(d.value);})     // So now we are working bin per bin
         .style("stroke", "none")
         .style("fill","#69b3a2")
         .attr("d", d3.area()
@@ -101,6 +129,34 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
             .y(function(d){ return(y(d[0])) } )
             .curve(d3.curveCatmullRom)    // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
         )
+        .on("mouseover", function()
+        {
+            d3.select(this).transition()
+                .duration("50")
+                .attr("opacity", "0.5");
+            
+            for(var prop in this)
+            {
+                console.log(prop + " : " + this[prop]);
+            }
+            
+            return tooltip.style("visibility", "visible").text("This works");
+        })
+
+        .on("mousemove", function()
+        {
+            return tooltip.style("top", (d3.event.pageY - 10) + "px")
+                .style("left", (d3.event.pageX + 10) + "px");
+        })
+
+        .on("mouseout", function()
+        {
+            d3.select(this).transition()
+                .duration("50")
+                .attr("opacity", "1");
+
+            tooltip.style("visiblity", "hidden").text("");
+        })
 
 
     if (indepVarType == 'cohort') 
@@ -116,7 +172,6 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     } 
     else if (indepVarType == 'mutatedGene') 
     {
-
         // Add title to graph
         svgObject.append("text")
         .attr("x", 0)
@@ -128,7 +183,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 };
 
 
-// Helper functino for median:
+// Helper function for median:
 function median(values){
     if(values.length ===0) return 0;
   
@@ -144,6 +199,19 @@ function median(values){
     
     return (Number(values[half - 1]) + Number(values[half])) / 2;
 };
+
+//Helper function for average
+function average(values)
+{
+    var sum = 0;
+
+    for(var index = 0; index < values.length; index++)
+    {
+        sum += (Number)(values[index]);
+    }
+
+    return (Number)(sum/values.length);
+}
 
 // Helper functions for kernel density estimation from (https://gist.github.com/mbostock/4341954):
 
