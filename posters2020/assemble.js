@@ -1,6 +1,6 @@
 console.log('assemble.js loaded')
 
-assemble=async(index='presentations.json')=>{
+assemble=async(index='https://raw.githubusercontent.com/web4bio/webgen/ethan/posters2020/presentations.json')=>{
     console.log(`assembling slides from ${index}`)
     let div=document.getElementById('intro').parentElement
     let pres=await (await fetch(index)).json()
@@ -10,7 +10,7 @@ assemble=async(index='presentations.json')=>{
     let n=pres.length
     for(let i=0;i<n;i++){   // n html files
         console.log(`assembling ${pres[i]}`)
-        let h = await (await fetch(pres[i])).text()
+        let h = await (await fetch('https://raw.githubusercontent.com/web4bio/webgen/ethan/posters2020/'+pres[i])).text()
         h = h.replace(/\n/g,'').replace(/(>[\s\n\r]+)/g,'>').replace(/([\s\n\r]+<)/g,'<')
         let newDivs=document.createElement('div')
         newDivs.innerHTML=h
