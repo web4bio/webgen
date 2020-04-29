@@ -111,11 +111,13 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
         .style("stroke", "black")
         .style("opacity", 1)
     }
+    const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
     var mousemove = function(d) {
         tooltip
         // Choose what the tooltip will display (this can be customized to display other data):
-        .html("Expression Level: " + d.expression_log2.toFixed(5) +' , '+ 
-              "Expression Z Score: " + d["z-score"].toFixed(5) +' , '+
+        .html("\xa0\xa0"+ 
+              "Expression Level: " + d.expression_log2.toFixed(5) + spacing + 
+              "Expression Z Score: " + d["z-score"].toFixed(5) +spacing +
               "Cohort: " +d.cohort)
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")
