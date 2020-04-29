@@ -9,17 +9,18 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 
     // Get myGroups of genes:
     var myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
+    var numOfGenes = myGroups.length;
 
     // Sort myGroups by median expression:
     function compareGeneExpressionMedian(a,b) {
-        aArray = d3.map(dataInput.filter(x => x.gene == a), function(d){return d.expression_log2;}).keys();
-        bArray = d3.map(dataInput.filter(x => x.gene == b), function(d){return d.expression_log2;}).keys();
-        aMedian = median(aArray);
-        bMedian = median(bArray);
-
+        var aArray = d3.map(dataInput.filter(x => x.gene == a), function(d){return d.expression_log2;}).keys();
+        var bArray = d3.map(dataInput.filter(x => x.gene == b), function(d){return d.expression_log2;}).keys();
+        var aMedian = d3.quantile(aArray,0.5);
+        var bMedian = d3.quantile(bArray,0.5);
+        
         return aMedian - bMedian;
     };
-    myGroups.sort(function(a,b) {return compareGeneExpressionMedian(a,b)});
+    myGroups.sort((a,b) => compareGeneExpressionMedian(a,b));
 
     // Get myVars of expressionValues:
     var myVarsTemp = d3.map(dataInput, function(d){return d.expression_log2}).keys();
@@ -49,19 +50,38 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
         .padding(0.01)     // This is important: it is the space between 2 groups. 0 means no padding. 1 is the maximum.
     
     svgObject.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x))
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
 
     // Features density estimation:
     // The value passed to kernelEpanechnikov determines smoothness:
     var kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50))
     
+    /*Each entry in geneStatistics will be an array of the following format:
+    1) Gene name
+    2) Average gene expression level
+    3) Median gene expression level
+    4) Maximum gene expression level
+    5) Mininum gene expression level
+    */
+    var geneStatistics = [];
+    var currentGene;
+
     // Compute the binning for each group of the dataset
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
-        .key(function(d) { return d.gene;})
+        .key(function(d) 
+        {
+            return d.gene;
+        })
         .rollup(function(d) {                                              // For each key..
             input = d.map(function(g) { return g.expression_log2;});
-            density = kde(input)                                           // Implement kernel density estimation
+            if(geneStatistics.length < numOfGenes)
+            {
+                geneStatistics.push([average(input), d3.quantile(input, 0.5),
+                    Math.max.apply(null, input), Math.min.apply(null, input)]);
+            }
+
+            density = kde(input);                                           // Implement kernel density estimation
             return(density);
         })
         .entries(dataInput)
@@ -77,12 +97,70 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
         if (longest > maxNum) {
             maxNum = longest;
         }
+
+        // Add statisitc info for each gene:
+        var currentExpressionArray = d3.map(dataInput.filter(x => x.gene == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        sumstat[i].median = d3.quantile(currentExpressionArray, 0.5);
+        sumstat[i].Qthree = d3.quantile(currentExpressionArray, 0.75);
+        sumstat[i].Qone = d3.quantile(currentExpressionArray, 0.25);
+        sumstat[i].average = average(currentExpressionArray);
+        sumstat[i].min = Math.min(...currentExpressionArray);
+        sumstat[i].max = Math.max(...currentExpressionArray);
     }
 
     // The maximum width of a violin must be x.bandwidth = the width dedicated to a group
     var xNum = d3.scaleLinear()
         .range([0, x.bandwidth()])
         .domain([-maxNum ,maxNum])
+
+    
+    // Build the scroll over tool:
+    // create a tooltip
+    var tooltip = d3.select("#violinPlotRef")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+
+    // Three function that change the tooltip when user hover / move / leave a cell
+    var mouseover = function(d) {
+        tooltip
+        .style("opacity", 1)
+        d3.select(this)
+        .style("stroke", "black")
+        .style("opacity", 1)             
+    }
+    var mousemove = function(d) {
+        tooltip
+        .style("left", (d3.mouse(this)[0]+70) + "px")
+        .style("top", (d3.mouse(this)[1]) + "px")
+        .attr("transform", "translate(" + width/2 + ")")
+        for (prop in this) {
+            const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
+            var tooltipstring = "\xa0\xa0" + 
+                                "Gene: " + d.key + spacing +
+                                "Min: " + String(d.min.toFixed(4)) + spacing +
+                                "Q1: " + String(d.Qone.toFixed(4)) + spacing +
+                                "Median: " + String(d.median.toFixed(4)) + spacing +
+                                "Average: " + String(d.average.toFixed(4)) + spacing +
+                                "Q3: " + String(d.Qthree.toFixed(4)) + spacing +
+                                "Max: " + String(d.max.toFixed(4))
+                                ;
+            return tooltip.style("visibility", "visible").html(tooltipstring);
+                                                               
+        };
+
+    }
+    var mouseleave = function(d) {
+        tooltip
+        .style("opacity", 0)
+        d3.select(this)
+        .style("stroke", "none")
+    }
 
     // Add the shape to this svg!
     svgObject
@@ -91,17 +169,19 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     .enter()        // So now we are working group per group
     .append("g")
     .attr("transform", function(d){ return("translate(" + x(d.key) +" , 0)")}) // Translation on the right to be at the group position
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave)
     .append("path")
-        .datum(function(d){return(d.value)})     // So now we are working bin per bin
+        .datum(function(d){return(d.value);})     // So now we are working bin per bin
         .style("stroke", "none")
         .style("fill","#69b3a2")
         .attr("d", d3.area()
             .x0(function(d){ return(xNum(-d[1])) } )
             .x1(function(d){ return(xNum(d[1])) } )
             .y(function(d){ return(y(d[0])) } )
-            .curve(d3.curveCatmullRom)    // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
-        )
-
+            .curve(d3.curveCatmullRom))  // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
+        
 
     if (indepVarType == 'cohort') 
     {
@@ -116,7 +196,6 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     } 
     else if (indepVarType == 'mutatedGene') 
     {
-
         // Add title to graph
         svgObject.append("text")
         .attr("x", 0)
@@ -128,22 +207,18 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 };
 
 
-// Helper functino for median:
-function median(values){
-    if(values.length ===0) return 0;
-  
-    values.sort(function(a,b){
-      return a-b;
-    });
-  
-    var half = Math.floor(values.length / 2.0);
-  
-    if (values.length % 2) {
-      return Number(values[half]);
-    };
-    
-    return (Number(values[half - 1]) + Number(values[half])) / 2;
-};
+//Helper function for average
+function average(values)
+{
+    var sum = 0;
+
+    for(var index = 0; index < values.length; index++)
+    {
+        sum += (Number)(values[index]);
+    }
+
+    return (Number)(sum/values.length);
+}
 
 // Helper functions for kernel density estimation from (https://gist.github.com/mbostock/4341954):
 
