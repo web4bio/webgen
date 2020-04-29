@@ -87,21 +87,17 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     5) Mininum gene expression level
     */
     var geneStatistics = [];
-    var currentGene;
 
     // Compute the binning for each group of the dataset
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
-        .key(function(d) 
-        {
-            return d.gene;
-        })
+        .key(function(d) {return d.gene;})
         .rollup(function(d) {                                              // For each key..
             input = d.map(function(g) { return g.expression_log2;});
-            if(geneStatistics.length < numOfGenes)
-            {
+
+            if(geneStatistics.length < numOfGenes) {
                 geneStatistics.push([average(input), d3.quantile(input, 0.5),
                     Math.max.apply(null, input), Math.min.apply(null, input)]);
-            }
+            };
 
             density = kde(input);                                           // Implement kernel density estimation
             return(density);
@@ -232,8 +228,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
             .curve(d3.curveCatmullRom))  // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
         
 
-    if (indepVarType == 'cohort') 
-    {
+    if (indepVarType == 'cohort') {
         // Add title to graph
         svgObject.append("text")
             .attr("x", 0)
@@ -243,8 +238,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
             .text("Gene Expression Violin Plot for "+indepVars.join(' and '))
 
     } 
-    else if (indepVarType == 'mutatedGene') 
-    {
+    else if (indepVarType == 'mutatedGene') {
         // Add title to graph
         svgObject.append("text")
         .attr("x", 0)
@@ -264,14 +258,12 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Helper function for average
-function average(values)
-{
+function average(values) {
     var sum = 0;
 
-    for(var index = 0; index < values.length; index++)
-    {
+    for(var index = 0; index < values.length; index++) {
         sum += (Number)(values[index]);
-    }
+    };
 
     return (Number)(sum/values.length);
 };
