@@ -349,6 +349,10 @@ td {
     right: 300px;
 }
 
+#embeddedDemo {
+    margin-left: 50px;
+}
+
 /*
     And as the last thing there is a workaround for quite strange bug.
     It happens a lot in Chrome. I don't remember if I've seen it in Firefox.
