@@ -115,10 +115,12 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
     var mousemove = function(d) {
         tooltip
         // Choose what the tooltip will display (this can be customized to display other data):
-        .html("\xa0\xa0"+ 
-              "Expression Level: " + d.expression_log2.toFixed(5) + spacing + 
-              "Expression Z Score: " + d["z-score"].toFixed(5) +spacing +
-              "Cohort: " +d.cohort)
+        .html("\xa0\xa0" + 
+            "Cohort: " + d.cohort + spacing +
+            "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
+            "Gene: " + d.gene + spacing +
+            "Expression Level (log2): " + d.expression_log2.toFixed(5) + spacing + 
+            "Expression Z-Score: " + d["z-score"].toFixed(5))
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")
     }
