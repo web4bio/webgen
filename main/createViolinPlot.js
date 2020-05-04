@@ -5,13 +5,13 @@
 // indepVar is the independent variable (ex1: 'PAAD', ex2: 'TP53')
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
-
+ 
 createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject) {
 
-    // Set up margins:
+    // Set up the figure dimensions:
     var margin = {top: 10, right: 30, bottom: 30, left: 40},
-    width = 1250 - margin.left - margin.right,
-    height = 440 - margin.top - margin.bottom;
+        width = 1250 - margin.left - margin.right,
+        height = 440 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -172,7 +172,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
                                 "Min: " + String(d.min.toFixed(4)) + spacing +
                                 "Q1: " + String(d.Qone.toFixed(4)) + spacing +
                                 "Median: " + String(d.median.toFixed(4)) + spacing +
-                                "Average: " + String(d.average.toFixed(4)) + spacing +
+                                "Mean: " + String(d.average.toFixed(4)) + spacing +
                                 "Q3: " + String(d.Qthree.toFixed(4)) + spacing +
                                 "Max: " + String(d.max.toFixed(4))
                                 ;
@@ -226,7 +226,6 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
             .x1(function(d){ return(xNum(d[1])) } )
             .y(function(d){ return(y(d[0])) } )
             .curve(d3.curveCatmullRom))  // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
-        
 
     if (indepVarType == 'cohort') {
         // Add title to graph
@@ -261,9 +260,8 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 function average(values) {
     var sum = 0;
 
-    for(var index = 0; index < values.length; index++) {
+    for(var index = 0; index < values.length; index++)
         sum += (Number)(values[index]);
-    };
 
     return (Number)(sum/values.length);
 };
