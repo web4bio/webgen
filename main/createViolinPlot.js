@@ -24,8 +24,8 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
     function compareGeneExpressionMedian(a,b) {
         var aArray = d3.map(dataInput.filter(x => x.gene == a), function(d){return d.expression_log2;}).keys();
         var bArray = d3.map(dataInput.filter(x => x.gene == b), function(d){return d.expression_log2;}).keys();
-        var aMedian = d3.quantile(aArray,0.5);
-        var bMedian = d3.quantile(bArray,0.5);
+        var aMedian = d3.quantile(aArray.sort(function(a,b) {return a - b ;}), 0.5);
+        var bMedian = d3.quantile(bArray.sort(function(a,b) {return a - b ;}), 0.5);
         
         return aMedian - bMedian;
     };
@@ -118,12 +118,13 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 
         // Add statisitc info for each gene:
         var currentExpressionArray = d3.map(dataInput.filter(x => x.gene == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        currentExpressionArray.sort(function(a,b) {return a - b ;});
         sumstat[i].median = d3.quantile(currentExpressionArray, 0.5);
         sumstat[i].Qthree = d3.quantile(currentExpressionArray, 0.75);
         sumstat[i].Qone = d3.quantile(currentExpressionArray, 0.25);
         sumstat[i].average = average(currentExpressionArray);
-        sumstat[i].min = Math.min(...currentExpressionArray);
-        sumstat[i].max = Math.max(...currentExpressionArray);
+        sumstat[i].min = Number(currentExpressionArray[0]);
+        sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length-1]);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
