@@ -193,7 +193,7 @@ input#geneQuery.center-align {
 
 .page-footer {
     background-color: #4db6ac;
-    margin-top: 24%;
+    margin-top: 50%;
 }
 
 #page-container {
@@ -201,13 +201,13 @@ input#geneQuery.center-align {
     min-height: 160vh;
   }
   
-  #content-wrap {
+#content-wrap {
     padding-bottom: 2.5rem;    /* Footer height */
-  }
-  
-  #footer {
+}
+
+#footer {
     position: absolute;
     bottom: 0;
     width: 100%;
     /* height: 2.5rem;            Footer height */
-  }
+}
