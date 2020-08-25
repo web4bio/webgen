@@ -31,7 +31,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) |   |
 | [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Sandbox](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) |   |
 | Luke | | | |
-| Yuwei | | | | 
+| [Yuwei](https://github.com/Yuw-zhang) | | | | 
 | Kevin | | | |
 | Soma | | | |
 | Eric | | | |
