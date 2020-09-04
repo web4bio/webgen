@@ -34,7 +34,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | Yuwei | | | | 
 | Kevin | | | |
 | Soma | | | |
-| Eric | | | |
+| [Eric Ruan](https://github.com/ericr491) | | | |
 | Jillian | | | |
 
 #### Alumni
