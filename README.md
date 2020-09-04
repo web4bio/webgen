@@ -22,32 +22,38 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 ## Participants
 
-| Name & GitHub  | Google Doc | Observable | Other |
+| Name & GitHub ID  | Individual folder | Observable | Other links|
 | --- | --- | --- | --- |
-| [Richard Moffitt](https://github.com/rmoffitt) | [Notebook](https://docs.google.com/document/d/1tjo-rafpYEwuRS9hhp6eQ8UvNseNXmcvcHEvZuKuAJw) | [Sandbox](https://beta.observablehq.com/@rmoffitt/webgen), [GDC tool](https://observablehq.com/@rmoffitt/tcgaplots) | [Project page](/richard/richard.html) |
-| [Jonas Almeida](http://www.github.com/jonasalmeida) |  | [Sandbox](https://beta.observablehq.com/@jonasalmeida/webgen)    | [Firebrowse](https://github.com/episphere/firebrowse) |
-| [Anthony Xiang](https://github.com/anthonyxiang1) | [Fall 2019 Log](https://docs.google.com/document/d/1_yPKVaUQYhm_nESCsvcH_5MymwL7CxrM1Hj6tCABnLk/) | [Histology Sandbox](https://observablehq.com/@axian0420/webgen-second-edition)   | anthony.xiang@stonybrook.edu |
-| [Carolyn Bremer](http://www.github.com/cgbrem) | [Fall 2019 Log](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit), [Spring 2020 Log](https://docs.google.com/document/d/1l8UgEMjIHbWd9m8RNZy4ZXpysO4Gtk0Kf0olnhbPtXc/edit)|[Sandbox](https://observablehq.com/@cgbrem/web-gen-fall-19) | carolyn.bremer@stonybrook.edu |
-| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen), [Data Exploration](https://observablehq.com/@enemeth19/webgen-data-exploration) | erika.nemeth@stonybrook.edu |
-| [Ethan Earlie](https://github.com/Ethan-Earlie) | [Fall 2019 Log](https://docs.google.com/document/d/1f45nIPCUupQxX5ppOweWoZYAhrWoRXZ5_rkk7t_mo04/edit), [Spring 2020 Log](https://docs.google.com/document/d/191hM2TKbnvBdRZ5mPvVA5l0GHax2LF8Qagp38CCfnmA/edit) | [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/)  | ethan.earlie@stonybrook.edu |
-| [Hunter Jimenez](https://github.com/hunterjimenezsbu) | [Spring 2020 Log](https://docs.google.com/document/d/1AsGoe9sPQurOuhCaxrxLyXBB1FgjId5DnSwW7cTUpdQ/edit?usp=sharing) | [Histology Sandbox](https://observablehq.com/@huntsmna817/webgen) | hunter.jimenez@stonybrook.edu |
-| [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) | zhenghao.zhu@stonybrook.edu |
-| [Ki Oh](https://github.com/KO-BMI) | | [Sandbox](https://observablehq.com/@fluffyshoes/web-gen-fall-19) |  ki.oh@stonybrookmedicine.edu |
-| [Shweta Sankaranarayanan](https://github.com/shweta98) | [Spring 2020 Log](https://docs.google.com/document/d/1HwBXeBZIZml27XivGczKvx8-qzy2ckKpikwXD4BLAwM/edit?usp=sharing) | [Sandbox](https://observablehq.com/@shweta98/webgen) | shweta.sankaranarayanan@stonybrook.edu |
-| [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Sandbox](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) | adit.anand@stonybrook.edu |
-| [Nayan Pasari](https://github.com/npasari) | [Spring 2020 Log](https://docs.google.com/document/d/1_kkYin5DIjNYtF-V1zWa_XXBUPlYzdKntx3vztvuXi0/edit) | [Sandbox](https://observablehq.com/@npasari) | nayan.pasari@stonybrook.edu |
-| [Anthony Li](https://github.com/anthonyli22) | [Spring 2020 Log](https://docs.google.com/document/d/1wMNmPHckFBkMaLHZSFEaQchs5s_s-Q0ah3yk-mWXltY/edit?usp=sharing) | [Sandbox](https://observablehq.com/@anthonyli22/webgen-notebook) | anthony.li@stonybrook.edu |
+| [Richard Moffitt](https://github.com/rmoffitt) | [Folder](/archive/richard/), [js Sandbox](/archive/richard/richard.html) | [Notebook homepage](https://observablehq.com/@rmoffitt?tab=notebooks), [WebGen page](https://observablehq.com/@rmoffitt/webgen), [Simple GDC query tool](https://observablehq.com/@rmoffitt/tcgaplots) | [Faculty website](https://bmi.stonybrookmedicine.edu/people/moffitt_richard) |
+| [Jonas Almeida](http://www.github.com/jonasalmeida) | [Folder](https://github.com/web4bio/webgen/tree/master/archive/jonas), [js Sandbox](https://web4bio.github.io/webgen/archive/jonas/) | [Sandbox](https://beta.observablehq.com/@jonasalmeida/webgen)    | [Firebrowse](https://github.com/episphere/firebrowse) |
+| [Carolyn Bremer](http://www.github.com/cgbrem) | [Fall 2019 Log](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit), [Spring 2020 Log](https://docs.google.com/document/d/1l8UgEMjIHbWd9m8RNZy4ZXpysO4Gtk0Kf0olnhbPtXc/edit)|[Sandbox](https://observablehq.com/@cgbrem/web-gen-fall-19) |   |
+| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/18d5oB-Uft5nBskVxnZuEcaXHDPE291y2PBzQtcPZXVo/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) | [Interactive Plots](https://episphere.github.io/mortalitytracker/board/) |
+| [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) |   |
+| [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Sandbox](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) |   |
+| [Yuwei](https://github.com/Yuw-zhang) | | | | 
+| [Luke Torre-Healy](https://github.com/lthealy) | [Observable](https://observablehq.com/@lthealy) | [WebGen Notebook](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
+| Kevin | | | |
+| Soma | | | |
+| [Eric Ruan](https://github.com/ericr491) | | | |
+| [Jillian Unkenholz](https://github.com/jillianunk32)  | | | |
 
 #### Alumni
-  * [Tony Jin](https://github.com/t5n), [notebook](https://beta.observablehq.com/@t5n)
+  * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
+  * [Hunter Jimenez](https://github.com/hunterjimenezsbu): [Histology Sandbox](https://observablehq.com/@huntsmna817/webgen)
+  * [Ki Oh](https://github.com/KO-BMI): [Sandbox](https://observablehq.com/@fluffyshoes/web-gen-fall-19) 
+  * [Anthony Xiang](https://github.com/anthonyxiang1): [Histology Sandbox](https://observablehq.com/@axian0420/webgen-second-edition)
+  * [Anthony Li](https://github.com/anthonyli22): [Sandbox](https://observablehq.com/@anthonyli22/webgen-notebook)
+  * [Shweta Sankaranarayanan](https://github.com/shweta98): [Sandbox](https://observablehq.com/@shweta98/webgen)
+  * [Nayan Pasari](https://github.com/npasari): [Sandbox](https://observablehq.com/@npasari)
+  * [Tony Jin](https://github.com/t5n): [notebook](https://beta.observablehq.com/@t5n)
   * [Chinonso Nwabueze](http://www.github.com/conwabueze)
-  * [Fenghsi Yu](http://www.github.com/fenghsi), [notebook](https://observablehq.com/@fenghsi/webgen/2),[fenghsi.yu@stonybrook.edu]
-  * [Wen Cheng](http://www.github.com/wencheng921), [notebook](https://beta.observablehq.com/@wencheng921/webgen)
-  * [Sam Wang](http://www.github.com/SuperZam), [notebook](https://observablehq.com/@superzam/web-genomics/5),[sammy.wang@stonybrook.edu]
-  * [Anuki Liyanage](https://github.com/ANUKI11),[notebook](https://observablehq.com/@anuki11/webgen/2)
-  * [Kevin Chang](https://github.com/Xnonx14),[notebook](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook),[kevin.chang.1@stonybrook.edu]
-  * [Jonathan Krog](https://github.com/Jonathan-Krog), [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
-  * [Chantelle Dsilva](http://www.github.com/chantelle-dsilva), [notebook](https://beta.observablehq.com/@chantelle-dsilva/webgen), [chantelleeliza.dsilva]
+  * [Fenghsi Yu](http://www.github.com/fenghsi): [notebook](https://observablehq.com/@fenghsi/webgen/2)
+  * [Wen Cheng](http://www.github.com/wencheng921): [notebook](https://beta.observablehq.com/@wencheng921/webgen)
+  * [Sam Wang](http://www.github.com/SuperZam): [notebook](https://observablehq.com/@superzam/web-genomics/5)
+  * [Anuki Liyanage](https://github.com/ANUKI11): [notebook](https://observablehq.com/@anuki11/webgen/2)
+  * [Kevin Chang](https://github.com/Xnonx14): [notebook](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook)
+  * [Jonathan Krog](https://github.com/Jonathan-Krog): [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
+  * [Chantelle Dsilva](http://www.github.com/chantelle-dsilva): [notebook](https://beta.observablehq.com/@chantelle-dsilva/webgen)
 
 ## APIs
 * GDC https://api.gdc.cancer.gov
