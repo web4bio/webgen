@@ -35,7 +35,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | Kevin | | | |
 | Soma | | | |
 | [Eric Ruan](https://github.com/ericr491) | | | |
-| Jillian | | | |
+| [Jillian Unkenholz](https://github.com/jillianunk32)  | | | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
