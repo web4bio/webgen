@@ -30,7 +30,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/18d5oB-Uft5nBskVxnZuEcaXHDPE291y2PBzQtcPZXVo/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) | [Interactive Plots](https://episphere.github.io/mortalitytracker/board/) |
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) |   |
 | [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Sandbox](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) |   |
-| Luke | | | |
+| [Luke Torre-Healy](https://github.com/lthealy) | [Observable](https://observablehq.com/@lthealy) | [WebGen Notebook](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
 | Yuwei | | | | 
 | Kevin | | | |
 | Soma | | | |
