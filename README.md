@@ -33,7 +33,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Luke Torre-Healy](https://github.com/lthealy) | [Observable](https://observablehq.com/@lthealy) | [WebGen Notebook](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
 | Yuwei | | | | 
 | Kevin | | | |
-| Soma | | | |
+| [Soma Kobayashi] (https://github.com/skobayashi0417) | [Observable](https://observablehq.com/@skobayashi0417) | [WebGen Notebooks] (https://observablehq.com/@skobayashi0417?tab=notebooks) | |
 | [Eric Ruan](https://github.com/ericr491) | | | |
 | Jillian | | | |
 
