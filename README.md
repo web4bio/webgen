@@ -33,7 +33,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Yuwei Zhang](https://github.com/Yuw-zhang) | | | | 
 | [Luke Torre-Healy](https://github.com/lthealy) | [Observable](https://observablehq.com/@lthealy) | [WebGen Notebook](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
 | [Kevin Murgas](https://github.com/kevin-murgas) | | | |
-| [Soma Kobayashi](https://github.com/skobayashi0417) | | | |
+| [Soma Kobayashi](https://github.com/skobayashi0417) | [Observable](https://observablehq.com/@skobayashi0417) | [WebGen](https://observablehq.com/@skobayashi0417?tab=notebooks) | |
 | [Eric Ruan](https://github.com/ericr491) | | | |
 | [Jillian Unkenholz](https://github.com/jillianunk32)  | | | |
 | [Chowdhury An-Noor](https://github.com/chowdhuryannoor)  | | | |
