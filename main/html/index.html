@@ -29,18 +29,25 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     
+    <!-- Plotly Library -->
     <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script type="text/javascript" src = "fetchExpressionData.js"></script>
-    <script type="text/javascript" src = "fetchSigMutationData.js"></script>
-    <script type="text/javascript" src = "getSigMutationArray.js"></script>
-    <script type="text/javascript" src = "getExpressionDataJSONarray.js"></script>
-    <script type="text/javascript" src = "createHeatmap.js"></script>
-    <script type = "text/javascript" src = "createViolinPlot.js"></script>
-    <script type="text/javascript" src = "getCohortIDs.js"></script>
-    <script type="text/javascript" src = "getCohortDescriptions.js"></script>
-    <script type="text/javascript" src = "docManipulation.js"></script>
-    <script type ="text/javascript" src = "fillSelectBoxes.js"></script>
+
+    <!-- Load in files -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <script type="text/javascript" src = "../js/dataAcquisition/fetchExpressionData.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/fetchSigMutationData.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getCohortIDs.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getCohortDescriptions.js"></script>
+    
+    <script type="text/javascript" src = "../js/plots/createHeatmap.js"></script>
+    <script type = "text/javascript" src = "../js/plots/createViolinPlot.js"></script>
+
+    <script type="text/javascript" src = "../js/docManipulation.js"></script>
+    <script type ="text/javascript" src = "../js/fillSelectBoxes.js"></script>
+
   </head>
   
   <!--
@@ -55,9 +62,9 @@
     <div class="navbar-fixed">
         <nav>
         <div class="nav-wrapper">
-          <a href="index.html" style="font-style: italic;" class="brand-logo center">WebGen</a>
+          <a href="html/index.html" style="font-style: italic;" class="brand-logo center">WebGen</a>
           <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li class="active"><a href="about.html">About</a></li>
+            <li class="active"><a href="html/about.html">About</a></li>
           </ul>
         </div>
         </nav>
