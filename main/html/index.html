@@ -39,8 +39,6 @@
     <script type="text/javascript" src = "../js/dataAcquisition/fetchSigMutationData.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getCohortIDs.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getCohortDescriptions.js"></script>
     
     <script type="text/javascript" src = "../js/plots/createHeatmap.js"></script>
     <script type = "text/javascript" src = "../js/plots/createViolinPlot.js"></script>
@@ -50,15 +48,15 @@
 
   </head>
   
-  <!--
-    Set up the navbar:
-  -->
   <body>
 
     <div id="page-container">
 
     <div id = "content-wrap">
 
+  <!--
+    Set up the navbar:
+  -->
     <div class="navbar-fixed">
         <nav>
         <div class="nav-wrapper">
@@ -71,9 +69,9 @@
     </div>
 
 
-<!--
+  <!--
   Setting up the user input text fields and buttons.
--->
+  -->
     <script>
       // Get the list of valid genes users can search for:
       validGeneListFetch = getValidGeneList();
@@ -94,7 +92,6 @@
               if (~validGeneList.includes(params.term.toUpperCase()) === -1) {
                 return null;
               }
-              
               // If the gene entered is valid, create new tag:
               return {
                 id: params.term.toUpperCase(),
