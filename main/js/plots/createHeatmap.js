@@ -9,17 +9,17 @@
 createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
 
     // Set up the figure dimensions:
-    var margin = {top: 80, right: 30, bottom: 30, left: 60},
+    let margin = {top: 80, right: 30, bottom: 30, left: 60},
         width = 1250 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
     // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of expression z-score's called 'myVars'
-    var myGroups = d3.map(dataInput, function(d){return d.tcga_participant_barcode;}).keys();
-    var myVars = d3.map(dataInput, function(d){return d.gene;}).keys();
+    let myGroups = d3.map(dataInput, function(d){return d.tcga_participant_barcode;}).keys();
+    let myVars = d3.map(dataInput, function(d){return d.gene;}).keys();
 
     // Define minZ and maxZ for the color interpolator (this may become a user defined value later on):
-    var minZ = -2
-    var maxZ = 2
+    let minZ = -2
+    let maxZ = 2
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Build x scale and axis for heatmap::
-    var x = d3.scaleBand()
+    let x = d3.scaleBand()
         .range([ 0, width-50 ])
         .domain(myGroups)
         .padding(0.0);
@@ -40,7 +40,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
         .select(".domain").remove()
 
     // Build y scale and axis for heatmap:
-    var y = d3.scaleBand()
+    let y = d3.scaleBand()
         .range([ height, 0 ])
         .domain(myVars)
         .padding(0.0);
@@ -52,8 +52,8 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
         .select(".domain").remove()
 
     // Position scale for the legend:
-    var yScale = d3.scaleLinear().domain([minZ, maxZ]).range([height,0]);
-    var legendAxis = d3.axisRight()
+    let yScale = d3.scaleLinear().domain([minZ, maxZ]).range([height,0]);
+    let legendAxis = d3.axisRight()
         .scale(yScale)
         .tickSize(5)
         .ticks(5)
@@ -65,15 +65,15 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
         .call(legendAxis)
 
     // Create arr array to build legend:
-    var arr = [];
-    var step = (maxZ - minZ) / (1000 - 1);
-    for (var i = 0; i < 1000; i++) {
+    let arr = [];
+    let step = (maxZ - minZ) / (1000 - 1);
+    for(var i = 0; i < 1000; i++) {
       arr.push(minZ + (step * i));
     };
 
     // Build color scale
     interpolateRdBkGn = d3.interpolateRgbBasis(["blue","white","red"])
-    var myColor = d3.scaleSequential()
+    let myColor = d3.scaleSequential()
         .interpolator(interpolateRdBkGn)                          // A different d3 interpolator can be used here for a different color gradient
         .domain([minZ, maxZ])                                          // This domain scale will change the coloring of the heatmap.
     
@@ -93,7 +93,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
     
     // Build the scroll over tool:
     // create a tooltip
-    var tooltip = d3.select("#heatmapRef")
+    let tooltip = d3.select("#heatmapRef")
         .append("div")
         .style("opacity", 0)
         .attr("class", "tooltip")
@@ -104,7 +104,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
         .style("padding", "5px")
 
     // Three function that change the tooltip when user hover / move / leave a cell
-    var mouseover = function(d) {
+    let mouseover = function(d) {
         tooltip
         .style("opacity", 1)
         d3.select(this)
@@ -112,7 +112,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
         .style("opacity", 1)
     }
     const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
-    var mousemove = function(d) {
+    let mousemove = function(d) {
         tooltip
         // Choose what the tooltip will display (this can be customized to display other data):
         .html("\xa0\xa0" + 
@@ -124,7 +124,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")
     }
-    var mouseleave = function(d) {
+    let mouseleave = function(d) {
         tooltip
         .style("opacity", 0)
         d3.select(this)
@@ -191,7 +191,7 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Set the title of the plot depending on the type of independent variable being plotted:
-    if (indepVarType == 'cohort') {
+    if(indepVarType == 'cohort') {
 
         // Add title to graph
         svgObject.append("text")
