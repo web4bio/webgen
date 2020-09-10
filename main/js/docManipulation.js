@@ -1,6 +1,6 @@
 // Function to append div elemnts to an HTML document with an existing div element with id='oldDivID'.
 // Useful for when you have a variable amount of plots to display on the page:
-addElement = function(newDivID, oldDivID) { 
+addDiv = function(newDivID, oldDivID) { 
   // create a new div element 
   var newDiv = document.createElement("div"); 
   newDiv.setAttribute('id',newDivID);
@@ -10,9 +10,8 @@ addElement = function(newDivID, oldDivID) {
   document.getElementById(oldDivID).after(newDiv); 
 }
 
-
 // Function to remove the current div elements if they exist:
-removeDIVelements = function() {
+removeDiv = function() {
   var i = 1;
   var continueBool = true;
   while (continueBool == true) {
@@ -29,19 +28,17 @@ removeDIVelements = function() {
 // Function to remove the current svg elements if they exist:
 removeSVGelements = function() {
   svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
-
   for (var i=0; i < svgElementsArray.length; i++) {
     svgToRemove = document.getElementById(svgElementsArray[i]);
     $(svgToRemove).remove();
   };
 };
 
-
 // Function to display the error message:
 // NOTE: errors are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
 showError = function(errorType) {
   // Create div1 and set it to be alert class:
-  addElement('div1','div0');
+  addDiv('div1','div0');
   var divElement = document.getElementById('div1');
   divElement.className = 'alert';
 
@@ -58,7 +55,6 @@ showError = function(errorType) {
     divElement.innerHTML += "Error: ".bold() + "Invalid Cohort Fields for Query";
   };
 };
-
 
 // Function to display a warning for genes that don't have mRNA-Seq data:
 // NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
@@ -81,35 +77,33 @@ showWarning = function(emptyGeneArray_arg) {
   };
 }
 
+// // Function to check that the user input cohort list is valid:
+// checkCohortList = function(cohortQuery) {
+//   // List of valid cohorts:
+//   var validCohortList = ['ACC','BLCA','BRCA','CESC','CHOL','COAD','COADREAD','DLBC','ESCA','FPPP','GBM','GBMLGG','HNSC',
+//                          'KICH','KIPAN','KIRC','KIRP','LAML','LGG','LIHC','LUAD','LUSC','MESO','OV','PAAD','PCPG','PRAD',
+//                          'READ','SARC','SKCM','STAD','STES','TGCT','THCA','THYM','UCEC','UCS','UVM'];
 
-// Function to check that the user input cohort list is valid:
-checkCohortList = function(cohortQuery) {
-  // List of valid cohorts:
-  var validCohortList = ['ACC','BLCA','BRCA','CESC','CHOL','COAD','COADREAD','DLBC','ESCA','FPPP','GBM','GBMLGG','HNSC',
-                         'KICH','KIPAN','KIRC','KIRP','LAML','LGG','LIHC','LUAD','LUSC','MESO','OV','PAAD','PCPG','PRAD',
-                         'READ','SARC','SKCM','STAD','STES','TGCT','THCA','THYM','UCEC','UCS','UVM'];
+//   // Check the cohort list:
+//   numCohorts = cohortQuery.length;
+//   for (var i = 0; i < numCohorts; i++) {
+//     var statusTemp = validCohortList.includes(cohortQuery[i]);
+//     if (statusTemp == false) {
+//       return false;
+//     };
+//   };
+//   return true;
+// };
 
-  // Check the cohort list:
-  numCohorts = cohortQuery.length;
-  for (var i = 0; i < numCohorts; i++) {
-    var statusTemp = validCohortList.includes(cohortQuery[i]);
-    if (statusTemp == false) {
-      return false;
-    };
-  };
-
-  return true;
-};
-
-// Function to count the amount of genes
-amount = function(cohortQuery) {
-  var total = 0;
-  numCohorts = cohortQuery.length;
-  for (var i = 0; i < numCohorts; i++) {
-      total++;
-  };
-  return total;
-};
+// Function to count the number of genes
+// countNumberOfGenes = function(cohortQuery) {
+//   var total = 0;
+//   numCohorts = cohortQuery.length;
+//   for (var i = 0; i < numCohorts; i++) {
+//       total++;
+//   };
+//   return total;
+// };
 
 // Setting the cohort and gene list examples if the user clicks the use example button:
 function setExampleVars() {
@@ -122,16 +116,15 @@ function setExampleVars() {
   $('.geneMultipleSelection').trigger('change');
 };
 
-
 // The JS code for building the plots to display:
 // Wait for user input to build plots:
-function setVars() {
+function buildPlots() {
   // Reset page formatting:
   document.getElementById('div0').innerHTML="";
   document.getElementById('svgViolinDiv0').innerHTML="";
   
   // Removes existing div and svg elements if they're there:
-  removeDIVelements();
+  removeDiv();
   removeSVGelements();
 
   // Display loader:
@@ -199,32 +192,5 @@ function setVars() {
     // Create the heatmap:
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);
 
-    // Box and Whisker Plot to be added below:
-
-    /////////////////////////////////////////////////////////////////////////////////////
-    // Below is dummy data to display an example box and whisker plot for the time being:
-    /*
-    var y0 = []
-    var y1 = [];
-    for (var i = 0; i < 50; i ++) {
-      y0[i] = Math.random();
-      y1[i] = Math.random() + 1;
-    }
-    var trace1 = {
-      y: y0,
-      type: 'box'
-    };
-    var trace2 = {
-      y: y1,
-      type: 'box'
-    };
-    var dataBoxPlot = [trace1, trace2];
-    var layout = {
-    title: 'd3 Gene Expression Box and Whisker Plot to Added Here'
-    };
-    Plotly.newPlot(divBoxWhisk0, dataBoxPlot, layout);
-    // Above is dummy data to display an example box and whisker plot for the time being:
-    */
-    /////////////////////////////////////////////////////////////////////////////////////
   });
 };
