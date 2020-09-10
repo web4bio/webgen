@@ -68,9 +68,8 @@
         </nav>
     </div>
 
-
   <!--
-  Setting up the user input text fields and buttons.
+  Setting up the user input text fields.
   -->
     <script>
       // Get the list of valid genes users can search for:
@@ -108,46 +107,47 @@
       });
     </script>
 
-  <div  id = 'cancerQuerySelectBox'>
-      <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id = "cancerTypeMultipleSelection">
-          <!-- Filled by fillSelectBoxes.js -->
-      </select>
-  </div>
+    <div id='cancerQuerySelectBox'>
+        <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection">
+            <!-- Filled by fillSelectBoxes.js -->
+        </select>
+    </div>
 
-  <div id = 'geneQuerySelectBox'>
-      <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id = "geneMultipleSelection">
-          <!-- Filled by fillSelectBoxes.js -->
-      </select>
-  </div>
+    <div id='geneQuerySelectBox'>
+        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection">
+            <!-- Filled by fillSelectBoxes.js -->
+        </select>
+    </div>
 
   <!--
   Setting up the buttons.
--->
+  -->
     <div className="mainWindowButtons" id = "mainWindowButtons">
         <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
         <button class="col s3 btn waves-effect waves-light" onclick="buildPlots()" id='submitButton'>Submit</button>
     </div>
+
   <!--
     Setting up the tabs.
   -->
-<div class="tabs_container">  
-  <div class="col s36">
-    <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
-      <li class="tab col s12"><a class="active" href="#heatmapRef">Heatmap</a></li>
-      <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
-      <li class="tab col s12"><a href="#violinPlotRef">Violin Plot</a></li>
-    </ul>
-    <!--
-      Setting up the plots to go under each tab.
-    -->
-    <div id="heatmapRef" class="col s12">
-      <div id=heatmapDiv0 style="margin-top:25px"></div>
+    <div class="tabs_container">  
+      <div class="col s36">
+        <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
+          <li class="tab col s12"><a class="active" href="#heatmapRef">Heatmap</a></li>
+          <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
+          <li class="tab col s12"><a href="#violinPlotRef">Violin Plot</a></li>
+        </ul>
+        <!--
+          Setting up the plots to go under each tab.
+        -->
+        <div id="heatmapRef" class="col s12">
+          <div id=heatmapDiv0 style="margin-top:25px"></div>
+        </div>
+        <div id="violinPlotRef" class="col s12">
+          <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
+        </div>
+      </div>
     </div>
-    <div id="violinPlotRef" class="col s12">
-      <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
-    </div>
-  </div>
-</div>
 
 <!--
   Setting tabs:
