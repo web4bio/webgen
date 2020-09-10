@@ -1,4 +1,4 @@
-Live Web App at [web4bio.github.io/webgen/main/html/index.html](https://web4bio.github.io/webgen/main/html/index.html)                                          
+Live Web App at [web4bio.github.io/webgen/main/html](https://web4bio.github.io/webgen/main/html)                                          
 Live Presentation at [web4bio.github.io/webgen/presentationPoster/](https://web4bio.github.io/webgen/presentationPoster/)      
 Live README at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)
 
