@@ -120,3 +120,7 @@
     width: 100%;
     /* height: 2.5rem; Footer height */
 }
+
+.page-footer {
+    background-color: #4db6ac;
+}
