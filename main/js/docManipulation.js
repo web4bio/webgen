@@ -38,7 +38,7 @@ removeSVGelements = function() {
 // NOTE: errors are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
 showError = function(errorType) {
   // Create div1 and set it to be alert class:
-  addDiv('div1','div0');
+  addDiv('div1','heatmapDiv0');
   var divElement = document.getElementById('div1');
   divElement.className = 'alert';
 
@@ -60,7 +60,7 @@ showError = function(errorType) {
 // NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
 showWarning = function(emptyGeneArray_arg) {
   // Create div1 and set it to be warning class:
-  var divElement = document.getElementById('div0');
+  var divElement = document.getElementById('heatmapDiv0');
   divElement.className = 'warning';
 
   // Create span clone from span0 to add to div1:
@@ -120,7 +120,7 @@ function setExampleVars() {
 // Wait for user input to build plots:
 function buildPlots() {
   // Reset page formatting:
-  document.getElementById('div0').innerHTML="";
+  document.getElementById('heatmapDiv0').innerHTML="";
   document.getElementById('svgViolinDiv0').innerHTML="";
   
   // Removes existing div and svg elements if they're there:
@@ -128,7 +128,7 @@ function buildPlots() {
   removeSVGelements();
 
   // Display loader:
-  document.getElementById('div0').className = 'loader';                              // Create the loader.
+  document.getElementById('heatmapDiv0').className = 'loader';                              // Create the loader.
   document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
 
   // Gene gene and cohort query values from select2 box:
@@ -145,7 +145,7 @@ function buildPlots() {
   dataToPlotInfo.then(function(data) {
     // Check that the fetch worked:
     if (data == 'Error: Invalid Input Fields for Query.') {
-      document.getElementById('div0').classList.remove('loader');                      // Remove the loader.
+      document.getElementById('heatmapDiv0').classList.remove('loader');                      // Remove the loader.
       document.getElementById('svgViolinDiv0').classList.remove('loader');             // Remove the loader.
       showError('geneError');
       return;
@@ -165,7 +165,7 @@ function buildPlots() {
         width = 1250 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
-    document.getElementById('div0').classList.remove('loader');                        // Remove the loader.
+    document.getElementById('heatmapDiv0').classList.remove('loader');                        // Remove the loader.
     document.getElementById('svgViolinDiv0').classList.remove('loader');               // Remove the loader.
 
     // Build the heatmap:
