@@ -108,7 +108,6 @@
           // Fill the Select2 Boxes:
           fillCancerTypeSelectBox();
           fillGeneSelectBox();
-          fillMutationSelectBox();
         });
       });
     </script>
@@ -119,12 +118,14 @@
             <!-- Filled by fillSelectBoxes.js -->
         </select>
     </div>
+
     <p style="text-align: center;"><b>2) Select gene(s)</b></p>
     <div id='geneQuerySelectBox'>
-        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection">
+        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillMutationSelectBox()">
             <!-- Filled by fillSelectBoxes.js -->
         </select>
     </div>
+
     <p style="text-align: center;"><b>3) Select mutation(s)</b></p>
     <div id='mutationQuerySelectBox'>
       <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection">

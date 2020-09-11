@@ -77,13 +77,15 @@ let fillGeneSelectBox = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let fetchMutationData = async function() {
+    let myGeneQuery = $('.geneMultipleSelection').select2('data').map(geneInfo => geneInfo.text);
+    let myCohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     const hosturl = 'https://firebrowse.herokuapp.com';
     const endpointurl='http://firebrowse.org/api/v1/Analyses/Mutation/MAF';
     const endpointurl_presets = {
         format: 'json',
-        cohort: 'BLCA',  
+        cohort: myCohortQuery,  
         tool: 'MutSig2CV', 
-        gene: 'BCL2',  
+        gene: myGeneQuery,  
         page: '1',
         page_size: 250,
         sort_by: 'cohort' 
@@ -107,23 +109,27 @@ let fetchMutationData = async function() {
 let fillMutationSelectBox = async function() {
     let mutationQuery = await fetchMutationData();
     console.log(mutationQuery.MAF)
-    // let selectBox = document.getElementById("mutationMultipleSelection");
-    // for (let i = 0; i < mutationQuery.length; i++) {
-    //     let currentOption = document.createElement("option");
-    //     currentOption.value = mutationQuery[i]["cohort"];
-    //     currentOption.text = "(" + mutationQuery[i]["cohort"] + ") " + mutationQuery[i]["description"];
-    //     currentOption.id = mutationQuery[i]["cohort"];
-    //     selectBox.appendChild(currentOption);
-    // }
+    let theMutationQuery = mutationQuery.MAF;
+    let selectBox = document.getElementById("mutationMultipleSelection");
+    while(selectBox.firstChild) {
+        selectBox.removeChild(selectBox.firstChild);
+    }
+    let allVariantClassifications = [];
+    for (let i = 0; i < theMutationQuery.length; i++) 
+        allVariantClassifications.push(theMutationQuery[i].Variant_Classification)
+    function getUniqueValues(value, index, self) { 
+        return self.indexOf(value) === index;
+    }
+    let uniqueVariantClassifications = allVariantClassifications.filter(getUniqueValues);
+    for (let i = 0; i < uniqueVariantClassifications.length; i++) {
+        let currentOption = document.createElement("option");
+        currentOption.value = uniqueVariantClassifications[i];
+        currentOption.text = uniqueVariantClassifications[i];
+        currentOption.id = uniqueVariantClassifications[i];
+        selectBox.appendChild(currentOption);
+    }
     return;
 };
-
-
-
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
