@@ -1,4 +1,4 @@
-Live Web App at [web4bio.github.io/webgen/main](https://web4bio.github.io/webgen/main)                                          
+Live Web App at [web4bio.github.io/webgen/main/html](https://web4bio.github.io/webgen/main/html)                                          
 Live Presentation at [web4bio.github.io/webgen/presentationPoster/](https://web4bio.github.io/webgen/presentationPoster/)      
 Live README at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)
 
@@ -24,18 +24,19 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 | Name & GitHub ID  | Individual folder | Observable | Other links|
 | --- | --- | --- | --- |
-| [Richard Moffitt](https://github.com/rmoffitt) | [Folder](/archive/richard/), [js Sandbox](/archive/richard/richard.html) | [Notebook homepage](https://observablehq.com/@rmoffitt?tab=notebooks), [Webgen page](https://observablehq.com/@rmoffitt/webgen), [Simple GDC query tool](https://observablehq.com/@rmoffitt/tcgaplots) | [Faculty website](https://bmi.stonybrookmedicine.edu/people/moffitt_richard) |
+| [Richard Moffitt](https://github.com/rmoffitt) | [Folder](/archive/richard/), [js Sandbox](/archive/richard/richard.html) | [Notebook homepage](https://observablehq.com/@rmoffitt?tab=notebooks), [WebGen page](https://observablehq.com/@rmoffitt/webgen), [Simple GDC query tool](https://observablehq.com/@rmoffitt/tcgaplots) | [Faculty website](https://bmi.stonybrookmedicine.edu/people/moffitt_richard) |
 | [Jonas Almeida](http://www.github.com/jonasalmeida) | [Folder](https://github.com/web4bio/webgen/tree/master/archive/jonas), [js Sandbox](https://web4bio.github.io/webgen/archive/jonas/) | [Sandbox](https://beta.observablehq.com/@jonasalmeida/webgen)    | [Firebrowse](https://github.com/episphere/firebrowse) |
 | [Carolyn Bremer](http://www.github.com/cgbrem) | [Fall 2019 Log](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit), [Spring 2020 Log](https://docs.google.com/document/d/1l8UgEMjIHbWd9m8RNZy4ZXpysO4Gtk0Kf0olnhbPtXc/edit)|[Sandbox](https://observablehq.com/@cgbrem/web-gen-fall-19) |   |
-| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) |   |
+| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/18d5oB-Uft5nBskVxnZuEcaXHDPE291y2PBzQtcPZXVo/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) | [Interactive Plots](https://episphere.github.io/mortalitytracker/board/) |
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) |   |
 | [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Sandbox](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) |   |
-| Luke | | | |
-| Yuwei | | | | 
-| Kevin | | | |
-| Soma | | | |
+| [Yuwei Zhang](https://github.com/Yuw-zhang) | | | | 
+| [Luke Torre-Healy](https://github.com/lthealy) | [Observable](https://observablehq.com/@lthealy) | [WebGen Notebook](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
+| [Kevin Murgas](https://github.com/kevin-murgas) | [Observable](https://observablehq.com/@kevin-murgas) | [WebGen Notebook](https://observablehq.com/@kevin-murgas/webgen) | |
+| [Soma Kobayashi](https://github.com/skobayashi0417) | [Observable](https://observablehq.com/@skobayashi0417) | [WebGen](https://observablehq.com/@skobayashi0417?tab=notebooks) | |
 | [Eric Ruan](https://github.com/ericr491) | | | |
-| Jillian | | | |
+| [Jillian Unkenholz](https://github.com/jillianunk32)  | | | |
+| [Chowdhury An-Noor](https://github.com/chowdhuryannoor)  | | | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
