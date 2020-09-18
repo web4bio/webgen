@@ -32,9 +32,9 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing) | [Sandbox](https://observablehq.com/@19aanand/webgen-notebook-spring-2020) |   |
 | [Yuwei Zhang](https://github.com/Yuw-zhang) | | | | 
 | [Luke Torre-Healy](https://github.com/lthealy) | [Observable](https://observablehq.com/@lthealy) | [WebGen Notebook](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
-| [Kevin Murgas](https://github.com/kevin-murgas) | | | |
+| [Kevin Murgas](https://github.com/kevin-murgas) | [Observable](https://observablehq.com/@kevin-murgas) | [WebGen Notebook](https://observablehq.com/@kevin-murgas/webgen) | |
 | [Soma Kobayashi](https://github.com/skobayashi0417) | [Observable](https://observablehq.com/@skobayashi0417) | [WebGen](https://observablehq.com/@skobayashi0417?tab=notebooks) | |
-| [Eric Ruan](https://github.com/ericr491) | | | |
+| [Eric Ruan](https://github.com/ericr491) | [Observable](https://observablehq.com/@ericr491) | [WebGen Notebook](https://observablehq.com/@ericr491/webgen) | |
 | [Jillian Unkenholz](https://github.com/jillianunk32)  | | | |
 | [Chowdhury An-Noor](https://github.com/chowdhuryannoor)  | | | |
 
