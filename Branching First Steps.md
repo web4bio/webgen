@@ -25,7 +25,7 @@ git checkout -b name_of_the_thing_you_want_to_work_on
 
 "Setting up the upstream" basically means telling your current branch which other branch to reference when updating itself with other people's code. To setup an upstream to the development branch, do the following:
 ``` bash
-git checkout -b name_of_the_thing_you_want_to_work_on
+git branch --set-upstream-to origin/development
 ```
 
 Now let's check that the setup everything is correct with the following command:
