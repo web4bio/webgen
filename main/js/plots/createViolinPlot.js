@@ -6,7 +6,7 @@
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
  
-createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject) {
+createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject, curCohort) {
 
     //Set up violin curve colors
     var colors = ["#f1f291", "#69b3a2", "#bfb7f7", "#f26d5c", "#71a9d1", "#f0a94f"];
@@ -19,6 +19,9 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
+
+    //Filter out data that does not belong to curCohort
+    dataInput = dataInput.filter(patientData => patientData.cohort == curCohort);
 
     // Get myGroups of genes:
     var myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
@@ -292,7 +295,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject)
             .attr("y", -25)
             .attr("text-anchor", "left")
             .style("font-size", "26px")
-            .text("Gene Expression Violin Plot for "+indepVars.join(' and '))
+            .text("Gene Expression Violin Plot for "+indepVars.join(' and ') + "(" + curCohort + ")")
 
     } 
     else if (indepVarType == 'mutatedGene') {

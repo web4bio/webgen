@@ -143,16 +143,27 @@ function buildPlots() {
     createHeatmap('cohort', cohortQuery, data, svgHeatMap);
 
     // Build the violin plot:
+    //Appending multiple g elements to svg object for violin plot
+    let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+    let numCohorts = myCohorts.length;
+    let ySpacing = margin.top;
+
     // Append an svg object:
-    let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
+    for(var index = 0; index < myCohorts.length; index++)
+    {
+      let curCohort = myCohorts[index];
+
+      let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
+        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
         .attr("id", 'svgViolinPlot')
         .append("g")
         .attr("transform",
-            "translate(" + (margin.left-20) + "," + margin.top + ")");
+            "translate(" + (margin.left-20) + "," + 
+                        (margin.top + ySpacing*index) + ")");
 
-    // Create the heatmap:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);
+      // Create the violin plot:
+      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+    }
 
   });
 };
