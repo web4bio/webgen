@@ -36,7 +36,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Soma Kobayashi](https://github.com/skobayashi0417) | [Observable](https://observablehq.com/@skobayashi0417) | [WebGen](https://observablehq.com/@skobayashi0417?tab=notebooks) | |
 | [Eric Ruan](https://github.com/ericr491) | [Observable](https://observablehq.com/@ericr491) | [WebGen Notebook](https://observablehq.com/@ericr491/webgen) | |
 | [Jillian Unkenholz](https://github.com/jillianunk32)  | | | |
-| [Chowdhury An-Noor](https://github.com/chowdhuryannoor)  | | | |
+| [Chowdhury An-Noor](https://github.com/chowdhuryannoor)  |[Observable](https://observablehq.com/@chowdhuryannoor) |[WebGen Notebook](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
