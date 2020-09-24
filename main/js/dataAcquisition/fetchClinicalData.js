@@ -1,23 +1,22 @@
 // Executes a fetch for the following Clinical-associated data from Firebrowse as a 1-D array, where each element of the array 
 // is associated with a particular cohort-clinicalData pair. Selections of cohort and measurement/characteristic are made by the user.
     // cohort
+    // date
     // fh_cde_name
-    // sample_type
     // tcga_participant_barcode
-    // z-score
 
 // Function to fetch expression data from firebrowse:
 fetchClinicalData = async function(cohortQuery, fhQuery) {
   
     // Set up host and endpoint urls
     const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl='http://firebrowse.org/api/v1/Samples/Clinical_FH '; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
+    const endpointurl='http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
     
     // Set up endpoint url fields (except cohort and gene) with preset values
     const endpointurl_presets = {
         format: 'json',
-        fh_cde_name: fhQuery,
-        cohort: cohortQuery,     
+        cohort: cohortQuery,
+        fh_cde_name: fhQuery,     
         page: '1',
         page_size: 2001,
         sort_by: 'tcga_participant_barcode' 
@@ -25,9 +24,9 @@ fetchClinicalData = async function(cohortQuery, fhQuery) {
   
     // Assemble a string by concatenating all fields and field values for endpoint url
     const endpointurl_fieldsWithValues = 
-        'format=' + endpointurl_presets.format + 
-        '&fh_cde_name=' + fhQuery + 
+        'format=' + endpointurl_presets.format +
         '&cohort=' + cohortQuery + 
+        '&fh_cde_name=' + fhQuery + 
         '&page=' + endpointurl_presets.page + 
         '&page_size=' + endpointurl_presets.page_size.toString() + 
         '&sort_by=' + endpointurl_presets.sort_by;
