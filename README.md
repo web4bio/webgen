@@ -35,7 +35,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Kevin Murgas](https://github.com/kevin-murgas) | [Observable](https://observablehq.com/@kevin-murgas) | [WebGen Notebook](https://observablehq.com/@kevin-murgas/webgen) | |
 | [Soma Kobayashi](https://github.com/skobayashi0417) | [Observable](https://observablehq.com/@skobayashi0417) | [WebGen](https://observablehq.com/@skobayashi0417?tab=notebooks) | |
 | [Eric Ruan](https://github.com/ericr491) | [Observable](https://observablehq.com/@ericr491) | [WebGen Notebook](https://observablehq.com/@ericr491/webgen) | |
-| [Jillian Unkenholz](https://github.com/jillianunk32)  | [Observable](https://observablehq.com/@jillianunk32)|[WebGen](https://observablehq.com/@jillianunk32/webgen) | |
+| [Jillian Unkenholz](https://github.com/jillianunk32)  | [Fall 2020 Log](https://docs.google.com/document/d/1c1T6mJisOjjH_uQheGSuq5BtZTJ1u-04OMFvhlM-PAY/edit?usp=sharing)|[WebGen](https://observablehq.com/@jillianunk32/webgen) | |
 | [Chowdhury An-Noor](https://github.com/chowdhuryannoor)  |[Observable](https://observablehq.com/@chowdhuryannoor) |[WebGen Notebook](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
 
 #### Alumni
