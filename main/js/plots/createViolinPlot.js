@@ -13,7 +13,8 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
     var violinCurveColors = [];
 
     // Set up the figure dimensions:
-    var margin = {top: 10, right: 30, bottom: 30, left: 40},
+    //var margin = {top: 10, right: 30, bottom: 30, left: 40},
+    var margin = {top: 10, right: 30, bottom: 50, left: 40},
         width = 1250 - margin.left - margin.right,
         height = 440 - margin.top - margin.bottom;
 
@@ -176,6 +177,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")
         .attr("transform", "translate(" + width/2 + ")")
+
         for (prop in this) {
             const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
             var tooltipstring = "\xa0\xa0" + 
@@ -295,8 +297,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
             .attr("y", -25)
             .attr("text-anchor", "left")
             .style("font-size", "26px")
-            .text("Gene Expression Violin Plot for "+indepVars.join(' and ') + "(" + curCohort + ")")
-
+            .text("Gene Expression Violin Plot for "+ curCohort)
     } 
     else if (indepVarType == 'mutatedGene') {
         // Add title to graph
