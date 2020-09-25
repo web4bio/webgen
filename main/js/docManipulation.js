@@ -151,7 +151,7 @@ function buildPlots() {
     let ySpacing = margin.top;
 
     // Append an svg object for each cohort to create a violin plot for
-    for(var index = 0; index < myCohorts.length; index++)
+    for(var index = 0; index < numCohorts; index++)
     {
       //Define the current cohort to create the violin plot for
       let curCohort = myCohorts[index];
