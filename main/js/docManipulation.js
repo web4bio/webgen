@@ -181,16 +181,30 @@ let buildPlots = async function() {
     createHeatmap('cohort', cohortQuery, data, svgHeatMap);
 
     // Build the violin plot:
-    // Append an svg object:
-    let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
+    //Appending multiple g elements to svg object for violin plot
+    let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+    //Define the number of cohorts to create a plot for
+    let numCohorts = myCohorts.length;
+    //Spacing between plots
+    let ySpacing = margin.top;
+
+    // Append an svg object for each cohort to create a violin plot for
+    for(var index = 0; index < numCohorts; index++)
+    {
+      //Define the current cohort to create the violin plot for
+      let curCohort = myCohorts[index];
+
+      let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
+        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
         .attr("id", 'svgViolinPlot')
         .append("g")
         .attr("transform",
-            "translate(" + (margin.left-20) + "," + margin.top + ")");
+            "translate(" + (margin.left-20) + "," + 
+                        (margin.top + ySpacing*index*0.25) + ")");
 
-    // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);
+      // Create the violin plot:
+      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+    }
 
   });
 };
