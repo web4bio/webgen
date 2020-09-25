@@ -80,34 +80,72 @@ function setExampleVars() {
 
 // The JS code for building the plots to display:
 // Wait for user input to build plots:
-function buildPlots() {
-  // Reset page formatting:
-  document.getElementById('heatmapDiv0').innerHTML="";
-  document.getElementById('svgViolinDiv0').innerHTML="";
+
+let buildPlots = async function() {
   
-  // Removes existing div and svg elements if they're there:
+  let dataToPlotInfo;
+
+  // Reset page formatting:
+  document.getElementById('heatmapDiv0').innerHTML = "";
+  document.getElementById('svgViolinDiv0').innerHTML = "";
+  
+  // Remove existing div and svg elements if they're there:
   removeDiv();
   removeSVGelements();
 
   // Display loader:
-  document.getElementById('heatmapDiv0').className = 'loader';                              // Create the loader.
+  document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
   document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
 
-  // Gene gene and cohort query values from select2 box:
-  let geneQuery = $('.geneMultipleSelection').select2('data').map(
-                    geneInfo => geneInfo.text);
+  // Get gene query and cohort query values from select2 box:
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  let geneQuery = $('.geneMultipleSelection').select2('data').map(
+                    geneInfo => geneInfo.text);
+  // Get mutation value(s) from select2 box
+  let selectedVariantClassifications = $('.mutationMultipleSelection').select2('data').map(
+                                        mutationInfo => mutationInfo.text);
+
+  if(selectedVariantClassifications == "") {
+
+    // Fetch RNA sequence data and display requested plots:
+    dataToPlotInfo = getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
+
+  } else {
+
+    let iniMutationFetch = await fetchMutationData();
+    let allVariantClassificationData = iniMutationFetch.MAF;
+
+    let selectedVariantClassificationData = [];
+    for(let i = 0; i < allVariantClassificationData.length; i++) 
+      for(let j = 0; j < selectedVariantClassifications.length; j++) 
+        if(allVariantClassificationData[i].Variant_Classification == selectedVariantClassifications[j]) 
+          selectedVariantClassificationData.push(allVariantClassificationData[i])
+
+    let selectedBarcodes = selectedVariantClassificationData.map(x => x.Tumor_Sample_Barcode);
+
+    let trimmedBarcodes = selectedBarcodes.map(x => x.slice(0, 12))
+
+    // get unique barcodes
+    let barcodes = []
+    for(let i = 0; i < trimmedBarcodes.length; i++) {
+      if(i == 0) {
+        barcodes.push(trimmedBarcodes[i])
+      } else if(!barcodes.includes(trimmedBarcodes[i])) {
+        barcodes.push(trimmedBarcodes[i])
+      }
+    }
+
+    // Fetch RNA sequence data and display requested plots:
+    dataToPlotInfo = getExpressionDataJSONarray_cgb(cohortQuery, geneQuery, barcodes);
+
+  }
   
-
-  // Fetch RNA sequence data and display requested plots:
-  let dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
-
   // Once data is returned, build the plots:
   dataToPlotInfo.then(function(data) {
     // Check that the fetch worked:
     if (data == 'Error: Invalid Input Fields for Query.') {
-      document.getElementById('heatmapDiv0').classList.remove('loader');                      // Remove the loader.
+      document.getElementById('heatmapDiv0').classList.remove('loader');               // Remove the loader.
       document.getElementById('svgViolinDiv0').classList.remove('loader');             // Remove the loader.
       showError('geneError');
       return;
@@ -151,7 +189,7 @@ function buildPlots() {
         .attr("transform",
             "translate(" + (margin.left-20) + "," + margin.top + ")");
 
-    // Create the heatmap:
+    // Create the violin plot:
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);
 
   });
