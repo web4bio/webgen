@@ -9,8 +9,8 @@
 addDiv = function(newDivID, oldDivID) { 
   // create a new div element 
   let newDiv = document.createElement("div"); 
-  newDiv.setAttribute('id',newDivID);
-  newDiv.setAttribute("style","margin-top:25px"); 
+  newDiv.setAttribute('id', newDivID);
+  newDiv.setAttribute("style", "margin-top:25px"); 
   // add the newly created element and its content into the DOM 
   document.getElementById(oldDivID).after(newDiv); 
 }
@@ -38,6 +38,10 @@ removeSVGelements = function() {
     $(svgToRemove).remove();
   };
 };
+
+function displaySingleGroupSelectors() {
+  document.getElementById("single-group-analysis").classList.remove('hide');
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
