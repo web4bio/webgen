@@ -35,7 +35,19 @@ removeSVGelements = function() {
   svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
   for(let i = 0; i < svgElementsArray.length; i++) {
     svgToRemove = document.getElementById(svgElementsArray[i]);
-    $(svgToRemove).remove();
+
+    if (svgToRemove)
+      $(svgToRemove).remove();
+    else {
+      let ctr = 0
+      for (;;) {
+        svgToRemove = document.getElementById(svgElementsArray[i] + ctr++)
+        if (svgToRemove)
+          $(svgToRemove).remove();
+        else
+          break;  
+      }
+    }  
   };
 };
 
@@ -206,7 +218,7 @@ let buildPlots = async function() {
 
       let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
         .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", 'svgViolinPlot')
+        .attr("id", `svgViolinPlot${index}`)
         .append("g")
         .attr("transform",
             "translate(" + (margin.left-20) + "," + 
