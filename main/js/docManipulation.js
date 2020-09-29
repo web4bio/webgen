@@ -39,6 +39,15 @@ removeSVGelements = function() {
   };
 };
 
+// Function to remove the tooltip div elements if they exist:
+removeTooltipElements = function () {
+  let collection = document.getElementsByClassName('tooltip');
+
+  for (let i = 0, len = collection.length || 0; i < len; i = i + 1) {
+    collection[0].remove();
+  }
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////// Div/SVG Manipulation (above) ////////////////////////////////////////////////////////////
@@ -92,6 +101,7 @@ let buildPlots = async function() {
   // Remove existing div and svg elements if they're there:
   removeDiv();
   removeSVGelements();
+  removeTooltipElements();
 
   // Display loader:
   document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
