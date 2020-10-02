@@ -35,13 +35,30 @@ removeSVGelements = function() {
   svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
   for(let i = 0; i < svgElementsArray.length; i++) {
     svgToRemove = document.getElementById(svgElementsArray[i]);
-    $(svgToRemove).remove();
+
+    if (svgToRemove)
+      $(svgToRemove).remove();
+    else {
+      let ctr = 0
+      for (;;) {
+        svgToRemove = document.getElementById(svgElementsArray[i] + ctr++)
+        if (svgToRemove)
+          $(svgToRemove).remove();
+        else
+          break;  
+      }
+    }  
   };
 };
 
-function displaySingleGroupSelectors() {
-  document.getElementById("single-group-analysis").classList.remove('hide');
-}
+// Function to remove the tooltip div elements if they exist:
+removeTooltipElements = function () {
+  let collection = document.getElementsByClassName('tooltip');
+
+  for (let i = 0, len = collection.length || 0; i < len; i = i + 1) {
+    collection[0].remove();
+  }
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,6 +113,7 @@ let buildPlots = async function() {
   // Remove existing div and svg elements if they're there:
   removeDiv();
   removeSVGelements();
+  removeTooltipElements();
 
   // Display loader:
   document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
@@ -200,7 +218,7 @@ let buildPlots = async function() {
 
       let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
         .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", 'svgViolinPlot')
+        .attr("id", `svgViolinPlot${index}`)
         .append("g")
         .attr("transform",
             "translate(" + (margin.left-20) + "," + 
