@@ -154,13 +154,20 @@ def padding(img,expected_size = (280,520)):
     return ImageOps.pad(img,expected_size)
 
 def main():
-    source = '/data/scratch/soma/webgen_AE/scaled_400/'
+    source = '/Users/soma/Desktop/WebgenThings/training_downsampled_tif_scalefactor_400/'
     
     train_fol = source + 'training'
     test_fol = source + 'test'
     
-    img_trains = [f for f in glob.glob(os.path.join(train_fol, '*tif'))]
+    img_trains = [f for f in glob.glob(os.path.join(source, '*tif'))]
     img_test = [f for f in glob.glob(os.path.join(test_fol, '*tif'))]
+
+    image_paths = tf.convert_to_tensor(img_trains, dtype=tf.string)
+
+    dataset = tf.data.Dataset.from_tensor_slices((image_paths))
+
+    ## incoporate padding here?? https://stackoverflow.com/questions/44416764/loading-folders-of-images-in-tensorflow
+    
 
 
         
