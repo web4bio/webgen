@@ -35,8 +35,29 @@ removeSVGelements = function() {
   svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
   for(let i = 0; i < svgElementsArray.length; i++) {
     svgToRemove = document.getElementById(svgElementsArray[i]);
-    $(svgToRemove).remove();
+
+    if (svgToRemove)
+      $(svgToRemove).remove();
+    else {
+      let ctr = 0
+      for (;;) {
+        svgToRemove = document.getElementById(svgElementsArray[i] + ctr++)
+        if (svgToRemove)
+          $(svgToRemove).remove();
+        else
+          break;  
+      }
+    }  
   };
+};
+
+// Function to remove the tooltip div elements if they exist:
+removeTooltipElements = function () {
+  let collection = document.getElementsByClassName('tooltip');
+
+  for (let i = 0, len = collection.length || 0; i < len; i = i + 1) {
+    collection[0].remove();
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,34 +101,73 @@ function setExampleVars() {
 
 // The JS code for building the plots to display:
 // Wait for user input to build plots:
-function buildPlots() {
-  // Reset page formatting:
-  document.getElementById('heatmapDiv0').innerHTML="";
-  document.getElementById('svgViolinDiv0').innerHTML="";
+
+let buildPlots = async function() {
   
-  // Removes existing div and svg elements if they're there:
+  let dataToPlotInfo;
+
+  // Reset page formatting:
+  document.getElementById('heatmapDiv0').innerHTML = "";
+  document.getElementById('svgViolinDiv0').innerHTML = "";
+  
+  // Remove existing div and svg elements if they're there:
   removeDiv();
   removeSVGelements();
+  removeTooltipElements();
 
   // Display loader:
-  document.getElementById('heatmapDiv0').className = 'loader';                              // Create the loader.
+  document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
   document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
 
-  // Gene gene and cohort query values from select2 box:
-  let geneQuery = $('.geneMultipleSelection').select2('data').map(
-                    geneInfo => geneInfo.text);
+  // Get gene query and cohort query values from select2 box:
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  let geneQuery = $('.geneMultipleSelection').select2('data').map(
+                    geneInfo => geneInfo.text);
+  // Get mutation value(s) from select2 box
+  let selectedVariantClassifications = $('.mutationMultipleSelection').select2('data').map(
+                                        mutationInfo => mutationInfo.text);
+
+  if(selectedVariantClassifications == "") {
+
+    // Fetch RNA sequence data and display requested plots:
+    dataToPlotInfo = getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
+
+  } else {
+
+    let iniMutationFetch = await fetchMutationData();
+    let allVariantClassificationData = iniMutationFetch.MAF;
+
+    let selectedVariantClassificationData = [];
+    for(let i = 0; i < allVariantClassificationData.length; i++) 
+      for(let j = 0; j < selectedVariantClassifications.length; j++) 
+        if(allVariantClassificationData[i].Variant_Classification == selectedVariantClassifications[j]) 
+          selectedVariantClassificationData.push(allVariantClassificationData[i])
+
+    let selectedBarcodes = selectedVariantClassificationData.map(x => x.Tumor_Sample_Barcode);
+
+    let trimmedBarcodes = selectedBarcodes.map(x => x.slice(0, 12))
+
+    // get unique barcodes
+    let barcodes = []
+    for(let i = 0; i < trimmedBarcodes.length; i++) {
+      if(i == 0) {
+        barcodes.push(trimmedBarcodes[i])
+      } else if(!barcodes.includes(trimmedBarcodes[i])) {
+        barcodes.push(trimmedBarcodes[i])
+      }
+    }
+
+    // Fetch RNA sequence data and display requested plots:
+    dataToPlotInfo = getExpressionDataJSONarray_cgb(cohortQuery, geneQuery, barcodes);
+
+  }
   
-
-  // Fetch RNA sequence data and display requested plots:
-  let dataToPlotInfo = getExpressionDataJSONarray(cohortQuery, geneQuery);
-
   // Once data is returned, build the plots:
   dataToPlotInfo.then(function(data) {
     // Check that the fetch worked:
     if (data == 'Error: Invalid Input Fields for Query.') {
-      document.getElementById('heatmapDiv0').classList.remove('loader');                      // Remove the loader.
+      document.getElementById('heatmapDiv0').classList.remove('loader');               // Remove the loader.
       document.getElementById('svgViolinDiv0').classList.remove('loader');             // Remove the loader.
       showError('geneError');
       return;
@@ -143,16 +203,30 @@ function buildPlots() {
     createHeatmap('cohort', cohortQuery, data, svgHeatMap);
 
     // Build the violin plot:
-    // Append an svg object:
-    let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
-        .attr("id", 'svgViolinPlot')
+    //Appending multiple g elements to svg object for violin plot
+    let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+    //Define the number of cohorts to create a plot for
+    let numCohorts = myCohorts.length;
+    //Spacing between plots
+    let ySpacing = margin.top;
+
+    // Append an svg object for each cohort to create a violin plot for
+    for(var index = 0; index < numCohorts; index++)
+    {
+      //Define the current cohort to create the violin plot for
+      let curCohort = myCohorts[index];
+
+      let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
+        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
+        .attr("id", `svgViolinPlot${index}`)
         .append("g")
         .attr("transform",
-            "translate(" + (margin.left-20) + "," + margin.top + ")");
+            "translate(" + (margin.left-20) + "," + 
+                        (margin.top + ySpacing*index*0.25) + ")");
 
-    // Create the heatmap:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot);
+      // Create the violin plot:
+      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+    }
 
   });
 };

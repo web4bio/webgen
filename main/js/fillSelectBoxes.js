@@ -15,6 +15,7 @@ let fetchCohortData = async function() {
     if (fetchedCohortData == '')              
         return ['Error: Invalid Input Fields for Query.', 0];
     else {
+        console.log(fetchedCohortData["Cohorts"])
         return fetchedCohortData["Cohorts"];
     }
 }
@@ -66,5 +67,72 @@ let fillGeneSelectBox = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// Fill Gene ID Select Box (above) ///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////// Fill Mutation Select Box (below) ///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+let fetchMutationData = async function() {
+    let myGeneQuery = $('.geneMultipleSelection').select2('data').map(geneInfo => geneInfo.text);
+    let myCohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+    const hosturl = 'https://firebrowse.herokuapp.com';
+    const endpointurl='http://firebrowse.org/api/v1/Analyses/Mutation/MAF';
+    const endpointurl_presets = {
+        format: 'json',
+        cohort: myCohortQuery,  
+        tool: 'MutSig2CV', 
+        gene: myGeneQuery,  
+        page: '1',
+        page_size: 250,
+        sort_by: 'cohort' 
+    };
+    const endpointurl_fieldsWithValues = 
+        'format=' + endpointurl_presets.format + 
+        '&cohort=' + endpointurl_presets.cohort.toString() + 
+        '&tool=' + endpointurl_presets.tool + 
+        '&gene=' + endpointurl_presets.gene +
+        '&page=' + endpointurl_presets.page + 
+        '&page_size=' + endpointurl_presets.page_size.toString() + 
+        '&sort_by=' + endpointurl_presets.sort_by;
+    let fetchedMutationData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues).then(function(response) { return response.json(); });
+    if (fetchedMutationData == '')              
+        return ['Error: Invalid Input Fields for Query.', 0];
+    else {
+        return fetchedMutationData;
+    }
+}
+
+let fillMutationSelectBox = async function() {
+    let mutationQuery = await fetchMutationData();
+    console.log(mutationQuery.MAF)
+    let theMutationQuery = mutationQuery.MAF;
+    let selectBox = document.getElementById("mutationMultipleSelection");
+    while(selectBox.firstChild) {
+        selectBox.removeChild(selectBox.firstChild);
+    }
+    let allVariantClassifications = [];
+    for (let i = 0; i < theMutationQuery.length; i++) 
+        allVariantClassifications.push(theMutationQuery[i].Variant_Classification)
+    function getUniqueValues(value, index, self) { 
+        return self.indexOf(value) === index;
+    }
+    let uniqueVariantClassifications = allVariantClassifications.filter(getUniqueValues);
+    for (let i = 0; i < uniqueVariantClassifications.length; i++) {
+        let currentOption = document.createElement("option");
+        currentOption.value = uniqueVariantClassifications[i];
+        currentOption.text = uniqueVariantClassifications[i];
+        currentOption.id = uniqueVariantClassifications[i];
+        selectBox.appendChild(currentOption);
+    }
+    return;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////// Fill Mutation Select Box (above) ///////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
