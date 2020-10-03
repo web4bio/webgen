@@ -125,12 +125,14 @@ def detect_white(imagePath):
             whiteCount +=1
             totalCount +=1
 
-            src = os.path.join(patientDir,patchSaveName)
+            #src = os.path.join(patientDir,patchSaveName)
             ptDest = os.path.join(patient_whites,patchSaveName)
             aggDest = os.path.join(white_destination_dir,patchSaveName)
+            patch.save(ptDest)
+            patch.save(aggDest)
 
-            shutil.copy(src,ptDest)
-            shutil.copy(src,aggDest)
+            #shutil.copy(src,ptDest)
+            #shutil.copy(src,aggDest)
 
             infoList.append(patchName)
             infoList.append(ptID)
@@ -142,12 +144,14 @@ def detect_white(imagePath):
             tissueCount +=1
             totalCount +=1
 
-            src = os.path.join(patientDir,patchSaveName)
+            #src = os.path.join(patientDir,patchSaveName)
             ptDest = os.path.join(patient_tissues,patchSaveName)
             aggDest = os.path.join(tissue_destination_dir,patchSaveName)
+            patch.save(ptDest)
+            patch.save(aggDest)
 
-            shutil.copy(src,ptDest)
-            shutil.copy(src,aggDest)
+            #shutil.copy(src,ptDest)
+            #shutil.copy(src,aggDest)
             infoList.append(patchName)
             infoList.append(ptID)
             infoList.append(xCoord)
