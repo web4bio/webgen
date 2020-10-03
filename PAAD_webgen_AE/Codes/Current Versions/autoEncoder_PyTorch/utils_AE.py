@@ -15,17 +15,6 @@ def get_label_from_filename(fn):
     
     return lb
 
-def padding(img,expected_size = (960,560)):
-    desired_size_w = expected_size[0]
-    desired_size_h = expected_size[1]
-    delta_width = desired_size_w - img.size[0]
-    delta_height = desired_size_h - img.size[1]
-    pad_width = delta_width //2
-    pad_height = delta_height //2
-    padding = (pad_width,pad_height,delta_width-pad_width,delta_height-pad_height)
-    return ImageOps.expand(img, padding)
-
-
 class data_loader(Dataset):
     """
     Dataset to read image and label for training
@@ -36,7 +25,7 @@ class data_loader(Dataset):
     
     def __getitem__(self, index):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
-        img = padding(img=Image.open(self.imgs[index]).convert('RGB'))
+        img = Image.open(self.imgs[index]).convert('RGB')
         if self.transform != None:
             img = self.transform(img)
         else:

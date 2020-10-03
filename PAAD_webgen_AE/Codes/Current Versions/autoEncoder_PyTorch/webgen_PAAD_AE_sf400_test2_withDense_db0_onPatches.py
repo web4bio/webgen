@@ -82,7 +82,7 @@ class ConvAutoencoder(nn.Module):
 def main():
     args = get_args()
 
-    source = '/data01/shared/skobayashi/PAAD_patches_4000X_whiteFiltered_65thresh/forAE/'
+    source = '/data/scratch/soma/webgen_AE/initial/'
     dest = source + 'outputs'
 
     if not os.path.exists(dest):
@@ -121,7 +121,7 @@ def main():
 
     def get_device():
         if torch.cuda.is_available():
-            device = 'cuda:0'
+            device = 'cuda:1'
         else:
             device = 'cpu'
         return device

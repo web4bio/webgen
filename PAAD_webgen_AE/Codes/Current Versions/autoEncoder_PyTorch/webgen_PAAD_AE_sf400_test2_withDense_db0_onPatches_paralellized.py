@@ -50,8 +50,8 @@ class ConvAutoencoder(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
 
         self.flatten = nn.Flatten()
-        self.dense = nn.Linear(50*50*128,50*50*6)
-        self.dense2 = nn.Linear(50*50*6,50*50*128)
+        self.dense = nn.Linear(50*50*128,15000)
+        self.dense2 = nn.Linear(15000,50*50*128)
 
        
         #Decoder
@@ -82,7 +82,7 @@ class ConvAutoencoder(nn.Module):
 def main():
     args = get_args()
 
-    source = '/data01/shared/skobayashi/PAAD_patches_4000X_whiteFiltered_65thresh/forAE/'
+    source = '/data/scratch/soma/webgen_AE/initial/'
     dest = source + 'outputs'
 
     if not os.path.exists(dest):
@@ -121,10 +121,15 @@ def main():
 
     def get_device():
         if torch.cuda.is_available():
-            device = 'cuda:0'
+            device = 'cuda:2'
         else:
             device = 'cpu'
         return device
+
+    if torch.cuda.device_count() >= 2:  # use multiple GPUs
+        model = torch.nn.DataParallel(model, device_ids=[2, 1])
+        cudnn.benchmark = True
+        print('using multiple GPUs')
 
     device = get_device()
     print(device)
