@@ -18,6 +18,18 @@ from utils_AE_sf400 import *
 import glob
 import os
 
+def get_args(forVariableLR=1e-3,forVariableWD=0,forVariableEpoch=50,forVariableBS=1):
+    parser = argparse.ArgumentParser(description='Yang Mice Colitis Training')
+    parser.add_argument('--lr', default=forVariableLR, type=float, help='learning rate')
+    parser.add_argument('--weight_decay', default=forVariableWD, type=float, help='weight decay')
+    parser.add_argument('--batch_size', default=forVariableBS, type=int)
+    parser.add_argument('--num_workers', default=8, type=int)
+    parser.add_argument('--num_epochs', default=forVariableEpoch, type=int, help='Number of epochs in training')
+    parser.add_argument('--check_after', default=2, type=int, help='check the network after check_after epoch')
+
+    args = parser.parse_args()
+    return args
+
 def get_data_transforms(mean=0.5, std=0.1, APS=175):
     data_transforms = {
         'transf': transforms.Compose([
@@ -38,8 +50,8 @@ class ConvAutoencoder(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
 
         self.flatten = nn.Flatten()
-        self.dense = nn.Linear(65*35*128,15000)
-        self.dense2 = nn.Linear(15000,65*35*128)
+        self.dense = nn.Linear(50*50*128,15000)
+        self.dense2 = nn.Linear(15000,50*50*128)
 
        
         #Decoder
@@ -68,6 +80,8 @@ class ConvAutoencoder(nn.Module):
         return x
 
 def main():
+    args = getargs()
+
     source = '/data/scratch/soma/webgen_AE/scaled_400/'
     dest = source + 'outputs'
 
@@ -91,8 +105,8 @@ def main():
     train_set = data_loader(img_trains, transform=data_transforms['transf'])
     test_set = data_loader(img_test, transform=data_transforms['transf'])
     
-    train_loader = DataLoader(train_set, batch_size=1, shuffle=True, num_workers=0)
-    test_loader = DataLoader(test_set, batch_size=1, shuffle=True, num_workers=0)
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, num_workers=0)
+    test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=True, num_workers=0)
     
     #Instantiate the model
     model = ConvAutoencoder()
@@ -102,7 +116,7 @@ def main():
     criterion = nn.BCELoss()
 
     #Optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     #optimizer = torch.optim.Adadelta(model.parameters())
 
     def get_device():
@@ -117,7 +131,8 @@ def main():
     model.to(device)
     
     #Epochs
-    n_epochs = 50
+    n_epochs = args.num_epochs
+    best_loss = 0
     
     for epoch in range(1, n_epochs+1):
         # monitor training loss
@@ -136,6 +151,35 @@ def main():
               
         train_loss = train_loss/len(train_loader)
         print('Epoch: {} \tTraining Loss: {:.6f}'.format(epoch, train_loss))
+
+        if train_loss > best_loss:
+            best_loss = train_loss
+            best_model = copy.deepcopy(model)
+            state = {
+                'model': best_model,
+                'loss': best_loss,
+                'args': args,
+                'lr': args.lr,
+                'saved_epoch': epoch,
+            }
+            if not os.path.isdir('checkpoint_CAE'):
+                    os.mkdir('checkpointRS_CAE')
+            save_point = './checkpointRS_CAE' + 'run' + '_' + 'number'+ '_' + str(run_number) + '_' + 'on' + '_' + timestr + '/'
+            if not os.path.isdir(save_point):
+                os.mkdir(save_point)
+
+            saved_model_fn = 'CAE_{}_bestLoss_{:.4f}_epoch_{}.pt'.format(args.net_depth,
+                                                                        timestr,
+                                                                        best_loss,
+                                                                        epoch)
+            saved_model_fn2 = 'CAE_{}_bestLoss_{:.4f}_epoch_{}_fromStateDict.pt'.format(args.net_depth,
+                                                                        timestr,
+                                                                        best_loss,
+                                                                        epoch)
+            torch.save(state, os.path.join(save_point, saved_model_fn))
+            torch.save(model.state_dict(), os.path.join(save_point, saved_model_fn2))
+            print('=======================================================================')
+
     
     #Batch of test images
     dataiter = iter(test_loader)
