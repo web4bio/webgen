@@ -24,6 +24,7 @@ class data_loader(Dataset):
         self.transform = transform
     
     def __getitem__(self, index):
+        path = self.imgs[index]
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         img = Image.open(self.imgs[index]).convert('RGB')
         if self.transform != None:
@@ -31,7 +32,8 @@ class data_loader(Dataset):
         else:
             img = transforms.ToTensor()(img)
         lb = get_label_from_filename(self.imgs[index])
-        return img, lb
+        fn = str(path).split('/')[-1]
+        return img, lb, fn
 
     def __len__(self):
         return len(self.imgs)
