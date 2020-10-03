@@ -121,7 +121,7 @@ def detect_white(imagePath):
         blueWhiteFreq = blueWhiteCount/num_pixels
 
         # save info, copy patches depending on patch type
-        if (redWhiteFreq>.65) and (greenWhiteFreq>.65) and (blueWhiteFreq>.65): # this is a white patch
+        if (redWhiteFreq>.6) and (greenWhiteFreq>.6) and (blueWhiteFreq>.6): # this is a white patch
             whiteCount +=1
             totalCount +=1
 
