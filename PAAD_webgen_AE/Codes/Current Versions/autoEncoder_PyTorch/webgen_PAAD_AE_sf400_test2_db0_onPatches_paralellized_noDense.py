@@ -18,6 +18,7 @@ from utils_AE import *
 import glob
 import os
 import copy
+import time
 
 def get_args(forVariableLR=1e-3,forVariableWD=0,forVariableEpoch=50,forVariableBS=1):
     parser = argparse.ArgumentParser(description='Yang Mice Colitis Training')
@@ -70,6 +71,8 @@ class ConvAutoencoder(nn.Module):
         return x
 
 def main():
+    global timestr 
+    timestr = time.strftime("%Y%m%d-%H%M%S")
     args = get_args()
 
     source = '/data/scratch/soma/webgen_AE/initial/'
@@ -147,7 +150,10 @@ def main():
         train_loss = train_loss/len(train_loader)
         print('Epoch: {} \tTraining Loss: {:.6f}'.format(epoch, train_loss))
 
-        if train_loss > best_loss:
+        if epoch == 1:
+            best_loss = train_loss
+
+        elif train_loss < best_loss:
             best_loss = train_loss
             best_model = copy.deepcopy(model)
             state = {
@@ -158,18 +164,16 @@ def main():
                 'saved_epoch': epoch,
             }
             checkpoint_dir = os.path.join(dest,'checkpoint_CAE')
-            if not os.path.exists('checkpoint_CAE'):
-                    os.mkdir('checkpoint_CAE')
-            save_point = dest + '/checkpoint_CAE/' + 'run' + '_' + 'on' + '_' #+ timestr + '/'
-            if not os.path.isdir(save_point):
+            if not os.path.exists(checkpoint_dir):
+                    os.mkdir(checkpoint_dir)
+            save_point = checkpoint_dir + '/run' + '_' + 'on' + '_' + timestr 
+            if not os.path.exists(save_point):
                 os.mkdir(save_point)
 
-            saved_model_fn = 'CAE_{}_bestLoss_{:.4f}_epoch_{}.pt'.format(args.net_depth,
-                                                                        timestr,
+            saved_model_fn = 'CAE_{}_bestLoss_{:.4f}_epoch_{}.pt'.format(timestr,
                                                                         best_loss,
                                                                         epoch)
-            saved_model_fn2 = 'CAE_{}_bestLoss_{:.4f}_epoch_{}_fromStateDict.pt'.format(args.net_depth,
-                                                                        timestr,
+            saved_model_fn2 = 'CAE_{}_bestLoss_{:.4f}_epoch_{}_fromStateDict.pt'.format(timestr,
                                                                         best_loss,
                                                                         epoch)
             torch.save(state, os.path.join(save_point, saved_model_fn))
