@@ -38,6 +38,7 @@ def extract_model_path():
             print('1')
             topEpoch = epochNum
             topModel = savedModel
+            bestPath = os.path.join(save_point,savedModel)
         elif epochNum > topEpoch:
             print('2')
             topEpoch = epochNum
@@ -46,6 +47,7 @@ def extract_model_path():
         elif epochNum < topEpoch:
             print('')
             topEpoch = topEpoch
+            bestPath=bestPath
     if bestPath == None:
         raise Exception ('ERROR: path is None')
 
@@ -56,7 +58,7 @@ def extract_model_path():
     return bestPath, bestPath2
         
 
-def get_args(forVariableLR=1e-3,forVariableWD=0,forVariableEpoch=4,forVariableBS=1):
+def get_args(forVariableLR=1e-3,forVariableWD=0,forVariableEpoch=50,forVariableBS=1):
     parser = argparse.ArgumentParser(description='Yang Mice Colitis Training')
     parser.add_argument('--lr', default=forVariableLR, type=float, help='learning rate')
     parser.add_argument('--weight_decay', default=forVariableWD, type=float, help='weight decay')
