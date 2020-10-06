@@ -116,7 +116,7 @@ def main():
     args = get_args()
 
     source = '/data/scratch/soma/webgen_AE/initial/'
-    dest = source + 'outputs_noDense_TEST'
+    dest = source + 'outputs_noDense_TEST2'
 
     if not os.path.exists(dest):
         os.mkdir(dest)
@@ -147,7 +147,7 @@ def main():
 
     #Loss function
     criterion = nn.BCELoss()
-
+    
     #Optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     #optimizer = torch.optim.Adadelta(model.parameters())

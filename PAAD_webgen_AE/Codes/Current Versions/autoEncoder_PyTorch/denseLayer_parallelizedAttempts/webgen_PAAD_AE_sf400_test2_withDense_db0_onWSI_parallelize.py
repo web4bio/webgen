@@ -130,10 +130,10 @@ def main():
     ##cudnn.benchmark = True
     #print('using multiple GPUs')
     
-    #if torch.cuda.device_count() >= 2:  # use multiple GPUs
-    #    model = torch.nn.DataParallel(model, device_ids=[1, 2])
-    #    cudnn.benchmark = True
-    #    print('using multiple GPUs')
+    if torch.cuda.device_count() >= 2:  # use multiple GPUs
+        model = torch.nn.DataParallel(model, device_ids=[1, 2])
+        cudnn.benchmark = True
+        print('using multiple GPUs')
     
     #Epochs
     n_epochs = 50
