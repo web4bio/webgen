@@ -6,7 +6,7 @@
     // tcga_participant_barcode
 
 // Function to fetch expression data from firebrowse:
-fetchClinicalData = async function(cohortQuery, fhQuery) {
+fetchClinicalData = async function(barcodeQuery, fhQuery) {
   
     // Set up host and endpoint urls
     const hosturl = 'https://firebrowse.herokuapp.com';
@@ -15,7 +15,7 @@ fetchClinicalData = async function(cohortQuery, fhQuery) {
     // Set up endpoint url fields (except cohort and gene) with preset values
     const endpointurl_presets = {
         format: 'json',
-        cohort: cohortQuery,
+        tcga_participant_barcode: barcodeQuery,
         fh_cde_name: fhQuery,     
         page: '1',
         page_size: 2001,
@@ -25,7 +25,7 @@ fetchClinicalData = async function(cohortQuery, fhQuery) {
     // Assemble a string by concatenating all fields and field values for endpoint url
     const endpointurl_fieldsWithValues = 
         'format=' + endpointurl_presets.format +
-        '&cohort=' + cohortQuery + 
+        '&tcga_participant_barcode=' + barcodeQuery + 
         '&fh_cde_name=' + fhQuery + 
         '&page=' + endpointurl_presets.page + 
         '&page_size=' + endpointurl_presets.page_size.toString() + 
