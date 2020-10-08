@@ -1,0 +1,40 @@
+<html>
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+        <script>
+            async function loadLocalImage (filename) {
+                try {
+                    const { Image, createCanvas } = require('canvas');
+                    const canvas = createCanvas(800, 600);
+                    const ctx = canvas.getContext('2d');
+                    var img = new Image()
+                    img.onload = () => ctx.drawImage(img, 0, 0);
+                    img.onerror = err => { throw err };
+                    img.src = filename;
+                    image = tf.fromPixels(canvas);
+                    return image;
+                } catch (err) {
+                    console.log(err);
+                }
+                }
+            async function getImage(filename) {
+                try {
+                this.image = await loadLocalImage(filename);
+                console.log('image loaded');
+                } catch (error) {
+                console.log('error loading image', error);
+                }
+                return this.image;
+            }
+            async function test(){
+                const model = await tf.loadGraphModel('./model.json');
+                const example = await getImage('./testImage.png')
+                const verbose = true;
+                example.print(verbose);
+                const prediction = model.execute(example); 
+                console.log("Reached End.")
+            }
+            test()
+        </script>
+    </body>
+</html>
