@@ -128,18 +128,30 @@ let getValidGeneList = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fetchClinicalData = async function() {
+let getBarcodesFromCohortForClinical = async function () {
     let myCohort = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+    var dataFetched = await fetchExpressionData_cg(myCohort, 'bcl2');
+    console.log(dataFetched)
+    var results = dataFetched.mRNASeq;
+    let tpBarcodes = [];
+    results.forEach(element => tpBarcodes.push(element.tcga_participant_barcode));
+    return tpBarcodes;
+}
+
+
+
+let fetchClinicalData = async function() {
+    let barcodes = await getBarcodesFromCohortForClinical();
     const hosturl = 'https://firebrowse.herokuapp.com';
     const endpointurl='http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
     const endpointurl_presets = {
-        cohort: myCohort,
+        tcga_participant_barcode: barcodes,
         page: '1',
         page_size: '2001',
         sort_by: 'tcga_participant_barcode' 
     };
     const endpointurl_fieldsWithValues = 
-        '&cohort=' + endpointurl_presets.cohort.toString() +
+        '&tcga_participant_barcode=' + endpointurl_presets.tcga_participant_barcode.toString() +
         '&page=' + endpointurl_presets.page + 
         '&page_size=' + endpointurl_presets.page_size + 
         '&sort_by=' + endpointurl_presets.sort_by;
