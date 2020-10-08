@@ -22,21 +22,21 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 
 ## Participants
 
-| Name & GitHub ID  | Individual folder | Observable | Other links|
+| Name & GitHub ID  | Individual folder or notebook | Observable | Other links|
 | --- | --- | --- | --- |
 | [Richard Moffitt](https://github.com/rmoffitt) | [Folder](/archive/richard/), [js Sandbox](/archive/richard/richard.html) | [Notebook homepage](https://observablehq.com/@rmoffitt?tab=notebooks), [WebGen page](https://observablehq.com/@rmoffitt/webgen), [Simple GDC query tool](https://observablehq.com/@rmoffitt/tcgaplots) | [Faculty website](https://bmi.stonybrookmedicine.edu/people/moffitt_richard) |
 | [Jonas Almeida](http://www.github.com/jonasalmeida) | [Folder](https://github.com/web4bio/webgen/tree/master/archive/jonas), [js Sandbox](https://web4bio.github.io/webgen/archive/jonas/) | [Sandbox](https://beta.observablehq.com/@jonasalmeida/webgen)    | [Firebrowse](https://github.com/episphere/firebrowse) |
-| [Carolyn Bremer](http://www.github.com/cgbrem) | [Fall 2019 Log](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit), [Spring 2020 Log](https://docs.google.com/document/d/1l8UgEMjIHbWd9m8RNZy4ZXpysO4Gtk0Kf0olnhbPtXc/edit), , [Fall 2020 Log](https://docs.google.com/document/d/1edAH_tN2WeVNjC3mCg7IkX6jSyO3aI1f7iU3Gv-LSeA/edit?usp=sharing) |[Sandbox](https://observablehq.com/@cgbrem/web-gen-fall-19) |   |
+| [Carolyn Bremer](http://www.github.com/cgbrem) | [Fall 2019 Log](https://docs.google.com/document/d/1z0pNNcCbAV8Sb0JKBMMoaw0-78mEdBKtLWa6WKW4ijk/edit), [Spring 2020 Log](https://docs.google.com/document/d/1l8UgEMjIHbWd9m8RNZy4ZXpysO4Gtk0Kf0olnhbPtXc/edit), [Fall 2020 Log](https://docs.google.com/document/d/1edAH_tN2WeVNjC3mCg7IkX6jSyO3aI1f7iU3Gv-LSeA/edit?usp=sharing) |[Sandbox](https://observablehq.com/@cgbrem/web-gen-fall-19) |   |
 | [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/18d5oB-Uft5nBskVxnZuEcaXHDPE291y2PBzQtcPZXVo/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) | [Interactive Plots](https://episphere.github.io/mortalitytracker/board/) |
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/1lsB10ONSREFVnQTz-YYbuuCBrQp9Q1tgLn63LJPAPdM/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) |   |
 | [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/1g1pkQcqoDTa40BUXveAWDokW_1Q-spkC_0n6xB5vTO8/edit) | [Observable](https://observablehq.com/@19aanand) |   |
-| [Yuwei Zhang](https://github.com/Yuw-zhang) | |[Histology Sandbox](https://observablehq.com/@yuw-zhang/webgen) | | 
-| [Luke Torre-Healy](https://github.com/lthealy) | | [Sandbox](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
+| [Yuwei Zhang](https://github.com/Yuw-zhang) | [Fall 2020 Log](https://docs.google.com/document/d/1INk8iqLC-mqNpSYvK5mgmly7jMlk3Mwc3l4ylU-H-SU/edit?usp=sharing) |[Histology Sandbox](https://observablehq.com/@yuw-zhang/webgen) | | 
+| [Luke Torre-Healy](https://github.com/lthealy) | [Fall 2020 Log](https://docs.google.com/document/d/14CbEL9a69vw59s9eNWlebVGBgKQDJclhiaY-yZLjRyU/edit?usp=sharing)| [Sandbox](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
 | [Kevin Murgas](https://github.com/kevin-murgas) | | [Sandbox](https://observablehq.com/@kevin-murgas/webgen) | |
-| [Soma Kobayashi](https://github.com/skobayashi0417) | [Fall 2020 Log](https://observablehq.com/@skobayashi0417/webgen-logs) | [Sandbox](https://observablehq.com/@skobayashi0417/test) | |
-| [Eric Ruan](https://github.com/ericr491) |  | [Sandbox](https://observablehq.com/@ericr491/webgen) | |
-| [Jillian Unkenholz](https://github.com/jillianunk32)  | [Fall 2020 Log](https://docs.google.com/document/d/1c1T6mJisOjjH_uQheGSuq5BtZTJ1u-04OMFvhlM-PAY/edit?usp=sharing)|[WebGen](https://observablehq.com/@jillianunk32/webgen) | |
-| [Chowdhury An-Noor](https://github.com/chowdhuryannoor) | |[ Notebook](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
+| [Soma Kobayashi](https://github.com/skobayashi0417) | [Fall 2020 Log](https://docs.google.com/document/d/14oeMCzMhF3AISCIlZo9wm0hmrjTOgVGnp8jB4ZF-lS8/edit?usp=sharing) | [Histology Sandbox](https://observablehq.com/@skobayashi0417/test) | |
+| [Eric Ruan](https://github.com/ericr491) | [Fall 2020 Log](https://docs.google.com/document/d/1RldOmYmN9yAjB2dhHcvPQdRe_WidyJhlccK51Nb8tL8/edit?usp=sharing) | [Sandbox](https://observablehq.com/@ericr491/webgen) | |
+| [Jillian Unkenholz](https://github.com/jillianunk32)  | [Fall 2020 Log](https://docs.google.com/document/d/1c1T6mJisOjjH_uQheGSuq5BtZTJ1u-04OMFvhlM-PAY/edit?usp=sharing)|[Sandbox](https://observablehq.com/@jillianunk32/webgen) | |
+| [Chowdhury An-Noor](https://github.com/chowdhuryannoor) | |[Sandbox](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
