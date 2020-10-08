@@ -9,8 +9,8 @@
 addDiv = function(newDivID, oldDivID) { 
   // create a new div element 
   let newDiv = document.createElement("div"); 
-  newDiv.setAttribute('id', newDivID);
-  newDiv.setAttribute("style", "margin-top:25px"); 
+  newDiv.setAttribute('id',newDivID);
+  newDiv.setAttribute("style","margin-top:25px"); 
   // add the newly created element and its content into the DOM 
   document.getElementById(oldDivID).after(newDiv); 
 }
@@ -102,7 +102,7 @@ function setExampleVars() {
 // The JS code for building the plots to display:
 // Wait for user input to build plots:
 
-let buildPlots = async function() {
+let buildPlots = async function(facetButtonClicked) {
   
   let dataToPlotInfo;
 
@@ -223,9 +223,14 @@ let buildPlots = async function() {
         .attr("transform",
             "translate(" + (margin.left-20) + "," + 
                         (margin.top + ySpacing*index*0.25) + ")");
-
-      // Create the violin plot:
-      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+      if(facetButtonClicked)
+      {
+        createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, "gender");
+      }
+      else
+      {
+        createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
+      }
     }
 
   });

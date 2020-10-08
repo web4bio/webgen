@@ -36,13 +36,15 @@
     <link rel="stylesheet" type="text/css" href="../css/style.css">
 
     <script type="text/javascript" src = "../js/dataAcquisition/fetchExpressionData.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/fetchSigMutationData.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
     
     <script type="text/javascript" src = "../js/plots/createHeatmap.js"></script>
     <script type = "text/javascript" src = "../js/plots/createViolinPlot.js"></script>
 
-    <script type ="text/javascript" src = "../js/fillSelectBoxes.js"></script>
     <script type="text/javascript" src = "../js/docManipulation.js"></script>
+    <script type ="text/javascript" src = "../js/fillSelectBoxes.js"></script>
 
   </head>
   
@@ -52,9 +54,9 @@
 
     <div id = "content-wrap">
 
-    <!--
-      Set up the navbar:
-    -->
+  <!--
+    Set up the navbar:
+  -->
     <div class="navbar-fixed">
         <nav>
         <div class="nav-wrapper">
@@ -66,43 +68,9 @@
         </nav>
     </div>
 
-    <!--
-      Set up subtitle
-    -->
-    <div class="subtitle">
-      <br>
-      <br>
-      <h5 style="text-align: center; font-style: italic; font-family: Georgia, 'Times New Roman', Times, serif ;">A tool for analyzing cancer data from The Cancer Genome Atlas</h5>
-      <p style="text-align: center; font-family: Georgia, 'Times New Roman', Times, serif;">Currently, this tool enables data visualization via heatmap and violin plot.</p>
-      <br>
-    </div>
-
-    <!--
-      How many groups?
-    -->
-    <div class="numberOfGroups">
-      <hr style="border-color: #4db6ac;">
-      <p style="text-align: center; font-family:Georgia, 'Times New Roman', Times, serif; font-size:large">How many groups would you like to analyze?</p>
-      <form style="text-align: center;">
-          <label>
-            <input class="with-gap" name="group1" type="radio" onclick="displaySingleGroupSelectors()"/>
-              <span style="color: black; padding-right:50px;">One group</span>
-          </label>
-          <label>
-            <input class="with-gap" name="group1" type="radio" onclick=""/>
-              <span style="color: black">Two groups</span>
-          </label>
-      </form>
-      <br>
-    </div>
-
-    <div id="single-group-analysis" class="hide">
-
-    <hr style="border-color: #4db6ac;">
-
-    <!--
-    Setting up the user input text fields.
-    -->
+  <!--
+  Setting up the user input text fields.
+  -->
     <script>
       // Get the list of valid genes users can search for:
       validGeneListFetch = getValidGeneList();
@@ -144,112 +112,116 @@
       });
     </script>
 
-      <p style="text-align: center; font-family: Georgia, 'Times New Roman', Times, serif"><b>1) Select cancer type(s)</b></p>
-      <div id='cancerQuerySelectBox'>
-          <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection">
-              <!-- Filled by fillSelectBoxes.js -->
-          </select>
-      </div>
-
-      <p style="text-align: center; font-family: Georgia, 'Times New Roman', Times, serif""><b>2) Select gene(s)</b></p>
-      <p style="text-align: center; color: gray;"><i>Tip: Begin typing name of gene, and then select gene from dropdown menu.</i></p>
-      <div id='geneQuerySelectBox'>
-          <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillMutationSelectBox()">
-              <!-- Filled by fillSelectBoxes.js -->
-          </select>
-      </div>
-
-      <p style="text-align: center; font-family: Georgia, 'Times New Roman', Times, serif""><b>3) Select mutation(s)</b></p>
-      <div id='mutationQuerySelectBox'>
-        <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection">
+    <p style="text-align: center;"><b>1) Select cancer type(s)</b></p>
+    <div id='cancerQuerySelectBox'>
+        <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection">
             <!-- Filled by fillSelectBoxes.js -->
         </select>
-      </div>
-
-      <!--
-      Setting up the buttons.
-      -->
-      <div className="mainWindowButtons" id = "mainWindowButtons">
-          <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
-          <button class="col s3 btn waves-effect waves-light" onclick="buildPlots()" id='submitButton'>Submit</button>
-      </div>
-
-      <!--
-        Setting up the tabs.
-      -->
-      <div class="tabs_container">  
-        <div class="col s36">
-          <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
-            <li class="tab col s12"><a class="active" href="#heatmapRef">Heatmap</a></li>
-            <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
-            <li class="tab col s12"><a href="#violinPlotRef">Violin Plot</a></li>
-          </ul>
-          <!--
-            Setting up the plots to go under each tab.
-          -->
-          <div id="heatmapRef" class="col s12">
-            <div id=heatmapDiv0 style="margin-top:25px"></div>
-          </div>
-          <div id="violinPlotRef" class="col s12">
-            <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
-          </div>
-        </div>
-      </div>
-      <script> 
-        var elem = document.querySelector('.tabs');
-        var options = {}
-        var instance = M.Tabs.init(elem, options);
-      </script>
-
     </div>
 
-    <br>
-    <br>
-    <br>
-    <br>
-
+    <p style="text-align: center;"><b>2) Select gene(s)</b></p>
+    <p style="text-align: center; color: gray;"><i>Tip: Begin typing name of gene, and then select gene from dropdown menu.</i></p>
+    <div id='geneQuerySelectBox'>
+        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillMutationSelectBox()">
+            <!-- Filled by fillSelectBoxes.js -->
+        </select>
     </div>
 
-    <!--
-      Footer:
-    -->
-    <footer class="page-footer" id="footer">
-      <div class="container">
-        <div class="row">
+    <p style="text-align: center;"><b>3) Select mutation(s)</b></p>
+    <div id='mutationQuerySelectBox'>
+      <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection">
+          <!-- Filled by fillSelectBoxes.js -->
+      </select>
+  </div>
 
-          <div class="col s12 m4 l8">
-            <h7 class="white-text">LINKS</h7>
-            <ul>
-              <li><a target="_blank" class="grey-text text-lighten-3" href="https://github.com/web4bio/webgen">GitHub</a></li>
-              <li><a target="_blank" class="grey-text text-lighten-3" href="http://firebrowse.org/api-docs/">Firebrowse API</a></li>
-              <li><a target="_blank" class="grey-text text-lighten-3" href="https://gdc.cancer.gov/">NCI Genomic Data Commons</a></li>
-              <li><a target="_blank" class="grey-text text-lighten-3" href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University VIP</a></li>
-            </ul>
-          </div>
 
-          <div class="col s12 m6 l3">
-            <h7 class="white-text">CONTACT</h7>
-            <ul>
-              <li><a class="grey-text text-lighten-3">richard.moffitt@stonybrookmedicine.edu</a></li>          
-            </ul>
-          </div>
+  <!--
+  Setting up the buttons.
+  -->
+    <div className="mainWindowButtons" id = "mainWindowButtons">
+        <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
+        <button class="col s3 btn waves-effect waves-light" onclick="buildPlots(false)" id='submitButton'>Submit</button>
+    </div>
 
+  <!--
+    Setting up the tabs.
+  -->
+    <div class="tabs_container">  
+      <div class="col s36">
+        <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
+          <li class="tab col s12"><a class="active" href="#heatmapRef">Heatmap</a></li>
+          <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
+          <li class="tab col s12"><a href="#violinPlotRef">Violin Plot</a></li>
+        </ul>
+        <!--
+          Setting up the plots to go under each tab.
+        -->
+        <div id="heatmapRef" class="col s12">
+          <div id=heatmapDiv0 style="margin-top:25px"></div>
         </div>
+        <div id="violinPlotRef" class="col s12">
+          <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
+          <button id = "facetByField" type = "button" onclick = "buildPlots(true)">Facet Violin Curves by Gender</button>
+        </div>
+      </div>
+    </div>
 
+<!--
+  Setting tabs:
+-->
+<script> 
+  var elem = document.querySelector('.tabs');
+  var options = {}
+  var instance = M.Tabs.init(elem, options);
+</script>
+
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+<!--
+  Footer:
+-->
+<footer class="page-footer" id="footer">
+  <div class="container">
+    <div class="row">
+
+      <div class="col s12 m4 l8">
+        <h7 class="white-text">LINKS</h7>
+        <ul>
+          <li><a target="_blank" class="grey-text text-lighten-3" href="https://github.com/web4bio/webgen">GitHub</a></li>
+          <li><a target="_blank" class="grey-text text-lighten-3" href="http://firebrowse.org/api-docs/">Firebrowse API</a></li>
+          <li><a target="_blank" class="grey-text text-lighten-3" href="https://gdc.cancer.gov/">NCI Genomic Data Commons</a></li>
+          <li><a target="_blank" class="grey-text text-lighten-3" href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University VIP</a></li>
+        </ul>
       </div>
 
-      <div class="footer-copyright">
-        <div class="container">
-          <div class="center-align">
-            WebGen 2020
-          </div>
-        </div>
+      <div class="col s12 m6 l3">
+        <h7 class="white-text">CONTACT</h7>
+        <ul>
+          <li><a class="grey-text text-lighten-3">richard.moffitt@stonybrookmedicine.edu</a></li>          
+        </ul>
       </div>
 
-    </footer>
+    </div>
 
   </div>
 
-  </body>
+  <div class="footer-copyright">
+    <div class="container">
+      <div class="center-align">
+        WebGen 2020
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+</div>
+
+</body>
 
 </html>

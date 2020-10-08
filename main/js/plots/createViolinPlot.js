@@ -6,8 +6,8 @@
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
  
-createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject, curCohort) {
-
+createViolinPlot = async function(indepVarType, indepVars, dataInput, 
+    svgObject, curCohort, facetByField) {
     //Set up violin curve colors
     var colors = ["#f1f291", "#69b3a2", "#bfb7f7", "#f26d5c", "#71a9d1", "#f0a94f"];
     var violinCurveColors = [];
@@ -24,9 +24,34 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
     //Filter out data that does not belong to curCohort
     dataInput = dataInput.filter(patientData => patientData.cohort == curCohort);
 
+    //Create synthetic gender data. WILL BE REMOVED!
+    genderArr = ["Male", "Female"];
+    for(var i = 0; i < dataInput.length; i++)
+    {
+        dataInput[i][facetByField] = genderArr[Math.floor(Math.random()*2)];
+    }
+
+    //Add new field to data for purpose of creating keys and populating myGroups
+    if(facetByField != null)
+    {
+        for(var i = 0; i < dataInput.length; i++)
+        {
+            dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (" + 
+                                            dataInput[i][facetByField] + ")";
+        }
+    }
+    var myGroups;
     // Get myGroups of genes:
-    var myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
-    var numOfGenes = myGroups.length;
+    if(facetByField != null)
+    {
+        myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
+    }
+    else
+    {
+        myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
+    }
+
+    var numOfGroups = myGroups.length;
 
     // Helper function to sort genes by median expression:
     function compareGeneExpressionMedian(a,b) {
@@ -72,6 +97,14 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         .domain([minExpressionLevel, maxExpressionLevel])
         .range([height, 0]);
     svgObject.append("g").call( d3.axisLeft(y));
+    //Append y-axis label
+    svgObject.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Expression Level");
 
     // Build and Show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
     var x = d3.scaleBand()
@@ -82,6 +115,11 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
     svgObject.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
+
+    svgObject.append("text")             
+        .attr("transform", "translate(0," + (height + margin.top + 30) + ")")
+        .style("text-anchor", "middle")
+        .text("Gene");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +142,17 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
 
     // Compute the binning for each group of the dataset
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
-        .key(function(d) {return d.gene;})
+        .key(function(d) 
+        {
+            if(facetByField == null)  
+            {
+                return d.gene;
+            }
+            else
+            {
+                return d.facetByFieldKey;
+            }
+        })
         .rollup(function(d) {                                              // For each key..
             input = d.map(function(g) { return g.expression_log2;});
             density = kde(input);                                           // Implement kernel density estimation
@@ -124,8 +172,16 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
             maxNum = longest;
         }
 
-        // Add statisitc info for each gene:
-        var currentExpressionArray = d3.map(dataInput.filter(x => x.gene == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        // Add statisitc info for each group:
+        var currentExpressionArray
+        if(facetByField == null)
+        {
+            currentExpressionArray = d3.map(dataInput.filter(x => x.gene == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        }
+        else
+        {
+            currentExpressionArray = d3.map(dataInput.filter(x => x.facetByFieldKey == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        }
         currentExpressionArray.sort(function(a,b) {return a - b ;});
         sumstat[i].median = d3.quantile(currentExpressionArray, 0.5);
         sumstat[i].Qthree = d3.quantile(currentExpressionArray, 0.75);
