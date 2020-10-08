@@ -30,13 +30,13 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/18d5oB-Uft5nBskVxnZuEcaXHDPE291y2PBzQtcPZXVo/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) | [Interactive Plots](https://episphere.github.io/mortalitytracker/board/) |
 | [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/1lsB10ONSREFVnQTz-YYbuuCBrQp9Q1tgLn63LJPAPdM/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) |   |
 | [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/1g1pkQcqoDTa40BUXveAWDokW_1Q-spkC_0n6xB5vTO8/edit) | [Observable](https://observablehq.com/@19aanand) |   |
-| [Yuwei Zhang](https://github.com/Yuw-zhang) |[Observable](https://observablehq.com/@yuw-zhang) |[WebGen Notebook](https://observablehq.com/@yuw-zhang/webgen) | | 
-| [Luke Torre-Healy](https://github.com/lthealy) | [Observable](https://observablehq.com/@lthealy) | [WebGen Notebook](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
-| [Kevin Murgas](https://github.com/kevin-murgas) | [Observable](https://observablehq.com/@kevin-murgas) | [WebGen Notebook](https://observablehq.com/@kevin-murgas/webgen) | |
-| [Soma Kobayashi](https://github.com/skobayashi0417) | [Observable](https://observablehq.com/@skobayashi0417) | [WebGen](https://observablehq.com/@skobayashi0417/webgen-logs) | |
-| [Eric Ruan](https://github.com/ericr491) | [Observable](https://observablehq.com/@ericr491) | [WebGen Notebook](https://observablehq.com/@ericr491/webgen) | |
+| [Yuwei Zhang](https://github.com/Yuw-zhang) | |[Histology Sandbox](https://observablehq.com/@yuw-zhang/webgen) | | 
+| [Luke Torre-Healy](https://github.com/lthealy) | | [Sandbox](https://observablehq.com/@lthealy/webgen-doc)| [SBU](https://renaissance.stonybrookmedicine.edu/mstp/people/Torre-Healy) |
+| [Kevin Murgas](https://github.com/kevin-murgas) | | [Sandbox](https://observablehq.com/@kevin-murgas/webgen) | |
+| [Soma Kobayashi](https://github.com/skobayashi0417) | [Fall 2020 Log](https://observablehq.com/@skobayashi0417/webgen-logs) | [Sandbox](https://observablehq.com/@skobayashi0417/test) | |
+| [Eric Ruan](https://github.com/ericr491) |  | [Sandbox](https://observablehq.com/@ericr491/webgen) | |
 | [Jillian Unkenholz](https://github.com/jillianunk32)  | [Fall 2020 Log](https://docs.google.com/document/d/1c1T6mJisOjjH_uQheGSuq5BtZTJ1u-04OMFvhlM-PAY/edit?usp=sharing)|[WebGen](https://observablehq.com/@jillianunk32/webgen) | |
-| [Chowdhury An-Noor](https://github.com/chowdhuryannoor)  |[Observable](https://observablehq.com/@chowdhuryannoor) |[WebGen Notebook](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
+| [Chowdhury An-Noor](https://github.com/chowdhuryannoor) | |[ Notebook](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
