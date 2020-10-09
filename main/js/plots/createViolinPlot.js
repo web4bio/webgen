@@ -14,7 +14,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
 
     // Set up the figure dimensions:
     //var margin = {top: 10, right: 30, bottom: 30, left: 40},
-    var margin = {top: 10, right: 30, bottom: 50, left: 40},
+    var margin = {top: 10, right: 30, bottom: 80, left: 40},
         width = 1250 - margin.left - margin.right,
         height = 440 - margin.top - margin.bottom;
 
@@ -117,8 +117,8 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
         .call(d3.axisBottom(x))
 
     svgObject.append("text")             
-        .attr("transform", "translate(0," + (height + margin.top + 30) + ")")
-        .style("text-anchor", "middle")
+        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 30) + ")")
+        //.style("text-anchor", "middle")
         .text("Gene");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
