@@ -121,7 +121,7 @@
 
            // For Clinical Select2 Drop down:
            $('.clinicalMultipleSelection').select2({
-            placeholder: "Clinical Type(s)"
+            placeholder: "Clinical Feature(s)"
           });
 
         //   // For Mutation Select2 Drop down:
@@ -150,7 +150,7 @@
             <!-- Filled by fillSelectBoxes.js -->
         <!-- </select>
     </div> -->
-
+    <br>
     <p style="text-align: center;"><b>2) Select clinical feature(s)</b></p>
     <div id='clinicalQuerySelectBox'>
       <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection">
@@ -164,6 +164,21 @@
           <!-- Filled by fillSelectBoxes.js -->
       <!-- </select>
     </div> -->
+
+    <!-- 
+      Data exploration div
+    -->
+    <div class="row" id="dataexploration">
+
+      <script type="text/javascript" src = "../js/plots/dataExploration.js"></script>
+
+      <div class="col s4" id="genderPie"></div>
+      <div class="col s4" id="ethnicityPie"></div>
+      <div class="col s4" id="racePie"></div>
+
+
+    </div>
+
 
 
   <!--

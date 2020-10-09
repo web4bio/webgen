@@ -167,6 +167,7 @@ let fillClinicalTypeSelectBox = async function() {
     var dataFetched = await fetchClinicalData();
     var clinicalQuery = dataFetched.Clinical_FH;
     console.log(clinicalQuery)
+    buildExplorePlots(clinicalQuery);
     let selectBox = document.getElementById("clinicalMultipleSelection");
     let clinicalKeys = Object.keys(clinicalQuery[0]);
     for (let i = 0; i < clinicalKeys.length; i++) {
