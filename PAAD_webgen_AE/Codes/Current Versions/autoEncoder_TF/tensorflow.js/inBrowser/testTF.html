@@ -28,9 +28,18 @@
             }
             async function test(){
                 const model = await tf.loadGraphModel('./model.json');
+                const im = new Image()
+                var fr = new FileReader();
+                fr.onload = function () {
+                    im.src = fr.result;
+                }
+                fr.readAsDataURL('./testImage.png');
+                im.onload = () => {
+                const a = tf.browser.fromPixels(im)
+                }
                 const example = await getImage('./testImage.png')
                 const verbose = true;
-                example.print(verbose);
+                a.print(verbose);
                 const prediction = model.execute(example); 
                 console.log("Reached End.")
             }
