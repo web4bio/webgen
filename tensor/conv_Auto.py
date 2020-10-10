@@ -3,7 +3,7 @@ import data
 
 CHANNEL_OUTPUT = 3
 
-EPOCHS = 5
+EPOCHS = 10
 
 train_dir = '/data03/shared/yuwei/samples/train/'
 test_dir = '/data03/shared/yuwei/samples/test/'
@@ -22,26 +22,29 @@ def train(x_train):
     input_img = Input(shape=(400,400,3))
 
     # encoding layer
-    x = Conv2D(32, (3,3), activation='relu', padding='same', strides=1)(input_img)
-    x = Conv2D(64, (3,3),  activation='relu',padding='same', strides=1)(x)
+#     x = Conv2D(8, (3,3), activation='relu',padding='same')(input_img)
+    x = Conv2D(16, (3,3),  activation='relu',padding='same')(input_img)
+    x = MaxPool2D((2,2), padding='same')(x)
+    x = Conv2D(32, (3,3), activation='relu', padding='same')(x)
     encoded = MaxPool2D((2,2), padding='same')(x)
 
     # decoding layer
     x = UpSampling2D((2,2))(encoded)
-    x = Conv2D(64, (3,3), activation='relu', padding='same', strides=1)(x)
-    x = Conv2D(32, (3,3), activation='relu', padding='same', strides=1)(x)
+#     x = Conv2D(32, (3,3), activation='relu',padding='same')(x)
+    x = Conv2D(32, (3,3), activation='relu',padding='same')(x)
+    x = UpSampling2D((2,2))(x)
+    x = Conv2D(16, (3,3),  activation='relu',padding='same')(x)
     decoded = Conv2D(CHANNEL_OUTPUT, (3,3), activation='sigmoid', padding='same')(x)
-
     # build autoencoder, encoder, and decoder
     autoencoder = Model(inputs=input_img, outputs=decoded)
     encoder = Model(inputs=input_img, outputs=encoded)
 
     # compile autoencoder
-    autoencoder.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    autoencoder.compile(optimizer='adam', loss=losses.MeanAbsoluteError())
     autoencoder.summary()
 
     # history
-    history_re = autoencoder.fit(x_train, x_train, shuffle=True,epochs=EPOCHS)
+    history_re = autoencoder.fit(x_train, x_train, shuffle=True, epochs=EPOCHS)
 
     return encoder, autoencoder, history_re
 
@@ -103,7 +106,13 @@ if __name__ == '__main__':
     # train
     encoder, autoencoder, history_re = train(train_data)
 
+    # save model
+    autoencoder.save('./model')
+    conModel = keras.models.load_model('./model')
+
     # test
-    decode_images = autoencoder.predict(test_data)
-    show_images(decode_images, test_data)
-    plot_accuracy(history_re)
+    decode_name = os.listdir(test_dir)
+    decode_images = conModel.predict(test_data)
+    for i in range(len(decode_images)):
+        plt.savefig('./decode_results/'+decode_name[i], decode_images[i])
+
