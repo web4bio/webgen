@@ -51,6 +51,13 @@ removeSVGelements = function() {
   };
 };
 
+removeViolinButtons = function(){
+  var BTNElementArray = document.getElementsByClassName('BTNViolinPlots');
+  for(let i = 0, len = BTNElementArray.length || 0; i < len; i = i+1){
+    BTNElementArray[0].remove();
+  }
+}
+
 // Function to remove the tooltip div elements if they exist:
 removeTooltipElements = function () {
   let collection = document.getElementsByClassName('tooltip');
@@ -114,6 +121,7 @@ let buildPlots = async function(facetButtonClicked) {
   removeDiv();
   removeSVGelements();
   removeTooltipElements();
+  removeViolinButtons();
 
   // Display loader:
   document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
@@ -222,9 +230,19 @@ let buildPlots = async function(facetButtonClicked) {
         .attr("transform",
             "translate(" + (margin.left-20) + "," + 
                         (margin.top + ySpacing*index*0.25) + ")");
-
-
       
+      var button = document.createElement("button");
+      button.innerHTML = "Facet Violin Curves by Gender";
+      button.id = `BTNViolinPlot${index}`;
+      button.className = "BTNViolinPlots";
+      var body = document.getElementById("violinPlotRef");
+      body.appendChild(button);
+
+      button.addEventListener("click", function(){
+        buildPlots(true);
+      });
+
+
       if(facetButtonClicked)
       {
         createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, "gender");
