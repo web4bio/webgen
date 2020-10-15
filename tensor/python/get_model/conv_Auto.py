@@ -22,7 +22,6 @@ def train(x_train):
     input_img = Input(shape=(400,400,3))
 
     # encoding layer
-#     x = Conv2D(8, (3,3), activation='relu',padding='same')(input_img)
     x = Conv2D(16, (3,3),  activation='relu',padding='same')(input_img)
     x = MaxPool2D((2,2), padding='same')(x)
     x = Conv2D(32, (3,3), activation='relu', padding='same')(x)
@@ -30,7 +29,6 @@ def train(x_train):
 
     # decoding layer
     x = UpSampling2D((2,2))(encoded)
-#     x = Conv2D(32, (3,3), activation='relu',padding='same')(x)
     x = Conv2D(32, (3,3), activation='relu',padding='same')(x)
     x = UpSampling2D((2,2))(x)
     x = Conv2D(16, (3,3),  activation='relu',padding='same')(x)
@@ -107,12 +105,15 @@ if __name__ == '__main__':
     encoder, autoencoder, history_re = train(train_data)
 
     # save model
-    autoencoder.save('./model')
-    conModel = keras.models.load_model('./model')
+    autoencoder.save('./model/model.h5')
+
+    # import model
+    conModel = keras.models.load_model('./model/model.h5')
 
     # test
-    decode_name = os.listdir(test_dir)
-    decode_images = conModel.predict(test_data)
-    for i in range(len(decode_images)):
-        plt.savefig('./decode_results/'+decode_name[i], decode_images[i])
+    decode_imgs = conModel.predict(test_data)
 
+    # save result
+    decode_name = os.listdir(test_dir)
+    for i in range(len(decode_imgs)):
+        plt.imsave('./decode_results/'+decode_name[i],decode_imgs[i])
