@@ -39,8 +39,6 @@
     <script type="text/javascript" src = "../js/dataAcquisition/fetchSigMutationData.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getCohortIDs.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getCohortDescriptions.js"></script>
     
     <script type="text/javascript" src = "../js/plots/createHeatmap.js"></script>
     <script type = "text/javascript" src = "../js/plots/createViolinPlot.js"></script>
@@ -50,30 +48,29 @@
 
   </head>
   
-  <!--
-    Set up the navbar:
-  -->
   <body>
 
     <div id="page-container">
 
     <div id = "content-wrap">
 
+  <!--
+    Set up the navbar:
+  -->
     <div class="navbar-fixed">
         <nav>
         <div class="nav-wrapper">
           <a href="html/index.html" style="font-style: italic;" class="brand-logo center">WebGen</a>
           <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li class="active"><a href="html/about.html">About</a></li>
+            <li class="active"><a href="about.html">About</a></li>
           </ul>
         </div>
         </nav>
     </div>
 
-
-<!--
-  Setting up the user input text fields and buttons.
--->
+  <!--
+  Setting up the user input text fields.
+  -->
     <script>
       // Get the list of valid genes users can search for:
       validGeneListFetch = getValidGeneList();
@@ -83,7 +80,7 @@
 
           // For Cancer Type Select2 Drop down:
           $('.cancerTypeMultipleSelection').select2({
-            placeholder: "Select Cancer Type(s)"
+            placeholder: "Cancer Type(s)"
           });
 
           // For Gene Select2 Drop down:
@@ -94,14 +91,18 @@
               if (~validGeneList.includes(params.term.toUpperCase()) === -1) {
                 return null;
               }
-              
               // If the gene entered is valid, create new tag:
               return {
                 id: params.term.toUpperCase(),
                 text: params.term.toUpperCase()
               }
             },
-            placeholder: "Enter Gene ID(s)"
+            placeholder: "Gene Name(s)"
+          });
+
+          // For Mutation Select2 Drop down:
+          $('.mutationMultipleSelection').select2({
+            placeholder: "Mutation(s)"
           });
 
           // Fill the Select2 Boxes:
@@ -111,46 +112,58 @@
       });
     </script>
 
-  <div  id = 'cancerQuerySelectBox'>
-      <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id = "cancerTypeMultipleSelection">
+    <p style="text-align: center;"><b>1) Select cancer type(s)</b></p>
+    <div id='cancerQuerySelectBox'>
+        <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection">
+            <!-- Filled by fillSelectBoxes.js -->
+        </select>
+    </div>
+
+    <p style="text-align: center;"><b>2) Select gene(s)</b></p>
+    <p style="text-align: center; color: gray;"><i>Tip: Begin typing name of gene, and then select gene from dropdown menu.</i></p>
+    <div id='geneQuerySelectBox'>
+        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillMutationSelectBox()">
+            <!-- Filled by fillSelectBoxes.js -->
+        </select>
+    </div>
+
+    <p style="text-align: center;"><b>3) Select mutation(s)</b></p>
+    <div id='mutationQuerySelectBox'>
+      <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection">
           <!-- Filled by fillSelectBoxes.js -->
       </select>
   </div>
 
-  <div id = 'geneQuerySelectBox'>
-      <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id = "geneMultipleSelection">
-          <!-- Filled by fillSelectBoxes.js -->
-      </select>
-  </div>
 
   <!--
   Setting up the buttons.
--->
+  -->
     <div className="mainWindowButtons" id = "mainWindowButtons">
         <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
-        <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='submitButton'>Submit</button>
+        <button class="col s3 btn waves-effect waves-light" onclick="buildPlots()" id='submitButton'>Submit</button>
     </div>
+
   <!--
     Setting up the tabs.
   -->
-<div class="tabs_container">  
-  <div class="col s36">
-    <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
-      <li class="tab col s12"><a class="active" href="#heatmapRef">Heatmap</a></li>
-      <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
-      <li class="tab col s12"><a href="#violinPlotRef">Violin Plot</a></li>
-    </ul>
-    <!--
-      Setting up the plots to go under each tab.
-    -->
-    <div id="heatmapRef" class="col s12">
-      <div id=div0 style="margin-top:25px"></div>
+    <div class="tabs_container">  
+      <div class="col s36">
+        <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
+          <li class="tab col s12"><a class="active" href="#heatmapRef">Heatmap</a></li>
+          <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
+          <li class="tab col s12"><a href="#violinPlotRef">Violin Plot</a></li>
+        </ul>
+        <!--
+          Setting up the plots to go under each tab.
+        -->
+        <div id="heatmapRef" class="col s12">
+          <div id=heatmapDiv0 style="margin-top:25px"></div>
+        </div>
+        <div id="violinPlotRef" class="col s12">
+          <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
+        </div>
+      </div>
     </div>
-    <div id="violinPlotRef" class="col s12">
-      <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
-    </div>
-  </div>
-</div>
 
 <!--
   Setting tabs:
