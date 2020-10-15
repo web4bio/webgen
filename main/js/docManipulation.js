@@ -160,7 +160,6 @@ let buildPlots = async function(facetButtonClicked) {
 
     // Fetch RNA sequence data and display requested plots:
     dataToPlotInfo = getExpressionDataJSONarray_cgb(cohortQuery, geneQuery, barcodes);
-
   }
   
   // Once data is returned, build the plots:
@@ -223,6 +222,9 @@ let buildPlots = async function(facetButtonClicked) {
         .attr("transform",
             "translate(" + (margin.left-20) + "," + 
                         (margin.top + ySpacing*index*0.25) + ")");
+
+
+      
       if(facetButtonClicked)
       {
         createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, "gender");
