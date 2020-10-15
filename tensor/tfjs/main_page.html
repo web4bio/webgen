@@ -9,20 +9,14 @@
             <h1>PAAD Patches Prediction by Autoencoder</h1>
             <h4>Biomedical Informatics of Stony Brook University</h4>
         </div>
-        <hr>
-        
-        <div class='fetchData'>
-            <button id='dataLoad'>Load Data</button>
-            <hr>
-            <script src='fetchData.js'></script>
-            <div id='response'></div>
-        </div>
-        <hr>
+
+        <button id = 'loadImage'>Load Patch</button>
+        <script src = 'fetchData.js'></script>
 
         <div class='model'>
-            <script>
-                const model = tf.loadLayersModel('http://sbu-bmi.eastus2.cloudapp.azure.com/azureuser/model.json');                
-            </script>
+            <button id = 'predictModel'>Predict</button>
+            <script src='fetchModel.js'></script>
+            <div id='response'></div>
         </div>
     </body>
 </html>

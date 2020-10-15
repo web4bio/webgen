@@ -1,9 +1,6 @@
-// set click buttom id
-// correspond to 'Load Data' buttom and activate function fetchData()
-loadButtom = document.getElementById('dataLoad').addEventListener('click',fetchData);
-
-function fetchData(){
-    fetch('https://api.gdc.cancer.gov/files?project_id=TCGA-PAAD?data_format?id')
-    .then(response => response.json())
-    .then(json => console.log(json))
+document.getElementById('loadImage').onclick = function fetchData(){
+    path = 'initial/test/a74b3a27-811a-4665-ac9a-fea1b6b65e0b_20664_46262.png';
+    var img = new Image();
+    img.src = path;
+    console.log(img)
 }
