@@ -1,5 +1,6 @@
 let buildExplorePlots = async function(clinicalQuery) {
 
+    console.log(clinicalQuery);
     function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
     }
@@ -38,6 +39,14 @@ let buildExplorePlots = async function(clinicalQuery) {
         };
         
         Plotly.newPlot('genderPie', data, layout);
+
+        document.getElementById('genderPie').on('plotly_click', function(data){
+            var pts = '';
+            for(let i = 0; i < data.points.length; i++){
+                pts = 'Label: ' + data.points[0].label + ' Value: ' + data.points[0].value;
+            }
+            alert(pts);
+          });
     }
 
     let buildEthnicityPie = async function() {
@@ -74,6 +83,14 @@ let buildExplorePlots = async function(clinicalQuery) {
         };
         
         Plotly.newPlot('ethnicityPie', data, layout);
+
+        document.getElementById('ethnicityPie').on('plotly_click', function(data){
+            var pts = '';
+            for(let i = 0; i < data.points.length; i++){
+                pts = 'Label: ' + data.points[0].label + ' Value: ' + data.points[0].value;
+            }
+            alert(pts);
+          });
     }
 
     let buildRacePie = async function() {
@@ -110,6 +127,14 @@ let buildExplorePlots = async function(clinicalQuery) {
         };
         
         Plotly.newPlot('racePie', data, layout);
+
+        document.getElementById('racePie').on('plotly_click', function(data){
+            var pts = '';
+            for(let i = 0; i < data.points.length; i++){
+                pts = 'Label: ' + data.points[0].label + ' Value: ' + data.points[0].value;
+            }
+            alert(pts);
+          });
     }
 
 
@@ -119,6 +144,5 @@ let buildExplorePlots = async function(clinicalQuery) {
     buildEthnicityPie();
 
     buildRacePie();
-
 
 }
