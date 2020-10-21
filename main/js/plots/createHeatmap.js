@@ -20,22 +20,10 @@ createHeatmap = async function(indepVarType, indepVars, dataInput, svgObject) {
     // DATA CLUSTERING:
     // extract relevant fields: tcga id, expression level, gene name
     // unique_genes ~should~ be based on geneQuery, not a global yet so just find unique genes of the data array
-    var unique_genes = myVars //d3.map(dataInput, function(d){return d.gene;}).keys();
-    var unique_ids = d3.map(dataInput, function(d){return d.tcga_participant_barcode}).keys();
-    
-    var data_raw = dataInput.map(({tcga_participant_barcode, expression_log2, gene}) => ({id:tcga_participant_barcode, exp:expression_log2, gene, geneInd:unique_genes.indexOf(gene)}))
-
-    var data_merge = unique_ids.map(function (str) {
-        //var arr = _.filter(data_raw, {id: str});
-        var arr = data_raw.filter(samp => samp.id.includes(str))
-        return {id:arr[0].id,
-                dist:arr.reduce( (acc,samp) => { acc[samp.geneInd] = samp.exp; return acc},[]),
-                genes:arr.reduce( (acc,samp) => { acc[samp.geneInd] = samp.gene; return acc},[])}
-    })
+    data_merge = mergeExpression(dataInput);
     
     // call clustering function from hclust library
-    //var clust_results = hclust.clusterData({data: data_merge, key: 'dist'})
-    var clust_results = clusterData({data: data_merge, key: 'dist'})
+    var clust_results = clusterData({data: data_merge, key: 'exps'})
 
     // extract order from clust_results, use to reorder myGroups
     const sortOrder = clust_results.order
