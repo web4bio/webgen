@@ -142,24 +142,12 @@ let getBarcodesFromCohortForClinical = async function () {
 
 let fetchClinicalData = async function() {
     let barcodes = await getBarcodesFromCohortForClinical();
-    const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl='http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
-    const endpointurl_presets = {
-        tcga_participant_barcode: barcodes,
-        page: '1',
-        page_size: '2001',
-        sort_by: 'tcga_participant_barcode' 
-    };
-    const endpointurl_fieldsWithValues = 
-        '&tcga_participant_barcode=' + endpointurl_presets.tcga_participant_barcode.toString() +
-        '&page=' + endpointurl_presets.page + 
-        '&page_size=' + endpointurl_presets.page_size + 
-        '&sort_by=' + endpointurl_presets.sort_by;
-    var fetchedClinicalData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues).then(function(response) { return response.json(); });
-    if (fetchedClinicalData == '')
+    let clinicalData = await firebrowse.getClinical_FH(barcodes);
+    console.log(clinicalData)
+    if (clinicalData == '')
         return ['Error: Invalid Input Fields for Query.', 0];
     else {
-        return fetchedClinicalData;
+        return clinicalData;
     }
 }
 
