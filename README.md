@@ -36,7 +36,7 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
 | [Soma Kobayashi](https://github.com/skobayashi0417) | [Fall 2020 Log](https://docs.google.com/document/d/14oeMCzMhF3AISCIlZo9wm0hmrjTOgVGnp8jB4ZF-lS8/edit?usp=sharing) | [Histology Sandbox](https://observablehq.com/@skobayashi0417/test) | |
 | [Eric Ruan](https://github.com/ericr491) | [Fall 2020 Log](https://docs.google.com/document/d/1RldOmYmN9yAjB2dhHcvPQdRe_WidyJhlccK51Nb8tL8/edit?usp=sharing) | [Sandbox](https://observablehq.com/@ericr491/webgen) | |
 | [Jillian Unkenholz](https://github.com/jillianunk32)  | [Fall 2020 Log](https://docs.google.com/document/d/1c1T6mJisOjjH_uQheGSuq5BtZTJ1u-04OMFvhlM-PAY/edit?usp=sharing)|[Sandbox](https://observablehq.com/@jillianunk32/webgen) | |
-| [Chowdhury An-Noor](https://github.com/chowdhuryannoor) | |[Sandbox](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
+| [Chowdhury An-Noor](https://github.com/chowdhuryannoor) |[Fall 2020 Log](https://docs.google.com/document/d/1LGMLUeRYprQLJjIqrcAhkt0rZmliiRqFKP8AvuWq1z0/edit?usp=sharing) |[Sandbox](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
