@@ -138,8 +138,6 @@ let getBarcodesFromCohortForClinical = async function () {
     return tpBarcodes;
 }
 
-
-
 let fetchClinicalData = async function() {
     let barcodes = await getBarcodesFromCohortForClinical();
     let clinicalData = await firebrowse.getClinical_FH(barcodes);
@@ -151,11 +149,11 @@ let fetchClinicalData = async function() {
     }
 }
 
+let clinicalQuery;
 let fillClinicalTypeSelectBox = async function() {
-    var dataFetched = await fetchClinicalData();
-    var clinicalQuery = dataFetched.Clinical_FH;
+    let dataFetched = await fetchClinicalData();
+    clinicalQuery = dataFetched.Clinical_FH;
     console.log(clinicalQuery)
-    buildExplorePlots(clinicalQuery);
     let selectBox = document.getElementById("clinicalMultipleSelection");
     let clinicalKeys = Object.keys(clinicalQuery[0]);
     for (let i = 0; i < clinicalKeys.length; i++) {
@@ -165,7 +163,6 @@ let fillClinicalTypeSelectBox = async function() {
         currentOption.id = clinicalKeys[i];
         selectBox.appendChild(currentOption);
     }
-
     return;
 };
 

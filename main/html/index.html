@@ -24,7 +24,7 @@
 
     <!-- Load Jonas's FireBrowse library -->
     <script src="https://episphere.github.io/firebrowse/firebrowse.js"></script>
-    
+
     <!-- Load hclust library (for clustering) -->
     <script src="../js/libraries/hclust.min.js"></script>
 
@@ -159,7 +159,7 @@
     <br>
     <p style="text-align: center;"><b>2) Select clinical feature(s)</b></p>
     <div id='clinicalQuerySelectBox'>
-      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection">
+      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="buildDataExplorePlots()";> 
           <!-- Filled by fillSelectBoxes.js -->
       </select>
     </div>

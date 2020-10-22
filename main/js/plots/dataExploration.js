@@ -1,30 +1,40 @@
-let buildExplorePlots = async function(clinicalQuery) {
+let buildDataExplorePlots = async function() {
 
     function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
     }
 
-    let buildGenderPie = async function() {
+    let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    console.log(mySelectedClinicalFeatures)
 
-        let allGenders = [];
-        for(let i = 0; i < clinicalQuery.length; i++)
-            allGenders.push(clinicalQuery[i].gender);
+    console.log(clinicalQuery)
+
+    for(let j = 0; j < mySelectedClinicalFeatures.length; j++) {
+
+        let currentFeature = mySelectedClinicalFeatures[j];
+
+        let allX = []; 
+        for(let i = 0; i < clinicalQuery.length; i++) {
+            allX.push(clinicalQuery[i][currentFeature]);
+        }
+
+        console.log(allX)
+
+        let uniqueX = allX.filter(onlyUnique);
     
-        let uniqueGenders = allGenders.filter(onlyUnique);
-      
-        let genderCounts = [];
-        genderCounts.length = uniqueGenders.length;
-        for(let i = 0; i < genderCounts.length; i++)
-            genderCounts[i] = 0;
+        let xCounts = [];
+        xCounts.length = uniqueX.length;
+        for(let i = 0; i < xCounts.length; i++)
+        xCounts[i] = 0;
         
         for(let i = 0; i < clinicalQuery.length; i++) 
-            for(let j = 0; j < uniqueGenders.length; j++) 
-                if(clinicalQuery[i].gender == uniqueGenders[j]) 
-                    genderCounts[j]++;
-    
+            for(let k = 0; k < uniqueX.length; k++) 
+                if(clinicalQuery[i][currentFeature] == uniqueX[k]) 
+                    xCounts[k]++;
+
         var data = [{
-            values: genderCounts,
-            labels: uniqueGenders,
+            values: xCounts,
+            labels: uniqueX,
             type: 'pie',
             textinfo: "label+percent",
             textposition: "outside"
@@ -33,92 +43,11 @@ let buildExplorePlots = async function(clinicalQuery) {
         var layout = {
             height: 400,
             width: 500,
-            title: 'Genders',
-            showlegend: false
-        };
-        
-        Plotly.newPlot('genderPie', data, layout);
-    }
-
-    let buildEthnicityPie = async function() {
-
-        let allEthnicities = [];
-        for(let i = 0; i < clinicalQuery.length; i++)
-            allEthnicities.push(clinicalQuery[i].ethnicity);
-    
-        let uniqueEthnicities = allEthnicities.filter(onlyUnique);
-      
-        let ethnicityCounts = [];
-        ethnicityCounts.length = uniqueEthnicities.length;
-        for(let i = 0; i < ethnicityCounts.length; i++)
-        ethnicityCounts[i] = 0;
-        
-        for(let i = 0; i < clinicalQuery.length; i++) 
-            for(let j = 0; j < uniqueEthnicities.length; j++) 
-                if(clinicalQuery[i].ethnicity == uniqueEthnicities[j]) 
-                    ethnicityCounts[j]++;
-    
-        var data = [{
-            values: ethnicityCounts,
-            labels: uniqueEthnicities,
-            type: 'pie',
-            textinfo: "label+percent",
-            textposition: "outside"
-        }];
-        
-        var layout = {
-            height: 400,
-            width: 500,
-            title: 'Ethnicities',
-            showlegend: false
-        };
-        
-        Plotly.newPlot('ethnicityPie', data, layout);
-    }
-
-    let buildRacePie = async function() {
-
-        let allRaces = [];
-        for(let i = 0; i < clinicalQuery.length; i++)
-            allRaces.push(clinicalQuery[i].race);
-    
-        let uniqueRaces = allRaces.filter(onlyUnique);
-      
-        let raceCounts = [];
-        raceCounts.length = uniqueRaces.length;
-        for(let i = 0; i < raceCounts.length; i++)
-        raceCounts[i] = 0;
-        
-        for(let i = 0; i < clinicalQuery.length; i++) 
-            for(let j = 0; j < uniqueRaces.length; j++) 
-                if(clinicalQuery[i].race == uniqueRaces[j]) 
-                    raceCounts[j]++;
-    
-        var data = [{
-            values: raceCounts,
-            labels: uniqueRaces,
-            type: 'pie',
-            textinfo: "label+percent",
-            textposition: "outside"
-        }];
-        
-        var layout = {
-            height: 400,
-            width: 500,
-            title: 'Races',
+            title: mySelectedClinicalFeatures[j] + "",
             showlegend: false
         };
         
         Plotly.newPlot('racePie', data, layout);
+
     }
-
-
-
-    buildGenderPie();
-
-    buildEthnicityPie();
-
-    buildRacePie();
-
-
 }
