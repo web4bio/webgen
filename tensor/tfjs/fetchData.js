@@ -4,3 +4,4 @@ document.getElementById('loadImage').onclick = function fetchData(){
     img.src = path;
     console.log(img)
 }
+ 
