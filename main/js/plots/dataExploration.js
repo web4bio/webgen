@@ -48,4 +48,12 @@ let buildDataExplorePlots = async function() {
     
     Plotly.newPlot(currentFeature + 'Div', data, layout);
 
+    document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
+        var pts = '';
+        for(let i = 0; i < data.points.length; i++) {
+            pts = 'Label: ' + data.points[0].label + ' Value: ' + data.points[0].value;
+        }
+        alert(pts);
+    });
+
 }
