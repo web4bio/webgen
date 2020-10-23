@@ -200,11 +200,8 @@ let buildPlots = async function() {
     // Build the heatmap:
     // Append an svg object:
     let svgHeatMap = d3.select("#heatmapRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)                                           // This line makes the svg responsive
+        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
         .attr("id", 'svgHeatMap')
-        .append("g")
-        .attr("transform",
-            "translate(" + (margin.left) + "," + margin.top + ")");
 
     // Create the heatmap:
     createHeatmap('cohort', cohortQuery, data, svgHeatMap);
