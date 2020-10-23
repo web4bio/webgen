@@ -236,7 +236,6 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
         .style("opacity", 1)             
     }
     var mousemove = function(d) {
-        console.log(d);
         tooltip
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")

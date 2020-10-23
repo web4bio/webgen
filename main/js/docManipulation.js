@@ -236,7 +236,6 @@ let buildPlots = async function() {
       //Create button that facets the specific violin curve being generated
       var button = document.createElement("button");
       button.innerHTML = "Facet Violin Curves by Gender";
-      //button.id = `BTNViolinPlot${index}`;
       button.id = `BTNViolinPlot${index}`;
       button.className = "BTNViolinPlots";
       //var paramOne = plotId;
