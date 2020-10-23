@@ -15,7 +15,7 @@ async function initialize() {
     let tensorImg_c = tf.cast(tensorImg,"float32").div(255);
     const verbose = true;       
     console.log(tensorImg_c)
-    prediction = await model.predict(tensorImg_c).mul(255)
+    prediction = await model.predict(tensorImg_c).mul(255).squeeze(0)
     console.log(prediction)
     console.log(prediction.print(verbose))
     console.log('___________')
