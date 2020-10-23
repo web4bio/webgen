@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>PAAD Autoencoder</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+    <body>
+        <div class="title">
+            <h1>PAAD Patches Prediction by Autoencoder</h1>
+            <h4>Biomedical Informatics of Stony Brook University</h4>
+        </div>
+
+        <button id = 'loadImage'>Load Patch</button>
+        <script src = 'fetchData.js'></script>
+ 
+        <div class='model'>
+            <button id = 'predictModel'>Predict</button>
+            <script src='fetchModel.js'></script>
+            <div id='response'></div>
+        </div>
+    </body>
+</html>
