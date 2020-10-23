@@ -319,7 +319,6 @@ rebuildPlot = function(svgId)
   var cohort = svgObj.getAttribute("cohort");
   var position = document.getElementById(svgId+"Position")
         .getAttribute("transform");
-  console.log(position);
 
   //Remove svgObj from HTML page
   d3.select("#"+svgId).remove();
