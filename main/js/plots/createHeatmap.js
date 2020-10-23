@@ -71,28 +71,27 @@ createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
         .text("Gene Expression Heatmap for " + indepVars.join(' and '))
 
     // Add section for sorting options (checkboxes)
-    var sortOptionBox = d3.select("#heatmapRef")
+    var sortOptionDiv = d3.select("#heatmapRef")
         .append('div')
-        .attr('id', 'sortOptions')
         .text('Sort options: ')
-    var sortText = sortOptionBox
+    var sortCurrentText = sortOptionDiv
         .append('tspan')
         .text('mean expression (default)')
-    sortOptionBox
-        .append('td')
+    var sortOptionsTable = sortOptionDiv.append('td')
+    sortOptionsTable
+        .append('tspan')
+        .text('hclust\xa0')
         .append('input')
         .attr('type', 'checkbox')
-        .attr('id', 'hclustcheck')
-        .style('opacity',1) // have to include these two lines... for some reason defaults to 0 and 'none'
-        .style('pointer-events','auto') // ^ defaults to 'none', which makes checkbox non-responsive?
+        .style('opacity', 1) // have to include these two lines... for some reason defaults to 0 and 'none'
+        .style('pointer-events', 'auto') // ^ defaults to 'none', which makes checkbox non-responsive?
         .on('change', function () {
-            // function to update state of sortText and doCluster
-            // can also check state anywhere with sortOptionBox.select("#hclustcheck").property("checked")
-            sortText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)')
+            // function to update state of sortCurrentText and doCluster
+            // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
+            sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)')
             doCluster = (this.checked ? true : false)
         })
-
-    sortOptionBox.append('button')
+    sortOptionDiv.append('button')
         .attr('type', 'button')
         .attr('id', 'updateHeatmapButton')
         .text('Update heatmap') // add update behavior later (after update function defined)
@@ -295,7 +294,7 @@ createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
     updateHeatmap()
 
     // add update function to update button
-    sortOptionBox.select('#updateHeatmapButton')
+    sortOptionDiv.select('#updateHeatmapButton')
         .on('click', function () {
             sortGroups();
             updateHeatmap();
