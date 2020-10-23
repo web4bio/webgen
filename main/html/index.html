@@ -140,7 +140,7 @@
   -->
     <div className="mainWindowButtons" id = "mainWindowButtons">
         <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
-        <button class="col s3 btn waves-effect waves-light" onclick="buildPlots(false)" id='submitButton'>Submit</button>
+        <button class="col s3 btn waves-effect waves-light" onclick="buildPlots()" id='submitButton'>Submit</button>
     </div>
 
   <!--
@@ -161,7 +161,9 @@
         </div>
         <div id="violinPlotRef" class="col s12">
           <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
-          <button id = "facetByField" type = "button" onclick = "rebuildPlot('svgViolinPlot0')">Facet Violin Curves by Gender</button>
+          <!--
+            <button id = "facetByField" type = "button" onclick = "rebuildPlot('svgViolinPlot0')">Facet Violin Curves by Gender</button>
+          -->
         </div>
       </div>
     </div>

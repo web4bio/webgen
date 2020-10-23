@@ -8,6 +8,14 @@
  
 createViolinPlot = async function(indepVarType, indepVars, dataInput, 
     svgObject, curCohort, facetByField) {
+    //Remove previous contents of svgObject if there are any
+    /*
+    while (svgObject.lastChild) 
+    {
+        svgObject.removeChild(svgObject.lastChild);
+    }
+    */
+
     //Set up violin curve colors
     var colors = ["#f1f291", "#69b3a2", "#bfb7f7", "#f26d5c", "#71a9d1", "#f0a94f"];
     var violinCurveColors = [];

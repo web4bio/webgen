@@ -109,7 +109,7 @@ function setExampleVars() {
 // The JS code for building the plots to display:
 // Wait for user input to build plots:
 
-let buildPlots = async function(facetButtonClicked) {
+let buildPlots = async function() {
   
   let dataToPlotInfo;
 
@@ -222,35 +222,33 @@ let buildPlots = async function(facetButtonClicked) {
     {
       //Define the current cohort to create the violin plot for
       let curCohort = myCohorts[index];
+      let plotId = `svgViolinPlot${index}`;
 
       let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
         .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", `svgViolinPlot${index}`)
+        .attr("id", plotId)
+        .attr("indepVarType", "cohort")
+        .attr("indepVars", cohortQuery)
+        .attr("cohort", curCohort)
         .append("g")
+        .attr("id", `svgViolinPlot${index}Position`)
         .attr("transform",
             "translate(" + (margin.left-20) + "," + 
                         (margin.top + ySpacing*index*0.25) + ")");
-      
+      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
+      //Create button that facets the specific violin curve being generated
       var button = document.createElement("button");
       button.innerHTML = "Facet Violin Curves by Gender";
+      //button.id = `BTNViolinPlot${index}`;
       button.id = `BTNViolinPlot${index}`;
       button.className = "BTNViolinPlots";
+      //var paramOne = plotId;
+      button.addEventListener("click", function(){
+        //rebuildPlot(`svgViolinPlot${index}`, button.id);
+        rebuildPlot(plotId);
+      });
       var body = document.getElementById("violinPlotRef");
       body.appendChild(button);
-
-      button.addEventListener("click", function(){
-        buildPlots(true);
-      });
-
-
-      if(facetButtonClicked)
-      {
-        createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, "gender");
-      }
-      else
-      {
-        createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
-      }
     }
 
   });
@@ -312,6 +310,38 @@ showWarning = function(emptyGeneArray_arg) {
     divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " are Invalid Genes for Query";
   };
 }
+
+//Rebuilds violin plot only at the moment. Will be updated to
+//differentiate between the different types of plots.
+rebuildPlot = function(svgId)
+{
+  //Get necessary paramters to pass into createViolinPlot()
+  //and to rebuild the svg object
+  var svgObj = document.getElementById(svgId);
+  var indepVarType = svgObj.getAttribute("indepVarType");
+  var indepVars = svgObj.getAttribute("indepVars");
+  var cohort = svgObj.getAttribute("cohort");
+  var position = document.getElementById(svgId+"Position")
+        .getAttribute("transform");
+  console.log(position);
+
+  //Remove svgObj from HTML page
+  d3.select("#"+svgId).remove();
+
+  //Add svgObj back to the page with the same x, y positioning
+  svgObj = d3.select("#violinPlotRef").append("svg")
+        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
+        .attr("id", svgId)
+        .attr("indepVarType", indepVarType)
+        .attr("indepVars", indepVars)
+        .attr("cohort", cohort)
+        .append("g")
+        .attr("transform", position);
+
+  //Rebuild violin plot
+  createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), 
+                    svgObj, cohort, "gender");
+};
 
 // // Function to check that the user input cohort list is valid:
 // checkCohortList = function(cohortQuery) {
