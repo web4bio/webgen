@@ -1,12 +1,11 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
-// indepVarType is the type of independent variable for the plot (such as 'cohort' or 'mutatedGene')
-// NOTE: The function is currently only set to handle indepVarType='cohort'
-// indepVar is the independent variable (ex1: 'PAAD', ex2: 'TP53')
+// indepVarType is a defunct variable. Will remove (and adjust syntax where this function called)
+// cohortIDs is the name of the cohorts queried (just for the title)
 // dataInput is the array os JSONs of gene expression data to visualize
-// svgObject is the object on the html page to build the plot
+// svgObject is the svg object on the html page to build the plot
 
-createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
+createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
 
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of genes called 'myVars'
@@ -23,10 +22,7 @@ createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
     // sort groups based on doCluster flag (default=false, controlled by checkbox)
     // false: sort by mean expression (default)
     // true : sort by hierarchichal clustering
-    var doCluster = false;
-    var clusterReady = false;
-    var clust_results = {};
-    var sortOrder;
+    var doCluster = false, clusterReady = false, clust_results, sortOrder;
     function sortGroups() {
         if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
             // call clustering function from hclust library
@@ -68,7 +64,7 @@ createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
         .attr("y", margin.top - 25)
         .attr("text-anchor", "left")
         .style("font-size", "26px")
-        .text("Gene Expression Heatmap for " + indepVars.join(' and '))
+        .text("Gene Expression Heatmap for " + cohortIDs.join(' and '))
 
     // Add section for sorting options (checkboxes)
     var sortOptionDiv = d3.select("#heatmapRef")
@@ -77,7 +73,7 @@ createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
     var sortCurrentText = sortOptionDiv
         .append('tspan')
         .text('mean expression (default)')
-    var sortOptionsTable = sortOptionDiv.append('td')
+    var sortOptionsTable = sortOptionDiv.append('td') // make a table for different sort options, only hclust for now
     sortOptionsTable
         .append('tspan')
         .text('hclust\xa0')
@@ -104,7 +100,7 @@ createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
         .attr("height", dendHeight)
         .attr("x", margin.left)
         .attr("y", margin.top)
-
+    
     // create nested svg for heatmap
     var svg_heatmap = svgObject
         .append("svg")
