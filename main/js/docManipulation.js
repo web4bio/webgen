@@ -78,11 +78,11 @@ removeTooltipElements = function () {
 function setExampleVars() {
   // Select example values:
   $('.cancerTypeMultipleSelection').val(['PAAD']);
-  // $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
+  $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
 
   // Trigger the change:
   $('.cancerTypeMultipleSelection').trigger('change');
-  // $('.geneMultipleSelection').trigger('change');
+  $('.geneMultipleSelection').trigger('change');
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
