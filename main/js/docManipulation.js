@@ -322,9 +322,10 @@ rebuildPlot = function(svgId)
 
   //Remove svgObj from HTML page
   d3.select("#"+svgId).remove();
+  var tooltipNum = svgId.replace("svgViolinPlot","");
 
   //Add svgObj back to the page with the same x, y positioning
-  svgObj = d3.select("#violinPlotRef").append("svg")
+  svgObj = d3.select("#violinPlotRef").insert("svg", "#tooltip" + tooltipNum)
         .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
         .attr("id", svgId)
         .attr("indepVarType", indepVarType)
