@@ -84,7 +84,7 @@ removeTooltipElements = function () {
 // Setting the cohort and gene list examples if the user clicks the use example button:
 function setExampleVars() {
   // Select example values:
-  $('.cancerTypeMultipleSelection').val(['BRCA', 'SARC']);
+  $('.cancerTypeMultipleSelection').val(['PAAD']);
   $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
 
   // Trigger the change:

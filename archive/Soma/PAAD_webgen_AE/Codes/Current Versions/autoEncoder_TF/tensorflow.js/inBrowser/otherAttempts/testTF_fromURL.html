@@ -1,0 +1,24 @@
+<html>
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+        <script>
+            async function test(){
+                const model = await tf.loadGraphModel('./model.json');
+                const im = new Image()
+                var fr = new FileReader();
+                fr.onload = async function () {
+                    im.src = fr.result;
+                }
+                await fr.readAsDataURL('https://api.gdc.cancer.gov/tile/26eaabb1-0a6e-4b77-b1fd-710e616ea92e?level=10&x=0&y=0');
+                im.onload = () => {
+                const a = tf.browser.fromPixels(im)
+                }
+                const verbose = true;
+                a.print(verbose);
+                const prediction = model.execute(example); 
+                console.log("Reached End.")
+            }
+            test()
+        </script>
+    </body>
+</html>
