@@ -48,8 +48,8 @@ fetchExpressionData_cg = async function(cohortQuery, geneQuery) {
 
     // Monitor the performance of the fetch:
     var fetchTime = performance.now() - fetchStart;
-    console.log("Performance of fetch: ");
-    console.log(fetchTime);
+    console.info("Performance of fetch: ");
+    console.info(fetchTime);
 
     // Check if the fetch worked properly:
     if (fetchedExpressionData == '')
@@ -100,8 +100,8 @@ fetchExpressionData_cgb = async function(cohortQuery, geneQuery, barcodes) {
 
     // Monitor the performance of the fetch:
     var fetchTime = performance.now() - fetchStart;
-    console.log("Performance of fetch: ");
-    console.log(fetchTime);
+    console.info("Performance of fetch: ");
+    console.info(fetchTime);
 
     // Check if the fetch worked properly:
     if (fetchedExpressionData == '')
