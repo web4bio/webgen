@@ -11,6 +11,7 @@ var img = new Image();
 // set param
 var img_w = 400;
 var img_h = 400;
+var dx, dy = 0;
 canvas.width = 400;
 canvas.height = 400;
 
@@ -24,6 +25,7 @@ window.onload = function(){
         slider.oninput = function(){
             scale_value = slider.value;
             drawImageByScale(scale_value)
+            dragEvent()
         }
     }
 }
@@ -40,5 +42,49 @@ function drawImageByScale(scale_value){
 }
 
 function dragEvent(){
-    
+    scale_value = slider.value;
+    var dragging;
+    canvas.onmousedown = function(e1){
+        dragging = true;
+        // get position when mouse click down
+        x_1 = e1.clientX;
+        y_1 = e1.clientY;
+        canvas.onmousemove = function(e2){
+            if(dragging){
+                var imgW = img_w * scale_value;
+                var imgH = img_h * scale_value;
+                x_2 = e2.clientX;
+                y_2 = e2.clientY;
+                var x = x_2 - x_1;
+                var y = y_2 - y_1;
+              
+                loc_x = dx + x;
+                loc_y = dy + y;
+
+                cor = "x1:"+x_1+"x2:"+x_2;
+                document.getElementById("pos").innerHTML=dx;
+            }
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img, loc_x, loc_y, imgW, imgH);
+        }
+        canvas.onmouseleave = function(){
+            dragging=false;
+            canvas.onmousemove=null;
+        }
+        canvas.onmouseup = function(){
+            dragging=false;
+            canvas.onmousemove=null;
+        }
+    };
+}
+
+
+
+
+function windowToCanvas(x,y){
+    var box = canvas.getBoundingClientRect();
+    return{
+        x: x - box.left - (box.width - canvas.width) / 2,
+        y: y - box.top - (box.height - canvas.height) / 2
+    }
 }
