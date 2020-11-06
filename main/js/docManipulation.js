@@ -217,6 +217,7 @@ buildHeatmap = async function(cohortQuery, data){
     let ySpacing = margin.top;
 
     // Append an svg object for each cohort to create a violin plot for
+    /*
     for(var index = 0; index < numCohorts; index++)
     {
       //Define the current cohort to create the violin plot for
@@ -235,6 +236,7 @@ buildHeatmap = async function(cohortQuery, data){
             "translate(" + (margin.left-20) + "," + 
                         (margin.top + ySpacing*index*0.25) + ")");
       createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
+      console.log("Violin Plot created with proper constructor!");
       //Create button that facets the specific violin curve being generated
       var button = document.createElement("button");
       button.innerHTML = "Facet Violin Curves by Gender";
@@ -248,6 +250,8 @@ buildHeatmap = async function(cohortQuery, data){
       var body = document.getElementById("violinPlotRef");
       body.appendChild(button);
     }
+    */
+  }
 
 buildViolinPlot = async function(cohortQuery, data){
   // Remove the loader.
@@ -264,22 +268,40 @@ buildViolinPlot = async function(cohortQuery, data){
   //Spacing between plots
   let ySpacing = margin.top;
 
+  //Code to get the set of clinical data features to include the option
+  //to facet by goes here. For now, gender will be a hardcoded field 
+  //to facet by.
+
   // Append an svg object for each cohort to create a violin plot for
   for(var index = 0; index < numCohorts; index++)
   {
     //Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
 
+    var label = document.createElement("LABEL");
+    var checkbox = document.createElement("INPUT");
+    checkbox.setAttribute("type", "checkbox");
+    checkbox.textContent = "Facet Violin Curves by Gender";
+    checkbox.id = `CheckboxViolinPlot${index}`;
+    checkbox.className = "gender";
+    var body = document.getElementById("violinPlotRef");
+    body.append(checkbox);
+
     let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
       .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
       .attr("id", `svgViolinPlot${index}`)
+      .attr("indepVarType", "cohort") //The attributes added on this line and the lines below are used when rebuilding the plot
+      .attr("indepVars", cohortQuery)
+      .attr("cohort", curCohort)
       .append("g")
+      .attr("id", `svgViolinPlot${index}Position`)
       .attr("transform",
           "translate(" + (margin.left-20) + "," + 
                       (margin.top + ySpacing*index*0.25) + ")");
 
     // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
+    console.log("Violin Plot created in new constructor");
   }
 };
 
@@ -367,6 +389,7 @@ rebuildPlot = function(svgId)
         .append("g")
         .attr("transform", position);
 
+  
   //Rebuild violin plot
   createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), 
                     svgObj, cohort, "gender");
