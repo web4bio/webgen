@@ -243,8 +243,7 @@ let buildPlots = async function() {
         //rebuildPlot(`svgViolinPlot${index}`, button.id);
         rebuildPlot(plotId);
       });
-      var body = document.getElementById("violinPlotRef");
-      body.appendChild(button);
+      document.getElementById("violinPlotRef").append(button);
     }
 
   });
