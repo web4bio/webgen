@@ -34,8 +34,8 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         }
         else { // sort by mean expression
             // compute expression means
-            const ngene = data_merge[0].genes.length
-            const means = data_merge.map((el) => (el.exps.reduce((acc, val) => acc + val, 0)) / ngene)
+            const ngene = data_merge[0].genes.length;
+            const means = data_merge.map((el) => (el.exps.reduce((acc, val) => acc + val, 0)) / ngene);
 
             // sort by mean value
             sortOrder = new Array(data_merge.length);
@@ -46,6 +46,7 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         myGroups = sortOrder.map(i => myGroups[i]);
     }
     sortGroups();
+
 
     ///// BUILD SVG OBJECTS /////
     // Set up dimensions:
@@ -64,33 +65,7 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .attr("y", margin.top - 25)
         .attr("text-anchor", "left")
         .style("font-size", "26px")
-        .text("Gene Expression Heatmap for " + cohortIDs.join(' and '))
-
-    // Add section for sorting options (checkboxes)
-    var sortOptionDiv = d3.select("#heatmapRef")
-        .append('div')
-        .text('Sort options: ')
-    var sortCurrentText = sortOptionDiv
-        .append('tspan')
-        .text('mean expression (default)')
-    var sortOptionsTable = sortOptionDiv.append('td') // make a table for different sort options, only hclust for now
-    sortOptionsTable
-        .append('tspan')
-        .text('hclust\xa0')
-        .append('input')
-        .attr('type', 'checkbox')
-        .style('opacity', 1) // have to include these two lines... for some reason defaults to 0 and 'none'
-        .style('pointer-events', 'auto') // ^ defaults to 'none', which makes checkbox non-responsive?
-        .on('change', function () {
-            // function to update state of sortCurrentText and doCluster
-            // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
-            sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)')
-            doCluster = (this.checked ? true : false)
-        })
-    sortOptionDiv.append('button')
-        .attr('type', 'button')
-        .attr('id', 'updateHeatmapButton')
-        .text('Update heatmap') // add update behavior later (after update function defined)
+        .text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
 
     // create nested svg for dendrogram
     var svg_dendrogram = svgObject
@@ -99,8 +74,8 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .attr("width", heatWidth)
         .attr("height", dendHeight)
         .attr("x", margin.left)
-        .attr("y", margin.top)
-    
+        .attr("y", margin.top);
+
     // create nested svg for heatmap
     var svg_heatmap = svgObject
         .append("svg")
@@ -121,6 +96,32 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px");
+
+    // Add section for sorting options (checkboxes)
+    var sortOptionDiv = d3.select("#heatmapRef")
+        .append('div')
+        .text('Sort options: ');
+    var sortCurrentText = sortOptionDiv
+        .append('tspan')
+        .text('mean expression (default)');
+    var sortOptionTable = sortOptionDiv.append('td'); // make a table for different sort options, only hclust for now
+    sortOptionTable
+        .append('tspan')
+        .text('hclust\xa0')
+        .append('input')
+        .attr('type', 'checkbox')
+        .style('opacity', 1) // have to include these two lines... for some reason defaults to 0 and 'none'
+        .style('pointer-events', 'auto') // ^ defaults to 'none', which makes checkbox non-responsive?
+        .on('change', function () {
+            // function to update state of sortCurrentText and doCluster
+            // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
+            sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)')
+            doCluster = (this.checked ? true : false)
+        });
+    sortOptionDiv.append('button')
+        .attr('type', 'button')
+        .attr('id', 'updateHeatmapButton')
+        .text('Update heatmap'); // add update behavior later (after update function defined)
 
 
     ///// Build the Axis and Color Scales Below /////
@@ -159,21 +160,13 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .domain([minZ, maxZ]);              // This domain scale will change the coloring of the heatmap.
 
 
-    ///// Define Dendrogram Layout /////
+    // Declare data structures for dendrogram layout
     var cluster, data;
-    var root = { data: { height: 1 } }
-    if (clusterReady) {
-        // Create the cluster layout:
-        cluster = d3.cluster().size([heatWidth - legendWidth, dendHeight]); // match dendrogram width to heatmap x axis range
-        // Give the data to this cluster layout:
-        data = clust_results.clusters;
-        root = d3.hierarchy(data);
-        cluster(root);
-    }
+    var root = { data: { height: [] } };
 
     // Elbow function for dendrogram connections
     function elbow(d) {
-        const scale = dendHeight / root.data.height
+        const scale = dendHeight / root.data.height;
         return "M" + d.parent.x + "," + (dendHeight - d.parent.data.height * scale) + "H" + d.x + "V" + (dendHeight - d.data.height * scale);
     };
 
@@ -185,11 +178,11 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         tooltip
             .style("opacity", 1);
         d3.select(this)
-            .style("fill", "black")
+            .style("fill", "black");
         // Make dendrogram path bold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
         svg_dendrogram.selectAll('path')
-            .filter(function (d) { return d.data.indexes.includes(id_ind) })
+            .filter((d) => d.data.indexes.includes(id_ind))
             .style("stroke-width", "2px");
     };
     const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
@@ -208,11 +201,11 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         tooltip
             .style("opacity", 0);
         d3.select(this)
-            .style("fill", function (d) { return myColor(d["z-score"]) })
+            .style("fill", (d) => myColor(d["z-score"]));
         // Make dendrogram path unbold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
         svg_dendrogram.selectAll('path')
-            .filter(function (d) { return d.data.indexes.includes(id_ind) })
+            .filter((d) => d.data.indexes.includes(id_ind))
             .style("stroke-width", "0.5px");
     };
 
@@ -224,21 +217,21 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
 
         // Build the heatmap:
         svg_heatmap.selectAll()
-            .data(dataInput, function (d) { return d.tcga_participant_barcode + ':' + d.gene; })
+            .data(dataInput, (d) => (d.tcga_participant_barcode + ':' + d.gene))
             .enter()
             .append("rect")
-            .attr("x", function (d) { return x(d.tcga_participant_barcode) })
-            .attr("y", function (d) { return y(d.gene) })
+            .attr("x", (d) => x(d.tcga_participant_barcode))
+            .attr("y", (d) => y(d.gene))
             .attr("width", x.bandwidth())
             .attr("height", y.bandwidth())
-            .style("fill", function (d) { return myColor(d["z-score"]) })
+            .style("fill", (d) => myColor(d["z-score"]))
             .style("stroke-width", 2)
             .style("stroke", "none")
             .style("opacity", 1)
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);
-        // Append the y axis to the heatmap:
+        // Append the y-axis to the heatmap:
         svg_heatmap.append("g")
             .style("font-size", 9.5)
             .call(d3.axisLeft(y).tickSize(0))
@@ -250,11 +243,11 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
             .enter()
             .append('rect')
             .attr('x', heatWidth - margin.right)
-            .attr('y', function (r) { return zScale(r) })
+            .attr('y', (r) => zScale(r) )
             .attr("width", legendWidth / 2)
             .attr("height", 1 + (heatHeight / zArr.length))
-            .style("fill", function (r) { return myColor(r) });
-        // Append the axis for the legend:
+            .style("fill", (r) => myColor(r) );
+        // Append the z-axis for the legend:
         svg_heatmap.append("g")
             .style("font-size", 10)
             .attr("transform", "translate(" + heatWidth + ",0)")
