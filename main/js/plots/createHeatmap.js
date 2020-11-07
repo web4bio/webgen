@@ -6,7 +6,9 @@
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
 
-createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
+plotCreation = {}
+
+plotCreation.createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
 
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of genes called 'myVars'
@@ -18,7 +20,7 @@ createHeatmap = async function (indepVarType, indepVars, dataInput, svgObject) {
 
     // Cluster IDs by expression:
     // 1. Merge data into wide format (for hclust algorithm)
-    var data_merge = mergeExpression(dataInput);
+    var data_merge = dataProcessing.mergeExpression(dataInput);
 
     // sort groups based on doCluster flag (default=false, controlled by checkbox)
     // false: sort by mean expression (default)

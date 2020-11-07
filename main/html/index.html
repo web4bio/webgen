@@ -103,7 +103,7 @@
   -->
     <script>
       // Get the list of valid genes users can search for:
-      validGeneListFetch = getValidGeneList();
+      validGeneListFetch = fillSelectBoxes.geneSelect.getValidGeneList();
       validGeneListFetch.then(function(validGeneList){
 
         $(document).ready(function() {
@@ -141,22 +141,22 @@
           });
 
         //   // Fill the Select2 Boxes:
-          fillCancerTypeSelectBox();
-        //   fillGeneSelectBox();
+          fillSelectBoxes.cancerSelect.fillCancerTypeSelectBox();
+          fillSelectBoxes.geneSelect.fillGeneSelectBox();
         });
       });
     </script>
 
     <p style="text-align: center;"><b>1) Select cancer type(s)</b></p>
     <div id='cancerQuerySelectBox'>
-        <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillClinicalTypeSelectBox(), displayNumberSamples()">
+        <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillSelectBoxes.clinicalFeatureSelect.fillClinicalTypeSelectBox(), fillSelectBoxes.cancerSelect.displayNumberSamples()">
             <!-- Filled by fillSelectBoxes.js -->
         </select>
     </div>
 
     <p style="text-align: center;"><b>2) Select clinical feature(s)</b></p>
     <div id='clinicalQuerySelectBox'>
-      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="buildDataExplorePlots()";> 
+      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="plotCreation.buildDataExplorePlots()";> 
           <!-- Filled by fillSelectBoxes.js -->
       </select>
     </div>
@@ -173,7 +173,7 @@
     <p style="text-align: center;"><b>3) Select gene(s)</b></p>
     <p style="text-align: center; color: gray;"><i>Tip: Begin typing name of gene, and then select gene from dropdown menu.</i></p>
     <div id='geneQuerySelectBox'>
-        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillMutationSelectBox()">
+        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillSelectBoxes.mutationSelect.fillMutationSelectBox()">
             <!-- Filled by fillSelectBoxes.js -->
         </select>
     </div>

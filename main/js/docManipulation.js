@@ -135,7 +135,7 @@ let buildPlots = async function() {
 
   } else {
 
-    let iniMutationFetch = await fetchMutationData();
+    let iniMutationFetch = await fillSelectBoxes.mutationSelect.fetchMutationData();
     let allVariantClassificationData = iniMutationFetch.MAF;
 
     let selectedVariantClassificationData = [];
@@ -199,7 +199,7 @@ buildHeatmap = async function(cohortQuery, data){
         .attr("id", 'svgHeatMap')
 
   // Create the heatmap
-  createHeatmap('cohort', cohortQuery, data, svgHeatMap);
+  plotCreation.createHeatmap('cohort', cohortQuery, data, svgHeatMap);
 };
 
 buildViolinPlot = async function(cohortQuery, data){
@@ -232,7 +232,7 @@ buildViolinPlot = async function(cohortQuery, data){
                       (margin.top + ySpacing*index*0.25) + ")");
 
     // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+    plotCreation.createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
   }
 };
 

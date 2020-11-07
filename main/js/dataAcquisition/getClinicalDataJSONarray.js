@@ -21,7 +21,7 @@
 // Function that calls fetchClinicalData and returns the useful format of the data:
 // Only queries by barcodes preselected from dropdown
 getClinicalDataJSONarray_bf = async function(barcodeQuery, fhQuery) {
-    var dataFetched = await fetchClinicalData(barcodeQuery,fhQuery);
+    var dataFetched = await dataAcquisition.fetchClinicalData(barcodeQuery,fhQuery);
     // Remove the uppermost level of the data (cleaning)
     var results = dataFetched.clinical_FH;
     console.log(results)

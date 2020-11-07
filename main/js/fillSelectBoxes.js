@@ -4,9 +4,15 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+fillSelectBoxes = {}
+fillSelectBoxes.cancerSelect = {}
+fillSelectBoxes.clinicalFeatureSelect = {}
+fillSelectBoxes.geneSelect = {}
+fillSelectBoxes.mutationSelect = {}
+
 // Returns an array of JSON objects, where each object has a key:value pair for 
 // "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
-let fetchCohortData = async function() {
+fillSelectBoxes.cancerSelect.fetchCohortData = async() => {
     const hosturl = 'https://firebrowse.herokuapp.com';
     const endpointurl='http://firebrowse.org/api/v1/Metadata/Cohorts';
     const endpointurl_presets = {format: 'json'};
@@ -20,8 +26,8 @@ let fetchCohortData = async function() {
     }
 }
 
-let fillCancerTypeSelectBox = async function() {
-    let cancerTypesQuery = await fetchCohortData();
+fillSelectBoxes.cancerSelect.fillCancerTypeSelectBox = async() => {
+    let cancerTypesQuery = await fillSelectBoxes.cancerSelect.fetchCohortData();
     cancerTypesQuery.sort();
     let selectBox = document.getElementById("cancerTypeMultipleSelection");
     for (let i = 0; i < cancerTypesQuery.length; i++) {
@@ -31,10 +37,9 @@ let fillCancerTypeSelectBox = async function() {
         currentOption.id = cancerTypesQuery[i]["cohort"];
         selectBox.appendChild(currentOption);
     }
-    return;
-};
+}
 
-let fetchNumberSamples = async function() {
+fillSelectBoxes.cancerSelect.fetchNumberSamples = async() => {
     let myCohort = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     console.log(myCohort)
     const hosturl = 'https://firebrowse.herokuapp.com';
@@ -58,12 +63,12 @@ let fetchNumberSamples = async function() {
     }
 }
 
-let displayNumberSamples = async function() {
+fillSelectBoxes.cancerSelect.displayNumberSamples = async() => {
     if(document.getElementById('erikaPara')) {
         document.getElementById('erikaPara').remove();
     }
     let myCohort = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-    var dataFetched = await fetchNumberSamples();
+    var dataFetched = await fillSelectBoxes.cancerSelect.fetchNumberSamples();
     var countQuery = dataFetched.Counts;
     let string = "";
     let para;
@@ -98,13 +103,13 @@ let displayNumberSamples = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let getValidGeneList = async function() {
+fillSelectBoxes.geneSelect.getValidGeneList = async() => {
     let validGeneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/validGeneList.json").then(response => response.json());
     validGeneList = validGeneList.map(geneInfo => geneInfo.hugoSymbol);
     return await validGeneList
 }
 
-let fillGeneSelectBox = async function() {
+fillSelectBoxes.geneSelect.fillGeneSelectBox = async() => {
     let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
     let selectBox = document.getElementById("geneMultipleSelection");
     for(let i = 0; i < geneList.length; i++) {
@@ -128,7 +133,7 @@ let fillGeneSelectBox = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let getBarcodesFromCohortForClinical = async function () {
+fillSelectBoxes.clinicalFeatureSelect.getBarcodesFromCohortForClinical = async function () {
     let myCohort = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     var dataFetched = await fetchExpressionData_cg(myCohort, 'bcl2');
     console.log(dataFetched)
@@ -136,10 +141,10 @@ let getBarcodesFromCohortForClinical = async function () {
     let tpBarcodes = [];
     results.forEach(element => tpBarcodes.push(element.tcga_participant_barcode));
     return tpBarcodes;
-}
+};
 
-let fetchClinicalData = async function() {
-    let barcodes = await getBarcodesFromCohortForClinical();
+fillSelectBoxes.clinicalFeatureSelect.fetchClinicalData = async() => {
+    let barcodes = await fillSelectBoxes.clinicalFeatureSelect.getBarcodesFromCohortForClinical();
     let clinicalData = await firebrowse.getClinical_FH(barcodes);
     console.log(clinicalData)
     if (clinicalData == '')
@@ -147,11 +152,11 @@ let fetchClinicalData = async function() {
     else {
         return clinicalData;
     }
-}
+};
 
 let clinicalQuery;
-let fillClinicalTypeSelectBox = async function() {
-    let dataFetched = await fetchClinicalData();
+fillSelectBoxes.clinicalFeatureSelect.fillClinicalTypeSelectBox = async() => {
+    let dataFetched = await fillSelectBoxes.clinicalFeatureSelect.fetchClinicalData();
     clinicalQuery = dataFetched.Clinical_FH;
     console.log(clinicalQuery)
     let selectBox = document.getElementById("clinicalMultipleSelection");
@@ -180,7 +185,7 @@ let fillClinicalTypeSelectBox = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let fetchMutationData = async function() {
+fillSelectBoxes.mutationSelect.fetchMutationData = async() => {
     let myGeneQuery = $('.geneMultipleSelection').select2('data').map(geneInfo => geneInfo.text);
     let myCohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     const hosturl = 'https://firebrowse.herokuapp.com';
@@ -210,8 +215,8 @@ let fetchMutationData = async function() {
     }
 }
 
-let fillMutationSelectBox = async function() {
-    let mutationQuery = await fetchMutationData();
+fillSelectBoxes.mutationSelect.fillMutationSelectBox = async() => {
+    let mutationQuery = await fillSelectBoxes.mutationSelect.fetchMutationData();
     console.log(mutationQuery.MAF)
     let theMutationQuery = mutationQuery.MAF;
     let selectBox = document.getElementById("mutationMultipleSelection");

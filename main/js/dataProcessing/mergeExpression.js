@@ -2,7 +2,9 @@
 // basically just loop through each unique TCGA_id and place expression_log2 values into one array
 // expression array order specified by gene names (could use the gene query input)
 
-mergeExpression = function(dataInput) {
+dataProcessing = {}
+
+dataProcessing.mergeExpression = function(dataInput) {
     var unique_genes = d3.map(dataInput, function(d){return d.gene;}).keys();
     var unique_ids = d3.map(dataInput, function(d){return d.tcga_participant_barcode}).keys();
     

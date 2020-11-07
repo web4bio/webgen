@@ -6,7 +6,10 @@
     // tcga_participant_barcode
 
 // Function to fetch expression data from firebrowse:
-fetchClinicalData = async function(barcodeQuery, fhQuery) {
+
+dataAcquisition = {}
+
+dataAcquisition.fetchClinicalData = async function(barcodeQuery, fhQuery) {
   
     // Set up host and endpoint urls
     const hosturl = 'https://firebrowse.herokuapp.com';

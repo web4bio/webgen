@@ -6,7 +6,7 @@
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
  
-createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject, curCohort) {
+plotCreation.createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject, curCohort) {
 
     //Set up violin curve colors
     var colors = ["#f1f291", "#69b3a2", "#bfb7f7", "#f26d5c", "#71a9d1", "#f0a94f"];

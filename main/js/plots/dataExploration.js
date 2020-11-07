@@ -1,4 +1,4 @@
-let buildDataExplorePlots = async function() {
+plotCreation.buildDataExplorePlots = async function() {
 
     function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
