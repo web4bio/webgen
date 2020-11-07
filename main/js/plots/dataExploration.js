@@ -56,7 +56,6 @@ plotCreation.buildDataExplorePlots = async function() {
     parentRowDiv.appendChild(newDiv);
     
     Plotly.newPlot(currentFeature + 'Div', data, layout);
-
     document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
         var pts = '';
         var colore;

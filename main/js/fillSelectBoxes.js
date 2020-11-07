@@ -37,7 +37,12 @@ fillSelectBoxes.cancerSelect.fillCancerTypeSelectBox = async() => {
         currentOption.id = cancerTypesQuery[i]["cohort"];
         selectBox.appendChild(currentOption);
     }
-}
+    let cancerTypeSelectedOptions = localStorage.getItem("cancerTypeSelectedOptions").split(',');
+    if(cancerTypeSelectedOptions){
+        $('.cancerTypeMultipleSelection').val(cancerTypeSelectedOptions);
+        fillClinicalTypeSelectBox();
+    }
+};
 
 fillSelectBoxes.cancerSelect.fetchNumberSamples = async() => {
     let myCohort = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
@@ -119,6 +124,17 @@ fillSelectBoxes.geneSelect.fillGeneSelectBox = async() => {
         currentOption.id = geneList[i].hugoSymbol;
         selectBox.appendChild(currentOption);
     }
+
+    let geneOptions = localStorage.getItem("geneOptions").split(',');
+    if(geneOptions){
+        $('.geneMultipleSelection').val(geneOptions)
+        fillMutationSelectBox()
+        let mutationOptions = localStorage.getItem("mutationOptions").split(',');
+        if(mutationOptions){
+            console.debug(mutationOptions)
+            $('.mutationMultipleSelection').val(mutationOptions)
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +184,11 @@ fillSelectBoxes.clinicalFeatureSelect.fillClinicalTypeSelectBox = async() => {
         currentOption.id = clinicalKeys[i];
         selectBox.appendChild(currentOption);
     }
-    return;
+    
+    let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
+    if(clinicalFeatureOptions){
+        $('.clinicalMultipleSelection').val(clinicalFeatureOptions)
+    }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -231,6 +251,7 @@ fillSelectBoxes.mutationSelect.fillMutationSelectBox = async() => {
     }
     let uniqueVariantClassifications = allVariantClassifications.filter(getUniqueValues);
     for (let i = 0; i < uniqueVariantClassifications.length; i++) {
+        console.debug(uniqueVariantClassifications[i])
         let currentOption = document.createElement("option");
         currentOption.value = uniqueVariantClassifications[i];
         currentOption.text = uniqueVariantClassifications[i];
@@ -245,3 +266,17 @@ fillSelectBoxes.mutationSelect.fillMutationSelectBox = async() => {
 ///////////////////////////////////////////////// Fill Mutation Select Box (above) ///////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fillSelectBoxes.saveInLocalStorage = async function() {
+    let cancerTypeSelectedOptions = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+    localStorage.setItem("cancerTypeSelectedOptions", cancerTypeSelectedOptions);
+
+    let clinicalFeatureOptions = $('.clinicalMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
+    localStorage.setItem("clinicalFeatureOptions", clinicalFeatureOptions);
+
+    let geneOptions = $('.geneMultipleSelection').select2('data').map(gene => gene.text);
+    localStorage.setItem("geneOptions", geneOptions);
+
+    let mutationOptions = $('.mutationMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
+    localStorage.setItem("mutationOptions", mutationOptions);
+}

@@ -149,14 +149,14 @@
 
     <p style="text-align: center;"><b>1) Select cancer type(s)</b></p>
     <div id='cancerQuerySelectBox'>
-        <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillSelectBoxes.clinicalFeatureSelect.fillClinicalTypeSelectBox(), fillSelectBoxes.cancerSelect.displayNumberSamples()">
+        <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillSelectBoxes.clinicalFeatureSelect.fillClinicalTypeSelectBox(), fillSelectBoxes.cancerSelect.displayNumberSamples(), fillSelectBoxes.saveInLocalStorage()">
             <!-- Filled by fillSelectBoxes.js -->
         </select>
     </div>
 
     <p style="text-align: center;"><b>2) Select clinical feature(s)</b></p>
     <div id='clinicalQuerySelectBox'>
-      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="plotCreation.buildDataExplorePlots()";> 
+      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="plotCreation.buildDataExplorePlots(), fillSelectBoxes.saveInLocalStorage()";> 
           <!-- Filled by fillSelectBoxes.js -->
       </select>
     </div>
@@ -173,7 +173,7 @@
     <p style="text-align: center;"><b>3) Select gene(s)</b></p>
     <p style="text-align: center; color: gray;"><i>Tip: Begin typing name of gene, and then select gene from dropdown menu.</i></p>
     <div id='geneQuerySelectBox'>
-        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillSelectBoxes.mutationSelect.fillMutationSelectBox()">
+        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillSelectBoxes.mutationSelect.fillMutationSelectBox(), fillSelectBoxes.saveInLocalStorage()">
             <!-- Filled by fillSelectBoxes.js -->
         </select>
     </div>
@@ -182,7 +182,7 @@
 
     <p style="text-align: center;"><b>4) Select mutation(s)</b></p>
     <div id='mutationQuerySelectBox'>
-      <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection">
+      <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection" onchange="fillSelectBoxes.saveInLocalStorage()">
           <!-- Filled by fillSelectBoxes.js -->
       </select>
     </div>
