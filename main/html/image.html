@@ -18,20 +18,11 @@
     <!-- Load in files -->
     <link rel="stylesheet" type="text/css" href="../css/style.css">
 
-    <script type="text/javascript" src = "../js/dataAcquisition/fetchExpressionData.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/fetchSigMutationData.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
-
-    <script type="text/javascript" src = "../js/dataProcessing/mergeExpression.js"></script>
-    
-    <script type="text/javascript" src = "../js/plots/createHeatmap.js"></script>
-    <script type = "text/javascript" src = "../js/plots/createViolinPlot.js"></script>
-
-    <script type="text/javascript" src = "../js/docManipulation.js"></script>
-    <script type ="text/javascript" src = "../js/fillSelectBoxes.js"></script>
-
     <script type ="text/javascript" src = "../js/imaging/buildImages.js"></script>
+    <script>var exports = {"__esModule": true};</script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <script src="../js/imaging/classifier.js"></script>
+    <script src="../js/imaging//reaction.js"></script>
 
   </head>
   <body>
@@ -58,34 +49,41 @@
           <input type="text" id="zoomLevel" placeholder="Zoom Level"> </input>
         </div>
       
-        <!-- Setting up the buttons. -->
         <div className="mainWindowButtons" id = "mainWindowButtons">
           <button class="col s3 btn waves-effect waves-light" onclick="onResetFunc()" id='exampleButton'>Reset</button>
           <button class="col s3 btn waves-effect waves-light" onclick="onSubmitFunc()" id='submitButton'>Submit</button>
         </div>
         
-
-        <!-- Setting up the tabs. -->
         <div class="tabs_container">  
           <div class="col s36">
+
             <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
               <li class="tab col s12" onclick="imageTabListener()"><a class="active" href="#viewImage">Image</a></li>
               <li class="tab col s12" onclick="historyTabListener()"><a class="active" href="#history">History</a></li>
             </ul>
-            <!-- Setting up the plots to go under each tab. -->
+
             <div id="imageContainerParent" class="col s12" style="display: block;">
-              <div id="imageContainer" style="margin-top:25px">
-                <a id="aContainer"download>
-                </a>
+              <div id="imageContainer" style="margin-top:25px; float: left;">
+                <canvas id="canvas" style="border:2px solid teal"></canvas>
+                <input type="range" id="scale" min="1" max="10" step="0.5" value="1" style="position: relative;"/>
+                <div id='pos'>
+                </div>
+                <button id='renderButton' class="col s3 btn waves-effect waves-light" style="display: none;" onclick="initialize()">Render</button>
+              </div>
+
+              <div style="margin-top:25px ; float: left;">  
+                <canvas id="myCanvas" style="border: 2px solid teal;"  width="400" height="400"></canvas>
               </div>
             </div>
+
             <div id="historyContainerParent" class="col s12" style="display: none;">
-              <div id="historyContainer" style="margin-top:25px"></div>
+              <div id="historyContainer" style="margin-top:25px">
+              </div>
+            
             </div>
           </div>
         </div>
 
-        <!-- Setting tabs: -->
         <script> 
           var elem = document.querySelector('.tabs');
           var options = {}

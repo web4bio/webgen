@@ -52,21 +52,15 @@ const buildButtons = () => {
     buttonContainer.appendChild(button)
   }
   document.getElementById('imageContainerParent').appendChild(buttonContainer)
+  document.getElementById('renderButton').style.display = ""
 }
 
 const buildImage = ({ fileId, xPos, yPos, zoom }) => {
-  const aContainer = document.getElementById('aContainer')
-  aContainer.innerHTML = ""
-  const imageTag = document.createElement('img')
-  imageTag.height = 400
-  imageTag.width = 400
-  imageTag.alt = "No image found :("
-  imageTag.src = `https://api.gdc.cancer.gov/tile/${fileId}?level=${zoom}&x=${xPos}&y=${yPos}`
-  aContainer.href = imageTag.src
-  aContainer.appendChild(imageTag)
+  main(`https://api.gdc.cancer.gov/tile/${fileId}?level=${zoom}&x=${xPos}&y=${yPos}`)
 }
 
 const parseURL = () => {
+  // URL parser http://localhost:3001?id=xyz&x=xyz&y=xyz&zoom=xyz
   const params = new URLSearchParams(location.search)
   const idFromSearch = params.get('id')
   const xFromSearch = params.get('x')
@@ -85,13 +79,6 @@ const parseURL = () => {
 }
 
 const getDataFromInputs = () => {
-  // URL parser http://localhost:3001?id=xyz&x=xyz&y=xyz&zoom=xyz
-  const params = new URLSearchParams(location.search)
-  const idFromSearch = params.get('id')
-  const xFromSearch = params.get('x')
-  const yFromSearch = params.get('y')
-  const zoomFromSearch = params.get('zoom')
-
   // Globals might be better here ...
   const fileId = document.getElementById('fileId').value
   const xPos = document.getElementById('xCoord').value
@@ -100,7 +87,7 @@ const getDataFromInputs = () => {
 
   console.log({ fileId: fileId, xPos: xPos, yPos: yPos, zoomLevel: zoom })
 
-  return { fileId: idFromSearch || fileId, xPos: xFromSearch || xPos, yPos: yFromSearch || yPos, zoom: zoomFromSearch || zoom }
+  return { fileId: fileId, xPos: xPos, yPos: yPos, zoom: zoom }
 }
 
 const onSubmitFunc = (e) => {
@@ -108,6 +95,8 @@ const onSubmitFunc = (e) => {
   buildImage(obj)
   // removeButtonElements()
   // buildButtons()
+  const button = document.getElementById('renderButton')
+  button.style.display = ''
   storeHistory(obj.fileId)
 }
 
@@ -137,10 +126,13 @@ const buildHistory = () => {
   const historyContainer = document.getElementById('historyContainer')
   historyContainer.innerHTML = ""
 
-  const listElement = document.createElement('ul')
+  const listElement = document.createElement('ol')
   for (let i = 0; i < historyArray.length; i++) {
     const liElement = document.createElement('li')
-    liElement.innerText = historyArray[i].order + '. ' + historyArray[i].id
+    const aElement = document.createElement('a')
+    aElement.href = `?id=${historyArray[i].id}`
+    aElement.innerHTML = historyArray[i].id
+    liElement.appendChild(aElement)
     listElement.appendChild(liElement)
   }
   historyContainer.appendChild(listElement)
@@ -148,7 +140,6 @@ const buildHistory = () => {
 
 // Executes the function only once the DOM (divs, etc) has been loaded in
 document.addEventListener("DOMContentLoaded", (e) => {
-  buildButtons()
   parseURL()
 })
 
@@ -164,7 +155,6 @@ document.onkeydown = (e) => {
       zoomInput.value = Number(zoomInput.value || 0) + 1 + ''
       onSubmitFunc()
       break;
-
   }
 }
 
