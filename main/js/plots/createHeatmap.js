@@ -1,17 +1,18 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
-// indepVarType is a defunct variable. Will remove (and adjust syntax where this function called)
-// cohortIDs is the name of the cohorts queried (just for the title)
 // dataInput is the array os JSONs of gene expression data to visualize
-// svgObject is the svg object on the html page to build the plot
+// divObject is the div object on the html page to build the plot
 
-createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
+createHeatmap = async function (dataInput, divObject) {
 
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of genes called 'myVars'
     let myGroups = d3.map(dataInput, function (d) { return d.tcga_participant_barcode; }).keys();
     let myVars = d3.map(dataInput, function (d) { return d.gene; }).keys();
-
+    
+    // Get unique cohort IDs (for title)
+    const cohortIDs = d3.map(dataInput, function(d){return d.cohort;}).keys();
+    
     // Get unique TCGA IDs
     var unique_ids = d3.map(dataInput, function (d) { return d.tcga_participant_barcode }).keys();
 
@@ -51,14 +52,18 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
     ///// BUILD SVG OBJECTS /////
     // Set up dimensions:
     var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 60 },
-        frameWidth = 1250, // ideally get from svgObject
+        frameWidth = 1250,
         frameHeight = 500,
         heatWidth = frameWidth - margin.left - margin.right,
         heatHeight = Math.round((frameHeight - margin.top - margin.space - margin.bottom) * 2 / 3),
         legendWidth = 50,
         dendHeight = Math.round(heatHeight / 2);
 
-    // First add title to graph listing genes
+    // Create svg object frame for the plots
+    var svgObject = divObject.append("svg")
+        .attr("viewBox", '0 0 '+frameWidth+' '+frameHeight);
+    
+    // Add title listing cohorts
     svgObject.append("text")
         .attr('id', 'heatmapTitle')
         .attr("x", margin.left)
@@ -67,7 +72,7 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .style("font-size", "26px")
         .text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
 
-    // create nested svg for dendrogram
+    // Add nested svg for dendrogram
     var svg_dendrogram = svgObject
         .append("svg")
         .attr("class", "dendrogram")
@@ -76,7 +81,7 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .attr("x", margin.left)
         .attr("y", margin.top);
 
-    // create nested svg for heatmap
+    // Add nested svg for heatmap
     var svg_heatmap = svgObject
         .append("svg")
         .attr("class", "heatmap")
@@ -86,8 +91,8 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.space + ")");
 
-    // create svg div for tooltip
-    var tooltip = d3.select("#heatmapRef")
+    // Create div for tooltip
+    var tooltip = divObject
         .append("div")
         .style("opacity", 0)
         .attr("class", "tooltip")
@@ -97,8 +102,8 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .style("border-radius", "5px")
         .style("padding", "5px");
 
-    // Add section for sorting options (checkboxes)
-    var sortOptionDiv = d3.select("#heatmapRef")
+    // Create div for sorting options (checkboxes)
+    var sortOptionDiv = divObject
         .append('div')
         .text('Sort options: ');
     var sortCurrentText = sortOptionDiv
@@ -123,7 +128,7 @@ createHeatmap = async function (indepVarType, cohortIDs, dataInput, svgObject) {
         .attr('id', 'updateHeatmapButton')
         .text('Update heatmap'); // add update behavior later (after update function defined)
 
-
+    
     ///// Build the Axis and Color Scales Below /////
     // Build x scale and axis for heatmap::
     let x = d3.scaleBand()
