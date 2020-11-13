@@ -173,7 +173,32 @@ let buildPlots = async function() {
       return;
     }
     
-    // If the fetched worked, build the plots:
+    // If the fetched worked, filter by clinical data:
+    let res = data.map(x => Object.assign(x, clinicalQuery.find(y => y.tcga_participant_barcode == x.tcga_participant_barcode)));
+    console.log(res);
+    let feature;
+    var clinicalObj = {"clinical": clinicalValues};
+    var sizeClinical = Object.keys(clinicalObj.clinical).length;
+    console.log(clinicalObj);
+    var keys = Object.keys(clinicalObj.clinical);
+    var hasFeature = false;
+    let clinicalRes = res.filter(x => {
+      for(let i = 0; i < sizeClinical; i++){ // iterates through pie chart types (gender, ethnicity, etc.)
+        feature = keys[i];
+        for(let j = 0; j < clinicalObj.clinical[feature].length; j++){ // iterates through chosen pie slices (for gender it would be 'male' & 'female')
+          if(x[feature] === clinicalObj.clinical[feature][j]){ // if feature equals the chosen slice value then return this value
+            hasFeature = true;
+          }
+        }
+        if(!hasFeature)
+          return false; // if it does not have a clinical feature chosen then don't return it
+        hasFeature = false; // reset this variable to false
+      }
+      return x; // if it exits the for loop then that means it has all the clinical features requested
+    })
+    console.log(clinicalRes);
+    data = clinicalRes;
+
 
     // Display Warning for any invalid genes:
     let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
@@ -194,12 +219,11 @@ buildHeatmap = async function(cohortQuery, data){
   // Remove the loader
   document.getElementById('heatmapDiv0').classList.remove('loader');
 
-  let svgHeatMap = d3.select("#heatmapRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", 'svgHeatMap')
+  // Create div object for heatmap and clear
+  let divHeatMap = d3.select('#heatmapDiv0').html("");
 
   // Create the heatmap
-  createHeatmap('cohort', cohortQuery, data, svgHeatMap);
+  createHeatmap(data, divHeatMap);
 };
 
 buildViolinPlot = async function(cohortQuery, data){
