@@ -219,12 +219,11 @@ buildHeatmap = async function(cohortQuery, data){
   // Remove the loader
   document.getElementById('heatmapDiv0').classList.remove('loader');
 
-  let svgHeatMap = d3.select("#heatmapRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", 'svgHeatMap')
+  // Create div object for heatmap and clear
+  let divHeatMap = d3.select('#heatmapDiv0').html("");
 
   // Create the heatmap
-  createHeatmap('cohort', cohortQuery, data, svgHeatMap);
+  createHeatmap(data, divHeatMap);
 };
 
 buildViolinPlot = async function(cohortQuery, data){
