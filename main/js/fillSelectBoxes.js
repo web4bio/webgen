@@ -108,28 +108,28 @@ let getValidGeneList = async function() {
     return await validGeneList
 }
 
-let fillGeneSelectBox = async function() {
-    let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
-    let selectBox = document.getElementById("geneMultipleSelection");
-    for(let i = 0; i < geneList.length; i++) {
-        let currentOption = document.createElement("option");
-        currentOption.value = geneList[i].hugoSymbol;
-        currentOption.text = geneList[i].hugoSymbol;
-        currentOption.id = geneList[i].hugoSymbol;
-        selectBox.appendChild(currentOption);
-    }
+// let fillGeneSelectBox = async function() {
+//     let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
+//     let selectBox = document.getElementById("geneMultipleSelection");
+//     for(let i = 0; i < geneList.length; i++) {
+//         let currentOption = document.createElement("option");
+//         currentOption.value = geneList[i].hugoSymbol;
+//         currentOption.text = geneList[i].hugoSymbol;
+//         currentOption.id = geneList[i].hugoSymbol;
+//         selectBox.appendChild(currentOption);
+//     }
 
-    let geneOptions = localStorage.getItem("geneOptions").split(',');
-    if(geneOptions){
-        $('.geneMultipleSelection').val(geneOptions)
-        fillMutationSelectBox()
-        let mutationOptions = localStorage.getItem("mutationOptions").split(',');
-        if(mutationOptions){
-            console.debug(mutationOptions)
-            $('.mutationMultipleSelection').val(mutationOptions)
-        }
-    }
-}
+//     let geneOptions = localStorage.getItem("geneOptions").split(',');
+//     if(geneOptions){
+//         $('.geneMultipleSelection').val(geneOptions)
+//         fillMutationSelectBox()
+//         let mutationOptions = localStorage.getItem("mutationOptions").split(',');
+//         if(mutationOptions){
+//             console.debug(mutationOptions)
+//             $('.mutationMultipleSelection').val(mutationOptions)
+//         }
+//     }
+// }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,6 +167,7 @@ let fetchClinicalData = async function() {
 
 let clinicalQuery;
 let fillClinicalTypeSelectBox = async function() {
+
     let dataFetched = await fetchClinicalData();
     clinicalQuery = dataFetched.Clinical_FH;
     console.log(clinicalQuery)
@@ -179,11 +180,33 @@ let fillClinicalTypeSelectBox = async function() {
         currentOption.id = clinicalKeys[i];
         selectBox.appendChild(currentOption);
     }
+
+    let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
+    for(let i = 0; i < geneList.length; i++) {
+        let currentOption = document.createElement("option");
+        currentOption.value = geneList[i].hugoSymbol;
+        currentOption.text = geneList[i].hugoSymbol;
+        currentOption.id = geneList[i].hugoSymbol;
+        selectBox.appendChild(currentOption);
+    }
+
+    let geneOptions = localStorage.getItem("geneOptions").split(',');
+    if(geneOptions){
+        $('.clinicalMultipleSelection').val(geneOptions)
+        fillMutationSelectBox()
+        let mutationOptions = localStorage.getItem("mutationOptions").split(',');
+        if(mutationOptions){
+            console.debug(mutationOptions)
+            $('.mutationMultipleSelection').val(mutationOptions)
+        }
+    }
     
     let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
     if(clinicalFeatureOptions){
         $('.clinicalMultipleSelection').val(clinicalFeatureOptions)
     }
+
+    
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
