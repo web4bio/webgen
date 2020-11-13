@@ -190,16 +190,16 @@ let fillClinicalTypeSelectBox = async function() {
         selectBox.appendChild(currentOption);
     }
 
-    let geneOptions = localStorage.getItem("geneOptions").split(',');
-    if(geneOptions){
-        $('.clinicalMultipleSelection').val(geneOptions)
-        fillMutationSelectBox()
-        let mutationOptions = localStorage.getItem("mutationOptions").split(',');
-        if(mutationOptions){
-            console.debug(mutationOptions)
-            $('.mutationMultipleSelection').val(mutationOptions)
-        }
-    }
+    // let geneOptions = localStorage.getItem("geneOptions").split(',');
+    // if(geneOptions){
+    //     $('.clinicalMultipleSelection').val(geneOptions)
+    //     fillMutationSelectBox()
+    //     let mutationOptions = localStorage.getItem("mutationOptions").split(',');
+    //     if(mutationOptions){
+    //         console.debug(mutationOptions)
+    //         $('.mutationMultipleSelection').val(mutationOptions)
+    //     }
+    // }
     
     let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
     if(clinicalFeatureOptions){
@@ -292,8 +292,8 @@ let saveInLocalStorage = async function() {
     let clinicalFeatureOptions = $('.clinicalMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
     localStorage.setItem("clinicalFeatureOptions", clinicalFeatureOptions);
 
-    let geneOptions = $('.geneMultipleSelection').select2('data').map(gene => gene.text);
-    localStorage.setItem("geneOptions", geneOptions);
+    // let geneOptions = $('.geneMultipleSelection').select2('data').map(gene => gene.text);
+    // localStorage.setItem("geneOptions", geneOptions);
 
     let mutationOptions = $('.mutationMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
     localStorage.setItem("mutationOptions", mutationOptions);
