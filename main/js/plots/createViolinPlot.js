@@ -8,6 +8,8 @@
  
 createViolinPlot = async function(indepVarType, indepVars, dataInput, 
     svgObject, curCohort, facetByField) {
+
+    //let clinicalData = fetchClinicalData();
     //Remove previous contents of svgObject if there are any
     /*
     while (svgObject.lastChild) 

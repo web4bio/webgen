@@ -84,7 +84,7 @@ removeTooltipElements = function () {
 // Setting the cohort and gene list examples if the user clicks the use example button:
 function setExampleVars() {
   // Select example values:
-  $('.cancerTypeMultipleSelection').val(['PAAD']);
+  $('.cancerTypeMultipleSelection').val(['BRCA', 'SARC']);
   $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
 
   // Trigger the change:
@@ -277,19 +277,40 @@ buildViolinPlot = async function(cohortQuery, data){
   {
     //Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
+    let plotId = `svgViolinPlot${index}`;
+    var violinDiv = document.getElementById("violinPlotRef");
 
-    var label = document.createElement("LABEL");
-    var checkbox = document.createElement("INPUT");
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.textContent = "Facet Violin Curves by Gender";
-    checkbox.id = `CheckboxViolinPlot${index}`;
-    checkbox.className = "gender";
-    var body = document.getElementById("violinPlotRef");
-    body.append(checkbox);
+    $('.clinicalMultipleSelection').select2({
+      placeholder: "Clinical feature(s) to partition by"
+    });
+
+    var clinicalFeaturesSelector = "<p style='text-align: center;'><b>Clinical feature(s) to partition by</b></p>"+
+    "<div id='clinicalQuerySelectBox'>"+
+      "<select class='" + `clinicalMultipleSelectionViolin${index}` + "' name='selectedClinicals[]' multiple='multiple' id= '" + `violinPlot${index}` + "Partition' onchange = 'fillClinicalPartitionBox(\"clinicalMultipleSelectionViolin" + index + "\")'>"+
+      "</select>"+
+    "</div>";
+    violinDiv.innerHTML += (clinicalFeaturesSelector);    
+
+    // For Clinical Select2 Drop down:
+    $(".clinicalMultipleSelectionViolin" + index).select2({
+      placeholder: "Clinical Feature(s)"
+    });
+    fillClinicalPartitionSelectBox(`violinPlot${index}` + "Partition", `clinicalMultipleSelectionViolin${index}`);
+    
+    var rebuildButton = document.createElement("button");
+    rebuildButton.id = `BTNViolinPlot${index}`;
+    rebuildButton.className = "BTNViolinPlots";
+    rebuildButton.innerHTML = "Rebuild Violin Plot";
+    rebuildButton.addEventListener("click", function()
+    {
+      //Change function call to add the parameter of the values specified in the partition select box
+      rebuildPlot(plotId);
+    });
+    document.getElementById("violinPlotRef").append(rebuildButton);
 
     let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
       .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-      .attr("id", `svgViolinPlot${index}`)
+      .attr("id", plotId)
       .attr("indepVarType", "cohort") //The attributes added on this line and the lines below are used when rebuilding the plot
       .attr("indepVars", cohortQuery)
       .attr("cohort", curCohort)
@@ -301,7 +322,6 @@ buildViolinPlot = async function(cohortQuery, data){
 
     // Create the violin plot:
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
-    console.log("Violin Plot created in new constructor");
   }
 };
 
