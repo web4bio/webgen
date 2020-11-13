@@ -205,54 +205,9 @@ buildHeatmap = async function(cohortQuery, data){
         .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
         .attr("id", 'svgHeatMap')
 
-<<<<<<< HEAD
-    // Create the heatmap:
-    createHeatmap('cohort', cohortQuery, data, svgHeatMap);
-
-    // Build the violin plot:
-    //Appending multiple g elements to svg object for violin plot
-    let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
-    //Define the number of cohorts to create a plot for
-    let numCohorts = myCohorts.length;
-    //Spacing between plots
-    let ySpacing = margin.top;
-
-    // Append an svg object for each cohort to create a violin plot for
-    for(var index = 0; index < numCohorts; index++)
-    {
-      //Define the current cohort to create the violin plot for
-      let curCohort = myCohorts[index];
-      let plotId = `svgViolinPlot${index}`;
-
-      let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", plotId)
-        .attr("indepVarType", "cohort")
-        .attr("indepVars", cohortQuery)
-        .attr("cohort", curCohort)
-        .append("g")
-        .attr("id", `svgViolinPlot${index}Position`)
-        .attr("transform",
-            "translate(" + (margin.left-20) + "," + 
-                        (margin.top + ySpacing*index*0.25) + ")");
-      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
-      //Create button that facets the specific violin curve being generated
-      var button = document.createElement("button");
-      button.innerHTML = "Facet Violin Curves by Gender";
-      button.id = `BTNViolinPlot${index}`;
-      button.className = "BTNViolinPlots";
-      //var paramOne = plotId;
-      button.addEventListener("click", function(){
-        //rebuildPlot(`svgViolinPlot${index}`, button.id);
-        rebuildPlot(plotId);
-      });
-      document.getElementById("violinPlotRef").append(button);
-    }
-=======
   // Create the heatmap
   createHeatmap('cohort', cohortQuery, data, svgHeatMap);
 };
->>>>>>> origin/development
 
 buildViolinPlot = async function(cohortQuery, data){
   // Remove the loader.
@@ -285,6 +240,17 @@ buildViolinPlot = async function(cohortQuery, data){
 
     // Create the violin plot:
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+
+    //Create button that facets the specific violin curve being generated
+    var button = document.createElement("button");
+    button.innerHTML = "Facet Violin Curves by Gender";
+    button.id = `BTNViolinPlot${index}`;
+    button.className = "BTNViolinPlots";
+    //var paramOne = plotId;
+    button.addEventListener("click", function(){
+      rebuildPlot(plotId);
+    });
+    document.getElementById("violinPlotRef").append(button);
   }
 };
 
