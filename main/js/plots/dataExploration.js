@@ -1,4 +1,4 @@
-let clinicalValues = [];
+let valuesForSlices = [];
 let buildDataExplorePlots = async function() {
 
     function onlyUnique(value, index, self) {
@@ -66,6 +66,7 @@ let buildDataExplorePlots = async function() {
             parentRowDiv.appendChild(newDiv);
             
             Plotly.newPlot(currentFeature + 'Div', data, layout);
+
             document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
                 var pts = '';
                 var colore;
@@ -77,13 +78,13 @@ let buildDataExplorePlots = async function() {
                     colore = data.points[i].data.marker.colors;
                     slice = data.points[i].label;
                 }
-                if(clinicalValues[currentFeature] != null){
-                    clinicalValues[currentFeature].push(slice);
+                if(valuesForSlices[currentFeature] != null){
+                    valuesForSlices[currentFeature].push(slice);
                 }
                 else
-                    clinicalValues[currentFeature] = [slice];
+                valuesForSlices[currentFeature] = [slice];
                 
-                console.log(clinicalValues);
+                console.log(valuesForSlices);
                 colore[pts] = '#FFF34B';
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
