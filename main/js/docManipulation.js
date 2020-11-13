@@ -241,7 +241,14 @@ buildViolinPlot = async function(cohortQuery, data){
       .attr("transform",
           "translate(" + (margin.left-20) + "," + 
                       (margin.top + ySpacing*index*0.25) + ")");
+<<<<<<< HEAD
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
+=======
+
+    // Create the violin plot:
+    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+
+>>>>>>> 292f7f7fa5caf6f95248a7a2218eed359f8e8cc6
     //Create button that facets the specific violin curve being generated
     var button = document.createElement("button");
     button.innerHTML = "Facet Violin Curves by Gender";
@@ -249,7 +256,10 @@ buildViolinPlot = async function(cohortQuery, data){
     button.className = "BTNViolinPlots";
     //var paramOne = plotId;
     button.addEventListener("click", function(){
+<<<<<<< HEAD
       //rebuildPlot(`svgViolinPlot${index}`, button.id);
+=======
+>>>>>>> 292f7f7fa5caf6f95248a7a2218eed359f8e8cc6
       rebuildPlot(plotId);
     });
     document.getElementById("violinPlotRef").append(button);
