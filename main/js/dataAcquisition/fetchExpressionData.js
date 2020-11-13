@@ -20,7 +20,8 @@ fetchExpressionData_cg = async function(cohortQuery, geneQuery) {
     const endpointurl_presets = {
         format: 'json',
         gene: geneQuery,
-        cohort: cohortQuery,  
+        cohort: cohortQuery, 
+        sample_type: 'TP', 
         protocol: 'RSEM',
         page: '1',
         page_size: 2001,
@@ -32,6 +33,7 @@ fetchExpressionData_cg = async function(cohortQuery, geneQuery) {
         'format=' + endpointurl_presets.format + 
         '&gene=' + geneQuery + 
         '&cohort=' + cohortQuery + 
+        '&sample_type=' + endpointurl_presets.sample_type +
         '&protocol=' + endpointurl_presets.protocol +
         '&page=' + endpointurl_presets.page + 
         '&page_size=' + endpointurl_presets.page_size.toString() + 
@@ -46,8 +48,8 @@ fetchExpressionData_cg = async function(cohortQuery, geneQuery) {
 
     // Monitor the performance of the fetch:
     var fetchTime = performance.now() - fetchStart;
-    console.log("Performance of fetch: ");
-    console.log(fetchTime);
+    console.info("Performance of fetch: ");
+    console.info(fetchTime);
 
     // Check if the fetch worked properly:
     if (fetchedExpressionData == '')
@@ -68,7 +70,8 @@ fetchExpressionData_cgb = async function(cohortQuery, geneQuery, barcodes) {
     const endpointurl_presets = {
         format: 'json',
         gene: geneQuery,
-        cohort: cohortQuery,  
+        cohort: cohortQuery,
+        sample_type: 'TP',   
         tcga_participant_barcode: barcodes,   
         protocol: 'RSEM',
         page: '1',
@@ -82,6 +85,7 @@ fetchExpressionData_cgb = async function(cohortQuery, geneQuery, barcodes) {
         '&gene=' + geneQuery + 
         '&tcga_participant_barcode=' + barcodes +
         '&cohort=' + cohortQuery + 
+        '&sample_type=' + endpointurl_presets.sample_type +
         '&protocol=' + endpointurl_presets.protocol +
         '&page=' + endpointurl_presets.page + 
         '&page_size=' + endpointurl_presets.page_size.toString() + 
@@ -96,8 +100,8 @@ fetchExpressionData_cgb = async function(cohortQuery, geneQuery, barcodes) {
 
     // Monitor the performance of the fetch:
     var fetchTime = performance.now() - fetchStart;
-    console.log("Performance of fetch: ");
-    console.log(fetchTime);
+    console.info("Performance of fetch: ");
+    console.info(fetchTime);
 
     // Check if the fetch worked properly:
     if (fetchedExpressionData == '')
