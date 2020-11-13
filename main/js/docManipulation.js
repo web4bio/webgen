@@ -177,7 +177,7 @@ let buildPlots = async function() {
     let res = data.map(x => Object.assign(x, clinicalQuery.find(y => y.tcga_participant_barcode == x.tcga_participant_barcode)));
     console.log(res);
     let feature;
-    var clinicalObj = {"clinical": clinicalValues};
+    var clinicalObj = {"clinical": valuesForSlices};
     var sizeClinical = Object.keys(clinicalObj.clinical).length;
     console.log(clinicalObj);
     var keys = Object.keys(clinicalObj.clinical);
