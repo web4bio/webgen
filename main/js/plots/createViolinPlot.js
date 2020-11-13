@@ -9,7 +9,8 @@
 createViolinPlot = async function(indepVarType, indepVars, dataInput, 
     svgObject, curCohort, facetByField) {
 
-    //let clinicalData = fetchClinicalData();
+    let clinicalData = JSON.parse(sessionStorage.getItem("clinicalDataQuery"));
+    console.log(clinicalData);
     //Remove previous contents of svgObject if there are any
     /*
     while (svgObject.lastChild) 
@@ -34,32 +35,45 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
     //Filter out data that does not belong to curCohort
     dataInput = dataInput.filter(patientData => patientData.cohort == curCohort);
 
+    /*
     //Create synthetic gender data. WILL BE REMOVED!
     genderArr = ["Male", "Female"];
     for(var i = 0; i < dataInput.length; i++)
     {
         dataInput[i][facetByField] = genderArr[Math.floor(Math.random()*2)];
     }
+    */
 
+    var myGroups;
     //Add new field to data for purpose of creating keys and populating myGroups
     if(facetByField != null)
     {
+        //var dataToMerge = clinicalData;
+        //datatoMerge = dataToMerge.map(({tcga_participant_barcode, dataToMerge[0][facetByField]}) => ({tcga_participant_barcode, dataToMerge[0][facetByField]}))
+        
         for(var i = 0; i < dataInput.length; i++)
         {
-            dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (" + 
-                                            dataInput[i][facetByField] + ")";
+            var clinicalDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
+            if(clinicalDataIndex >= 0)
+            {
+                dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (" + 
+                                                clinicalData[clinicalDataIndex][facetByField] + ")";
+            }
+
+            else
+            {
+                dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (null)";
+            }
+
         }
-    }
-    var myGroups;
-    // Get myGroups of genes:
-    if(facetByField != null)
-    {
         myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
     }
     else
     {
         myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
     }
+
+    console.log(dataInput);
 
     var numOfGroups = myGroups.length;
 
@@ -74,7 +88,10 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
     };
 
     // Sort myGroups by median expression:
-    myGroups.sort((a,b) => compareGeneExpressionMedian(a,b));
+    if(facetByField == null)
+        myGroups.sort((a,b) => compareGeneExpressionMedian(a,b));
+    else
+        myGroups.sort();
 
 
     //Populate violinCurveColors
@@ -419,6 +436,17 @@ function standardDeviation(mean, values)
     }
 
     return (Number)(Math.pow(sum/(values.length-1), 0.5));
+}
+
+function findMatchByTCGABarcode(patient, clinicalData)
+{
+    for(var index = 0; index < clinicalData.length; index++)
+    {
+        if(clinicalData[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
+            return index;
+    }
+
+    return -1;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

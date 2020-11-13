@@ -170,7 +170,7 @@ let fillClinicalTypeSelectBox = async function() {
     let dataFetched = await fetchClinicalData();
     clinicalQuery = dataFetched.Clinical_FH;
     console.log(clinicalQuery);
-    localForage.setItem('clinicalDataQuery', clinicalQuery);
+    sessionStorage.setItem('clinicalDataQuery', JSON.stringify(clinicalQuery));
     let selectBox = document.getElementById("clinicalMultipleSelection");
     let clinicalKeys = Object.keys(clinicalQuery[0]);
     localStorage.setItem("clinicalFeatureKeys", JSON.stringify(clinicalKeys));
