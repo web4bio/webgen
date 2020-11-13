@@ -150,6 +150,7 @@ let getBarcodesFromCohortForClinical = async function () {
     var results = dataFetched.mRNASeq;
     let tpBarcodes = [];
     results.forEach(element => tpBarcodes.push(element.tcga_participant_barcode));
+    console.log(tpBarcodes)
     return tpBarcodes;
 }
 
@@ -300,4 +301,6 @@ let saveInLocalStorage = async function() {
 
     let mutationOptions = $('.mutationMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
     localStorage.setItem("mutationOptions", mutationOptions);
+
+    console.log(localStorage)
 }
