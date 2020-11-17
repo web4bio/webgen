@@ -1,3 +1,4 @@
+let clinicalValues = [];
 let buildDataExplorePlots = async function() {
 
     function onlyUnique(value, index, self) {
@@ -5,7 +6,7 @@ let buildDataExplorePlots = async function() {
     }
 
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-    console.log(mySelectedClinicalFeatures)
+    console.log(mySelectedClinicalFeatures);
 
     if(mySelectedClinicalFeatures.length == 0) {
 
@@ -69,11 +70,20 @@ let buildDataExplorePlots = async function() {
                 var pts = '';
                 var colore;
                 var tn = '';
+                var slice = '';
                 for(let i = 0; i < data.points.length; i++) {
                     pts = data.points[i].pointNumber;
                     tn = data.points[i].curveNumber;
                     colore = data.points[i].data.marker.colors;
+                    slice = data.points[i].label;
                 }
+                if(clinicalValues[currentFeature] != null){
+                    clinicalValues[currentFeature].push(slice);
+                }
+                else
+                    clinicalValues[currentFeature] = [slice];
+                
+                console.log(clinicalValues);
                 colore[pts] = '#FFF34B';
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
