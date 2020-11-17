@@ -56,8 +56,9 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
             var clinicalDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
             if(clinicalDataIndex >= 0)
             {
+                dataInput[i][facetByField] = clinicalData[clinicalDataIndex][facetByField];
                 dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (" + 
-                                                clinicalData[clinicalDataIndex][facetByField] + ")";
+                                                dataInput[i][facetByField] + ")";
             }
 
             else

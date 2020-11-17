@@ -298,7 +298,7 @@ buildViolinPlot = async function(cohortQuery, data){
     
     var rebuildButton = document.createElement("button");
     rebuildButton.id = `BTNViolinPlot${index}`;
-    rebuildButton.className = "BTNViolinPlots";
+    rebuildButton.className = "BTNViolinPlots col s3 btn waves-effect waves-light";
     rebuildButton.innerHTML = "Rebuild Violin Plot";
     rebuildButton.addEventListener("click", function()
     {
