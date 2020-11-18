@@ -70,7 +70,6 @@ createHeatmap = async function (dataInput, divObject) {
         .attr('id', 'heatmapTitle')
         .attr("x", margin.left)
         .attr("y", margin.top - 25)
-        .attr("text-anchor", "left")
         .style("font-size", "26px")
         .text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
 
@@ -254,9 +253,6 @@ createHeatmap = async function (dataInput, divObject) {
             .attr("width", x.bandwidth())
             .attr("height", y.bandwidth())
             .style("fill", d => myColor(d["z-score"]))
-            .style("stroke-width", 2)
-            .style("stroke", "none")
-            .style("opacity", 1)
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);
