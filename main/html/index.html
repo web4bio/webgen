@@ -157,7 +157,7 @@
     <p style="text-align: center;"><b>2) Select clinical feature(s)</b></p>
     <p style="text-align: center; color: gray">(i.e., for patients that have selected cancer type(s))</p> 
     <div id='clinicalQuerySelectBox'>
-      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="buildDataExplorePlots(), saveInLocalStorage()";> 
+      <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="buildDataExplorePlots(), saveInLocalStorage()"> 
           <!-- Filled by fillSelectBoxes.js -->
       </select>
     </div>
@@ -214,9 +214,6 @@
         </div>
         <div id="violinPlotRef" class="col s12">
           <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
-          <!--
-            <button id = "facetByField" type = "button" onclick = "rebuildPlot('svgViolinPlot0')">Facet Violin Curves by Gender</button>
-          -->
         </div>
       </div>
     </div>

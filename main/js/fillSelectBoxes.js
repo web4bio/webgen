@@ -169,9 +169,11 @@ let clinicalQuery;
 let fillClinicalTypeSelectBox = async function() {
     let dataFetched = await fetchClinicalData();
     clinicalQuery = dataFetched.Clinical_FH;
-    console.log(clinicalQuery)
+    console.log(clinicalQuery);
+    sessionStorage.setItem('clinicalDataQuery', JSON.stringify(clinicalQuery));
     let selectBox = document.getElementById("clinicalMultipleSelection");
     let clinicalKeys = Object.keys(clinicalQuery[0]);
+    localStorage.setItem("clinicalFeatureKeys", JSON.stringify(clinicalKeys));
     for (let i = 0; i < clinicalKeys.length; i++) {
         let currentOption = document.createElement("option");
         currentOption.value = clinicalKeys[i];
@@ -184,6 +186,31 @@ let fillClinicalTypeSelectBox = async function() {
     if(clinicalFeatureOptions){
         $('.clinicalMultipleSelection').val(clinicalFeatureOptions)
     }
+};
+
+let fillClinicalPartitionSelectBox = async function(id, className)
+{
+    let selectBox = document.getElementById(id);
+    let clinicalKeys = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
+    for(let index = 0; index < clinicalKeys.length; index++)
+    {
+        let currentOption = document.createElement("option");
+        currentOption.value = clinicalKeys[index];
+        currentOption.text = clinicalKeys[index];
+        currentOption.id = clinicalKeys[index];
+        selectBox.appendChild(currentOption);
+    }
+
+    let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
+    console.log(clinicalFeatureOptions);
+    if(clinicalFeatureOptions){
+        $('.' + className).val(clinicalFeatureOptions)
+    }
+};
+
+let fillClinicalPartitionBox = async function(className)
+{
+    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

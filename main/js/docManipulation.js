@@ -84,7 +84,7 @@ removeTooltipElements = function () {
 // Setting the cohort and gene list examples if the user clicks the use example button:
 function setExampleVars() {
   // Select example values:
-  $('.cancerTypeMultipleSelection').val(['PAAD']);
+  $('.cancerTypeMultipleSelection').val(['BRCA', 'SARC']);
   $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
 
   // Trigger the change:
@@ -180,7 +180,32 @@ let buildPlots = async function() {
       return;
     }
     
-    // If the fetched worked, build the plots:
+    // If the fetched worked, filter by clinical data:
+    let res = data.map(x => Object.assign(x, clinicalQuery.find(y => y.tcga_participant_barcode == x.tcga_participant_barcode)));
+    console.log(res);
+    let feature;
+    var clinicalObj = {"clinical": clinicalValues};
+    var sizeClinical = Object.keys(clinicalObj.clinical).length;
+    console.log(clinicalObj);
+    var keys = Object.keys(clinicalObj.clinical);
+    var hasFeature = false;
+    let clinicalRes = res.filter(x => {
+      for(let i = 0; i < sizeClinical; i++){ // iterates through pie chart types (gender, ethnicity, etc.)
+        feature = keys[i];
+        for(let j = 0; j < clinicalObj.clinical[feature].length; j++){ // iterates through chosen pie slices (for gender it would be 'male' & 'female')
+          if(x[feature] === clinicalObj.clinical[feature][j]){ // if feature equals the chosen slice value then return this value
+            hasFeature = true;
+          }
+        }
+        if(!hasFeature)
+          return false; // if it does not have a clinical feature chosen then don't return it
+        hasFeature = false; // reset this variable to false
+      }
+      return x; // if it exits the for loop then that means it has all the clinical features requested
+    })
+    console.log(clinicalRes);
+    data = clinicalRes;
+
 
     // Display Warning for any invalid genes:
     let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
@@ -204,9 +229,53 @@ buildHeatmap = async function(cohortQuery, data){
   // Create div object for heatmap and clear
   let divHeatMap = d3.select('#heatmapDiv0').html("");
 
-  // Create the heatmap
-  createHeatmap(data, divHeatMap);
-};
+    // Create the heatmap:
+    createHeatmap(data, divHeatMap);
+
+    // Build the violin plot:
+    //Appending multiple g elements to svg object for violin plot
+    let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+    //Define the number of cohorts to create a plot for
+    let numCohorts = myCohorts.length;
+    //Spacing between plots
+    let ySpacing = margin.top;
+
+    // Append an svg object for each cohort to create a violin plot for
+    /*
+    for(var index = 0; index < numCohorts; index++)
+    {
+      //Define the current cohort to create the violin plot for
+      let curCohort = myCohorts[index];
+      let plotId = `svgViolinPlot${index}`;
+
+      let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
+        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
+        .attr("id", plotId)
+        .attr("indepVarType", "cohort")
+        .attr("indepVars", cohortQuery)
+        .attr("cohort", curCohort)
+        .append("g")
+        .attr("id", `svgViolinPlot${index}Position`)
+        .attr("transform",
+            "translate(" + (margin.left-20) + "," + 
+                        (margin.top + ySpacing*index*0.25) + ")");
+      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
+      console.log("Violin Plot created with proper constructor!");
+      //Create button that facets the specific violin curve being generated
+      var button = document.createElement("button");
+      button.innerHTML = "Facet Violin Curves by Gender";
+      button.id = `BTNViolinPlot${index}`;
+      button.className = "BTNViolinPlots";
+      //var paramOne = plotId;
+      button.addEventListener("click", function(){
+        //rebuildPlot(`svgViolinPlot${index}`, button.id);
+        rebuildPlot(plotId);
+      });
+      var body = document.getElementById("violinPlotRef");
+      body.appendChild(button);
+    }
+    */
+  };
 
 buildViolinPlot = async function(cohortQuery, data){
   // Remove the loader.
@@ -223,17 +292,50 @@ buildViolinPlot = async function(cohortQuery, data){
   //Spacing between plots
   let ySpacing = margin.top;
 
+  //Code to get the set of clinical data features to include the option
+  //to facet by goes here. For now, gender will be a hardcoded field 
+  //to facet by.
+
   // Append an svg object for each cohort to create a violin plot for
   for(var index = 0; index < numCohorts; index++)
   {
     //Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
     let plotId = `svgViolinPlot${index}`;
+    var violinDiv = document.getElementById("violinPlotRef");
+
+    $('.clinicalMultipleSelection').select2({
+      placeholder: "Clinical feature(s) to partition by"
+    });
+
+    var clinicalFeaturesSelector = "<p style='text-align: center;'><b>Clinical feature(s) to partition by</b></p>"+
+    "<div id='clinicalQuerySelectBox'>"+
+      "<select class='" + `clinicalMultipleSelectionViolin${index}` + "' name='selectedClinicals[]' multiple='multiple' id= '" + `violinPlot${index}` + "Partition' onchange = 'fillClinicalPartitionBox(\"clinicalMultipleSelectionViolin" + index + "\")'>"+
+      "</select>"+
+    "</div>";
+    violinDiv.innerHTML += (clinicalFeaturesSelector);    
+
+    // For Clinical Select2 Drop down:
+    $(".clinicalMultipleSelectionViolin" + index).select2({
+      placeholder: "Clinical Feature(s)"
+    });
+    fillClinicalPartitionSelectBox(`violinPlot${index}` + "Partition", `clinicalMultipleSelectionViolin${index}`);
+    
+    var rebuildButton = document.createElement("button");
+    rebuildButton.id = `BTNViolinPlot${index}`;
+    rebuildButton.className = "BTNViolinPlots col s3 btn waves-effect waves-light";
+    rebuildButton.innerHTML = "Rebuild Violin Plot";
+    rebuildButton.addEventListener("click", function()
+    {
+      //Change function call to add the parameter of the values specified in the partition select box
+      rebuildPlot(plotId);
+    });
+    document.getElementById("violinPlotRef").append(rebuildButton);
 
     let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
       .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
       .attr("id", plotId)
-      .attr("indepVarType", "cohort")
+      .attr("indepVarType", "cohort") //The attributes added on this line and the lines below are used when rebuilding the plot
       .attr("indepVars", cohortQuery)
       .attr("cohort", curCohort)
       .append("g")
@@ -241,28 +343,12 @@ buildViolinPlot = async function(cohortQuery, data){
       .attr("transform",
           "translate(" + (margin.left-20) + "," + 
                       (margin.top + ySpacing*index*0.25) + ")");
-<<<<<<< HEAD
+
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
-=======
+
 
     // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
-
->>>>>>> 292f7f7fa5caf6f95248a7a2218eed359f8e8cc6
-    //Create button that facets the specific violin curve being generated
-    var button = document.createElement("button");
-    button.innerHTML = "Facet Violin Curves by Gender";
-    button.id = `BTNViolinPlot${index}`;
-    button.className = "BTNViolinPlots";
-    //var paramOne = plotId;
-    button.addEventListener("click", function(){
-<<<<<<< HEAD
-      //rebuildPlot(`svgViolinPlot${index}`, button.id);
-=======
->>>>>>> 292f7f7fa5caf6f95248a7a2218eed359f8e8cc6
-      rebuildPlot(plotId);
-    });
-    document.getElementById("violinPlotRef").append(button);
+    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
   }
 };
 
@@ -351,6 +437,7 @@ rebuildPlot = function(svgId)
         .append("g")
         .attr("transform", position);
 
+  
   //Rebuild violin plot
   createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), 
                     svgObj, cohort, "gender");
