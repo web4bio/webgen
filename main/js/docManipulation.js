@@ -103,8 +103,6 @@ function setExampleVars() {
 
 let buildPlots = async function() {
   
-  let dataToPlotInfo;
-
   // Reset page formatting:
   document.getElementById('heatmapDiv0').innerHTML = "";
   document.getElementById('svgViolinDiv0').innerHTML = "";
@@ -118,100 +116,57 @@ let buildPlots = async function() {
   document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
   document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
 
-  // Get gene query and cohort query values from select2 box:
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let geneQuery = $('.geneMultipleSelection').select2('data').map(
-                    geneInfo => geneInfo.text);
-  // Get mutation value(s) from select2 box
-  let selectedVariantClassifications = $('.mutationMultipleSelection').select2('data').map(
-                                        mutationInfo => mutationInfo.text);
+  let geneQuery = $('.clinicalMultipleSelection').select2('data').map(
+                    clinicalInfo => clinicalInfo.text);
 
-  if(selectedVariantClassifications == "") {
-
-    // Fetch RNA sequence data and display requested plots:
-    dataToPlotInfo = getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
-
-  } else {
-
-    let iniMutationFetch = await fetchMutationData();
-    let allVariantClassificationData = iniMutationFetch.MAF;
-
-    let selectedVariantClassificationData = [];
-    for(let i = 0; i < allVariantClassificationData.length; i++) 
-      for(let j = 0; j < selectedVariantClassifications.length; j++) 
-        if(allVariantClassificationData[i].Variant_Classification == selectedVariantClassifications[j]) 
-          selectedVariantClassificationData.push(allVariantClassificationData[i])
-
-    let selectedBarcodes = selectedVariantClassificationData.map(x => x.Tumor_Sample_Barcode);
-
-    let trimmedBarcodes = selectedBarcodes.map(x => x.slice(0, 12))
-
-    // get unique barcodes
-    let barcodes = []
-    for(let i = 0; i < trimmedBarcodes.length; i++) {
-      if(i == 0) {
-        barcodes.push(trimmedBarcodes[i])
-      } else if(!barcodes.includes(trimmedBarcodes[i])) {
-        barcodes.push(trimmedBarcodes[i])
-      }
-    }
-
-    // Fetch RNA sequence data and display requested plots:
-    dataToPlotInfo = getExpressionDataJSONarray_cgb(cohortQuery, geneQuery, barcodes);
-
-  }
+  // Fetch RNA sequence data
+  let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
   
-  // Once data is returned, build the plots:
-  dataToPlotInfo.then(function(data) {
-    // Check that the fetch worked:
-    if (data == 'Error: Invalid Input Fields for Query.') {
-      document.getElementById('heatmapDiv0').classList.remove('loader');               // Remove the loader.
-      document.getElementById('svgViolinDiv0').classList.remove('loader');             // Remove the loader.
-      showError('geneError');
-      return;
+  let clickedGenes = Object.keys(clickedSlices);
+
+  let currentFilteredBarcodes_allData;
+  let currentFilteredBarcodes_onlyBarcodes;
+  let finalFilteredBarcodes = [];
+  for(let i = 0; i < clickedGenes.length; i++) {
+    for(let j = 0; j < clickedSlices[clickedGenes[i]].length; j++) {
+      await getAllVariantClassifications(clickedGenes[i]).then(function(result) {
+        me = result;
+        currentFilteredBarcodes_allData = me.filter(person => (person.Hugo_Symbol == clickedGenes[i]) && person.Variant_Classification == clickedSlices[clickedGenes[i]][j]);
+        console.log(currentFilteredBarcodes_allData)
+        currentFilteredBarcodes_onlyBarcodes = currentFilteredBarcodes_allData.map(x => x.Tumor_Sample_Barcode);
+        currentFilteredBarcodes_onlyBarcodes.forEach(x => finalFilteredBarcodes.push(x));
+      })
     }
-    
-    // If the fetched worked, filter by clinical data:
-    let res = data.map(x => Object.assign(x, allClinicalData.find(y => y.tcga_participant_barcode == x.tcga_participant_barcode)));
-    console.log(res);
-    let feature;
-    var clinicalObj = {"clinical": clickedSlices};
-    var sizeClinical = Object.keys(clinicalObj.clinical).length;
-    console.log(clinicalObj);
-    var keys = Object.keys(clinicalObj.clinical);
-    var hasFeature = false;
-    let clinicalRes = res.filter(x => {
-      for(let i = 0; i < sizeClinical; i++){ // iterates through pie chart types (gender, ethnicity, etc.)
-        feature = keys[i];
-        for(let j = 0; j < clinicalObj.clinical[feature].length; j++){ // iterates through chosen pie slices (for gender it would be 'male' & 'female')
-          if(x[feature] === clinicalObj.clinical[feature][j]){ // if feature equals the chosen slice value then return this value
-            hasFeature = true;
-          }
-        }
-        if(!hasFeature)
-          return false; // if it does not have a clinical feature chosen then don't return it
-        hasFeature = false; // reset this variable to false
-      }
-      return x; // if it exits the for loop then that means it has all the clinical features requested
-    })
-    console.log(clinicalRes);
-    data = clinicalRes;
+  }
 
+  let trimmedFinalFilteredBarcodes = [];
+  for(let i = 0; i < finalFilteredBarcodes.length; i++) {
+    trimmedFinalFilteredBarcodes.push(finalFilteredBarcodes[i].slice(0,12));
+  }
 
-    // Display Warning for any invalid genes:
-    let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
-    let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
-    if (emptyGeneArray.length > 0) {
-      showWarning(emptyGeneArray)
-    };
+  let data = [];
+  for(let i = 0; i < trimmedFinalFilteredBarcodes.length; i++) {
+    for(let j = 0; j < expressionData.length; j++) {
+      if(expressionData[j].tcga_participant_barcode == trimmedFinalFilteredBarcodes[i])
+        data.push(expressionData[j])
+    }
+  }
 
-    // Build the heatmap
-    buildHeatmap(cohortQuery, data);
+  // Display Warning for any invalid genes:
+  let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
+  let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
+  if (emptyGeneArray.length > 0) {
+    // showWarning(emptyGeneArray)
+  };
 
-    // Build the violin plots
-    buildViolinPlot(cohortQuery, data);
-  });
+  // Build the heatmap
+  buildHeatmap(cohortQuery, data);
+
+  // Build the violin plots
+  buildViolinPlot(cohortQuery, data);
+
 };
 
 buildHeatmap = async function(cohortQuery, data){
@@ -298,42 +253,24 @@ showError = function(errorType) {
 
 // Function to display a warning for genes that don't have mRNA-Seq data:
 // NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
-showWarning = function(emptyGeneArray_arg) {
-  // Create div1 and set it to be warning class:
-  let divElement = document.getElementById('heatmapDiv0');
-  divElement.className = 'warning';
+// showWarning = function(emptyGeneArray_arg) {
+//   // Create div1 and set it to be warning class:
+//   let divElement = document.getElementById('heatmapDiv0');
+//   divElement.className = 'warning';
 
-  // Create span clone from span0 to add to div1:
-  let span = document.getElementById('span0');
-  let spanElement = span.cloneNode(true);
-  spanElement.setAttribute('id','span1');
-  divElement.appendChild(spanElement);
+//   // Create span clone from span0 to add to div1:
+//   let span = document.getElementById('span0');
+//   let spanElement = span.cloneNode(true);
+//   spanElement.setAttribute('id','span1');
+//   divElement.appendChild(spanElement);
 
-  // Add the warning message to the div:
-  if (emptyGeneArray_arg.length == 1) {
-    divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " is an Invalid Gene for Query";
-  } else {
-    divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " are Invalid Genes for Query";
-  };
-}
-
-// // Function to check that the user input cohort list is valid:
-// checkCohortList = function(cohortQuery) {
-//   // List of valid cohorts:
-//   let validCohortList = ['ACC','BLCA','BRCA','CESC','CHOL','COAD','COADREAD','DLBC','ESCA','FPPP','GBM','GBMLGG','HNSC',
-//                          'KICH','KIPAN','KIRC','KIRP','LAML','LGG','LIHC','LUAD','LUSC','MESO','OV','PAAD','PCPG','PRAD',
-//                          'READ','SARC','SKCM','STAD','STES','TGCT','THCA','THYM','UCEC','UCS','UVM'];
-
-//   // Check the cohort list:
-//   numCohorts = cohortQuery.length;
-//   for (var i = 0; i < numCohorts; i++) {
-//     let statusTemp = validCohortList.includes(cohortQuery[i]);
-//     if (statusTemp == false) {
-//       return false;
-//     };
+//   // Add the warning message to the div:
+//   if (emptyGeneArray_arg.length == 1) {
+//     divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " is an Invalid Gene for Query";
+//   } else {
+//     divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " are Invalid Genes for Query";
 //   };
-//   return true;
-// };
+// }
 
 // Function to count the number of genes
 // countNumberOfGenes = function(cohortQuery) {

@@ -113,7 +113,7 @@ let buildDataExplorePlots = async function() {
                 height: 400,
                 width: 500,
                 title: currentFeature + "",
-                showlegend: false,
+                showlegend: true,
                 extendpiecolors: true
             };
         
@@ -123,7 +123,7 @@ let buildDataExplorePlots = async function() {
             newDiv.setAttribute("id", currentFeature + "Div");
             parentRowDiv.appendChild(newDiv);
             
-            Plotly.newPlot(currentFeature + 'Div', data, layout);
+            Plotly.newPlot(currentFeature + 'Div', data, layout, {scrollZoom: true});
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,11 +149,10 @@ let buildDataExplorePlots = async function() {
                 else
                     clickedSlices[currentFeature] = [slice];
                 
-                console.log(clickedSlices);
                 colore[pts] = '#FFF34B';
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
-                Plotly.restyle(currentFeature + 'Div', update, [tn]);
+                Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
             });
 
         }

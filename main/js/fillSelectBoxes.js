@@ -145,14 +145,14 @@ let fillClinicalTypeSelectBox = async function() {
     let dataFetched = await fetchClinicalData();
     allClinicalData = dataFetched.Clinical_FH;
     let selectBox = document.getElementById("clinicalMultipleSelection");
-    let clinicalKeys = Object.keys(allClinicalData[0]);
-    for (let i = 0; i < clinicalKeys.length; i++) {
-        let currentOption = document.createElement("option");
-        currentOption.value = clinicalKeys[i];
-        currentOption.text = clinicalKeys[i];
-        currentOption.id = clinicalKeys[i];
-        selectBox.appendChild(currentOption);
-    }
+    // let clinicalKeys = Object.keys(allClinicalData[0]);
+    // for (let i = 0; i < clinicalKeys.length; i++) {
+    //     let currentOption = document.createElement("option");
+    //     currentOption.value = clinicalKeys[i];
+    //     currentOption.text = clinicalKeys[i];
+    //     currentOption.id = clinicalKeys[i];
+    //     selectBox.appendChild(currentOption);
+    // }
 
     let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
     for(let i = 0; i < geneList.length; i++) {
