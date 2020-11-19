@@ -1,4 +1,5 @@
-let valuesForSlices = [];
+let clickedSlices = [];
+
 let buildDataExplorePlots = async function() {
 
     function onlyUnique(value, index, self) {
@@ -12,32 +13,77 @@ let buildDataExplorePlots = async function() {
 
     } else {
 
+        // clear all previous plots that were displayed
         document.getElementById('dataexploration').innerHTML = "";
 
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
             let currentFeature = mySelectedClinicalFeatures[i];
 
-            let allX = []; 
-            for(let i = 0; i < clinicalQuery.length; i++) {
-                allX.push(clinicalQuery[i][currentFeature]);
-            }
-        
-            let uniqueX = allX.filter(onlyUnique);
-        
+            let allValuesForCurrentFeature = []; 
+            let mutationsForThisGene;
+            let uniqueValuesForCurrentFeature;
             let xCounts = [];
-            xCounts.length = uniqueX.length;
-            for(let i = 0; i < xCounts.length; i++)
-            xCounts[i] = 0;
-            
-            for(let i = 0; i < clinicalQuery.length; i++) 
-                for(let k = 0; k < uniqueX.length; k++) 
-                    if(clinicalQuery[i][currentFeature] == uniqueX[k]) 
-                        xCounts[k]++;
+
+            // if current feature is a gene
+            if(currentFeature[0] === currentFeature[0].toUpperCase()) {
+
+                let allVariantClassifications = [];
+                let allBarcodes = [];
+
+                await getAllVariantClassifications().then(function(result) {
+                    mutationsForThisGene = result;
+                    // console.log(mutationsForThisGene) // an array of objects
+                    for(let i = 0; i < mutationsForThisGene.length; i++) {
+                        allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); 
+                        allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode); 
+                    }
+                }); 
+           
+                uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
+
+                xCounts.length = uniqueValuesForCurrentFeature.length;
+                for(let i = 0; i < xCounts.length; i++) {
+                    xCounts[i] = 0;
+                }
+                console.log(allClinicalData)
+                for(let i = 0; i < allClinicalData.length; i++) {
+                    for(let k = 0; k < allVariantClassifications.length; k++) {
+                        let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
+                        
+                        if(trimmedCurrentBarcode == allClinicalData[i].tcga_participant_barcode) {
+                            console.log(allClinicalData[i].tcga_participant_barcode);
+                            xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[k] )]++;
+                        }
+                    }
+                }
+
+            // if current feature is clinical (i.e., not a gene)
+            } else {
+
+                for(let i = 0; i < allClinicalData.length; i++) 
+                    allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
+
+                uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
+
+                xCounts.length = uniqueValuesForCurrentFeature.length;
+                for(let i = 0; i < xCounts.length; i++)
+                    xCounts[i] = 0;
+
+                console.log(allClinicalData[0][currentFeature]) // i.e., ~first~ patient's ethnicity
+                for(let i = 0; i < allClinicalData.length; i++) 
+                    for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++) 
+                        if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
+                            xCounts[k]++;
+
+            }
+
+            console.log(uniqueValuesForCurrentFeature)
+            console.log(xCounts);
         
             var data = [{
                 values: xCounts,
-                labels: uniqueX,
+                labels: uniqueValuesForCurrentFeature,
                 type: 'pie',
                 textinfo: "label+percent",
                 textposition: "outside",
@@ -78,13 +124,13 @@ let buildDataExplorePlots = async function() {
                     colore = data.points[i].data.marker.colors;
                     slice = data.points[i].label;
                 }
-                if(valuesForSlices[currentFeature] != null){
-                    valuesForSlices[currentFeature].push(slice);
+                if(clickedSlices[currentFeature] != null){
+                    clickedSlices[currentFeature].push(slice);
                 }
                 else
-                valuesForSlices[currentFeature] = [slice];
+                    clickedSlices[currentFeature] = [slice];
                 
-                console.log(valuesForSlices);
+                console.log(clickedSlices);
                 colore[pts] = '#FFF34B';
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};

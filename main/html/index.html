@@ -113,36 +113,13 @@
             placeholder: "Cancer Type(s)"
           });
 
-          // For Gene Select2 Drop down:
-          // $('.geneMultipleSelection').select2({
-          //   tags: true,
-          //   createTag: function (params) {
-              // If the gene entered is not valid, don't create new tag:
-              // if (~validGeneList.includes(params.term.toUpperCase()) === -1) {
-              //   return null;
-              // }
-              // If the gene entered is valid, create new tag:
-          //     return {
-          //       id: params.term.toUpperCase(),
-          //       text: params.term.toUpperCase()
-          //     }
-          //   },
-          //   placeholder: "Gene Name(s)"
-          // });
-
            // For Clinical Select2 Drop down:
            $('.clinicalMultipleSelection').select2({
             placeholder: "Clinical Feature(s)"
           });
 
-          // For Mutation Select2 Drop down:
-          $('.mutationMultipleSelection').select2({
-            placeholder: "Mutation(s)"
-          });
-
-        //   // Fill the Select2 Boxes:
           fillCancerTypeSelectBox();
-          // fillGeneSelectBox();
+
         });
       });
     </script>
@@ -171,22 +148,7 @@
 
     </div>
 
-    <!-- <p style="text-align: center;"><b>3) Select gene(s)</b></p>
-    <p style="text-align: center; color: gray;"><i>Tip: Begin typing name of gene, and then select gene from dropdown menu.</i></p>
-    <div id='geneQuerySelectBox'>
-        <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id="geneMultipleSelection" onchange="fillMutationSelectBox(), saveInLocalStorage()"> -->
-            <!-- Filled by fillSelectBoxes.js -->
-        <!-- </select>
-    </div> -->
-
     <br>
-
-    <p style="text-align: center;"><b>4) Select mutation(s)</b></p>
-    <div id='mutationQuerySelectBox'>
-      <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection" onchange="saveInLocalStorage()">
-          <!-- Filled by fillSelectBoxes.js -->
-      </select>
-    </div>
 
   <!--
   Setting up the buttons.

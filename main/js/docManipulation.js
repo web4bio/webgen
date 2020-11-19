@@ -174,10 +174,10 @@ let buildPlots = async function() {
     }
     
     // If the fetched worked, filter by clinical data:
-    let res = data.map(x => Object.assign(x, clinicalQuery.find(y => y.tcga_participant_barcode == x.tcga_participant_barcode)));
+    let res = data.map(x => Object.assign(x, allClinicalData.find(y => y.tcga_participant_barcode == x.tcga_participant_barcode)));
     console.log(res);
     let feature;
-    var clinicalObj = {"clinical": valuesForSlices};
+    var clinicalObj = {"clinical": clickedSlices};
     var sizeClinical = Object.keys(clinicalObj.clinical).length;
     console.log(clinicalObj);
     var keys = Object.keys(clinicalObj.clinical);
