@@ -185,14 +185,7 @@ let fillClinicalTypeSelectBox = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let getAllVariantClassifications = async function() {
-    let myClinicalQuery = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-    let myGeneQuery = [];
-    for(let i = 0; i < myClinicalQuery.length; i++) {
-        if(myClinicalQuery[i][0] === myClinicalQuery[i][0].toUpperCase()) {
-            myGeneQuery.push(myClinicalQuery[i]);
-        }
-    }
+let getAllVariantClassifications = async function(geneQuery) {
     let myCohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     const hosturl = 'https://firebrowse.herokuapp.com';
     const endpointurl='http://firebrowse.org/api/v1/Analyses/Mutation/MAF';
@@ -200,7 +193,7 @@ let getAllVariantClassifications = async function() {
         format: 'json',
         cohort: myCohortQuery,  
         tool: 'MutSig2CV', 
-        gene: myGeneQuery,  
+        gene: geneQuery,  
         page: '1',
         page_size: 250,
         sort_by: 'cohort' 

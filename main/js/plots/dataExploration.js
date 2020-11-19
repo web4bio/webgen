@@ -31,9 +31,8 @@ let buildDataExplorePlots = async function() {
                 let allVariantClassifications = [];
                 let allBarcodes = [];
 
-                await getAllVariantClassifications().then(function(result) {
+                await getAllVariantClassifications(currentFeature).then(function(result) {
                     mutationsForThisGene = result;
-                    // console.log(mutationsForThisGene) // an array of objects
                     for(let i = 0; i < mutationsForThisGene.length; i++) {
                         allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); 
                         allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode); 
@@ -46,13 +45,11 @@ let buildDataExplorePlots = async function() {
                 for(let i = 0; i < xCounts.length; i++) {
                     xCounts[i] = 0;
                 }
-                console.log(allClinicalData)
                 for(let i = 0; i < allClinicalData.length; i++) {
                     for(let k = 0; k < allVariantClassifications.length; k++) {
                         let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
                         
                         if(trimmedCurrentBarcode == allClinicalData[i].tcga_participant_barcode) {
-                            console.log(allClinicalData[i].tcga_participant_barcode);
                             xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[k] )]++;
                         }
                     }
