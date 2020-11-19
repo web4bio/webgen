@@ -19,64 +19,72 @@ let buildDataExplorePlots = async function() {
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
             let currentFeature = mySelectedClinicalFeatures[i];
-
             let allValuesForCurrentFeature = []; 
             let mutationsForThisGene;
-            let uniqueValuesForCurrentFeature;
+            let uniqueValuesForCurrentFeature = [];
             let xCounts = [];
 
             // if current feature is a gene
             if(currentFeature[0] === currentFeature[0].toUpperCase()) {
-
                 let allVariantClassifications = [];
-                let allBarcodes = [];
-
+                let allBarcodes = []; // barcodes that correspond to a mutation
                 await getAllVariantClassifications(currentFeature).then(function(result) {
                     mutationsForThisGene = result;
-                    for(let i = 0; i < mutationsForThisGene.length; i++) {
-                        allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); 
-                        allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode); 
-                    }
-                }); 
-           
-                uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
-
-                xCounts.length = uniqueValuesForCurrentFeature.length;
-                for(let i = 0; i < xCounts.length; i++) {
-                    xCounts[i] = 0;
-                }
-                for(let i = 0; i < allClinicalData.length; i++) {
-                    for(let k = 0; k < allVariantClassifications.length; k++) {
-                        let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
-                        
-                        if(trimmedCurrentBarcode == allClinicalData[i].tcga_participant_barcode) {
-                            xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[k] )]++;
+                    if (mutationsForThisGene != undefined) {
+                        for(let i = 0; i < mutationsForThisGene.length; i++) {
+                            allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); 
+                            allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode); 
                         }
                     }
+                }); 
+                if (mutationsForThisGene != undefined) {
+                    uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
+                    xCounts.length = uniqueValuesForCurrentFeature.length;
+                    for(let i = 0; i < xCounts.length; i++) {
+                        xCounts[i] = 0;
+                    }
+                    for(let i = 0; i < allClinicalData.length; i++) {
+                        for(let k = 0; k < allVariantClassifications.length; k++) {
+                            let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
+                            if(trimmedCurrentBarcode == allClinicalData[i].tcga_participant_barcode) {
+                                xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[k] )]++;
+                            }
+                        }
+                    }
+
+                    let numWildType = 0;
+                    for(let i = 0; i < allClinicalData.length; i++) {
+                        for(let k = 0; k < allVariantClassifications.length; k++) {
+                            let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
+                            if(trimmedCurrentBarcode != allClinicalData[i].tcga_participant_barcode) {
+                                numWildType++;
+                            }
+                        }
+                    }
+                    uniqueValuesForCurrentFeature.push("wild-type");
+                    xCounts.push(numWildType);    
+
+                } else {
+                    for(let i = 0; i < allClinicalData.length; i++) {
+                        uniqueValuesForCurrentFeature.push("wild-type");
+                    }
+                    xCounts = allClinicalData.length;
                 }
 
             // if current feature is clinical (i.e., not a gene)
             } else {
-
                 for(let i = 0; i < allClinicalData.length; i++) 
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
-
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
-
                 xCounts.length = uniqueValuesForCurrentFeature.length;
                 for(let i = 0; i < xCounts.length; i++)
                     xCounts[i] = 0;
-
                 console.log(allClinicalData[0][currentFeature]) // i.e., ~first~ patient's ethnicity
                 for(let i = 0; i < allClinicalData.length; i++) 
                     for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++) 
                         if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
                             xCounts[k]++;
-
             }
-
-            console.log(uniqueValuesForCurrentFeature)
-            console.log(xCounts);
         
             var data = [{
                 values: xCounts,
