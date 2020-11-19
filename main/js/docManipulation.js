@@ -26,9 +26,9 @@ removeDiv = function() {
       i++;
     } else {
       continueBool = false;
-    };
-  };
-};
+    }
+  }
+}
 
 // Function to remove the current svg elements if they exist:
 removeSVGelements = function() {
@@ -48,17 +48,16 @@ removeSVGelements = function() {
           break;  
       }
     }  
-  };
-};
+  }
+}
 
 // Function to remove the tooltip div elements if they exist:
 removeTooltipElements = function () {
   let collection = document.getElementsByClassName('tooltip');
-
   for (let i = 0, len = collection.length || 0; i < len; i = i + 1) {
     collection[0].remove();
   }
-};
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +77,7 @@ removeTooltipElements = function () {
 function setExampleVars() {
   // Select example values:
   $('.cancerTypeMultipleSelection').val(['PAAD']);
-  $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
+  $('.clinicalMultipleSelection').val(['ethnicity', 'KRAS', 'EGFR', 'TP53']);
 
   // Trigger the change:
   $('.cancerTypeMultipleSelection').trigger('change');
