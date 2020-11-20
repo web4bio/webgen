@@ -345,7 +345,7 @@ buildViolinPlot = async function(cohortQuery, data){
                       (margin.top + ySpacing*index*0.25) + ")");
 
     // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
+    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, []);
   }
 };
 
@@ -431,12 +431,17 @@ rebuildPlot = function(svgId)
         .attr("indepVars", indepVars)
         .attr("cohort", cohort)
         .append("g")
+        .attr("id", svgId+"Position")
         .attr("transform", position);
 
-  
+  //Get the fields specified in the partition select box
+  var selectBox = document.getElementById("violinPlot" + svgId.charAt(svgId.length-1) + "Partition");
+  var facetFields = [...selectBox.options]
+                      .filter(option => option.selected)
+                      .map(option => option.value);
   //Rebuild violin plot
   createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), 
-                    svgObj, cohort, "gender");
+                    svgObj, cohort, facetFields);
 };
 
 // // Function to check that the user input cohort list is valid:

@@ -7,10 +7,9 @@
 // svgObject is the object on the html page to build the plot
  
 createViolinPlot = async function(indepVarType, indepVars, dataInput, 
-    svgObject, curCohort, facetByField) {
+    svgObject, curCohort, facetByFields) {
 
     let clinicalData = JSON.parse(sessionStorage.getItem("clinicalDataQuery"));
-    console.log(clinicalData);
     //Remove previous contents of svgObject if there are any
     /*
     while (svgObject.lastChild) 
@@ -46,27 +45,42 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
 
     var myGroups;
     //Add new field to data for purpose of creating keys and populating myGroups
-    if(facetByField != null)
+    if(facetByFields.length > 0)
     {
         //var dataToMerge = clinicalData;
         //datatoMerge = dataToMerge.map(({tcga_participant_barcode, dataToMerge[0][facetByField]}) => ({tcga_participant_barcode, dataToMerge[0][facetByField]}))
         
         for(var i = 0; i < dataInput.length; i++)
         {
+            //Get matching index in clinicalData for current patient index in dataInput
             var clinicalDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
+         
             if(clinicalDataIndex >= 0)
             {
-                dataInput[i][facetByField] = clinicalData[clinicalDataIndex][facetByField];
-                dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (" + 
-                                                dataInput[i][facetByField] + ")";
+                var keyToFacetBy = dataInput[i].gene + " (";
+                //Iterate over the clinical fields to facet by to create keyToFacetBy
+                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++)
+                {
+                    //Append additional JSON field to data for the purpose of creating a key to facet by
+                    clinicalField = facetByFields[fieldIndex];
+                    //dataInput[i][clinicalField] = clinicalData[clinicalDataIndex][clinicalField];
+                    keyToFacetBy += clinicalData[clinicalDataIndex][clinicalField] 
+                    if(fieldIndex < facetByFields.length-1)
+                    {
+                        keyToFacetBy += " ";
+                    }
+                }
+                keyToFacetBy += ")";
+                dataInput[i]["facetByFieldKey"] = keyToFacetBy;
             }
 
             else
             {
-                dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (null)";
+                dataInput[i]["facetByFieldKey"] = dataInput[i].gene + " (NA)";
             }
 
         }
+
         myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
     }
     else
@@ -75,8 +89,6 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
     }
 
     console.log(dataInput);
-
-    var numOfGroups = myGroups.length;
 
     // Helper function to sort genes by median expression:
     function compareGeneExpressionMedian(a,b) {
@@ -89,7 +101,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
     };
 
     // Sort myGroups by median expression:
-    if(facetByField == null)
+    if(facetByFields.length == 0)
         myGroups.sort((a,b) => compareGeneExpressionMedian(a,b));
     else
         myGroups.sort();
@@ -143,6 +155,8 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
     svgObject.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
+        .selectAll(".tick text")
+        .call(wrap, x.bandwidth());
 
     svgObject.append("text")             
         .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 30) + ")")
@@ -172,7 +186,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
         .key(function(d) 
         {
-            if(facetByField == null)  
+            if(facetByFields.length == 0)  
             {
                 return d.gene;
             }
@@ -202,7 +216,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput,
 
         // Add statisitc info for each group:
         var currentExpressionArray
-        if(facetByField == null)
+        if(facetByFields.length == 0)
         {
             currentExpressionArray = d3.map(dataInput.filter(x => x.gene == sumstat[i].key), function(d){return d.expression_log2;}).keys();
         }
@@ -449,6 +463,35 @@ function findMatchByTCGABarcode(patient, clinicalData)
 
     return -1;
 }
+
+//Helper function to create multi-line x-axis labels
+function wrap(text, width) 
+{
+    text.each(function() 
+    {
+      var text = d3.select(this),
+          words = text.text().split(/\s+/).reverse(),
+          word,
+          line = [],
+          lineNumber = 0,
+          lineHeight = 1.1, // ems
+          y = text.attr("y"),
+          dy = parseFloat(text.attr("dy")),
+          tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+      while (word = words.pop()) 
+      {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width) 
+        {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+        }
+      }
+    });
+  }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
