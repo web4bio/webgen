@@ -9,7 +9,7 @@ let buildDataExplorePlots = async function() {
     console.log(mySelectedClinicalFeatures);
 
     if(mySelectedClinicalFeatures.length == 0) {
-
+        document.getElementById('dataexploration').innerHTML = ""
     } else {
 
         document.getElementById('dataexploration').innerHTML = "";
