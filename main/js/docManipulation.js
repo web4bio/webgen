@@ -77,6 +77,15 @@ removeTooltipElements = function () {
   }
 };
 
+removeHeatmapsAndViolins = function(){
+  let heatmapDiv = document.getElementById("heatmapRef");
+  heatmapDiv.innerHTML = "";
+  let violinDiv = document.getElementById("violinPlotRef");
+  violinDiv.innerHTML = "";
+};
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////// Div/SVG Manipulation (above) ////////////////////////////////////////////////////////////
@@ -123,19 +132,24 @@ let buildPlots = async function() {
   
   let dataToPlotInfo;
 
+  removeHeatmapsAndViolins();
   // Reset page formatting:
-  document.getElementById('heatmapDiv0').innerHTML = "";
-  document.getElementById('svgViolinDiv0').innerHTML = "";
-  
+  // document.getElementById('heatmapDiv0').innerHTML = "";
+  // document.getElementById('svgViolinDiv0').innerHTML = "";
+
+  let heatDiv = addDivInsdie("heatmapDiv0", "heatmapRef");
+  var violinDiv = addDivInsdie("svgViolinDiv0", "violinPlotRef");
+  violinDiv.setAttribute('align', 'center');
+
   // Remove existing div and svg elements if they're there:
-  removeDiv();
-  removeSVGelements();
-  removeTooltipElements();
-  removeViolinButtons();
+  // removeDiv();
+  // removeSVGelements();
+  // removeTooltipElements();
+  // removeViolinButtons();
 
   // Display loader:
-  document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
-  document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
+  heatDiv.className = 'loader';                       // Create the loader.
+  violinDiv.className = 'loader';                     // Create the loader.
 
   // Get gene query and cohort query values from select2 box:
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
@@ -305,7 +319,7 @@ buildViolinPlot = async function(cohortQuery, data){
     rebuildButton.addEventListener("click", function()
     {
       //Change function call to add the parameter of the values specified in the partition select box
-      rebuildPlot(violinDiv);
+      rebuildPlot(data, violinDiv);
     });
     violinDiv.append(rebuildButton);
 
@@ -374,7 +388,7 @@ showWarning = function(emptyGeneArray_arg) {
 
 //Rebuilds violin plot only at the moment. Will be updated to
 //differentiate between the different types of plots.
-rebuildPlot = function(violinDiv)
+rebuildPlot = function(data, violinDiv)
 {
 
   //get the number of the div to find the rest of the elements
@@ -394,8 +408,7 @@ rebuildPlot = function(violinDiv)
 
   
   //Rebuild violin plot
-  createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), 
-                    violinDiv, cohort, "gender");
+  createViolinPlot(indepVarType, indepVars, data, violinDiv, cohort, "gender");
 };
 
 // // Function to check that the user input cohort list is valid:
