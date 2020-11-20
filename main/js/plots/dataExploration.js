@@ -1,4 +1,6 @@
 let clinicalValues = [];
+let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+'#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 let buildDataExplorePlots = async function() {
 
     function onlyUnique(value, index, self) {
@@ -78,13 +80,22 @@ let buildDataExplorePlots = async function() {
                     slice = data.points[i].label;
                 }
                 if(clinicalValues[currentFeature] != null){
-                    clinicalValues[currentFeature].push(slice);
+                    if(clinicalValues[currentFeature].findIndex(element => element == slice) != -1){
+                        colore[pts] = sliceColors[pts];
+                        clinicalValues[currentFeature].pop(slice);
+                    }
+                    else{
+                        clinicalValues[currentFeature].push(slice);
+                        colore[pts] = '#FFF34B';
+                    }
                 }
-                else
+                else{
                     clinicalValues[currentFeature] = [slice];
-                
+                    colore[pts] = '#FFF34B';
+                    console.log(clinicalValues[currentFeature].findIndex(element => element == slice));
+                }
                 console.log(clinicalValues);
-                colore[pts] = '#FFF34B';
+                console.log(sliceColors[pts]);
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn]);
