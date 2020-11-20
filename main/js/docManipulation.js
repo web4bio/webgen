@@ -15,6 +15,16 @@ addDiv = function(newDivID, oldDivID) {
   document.getElementById(oldDivID).after(newDiv); 
 }
 
+//Useful or adding div inside a div.
+//Currently being used for violins
+addDivInsdie = function(newDivID, parentDivID){
+  let newDiv = document.createElement("div");
+  newDiv.setAttribute('id', newDivID);
+  newDiv.setAttribute("style", "margin-top:25px");
+  document.getElementById(parentDivID).appendChild(newDiv); 
+  return newDiv;
+}
+
 // Function to remove the current div elements if they exist:
 removeDiv = function() {
   let i = 1;
@@ -67,6 +77,15 @@ removeTooltipElements = function () {
   }
 };
 
+removeHeatmapsAndViolins = function(){
+  let heatmapDiv = document.getElementById("heatmapRef");
+  heatmapDiv.innerHTML = "";
+  let violinDiv = document.getElementById("violinPlotRef");
+  violinDiv.innerHTML = "";
+};
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////// Div/SVG Manipulation (above) ////////////////////////////////////////////////////////////
@@ -113,19 +132,24 @@ let buildPlots = async function() {
   
   let dataToPlotInfo;
 
+  removeHeatmapsAndViolins();
   // Reset page formatting:
-  document.getElementById('heatmapDiv0').innerHTML = "";
-  document.getElementById('svgViolinDiv0').innerHTML = "";
-  
+  // document.getElementById('heatmapDiv0').innerHTML = "";
+  // document.getElementById('svgViolinDiv0').innerHTML = "";
+
+  let heatDiv = addDivInsdie("heatmapDiv0", "heatmapRef");
+  var violinDiv = addDivInsdie("svgViolinDiv0", "violinPlotRef");
+  violinDiv.setAttribute('align', 'center');
+
   // Remove existing div and svg elements if they're there:
-  removeDiv();
-  removeSVGelements();
-  removeTooltipElements();
-  removeViolinButtons();
+  // removeDiv();
+  // removeSVGelements();
+  // removeTooltipElements();
+  // removeViolinButtons();
 
   // Display loader:
-  document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
-  document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
+  heatDiv.className = 'loader';                       // Create the loader.
+  violinDiv.className = 'loader';                     // Create the loader.
 
   // Get gene query and cohort query values from select2 box:
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
@@ -239,42 +263,6 @@ buildHeatmap = async function(cohortQuery, data){
     let numCohorts = myCohorts.length;
     //Spacing between plots
     let ySpacing = margin.top;
-
-    // Append an svg object for each cohort to create a violin plot for
-    /*
-    for(var index = 0; index < numCohorts; index++)
-    {
-      //Define the current cohort to create the violin plot for
-      let curCohort = myCohorts[index];
-      let plotId = `svgViolinPlot${index}`;
-
-      let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", plotId)
-        .attr("indepVarType", "cohort")
-        .attr("indepVars", cohortQuery)
-        .attr("cohort", curCohort)
-        .append("g")
-        .attr("id", `svgViolinPlot${index}Position`)
-        .attr("transform",
-            "translate(" + (margin.left-20) + "," + 
-                        (margin.top + ySpacing*index*0.25) + ")");
-      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
-      console.log("Violin Plot created with proper constructor!");
-      //Create button that facets the specific violin curve being generated
-      var button = document.createElement("button");
-      button.innerHTML = "Facet Violin Curves by Gender";
-      button.id = `BTNViolinPlot${index}`;
-      button.className = "BTNViolinPlots";
-      //var paramOne = plotId;
-      button.addEventListener("click", function(){
-        //rebuildPlot(`svgViolinPlot${index}`, button.id);
-        rebuildPlot(plotId);
-      });
-      var body = document.getElementById("violinPlotRef");
-      body.appendChild(button);
-    }
-    */
   };
 
 buildViolinPlot = async function(cohortQuery, data){
@@ -301,9 +289,12 @@ buildViolinPlot = async function(cohortQuery, data){
   {
     //Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
-    let plotId = `svgViolinPlot${index}`;
-    var violinDiv = document.getElementById("violinPlotRef");
+    
+    //Create a new div for each cohort
+    var violinDiv = addDivInsdie(`ViolinDiv${index}`, "violinPlotRef");
 
+
+    //Building the selector for each violin plot for faceting
     $('.clinicalMultipleSelection').select2({
       placeholder: "Clinical feature(s) to partition by"
     });
@@ -328,24 +319,12 @@ buildViolinPlot = async function(cohortQuery, data){
     rebuildButton.addEventListener("click", function()
     {
       //Change function call to add the parameter of the values specified in the partition select box
-      rebuildPlot(plotId);
+      rebuildPlot(violinDiv);
     });
-    document.getElementById("violinPlotRef").append(rebuildButton);
-
-    let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-      .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-      .attr("id", plotId)
-      .attr("indepVarType", "cohort") //The attributes added on this line and the lines below are used when rebuilding the plot
-      .attr("indepVars", cohortQuery)
-      .attr("cohort", curCohort)
-      .append("g")
-      .attr("id", `svgViolinPlot${index}Position`)
-      .attr("transform",
-          "translate(" + (margin.left-20) + "," + 
-                      (margin.top + ySpacing*index*0.25) + ")");
+    violinDiv.append(rebuildButton);
 
     // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, []);
+    createViolinPlot('cohort', cohortQuery, data, violinDiv, curCohort, []);
   }
 };
 
@@ -409,30 +388,23 @@ showWarning = function(emptyGeneArray_arg) {
 
 //Rebuilds violin plot only at the moment. Will be updated to
 //differentiate between the different types of plots.
-rebuildPlot = function(svgId)
+rebuildPlot = function(violinDiv)
 {
+
+  //get the number of the div to find the rest of the elements
+  let divNum = violinDiv.id.replace("ViolinDiv", "");
+  let svgId = "svgViolinPlot" + divNum;
+
   //Get necessary paramters to pass into createViolinPlot()
   //and to rebuild the svg object
   var svgObj = document.getElementById(svgId);
   var indepVarType = svgObj.getAttribute("indepVarType");
   var indepVars = svgObj.getAttribute("indepVars");
   var cohort = svgObj.getAttribute("cohort");
-  var position = document.getElementById(svgId+"Position")
-        .getAttribute("transform");
 
   //Remove svgObj from HTML page
   d3.select("#"+svgId).remove();
-
-  //Add svgObj back to the page with the same x, y positioning
-  svgObj = d3.select("#violinPlotRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", svgId)
-        .attr("indepVarType", indepVarType)
-        .attr("indepVars", indepVars)
-        .attr("cohort", cohort)
-        .append("g")
-        .attr("id", svgId+"Position")
-        .attr("transform", position);
+  d3.select("#"+"tooltip"+divNum).remove();
 
   //Get the fields specified in the partition select box
   var selectBox = document.getElementById("violinPlot" + svgId.charAt(svgId.length-1) + "Partition");
@@ -440,8 +412,7 @@ rebuildPlot = function(svgId)
                       .filter(option => option.selected)
                       .map(option => option.value);
   //Rebuild violin plot
-  createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), 
-                    svgObj, cohort, facetFields);
+  createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), violinDiv, cohort, facetFields);
 };
 
 // // Function to check that the user input cohort list is valid:
