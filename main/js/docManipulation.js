@@ -124,28 +124,49 @@ let buildPlots = async function() {
   // Fetch RNA sequence data
   let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
   
+  // Get ALL barcodes from selected pie sectors
   let clickedGenes = Object.keys(clickedSlices);
-
-  let currentFilteredBarcodes_allData;
-  let currentFilteredBarcodes_onlyBarcodes;
-  let finalFilteredBarcodes = [];
+  let concatFilteredBarcodes = [];
   for(let i = 0; i < clickedGenes.length; i++) {
-    for(let j = 0; j < clickedSlices[clickedGenes[i]].length; j++) {
-      await getAllVariantClassifications(clickedGenes[i]).then(function(result) {
-        me = result;
-        currentFilteredBarcodes_allData = me.filter(person => (person.Hugo_Symbol == clickedGenes[i]) && person.Variant_Classification == clickedSlices[clickedGenes[i]][j]);
-        console.log(currentFilteredBarcodes_allData)
-        currentFilteredBarcodes_onlyBarcodes = currentFilteredBarcodes_allData.map(x => x.Tumor_Sample_Barcode);
-        currentFilteredBarcodes_onlyBarcodes.forEach(x => finalFilteredBarcodes.push(x));
+    let currentGene = clickedGenes[i];
+    for(let j = 0; j < clickedSlices[currentGene].length; j++) {
+      let currentMutation = clickedSlices[currentGene][j];
+      // get ALL mutation data for current gene of the selected genes
+      // this function grabs cancer type from selector automatically
+      await getAllVariantClassifications(currentGene).then(function(result) {
+        let allData = result.filter(person => (person.Hugo_Symbol == currentGene) && (person.Variant_Classification == currentMutation));
+        // barcodes for current gene and mutation
+        let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
+        concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = onlyBarcodes;
       })
     }
   }
 
+  console.log(concatFilteredBarcodes)
+  
+  // Get intersection of barcodes from selected pie sectors
+  let clickedGene_Mutation = Object.keys(concatFilteredBarcodes);
   let trimmedFinalFilteredBarcodes = [];
-  for(let i = 0; i < finalFilteredBarcodes.length; i++) {
-    trimmedFinalFilteredBarcodes.push(finalFilteredBarcodes[i].slice(0,12));
+  if(clickedGene_Mutation.length <= 1) {
+    let currentGene = clickedGene_Mutation[0];
+    let barcodesForCurrentGene = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
+    for(let i = 0; i < barcodesForCurrentGene.length; i++) {
+      trimmedFinalFilteredBarcodes.push(barcodesForCurrentGene[i].slice(0,12));
+    }
+  } else {
+    for(let i = 0; i < clickedGene_Mutation.length - 1; i++) {
+      let currentGene = clickedGene_Mutation[i];
+      let nextGene = clickedGene_Mutation[i + 1];
+      let barcodesForCurrentGene = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
+      let barcodesForNextGene = concatFilteredBarcodes[nextGene];
+      let finalFilteredBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
+      for(let i = 0; i < finalFilteredBarcodes.length; i++) {
+        trimmedFinalFilteredBarcodes.push(finalFilteredBarcodes[i].slice(0,12));
+      }
+    }  
   }
 
+  // Filter expression data based on intersection of barcodes
   let data = [];
   for(let i = 0; i < trimmedFinalFilteredBarcodes.length; i++) {
     for(let j = 0; j < expressionData.length; j++) {

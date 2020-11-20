@@ -14,7 +14,6 @@ let buildDataExplorePlots = async function() {
     }
 
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-    console.log(mySelectedClinicalFeatures);
 
     if(mySelectedClinicalFeatures.length == 0) {
 
