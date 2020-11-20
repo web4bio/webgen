@@ -15,6 +15,16 @@ addDiv = function(newDivID, oldDivID) {
   document.getElementById(oldDivID).after(newDiv); 
 }
 
+//Useful or adding div inside a div.
+//Currently being used for violins
+addDivInsdie = function(newDivID, parentDivID){
+  let newDiv = document.createElement("div");
+  newDiv.setAttribute('id', newDivID);
+  newDiv.setAttribute("style", "margin-top:25px");
+  document.getElementById(parentDivID).appendChild(newDiv); 
+  return newDiv;
+}
+
 // Function to remove the current div elements if they exist:
 removeDiv = function() {
   let i = 1;
@@ -239,42 +249,6 @@ buildHeatmap = async function(cohortQuery, data){
     let numCohorts = myCohorts.length;
     //Spacing between plots
     let ySpacing = margin.top;
-
-    // Append an svg object for each cohort to create a violin plot for
-    /*
-    for(var index = 0; index < numCohorts; index++)
-    {
-      //Define the current cohort to create the violin plot for
-      let curCohort = myCohorts[index];
-      let plotId = `svgViolinPlot${index}`;
-
-      let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-        .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-        .attr("id", plotId)
-        .attr("indepVarType", "cohort")
-        .attr("indepVars", cohortQuery)
-        .attr("cohort", curCohort)
-        .append("g")
-        .attr("id", `svgViolinPlot${index}Position`)
-        .attr("transform",
-            "translate(" + (margin.left-20) + "," + 
-                        (margin.top + ySpacing*index*0.25) + ")");
-      createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort, null);
-      console.log("Violin Plot created with proper constructor!");
-      //Create button that facets the specific violin curve being generated
-      var button = document.createElement("button");
-      button.innerHTML = "Facet Violin Curves by Gender";
-      button.id = `BTNViolinPlot${index}`;
-      button.className = "BTNViolinPlots";
-      //var paramOne = plotId;
-      button.addEventListener("click", function(){
-        //rebuildPlot(`svgViolinPlot${index}`, button.id);
-        rebuildPlot(plotId);
-      });
-      var body = document.getElementById("violinPlotRef");
-      body.appendChild(button);
-    }
-    */
   };
 
 buildViolinPlot = async function(cohortQuery, data){
@@ -302,7 +276,8 @@ buildViolinPlot = async function(cohortQuery, data){
     //Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
     let plotId = `svgViolinPlot${index}`;
-    var violinDiv = document.getElementById("violinPlotRef");
+    let violinDivID = `ViolinDiv${index}`;
+    var violinDiv = addDivInsdie(violinDivID, "violinPlotRef");
 
     $('.clinicalMultipleSelection').select2({
       placeholder: "Clinical feature(s) to partition by"
@@ -330,9 +305,9 @@ buildViolinPlot = async function(cohortQuery, data){
       //Change function call to add the parameter of the values specified in the partition select box
       rebuildPlot(plotId);
     });
-    document.getElementById("violinPlotRef").append(rebuildButton);
+    violinDiv.append(rebuildButton);
 
-    let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
+    let svgViolinPlot = d3.select(violinDiv).append("svg")
       .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
       .attr("id", plotId)
       .attr("indepVarType", "cohort") //The attributes added on this line and the lines below are used when rebuilding the plot
