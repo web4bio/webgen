@@ -73,24 +73,8 @@ let buildDataExplorePlots = async function() {
 
                     // if mutations do NOT exist for this gene (i.e., if the gene is wild-type)
                     } else {
-                            // [how many people are wild type for this gene] = [all patients in selected cohort(s)] - [all patients  with mutations in selected gene in selected cohort(s)])
-                            let numWildType = 0;
-                            for(let i = 0; i < allClinicalData.length; i++) {
-                                for(let k = 0; k < allVariantClassifications.length; k++) {
-                                    let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
-                                    if(trimmedCurrentBarcode != allClinicalData[i].tcga_participant_barcode) {
-                                        numWildType++;
-                                    }
-                                }
-                            }
-                            uniqueValuesForCurrentFeature.push("wild-type");
-                            xCounts.push(numWildType);
-
-                            for(let i = 0; i < allClinicalData.length; i++) {
-                                uniqueValuesForCurrentFeature.push("wild-type");
-                            }
-                            xCounts = allClinicalData.length;
-                        
+                        uniqueValuesForCurrentFeature.push("Wild_Type");  
+                        xCounts.push(totalNumberBarcodes);
                     }
                 });
 
