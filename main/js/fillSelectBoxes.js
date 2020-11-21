@@ -39,7 +39,6 @@ let fillCancerTypeSelectBox = async function() {
 
 let fetchNumberSamples = async function() {
     let myCohort = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-    console.log(myCohort)
     const hosturl = 'https://firebrowse.herokuapp.com';
     const endpointurl='http://firebrowse.org/api/v1/Metadata/Counts'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
     const endpointurl_presets = {

@@ -9,6 +9,14 @@ let clickedSlices = [];
 
 let buildDataExplorePlots = async function() {
 
+    // get total number of barcodes for selected cancer type(s)
+    let dataFetched = await fetchNumberSamples();
+    let countQuery = dataFetched.Counts;
+    let totalNumberBarcodes = 0;
+    for(let i = 0; i < countQuery.length; i++) {
+        totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
+    console.log(totalNumberBarcodes)
+
     function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
     }
@@ -22,6 +30,7 @@ let buildDataExplorePlots = async function() {
         // clear all previous plots that were displayed
         document.getElementById('dataexploration').innerHTML = "";
 
+        // loop through each selected clinical feature
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
             let currentFeature = mySelectedClinicalFeatures[i];
@@ -31,53 +40,62 @@ let buildDataExplorePlots = async function() {
             let xCounts = [];
 
             // if current feature is a gene
+            // get values and labels for this feature
             if(currentFeature[0] === currentFeature[0].toUpperCase()) {
+
+                let currentGeneSelected = currentFeature;
                 let allVariantClassifications = [];
                 let allBarcodes = []; // barcodes that correspond to a mutation
-                await getAllVariantClassifications(currentFeature).then(function(result) {
+                await getAllVariantClassifications(currentGeneSelected).then(function(result) { // get all mutations that exist for this gene and cancer type
+                    
                     mutationsForThisGene = result;
-                    if (mutationsForThisGene != undefined) {
+
+                    // if mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
+                    if (mutationsForThisGene != undefined) { 
                         for(let i = 0; i < mutationsForThisGene.length; i++) {
-                            allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); 
-                            allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode); 
+                            allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); // add all variant classifications (with duplicates) to the array
+                            allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode);   // add all associated barcodes to the array
                         }
-                    }
-                }); 
-                if (mutationsForThisGene != undefined) {
-                    uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
-                    xCounts.length = uniqueValuesForCurrentFeature.length;
-                    for(let i = 0; i < xCounts.length; i++) {
-                        xCounts[i] = 0;
-                    }
-                    for(let i = 0; i < allClinicalData.length; i++) {
+                        uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
+                        xCounts.length = uniqueValuesForCurrentFeature.length;
+                        for(let i = 0; i < xCounts.length; i++)
+                            xCounts[i] = 0;
+                        let totalNumberMutations = 0;
                         for(let k = 0; k < allVariantClassifications.length; k++) {
-                            let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
-                            if(trimmedCurrentBarcode == allClinicalData[i].tcga_participant_barcode) {
-                                xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[k] )]++;
-                            }
+                            xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[k] )]++;
+                            totalNumberMutations++;
                         }
-                    }
 
-                    let numWildType = 0;
-                    for(let i = 0; i < allClinicalData.length; i++) {
-                        for(let k = 0; k < allVariantClassifications.length; k++) {
-                            let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
-                            if(trimmedCurrentBarcode != allClinicalData[i].tcga_participant_barcode) {
-                                numWildType++;
-                            }
+                        if(totalNumberMutations < totalNumberBarcodes) {
+                            uniqueValuesForCurrentFeature[uniqueValuesForCurrentFeature.length] = "Wild_Type"
+                            xCounts[xCounts.length] = totalNumberBarcodes - totalNumberMutations;
                         }
-                    }
-                    uniqueValuesForCurrentFeature.push("wild-type");
-                    xCounts.push(numWildType);    
 
-                } else {
-                    for(let i = 0; i < allClinicalData.length; i++) {
-                        uniqueValuesForCurrentFeature.push("wild-type");
+                    // if mutations do NOT exist for this gene (i.e., if the gene is wild-type)
+                    } else {
+                            // [how many people are wild type for this gene] = [all patients in selected cohort(s)] - [all patients  with mutations in selected gene in selected cohort(s)])
+                            let numWildType = 0;
+                            for(let i = 0; i < allClinicalData.length; i++) {
+                                for(let k = 0; k < allVariantClassifications.length; k++) {
+                                    let trimmedCurrentBarcode = allBarcodes[k].slice(0, 12);
+                                    if(trimmedCurrentBarcode != allClinicalData[i].tcga_participant_barcode) {
+                                        numWildType++;
+                                    }
+                                }
+                            }
+                            uniqueValuesForCurrentFeature.push("wild-type");
+                            xCounts.push(numWildType);
+
+                            for(let i = 0; i < allClinicalData.length; i++) {
+                                uniqueValuesForCurrentFeature.push("wild-type");
+                            }
+                            xCounts = allClinicalData.length;
+                        
                     }
-                    xCounts = allClinicalData.length;
-                }
+                });
 
             // if current feature is clinical (i.e., not a gene)
+            // get values and labels for this feature
             } else {
                 for(let i = 0; i < allClinicalData.length; i++) 
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
@@ -159,4 +177,4 @@ let buildDataExplorePlots = async function() {
     }
 
 
-}
+}}
