@@ -6,6 +6,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 let clickedSlices = [];
+let clinicalValues = [];
+let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+'#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
 let buildDataExplorePlots = async function() {
 
@@ -24,7 +27,7 @@ let buildDataExplorePlots = async function() {
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
 
     if(mySelectedClinicalFeatures.length == 0) {
-
+        document.getElementById('dataexploration').innerHTML = ""
     } else {
 
         // clear all previous plots that were displayed
@@ -144,13 +147,23 @@ let buildDataExplorePlots = async function() {
                     colore = data.points[i].data.marker.colors;
                     slice = data.points[i].label;
                 }
-                if(clickedSlices[currentFeature] != null){
-                    clickedSlices[currentFeature].push(slice);
+                if(clinicalValues[currentFeature] != null){
+                    if(clinicalValues[currentFeature].findIndex(element => element == slice) != -1){
+                        colore[pts] = sliceColors[pts];
+                        clinicalValues[currentFeature].pop(slice);
+                    }
+                    else{
+                        clinicalValues[currentFeature].push(slice);
+                        colore[pts] = '#FFF34B';
+                    }
                 }
-                else
-                    clickedSlices[currentFeature] = [slice];
-                
-                colore[pts] = '#FFF34B';
+                else{
+                    clinicalValues[currentFeature] = [slice];
+                    colore[pts] = '#FFF34B';
+                    console.log(clinicalValues[currentFeature].findIndex(element => element == slice));
+                }
+                console.log(clinicalValues);
+                console.log(sliceColors[pts]);
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
