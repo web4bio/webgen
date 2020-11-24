@@ -7,14 +7,14 @@ createHeatmap = async function (dataInput, divObject) {
 
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of genes called 'myVars'
-    let myGroups = d3.map(dataInput, d => d.tcga_participant_barcode ).keys();
-    let myVars = d3.map(dataInput, d => d.gene ).keys();
+    let myGroups = d3.map(dataInput, d => d.tcga_participant_barcode).keys();
+    let myVars = d3.map(dataInput, d => d.gene).keys();
 
     // Get unique cohort IDs (for title)
-    const cohortIDs = d3.map(dataInput, d => d.cohort ).keys();
+    const cohortIDs = d3.map(dataInput, d => d.cohort).keys();
 
     // Get unique TCGA IDs
-    var unique_ids = d3.map(dataInput, d => d.tcga_participant_barcode ).keys();
+    var unique_ids = d3.map(dataInput, d => d.tcga_participant_barcode).keys();
 
     // Cluster IDs by expression:
     // 1. Merge data into wide format (for hclust algorithm)
@@ -41,7 +41,7 @@ createHeatmap = async function (dataInput, divObject) {
             // sort by mean value
             sortOrder = new Array(data_merge.length);
             for (var i = 0; i < data_merge.length; ++i) sortOrder[i] = i;
-            sortOrder.sort( (a, b) => { return means[a] > means[b] ? -1 : 1; });
+            sortOrder.sort((a, b) => { return means[a] > means[b] ? -1 : 1; });
         }
         myGroups = unique_ids;
         myGroups = sortOrder.map(i => myGroups[i]);
@@ -132,26 +132,22 @@ createHeatmap = async function (dataInput, divObject) {
 
 
     ///// Build the Axis and Color Scales Below /////
-    // Build x scale and axis for heatmap::
+    // Build x scale for heatmap
     let x = d3.scaleBand()
         .range([0, heatWidth - legendWidth])
         .domain(myGroups);
 
-    // Build y scale and axis for heatmap:
+    // Build y scale for heatmap
     let y = d3.scaleBand()
-        .range([heatHeight, 0])
+        .range([0, heatHeight])
         .domain(myVars);
 
-    // Define minZ and maxZ for the color interpolator (this may become a user defined value later on):
+    // Define minZ and maxZ for the color interpolator
     let minZ = -2,
         maxZ = 2;
 
-    // Position scale for the legend:
+    // Position scale for the legend
     let zScale = d3.scaleLinear().domain([minZ, maxZ]).range([heatHeight, 0]);
-    let legendAxis = d3.axisRight()
-        .scale(zScale)
-        .tickSize(5)
-        .ticks(5);
 
     // Create zArr array to build legend:
     let zArr = [];
@@ -163,8 +159,8 @@ createHeatmap = async function (dataInput, divObject) {
     // Build color scale for gene expression (z-score)
     let interpolateRdBkGn = d3.interpolateRgbBasis(["blue", "white", "red"])
     let myColor = d3.scaleSequential()
-        .interpolator(interpolateRdBkGn)    // A different d3 interpolator can be used here for a different color gradient
-        .domain([minZ, maxZ]);              // This domain scale will change the coloring of the heatmap.
+        .interpolator(interpolateRdBkGn) // d3 interpolated color gradient
+        .domain([minZ, maxZ]);
 
 
     // Declare data structures for dendrogram layout
@@ -182,10 +178,8 @@ createHeatmap = async function (dataInput, divObject) {
     // Three functions that change the tooltip when user hover / move / leave a cell
     let mouseover = function (d) {
         // Make tooltip appear and color heatmap object black
-        tooltip
-            .style("opacity", 1);
-        d3.select(this)
-            .style("fill", "black");
+        tooltip.style("opacity", 1);
+        d3.select(this).style("fill", "black");
         // Make dendrogram path bold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
         svg_dendrogram.selectAll('path')
@@ -195,27 +189,24 @@ createHeatmap = async function (dataInput, divObject) {
     const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
     let mousemove = function (d) {
         // Print data to tooltip from hovered-over heatmap element d
-        tooltip
-            .html("\xa0\xa0" +
-                "Cohort: " + d.cohort + spacing +
-                "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
-                "Gene: " + d.gene + spacing +
-                "Expression Level (log2): " + d.expression_log2.toFixed(5) + spacing +
-                "Expression Z-Score: " + d["z-score"].toFixed(5))
+        tooltip.html("\xa0\xa0" +
+            "Cohort: " + d.cohort + spacing +
+            "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
+            "Gene: " + d.gene + spacing +
+            "Expression Level (log2): " + d.expression_log2.toFixed(5) + spacing +
+            "Expression Z-Score: " + d["z-score"].toFixed(5))
     };
     let mouseleave = function (d) {
         // Make tooltip disappear and heatmap object return to z-score color
-        tooltip
-            .style("opacity", 0);
-        d3.select(this)
-            .style("fill", d => myColor(d["z-score"]));
+        tooltip.style("opacity", 0);
+        d3.select(this).style("fill", d => myColor(d["z-score"]));
         // Make dendrogram path unbold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
         svg_dendrogram.selectAll('path')
             .filter(d => d.data.indexes.includes(id_ind))
             .style("stroke-width", "0.5px");
     };
-    
+
     ///// Build the Heatmap, Legend, and Dendrogram Below /////
     // Append the y-axis to the heatmap:
     svg_heatmap.append("g")
@@ -236,7 +227,7 @@ createHeatmap = async function (dataInput, divObject) {
     svg_heatmap.append("g")
         .style("font-size", 10)
         .attr("transform", "translate(" + heatWidth + ",0)")
-        .call(legendAxis);
+        .call(d3.axisRight().scale(zScale).tickSize(5).ticks(5));
 
     ///// Build the Heatmap, Legend, and Dendrogram Below /////
     function updateHeatmap() {
@@ -279,17 +270,17 @@ createHeatmap = async function (dataInput, divObject) {
             // Give dendrogram svg height and shift down heatmap
             svg_dendrogram.attr("height", dendHeight);
             svg_frame.select(".heatmap")
-                .attr("y", (margin.top + dendHeight));
+                .attr("y", margin.top + dendHeight);
             frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
 
         } else { // otherwise remove the dendrogam and shift the heatmap up
             svg_dendrogram.attr("height", 0);
             svg_frame.select(".heatmap")
-                .attr("y", (margin.top));
+                .attr("y", margin.top);
             frameHeight = margin.top + heatHeight + margin.bottom;
         }
         // apply new frameHeight (adjusting for dendrogram and # sample tracks)
-        svg_frame.attr('height',frameHeight)
+        svg_frame.attr('height', frameHeight)
     }
     updateHeatmap()
 
