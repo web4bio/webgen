@@ -160,10 +160,7 @@ let buildDataExplorePlots = async function() {
                 else{
                     clinicalValues[currentFeature] = [slice];
                     colore[pts] = '#FFF34B';
-                    console.log(clinicalValues[currentFeature].findIndex(element => element == slice));
                 }
-                console.log(clinicalValues);
-                console.log(sliceColors[pts]);
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});

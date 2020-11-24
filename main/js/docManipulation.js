@@ -123,70 +123,129 @@ let buildPlots = async function() {
 
   // Fetch RNA sequence data
   let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  // Get ALL barcodes from selected pie sectors
-  let clickedGenes = Object.keys(clickedSlices);
+  // ***** Get ALL barcodes from selected pie sectors (below) *****
+
+  // clinicalValues is an array of key value pairs for gene(s) selected and mutation(s) selected
+  let clickedGenes = Object.keys(clinicalValues);
   let concatFilteredBarcodes = [];
+
+  // LOOP THRU ALL CLICKED GENES
   for(let i = 0; i < clickedGenes.length; i++) {
+
     let currentGene = clickedGenes[i];
-    for(let j = 0; j < clickedSlices[currentGene].length; j++) {
-      let currentMutation = clickedSlices[currentGene][j];
-      // get ALL mutation data for current gene of the selected genes
-      // this function grabs cancer type from selector automatically
-      await getAllVariantClassifications(currentGene).then(function(result) {
-        let allData = result.filter(person => (person.Hugo_Symbol == currentGene) && (person.Variant_Classification == currentMutation));
-        // barcodes for current gene and mutation
-        let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
-        concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = onlyBarcodes;
-      })
-    }
+
+    await getAllVariantClassifications(currentGene).then(function(mutationData) { // get ALL mutation data for current gene of the selected genes
+
+      // LOOP THRU ALL CLICKED "MUTATIONS"
+      let clickedMutations = clinicalValues[currentGene];
+      for(let j = 0; j < clickedMutations.length; j++) {
+        let currentMutation = clickedMutations[j];
+
+        // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
+        if(currentMutation != "Wild_Type") {
+          let allData = mutationData.filter(person => (person.Hugo_Symbol == currentGene) && (person.Variant_Classification == currentMutation));
+          let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
+          let trimmedOnlyBarcodes = onlyBarcodes.map(x => x.slice(0,12));
+          concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = trimmedOnlyBarcodes;
+
+        // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
+        } else {
+
+          // IF NO MUTATIONS EXIST AT ALL FOR THE CURRENT GENE, then get the associated barcodes from mRNAseq api's data
+          if(mutationData == undefined) {
+            let allData = expressionData.filter(person => person.gene == currentGene);
+            let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
+            concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = onlyBarcodes;  
+
+          // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
+          } else {
+            
+            let allData_1 = mutationData.filter(person => person.Hugo_Symbol == currentGene);
+            let onlyBarcodes_1 = allData_1.map(x => x.Tumor_Sample_Barcode);
+            let trimmedOnlyBarcodes_1 = onlyBarcodes_1.map(x => x.slice(0,12));
+
+            allData_2 = expressionData.filter(person => person.gene == currentGene);
+            onlyBarcodes_2 = allData_2.map(x => x.tcga_participant_barcode);
+
+            let barcodesForWildType = [];
+            for(let i = 0; i < onlyBarcodes_2.length; i++)
+              if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
+                barcodesForWildType.push(onlyBarcodes_2[i]);
+            concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = barcodesForWildType;  
+          }
+        }
+      }
+    })
   }
 
-  console.log(concatFilteredBarcodes)
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // Get intersection of barcodes from selected pie sectors
-  let clickedGene_Mutation = Object.keys(concatFilteredBarcodes);
-  let trimmedFinalFilteredBarcodes = [];
-  if(clickedGene_Mutation.length <= 1) {
-    let currentGene = clickedGene_Mutation[0];
-    let barcodesForCurrentGene = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
-    for(let i = 0; i < barcodesForCurrentGene.length; i++) {
-      trimmedFinalFilteredBarcodes.push(barcodesForCurrentGene[i].slice(0,12));
-    }
+  let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
+  let intersectedBarcodes;
+
+  // If user clicked 0 or 1 gene/mutation combos, simply use these barcodes
+  if(clicked_gene_mutation.length <= 1) {
+    let currentGene = clicked_gene_mutation[0];
+    intersectedBarcodes = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
+
+  // If user clicked >1 gene/mutation combos, compute intersection
   } else {
-    for(let i = 0; i < clickedGene_Mutation.length - 1; i++) {
-      let currentGene = clickedGene_Mutation[i];
-      let nextGene = clickedGene_Mutation[i + 1];
+    for(let i = 0; i < clicked_gene_mutation.length - 1; i++) {
+      let currentGene = clicked_gene_mutation[i];
+      let nextGene = clicked_gene_mutation[i + 1];
       let barcodesForCurrentGene = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
       let barcodesForNextGene = concatFilteredBarcodes[nextGene];
-      let finalFilteredBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
-      for(let i = 0; i < finalFilteredBarcodes.length; i++) {
-        trimmedFinalFilteredBarcodes.push(finalFilteredBarcodes[i].slice(0,12));
-      }
+      intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
     }  
   }
 
-  // Filter expression data based on intersection of barcodes
-  let data = [];
-  for(let i = 0; i < trimmedFinalFilteredBarcodes.length; i++) {
-    for(let j = 0; j < expressionData.length; j++) {
-      if(expressionData[j].tcga_participant_barcode == trimmedFinalFilteredBarcodes[i])
-        data.push(expressionData[j])
-    }
+  console.log(intersectedBarcodes)
+
+  // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
+  if(intersectedBarcodes.length == 0) {
+
+    // Remove the loader
+    document.getElementById('heatmapDiv0').classList.remove('loader');
+
+    let sorryDiv = document.getElementById("sorryDiv");
+    para = document.createElement("P");
+    para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
+    para.setAttribute('id', 'noIntersectPara');        
+    para.innerText = "No patient barcodes exist for the combination of pie sectors selected.";  
+    sorryDiv.appendChild(para);
+
+  // if there IS/ARE barcode(s) at the intersection, build heatmap and violin plots
+  } else {
+
+    sorryDiv.innerHTML = "";
+
+    // Filter expression data based on intersection of barcodes
+    let data = [];
+    for(let i = 0; i < intersectedBarcodes.length; i++) 
+      for(let j = 0; j < expressionData.length; j++) 
+        if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
+          data.push(expressionData[j])
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Display Warning for any invalid genes:
+    let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
+    let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
+    if (emptyGeneArray.length > 0) {
+      // showWarning(emptyGeneArray)
+    };
+
+    // Build the heatmap
+    buildHeatmap(cohortQuery, data);
+
+    // Build the violin plots
+    buildViolinPlot(cohortQuery, data);
+    
   }
-
-  // Display Warning for any invalid genes:
-  let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
-  let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
-  if (emptyGeneArray.length > 0) {
-    // showWarning(emptyGeneArray)
-  };
-
-  // Build the heatmap
-  buildHeatmap(cohortQuery, data);
-
-  // Build the violin plots
-  buildViolinPlot(cohortQuery, data);
 
 };
 
@@ -217,9 +276,8 @@ buildViolinPlot = async function(cohortQuery, data){
   let ySpacing = margin.top;
 
   // Append an svg object for each cohort to create a violin plot for
-  for(var index = 0; index < numCohorts; index++)
-  {
-    //Define the current cohort to create the violin plot for
+  for(var index = 0; index < numCohorts; index++) {
+    // Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
 
     let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
