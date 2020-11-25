@@ -220,6 +220,7 @@ let buildPlots = async function() {
     document.getElementById('heatmapDiv0').classList.remove('loader');
 
     let sorryDiv = document.getElementById("sorryDiv");
+    sorryDiv.innerHTML = "";
     para = document.createElement("P");
     para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
     para.setAttribute('id', 'noIntersectPara');        
