@@ -149,7 +149,11 @@ let buildPlots = async function() {
           let allData = mutationData.filter(person => (person.Hugo_Symbol == currentGene) && (person.Variant_Classification == currentMutation));
           let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
           let trimmedOnlyBarcodes = onlyBarcodes.map(x => x.slice(0,12));
-          concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = trimmedOnlyBarcodes;
+          function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+          }
+          let filteredTrimmedOnlyBarcodes = trimmedOnlyBarcodes.filter(onlyUnique);
+          concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = filteredTrimmedOnlyBarcodes;
 
         // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
         } else {
@@ -184,8 +188,10 @@ let buildPlots = async function() {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // Get intersection of barcodes from selected pie sectors
+
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
   let intersectedBarcodes;
+  console.log(clicked_gene_mutation)
 
   // If user clicked 0 or 1 gene/mutation combos, simply use these barcodes
   if(clicked_gene_mutation.length <= 1) {
@@ -195,10 +201,12 @@ let buildPlots = async function() {
   // If user clicked >1 gene/mutation combos, compute intersection
   } else {
     for(let i = 0; i < clicked_gene_mutation.length - 1; i++) {
-      let currentGene = clicked_gene_mutation[i];
-      let nextGene = clicked_gene_mutation[i + 1];
-      let barcodesForCurrentGene = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
-      let barcodesForNextGene = concatFilteredBarcodes[nextGene];
+      let current_gene_mutation = clicked_gene_mutation[i];
+      let next_gene_mutation = clicked_gene_mutation[i + 1];
+      let barcodesForCurrentGene = concatFilteredBarcodes[current_gene_mutation]; // barcode(s) for selected gene mutation combo in given cancer type
+      console.log(barcodesForCurrentGene)
+      let barcodesForNextGene = concatFilteredBarcodes[next_gene_mutation];
+      console.log(barcodesForNextGene)
       intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
     }  
   }
@@ -230,14 +238,16 @@ let buildPlots = async function() {
         if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
           data.push(expressionData[j])
 
+    console.log(data)
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Display Warning for any invalid genes:
-    let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
-    let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
-    if (emptyGeneArray.length > 0) {
-      // showWarning(emptyGeneArray)
-    };
+    // let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
+    // let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
+    // if (emptyGeneArray.length > 0) {
+    //   // showWarning(emptyGeneArray)
+    // };
 
     // Build the heatmap
     buildHeatmap(cohortQuery, data);
@@ -310,25 +320,25 @@ buildViolinPlot = async function(cohortQuery, data){
 
 // Function to display the error message:
 // NOTE: errors are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
-showError = function(errorType) {
-  // Create div1 and set it to be alert class:
-  addDiv('div1','heatmapDiv0');
-  let divElement = document.getElementById('div1');
-  divElement.className = 'alert';
+// showError = function(errorType) {
+//   // Create div1 and set it to be alert class:
+//   addDiv('div1','heatmapDiv0');
+//   let divElement = document.getElementById('div1');
+//   divElement.className = 'alert';
 
-  // Creates span clone from span0 to add to div1:
-  let span = document.getElementById('span0');
-  let spanElement = span.cloneNode(true);
-  spanElement.setAttribute('id','span1');
-  divElement.appendChild(spanElement);
+//   // Creates span clone from span0 to add to div1:
+//   let span = document.getElementById('span0');
+//   let spanElement = span.cloneNode(true);
+//   spanElement.setAttribute('id','span1');
+//   divElement.appendChild(spanElement);
 
-  // Adds the error message to the div:
-  if(errorType == 'geneError') {
-    divElement.innerHTML += "Error: ".bold() + "Invalid Gene Fields for Query";
-  } else if (errorType == 'cohortError') {
-    divElement.innerHTML += "Error: ".bold() + "Invalid Cohort Fields for Query";
-  };
-};
+//   // Adds the error message to the div:
+//   if(errorType == 'geneError') {
+//     divElement.innerHTML += "Error: ".bold() + "Invalid Gene Fields for Query";
+//   } else if (errorType == 'cohortError') {
+//     divElement.innerHTML += "Error: ".bold() + "Invalid Cohort Fields for Query";
+//   };
+// };
 
 // Function to display a warning for genes that don't have mRNA-Seq data:
 // NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
