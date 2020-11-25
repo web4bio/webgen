@@ -5,7 +5,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-let clickedSlices = [];
 let clinicalValues = [];
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
@@ -18,7 +17,6 @@ let buildDataExplorePlots = async function() {
     let totalNumberBarcodes = 0;
     for(let i = 0; i < countQuery.length; i++) {
         totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
-    console.log(totalNumberBarcodes)
 
     function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
@@ -54,7 +52,7 @@ let buildDataExplorePlots = async function() {
                     mutationsForThisGene = result;
 
                     // if mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
-                    if (mutationsForThisGene != undefined) { 
+                    if(mutationsForThisGene != undefined) { 
                         for(let i = 0; i < mutationsForThisGene.length; i++) {
                             allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); // add all variant classifications (with duplicates) to the array
                             allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode);   // add all associated barcodes to the array
@@ -165,10 +163,6 @@ let buildDataExplorePlots = async function() {
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
             });
-
         }
-
     }
-
-
 }}

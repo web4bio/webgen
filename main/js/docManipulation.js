@@ -153,7 +153,10 @@ let buildPlots = async function() {
             return self.indexOf(value) === index;
           }
           let filteredTrimmedOnlyBarcodes = trimmedOnlyBarcodes.filter(onlyUnique);
-          concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = filteredTrimmedOnlyBarcodes;
+          if(concatFilteredBarcodes['' + currentGene] == undefined)
+            concatFilteredBarcodes['' + currentGene] = filteredTrimmedOnlyBarcodes;
+          else 
+            concatFilteredBarcodes['' + currentGene] += filteredTrimmedOnlyBarcodes;
 
         // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
         } else {
@@ -162,7 +165,10 @@ let buildPlots = async function() {
           if(mutationData == undefined) {
             let allData = expressionData.filter(person => person.gene == currentGene);
             let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
-            concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = onlyBarcodes;  
+            if(concatFilteredBarcodes['' + currentGene] == undefined)
+              concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
+            else
+              concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
 
           // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
           } else {
@@ -178,20 +184,20 @@ let buildPlots = async function() {
             for(let i = 0; i < onlyBarcodes_2.length; i++)
               if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
                 barcodesForWildType.push(onlyBarcodes_2[i]);
-            concatFilteredBarcodes['' + currentGene + '_' + currentMutation] = barcodesForWildType;  
+            if(concatFilteredBarcodes['' + currentGene] == undefined)
+              concatFilteredBarcodes['' + currentGene] = barcodesForWildType;  
+            else
+              concatFilteredBarcodes['' + currentGene] += barcodesForWildType;
           }
         }
       }
     })
   }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // Get intersection of barcodes from selected pie sectors
 
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
   let intersectedBarcodes;
-  console.log(clicked_gene_mutation)
 
   // If user clicked 0 or 1 gene/mutation combos, simply use these barcodes
   if(clicked_gene_mutation.length <= 1) {
@@ -204,14 +210,10 @@ let buildPlots = async function() {
       let current_gene_mutation = clicked_gene_mutation[i];
       let next_gene_mutation = clicked_gene_mutation[i + 1];
       let barcodesForCurrentGene = concatFilteredBarcodes[current_gene_mutation]; // barcode(s) for selected gene mutation combo in given cancer type
-      console.log(barcodesForCurrentGene)
       let barcodesForNextGene = concatFilteredBarcodes[next_gene_mutation];
-      console.log(barcodesForNextGene)
       intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
     }  
   }
-
-  console.log(intersectedBarcodes)
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   if(intersectedBarcodes.length == 0) {
@@ -231,36 +233,23 @@ let buildPlots = async function() {
   } else {
 
     sorryDiv.innerHTML = "";
-
     // Filter expression data based on intersection of barcodes
     let data = [];
     for(let i = 0; i < intersectedBarcodes.length; i++) 
       for(let j = 0; j < expressionData.length; j++) 
         if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
           data.push(expressionData[j])
+    data = data.filter(x => clickedGenes.includes(x.gene))
 
-    console.log(data)
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Display Warning for any invalid genes:
-    // let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
-    // let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
-    // if (emptyGeneArray.length > 0) {
-    //   // showWarning(emptyGeneArray)
-    // };
-
-    // Build the heatmap
-    buildHeatmap(cohortQuery, data);
-
-    // Build the violin plots
+    buildHeatmap(data);
     buildViolinPlot(cohortQuery, data);
     
   }
 
 };
 
-buildHeatmap = async function(cohortQuery, data){
+buildHeatmap = async function(data){
+
   // Remove the loader
   document.getElementById('heatmapDiv0').classList.remove('loader');
 
@@ -269,25 +258,31 @@ buildHeatmap = async function(cohortQuery, data){
 
   // Create the heatmap
   createHeatmap(data, divHeatMap);
+
 };
 
 buildViolinPlot = async function(cohortQuery, data){
-  // Remove the loader.
+
+  // Remove the loader
   document.getElementById('svgViolinDiv0').classList.remove('loader');               
 
   // Set up the figure dimensions:
   let margin = {top: 80, right: 30, bottom: 30, left: 60},
   width = 1250 - margin.left - margin.right,
   height = 500 - margin.top - margin.bottom;
-  //Appending multiple g elements to svg object for violin plot
+
+  // Appending multiple g elements to svg object for violin plot
   let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
-  //Define the number of cohorts to create a plot for
+
+  // Define the number of cohorts to create a plot for
   let numCohorts = myCohorts.length;
-  //Spacing between plots
+
+  // Spacing between plots
   let ySpacing = margin.top;
 
   // Append an svg object for each cohort to create a violin plot for
   for(var index = 0; index < numCohorts; index++) {
+    
     // Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
 
@@ -361,16 +356,6 @@ buildViolinPlot = async function(cohortQuery, data){
 //     divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " are Invalid Genes for Query";
 //   };
 // }
-
-// Function to count the number of genes
-// countNumberOfGenes = function(cohortQuery) {
-//   let total = 0;
-//   numCohorts = cohortQuery.length;
-//   for (let i = 0; i < numCohorts; i++) {
-//       total++;
-//   };
-//   return total;
-// };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
