@@ -190,6 +190,8 @@ let fillClinicalTypeSelectBox = async function() {
 
 let fillClinicalPartitionSelectBox = async function(id, className)
 {
+    console.log(className);
+    
     let selectBox = document.getElementById(id);
     let clinicalKeys = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
     for(let index = 0; index < clinicalKeys.length; index++)
@@ -202,7 +204,6 @@ let fillClinicalPartitionSelectBox = async function(id, className)
     }
 
     let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
-    console.log(clinicalFeatureOptions);
     if(clinicalFeatureOptions){
         $('.' + className).val(clinicalFeatureOptions)
     }

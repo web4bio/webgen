@@ -17,7 +17,7 @@ addDiv = function(newDivID, oldDivID) {
 
 //Useful or adding div inside a div.
 //Currently being used for violins
-addDivInsdie = function(newDivID, parentDivID){
+addDivInside = function(newDivID, parentDivID){
   let newDiv = document.createElement("div");
   newDiv.setAttribute('id', newDivID);
   newDiv.setAttribute("style", "margin-top:25px");
@@ -137,8 +137,8 @@ let buildPlots = async function() {
   // document.getElementById('heatmapDiv0').innerHTML = "";
   // document.getElementById('svgViolinDiv0').innerHTML = "";
 
-  let heatDiv = addDivInsdie("heatmapDiv0", "heatmapRef");
-  var violinDiv = addDivInsdie("svgViolinDiv0", "violinPlotRef");
+  let heatDiv = addDivInside("heatmapDiv0", "heatmapRef");
+  var violinDiv = addDivInside("svgViolinDiv0", "violinPlotRef");
   violinDiv.setAttribute('align', 'center');
 
   // Remove existing div and svg elements if they're there:
@@ -291,13 +291,15 @@ buildViolinPlot = async function(cohortQuery, data){
     let curCohort = myCohorts[index];
     
     //Create a new div for each cohort
-    var violinDiv = addDivInsdie(`ViolinDiv${index}`, "violinPlotRef");
-
+    var violinDivName = "ViolinDiv"+index;
+    var violinDiv = addDivInside(violinDivName, "violinPlotRef");
 
     //Building the selector for each violin plot for faceting
+    /*
     $('.clinicalMultipleSelection').select2({
       placeholder: "Clinical feature(s) to partition by"
     });
+    */
 
     var clinicalFeaturesSelector = "<p style='text-align: center;'><b>Clinical feature(s) to partition by</b></p>"+
     "<div id='clinicalQuerySelectBox'>"+
@@ -305,26 +307,41 @@ buildViolinPlot = async function(cohortQuery, data){
       "</select>"+
     "</div>";
     violinDiv.innerHTML += (clinicalFeaturesSelector);    
+    
+    
+    var rebuildButton = "<button id = " + `BTNViolinPlot${index}` + " class = 'BTNViolinPlots col s3 btn waves-effect waves-light' onclick = 'rebuildPlot(" + violinDivName + ")'>Rebuild Violin Plot</button>"
+    //var rebuildButton = document.createElement("button");
+    //rebuildButton.id = `BTNViolinPlot${index}`;
+    //rebuildButton.className = "BTNViolinPlots col s3 btn waves-effect waves-light";
+    //rebuildButton.innerHTML = "Rebuild Violin Plot";
+    console.log("Function added");
+    
+    //rebuildPlot(violinDiv);};
+    //var vDiv = document.getElementById(violinDivName);
+    //rebuildButton.addEventListener("click", console.log("Hello world!"));
+    //{
+      //Change function call to add the parameter of the values specified in the partition select box
+      //rebuildPlot(violinDiv);
+    //});
+    
+    violinDiv.innerHTML += rebuildButton;
+    //violinDiv.appendChild(rebuildButton);
+
+    //Toggle switch for user to specify whether they want to view Expression vs. Gene (the default option) or Expression vs. Cohort
+    var toggleSwtitch = "<label class='switch'>" + 
+                          "<input type='checkbox'>" +
+                          "<span class='slider round'></span>" +
+                          "</label>";
+    violinDiv.innerHTML += (toggleSwtitch);
+    // Create the violin plot:
+    createViolinPlot('cohort', cohortQuery, data, violinDiv, curCohort, []);
 
     // For Clinical Select2 Drop down:
     $(".clinicalMultipleSelectionViolin" + index).select2({
       placeholder: "Clinical Feature(s)"
     });
-    fillClinicalPartitionSelectBox(`violinPlot${index}` + "Partition", `clinicalMultipleSelectionViolin${index}`);
-    
-    var rebuildButton = document.createElement("button");
-    rebuildButton.id = `BTNViolinPlot${index}`;
-    rebuildButton.className = "BTNViolinPlots col s3 btn waves-effect waves-light";
-    rebuildButton.innerHTML = "Rebuild Violin Plot";
-    rebuildButton.addEventListener("click", function()
-    {
-      //Change function call to add the parameter of the values specified in the partition select box
-      rebuildPlot(violinDiv);
-    });
-    violinDiv.append(rebuildButton);
 
-    // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, violinDiv, curCohort, []);
+    fillClinicalPartitionSelectBox(`violinPlot${index}` + "Partition", `clinicalMultipleSelectionViolin${index}`);
   }
 };
 
