@@ -73,7 +73,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr("x", margin.left)
         .attr("y", margin.top - 25)
         .style("font-size", "26px")
-        .text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
+        .text(JSON.stringify(clinicalData))
+        //.text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
 
     // Add nested svg for dendrogram
     var svg_dendrogram = svg_frame
