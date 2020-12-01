@@ -229,19 +229,12 @@ buildHeatmap = async function (cohortQuery, data) {
 
   // get selected clinical features from select box
   let clinQuery = $('.clinicalMultipleSelection').select2('data').map(el => el.text); //.match(/\(([^)]+)\)/)
-  console.log("clin query:")
-  console.log(clinQuery)
+  // alternative is get from local storage (same result)
+  //let clinQuery = localStorage.getItem("clinicalFeatureOptions").split(',');
 
-  // alternative is get from local storage
-  //let clinicalOpts = localStorage.getItem("clinicalFeatureOptions").split(',');
-  //console.log("clin opts:")
-  //console.log(clinicalOpts)
-
-  // call custom fetching function (using cohort and clinical data)
+  // call getClinicalData function (using cohort and clinical data queries)
   let clinicalData  = await getClinicalDataJSONarray_cc(cohortQuery, clinQuery)
 
-  console.log("clinicalData:")
-  console.log(clinicalData)
   // Create the heatmap
   createHeatmap(data, clinicalData, divHeatMap);
 };
