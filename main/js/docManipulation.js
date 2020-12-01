@@ -6,22 +6,22 @@
 
 // Function to append div elemnts to an HTML document with an existing div element with id='oldDivID'.
 // Useful for when you have a variable amount of plots to display on the page:
-addDiv = function(newDivID, oldDivID) { 
+addDiv = function (newDivID, oldDivID) {
   // create a new div element 
-  let newDiv = document.createElement("div"); 
-  newDiv.setAttribute('id',newDivID);
-  newDiv.setAttribute("style","margin-top:25px"); 
+  let newDiv = document.createElement("div");
+  newDiv.setAttribute('id', newDivID);
+  newDiv.setAttribute("style", "margin-top:25px");
   // add the newly created element and its content into the DOM 
-  document.getElementById(oldDivID).after(newDiv); 
+  document.getElementById(oldDivID).after(newDiv);
 }
 
 // Function to remove the current div elements if they exist:
-removeDiv = function() {
+removeDiv = function () {
   let i = 1;
   let continueBool = true;
   while (continueBool == true) {
     divToRemove = document.getElementById("div" + i);
-    if(divToRemove) {
+    if (divToRemove) {
       $(divToRemove).remove();
       i++;
     } else {
@@ -31,23 +31,23 @@ removeDiv = function() {
 };
 
 // Function to remove the current svg elements if they exist:
-removeSVGelements = function() {
+removeSVGelements = function () {
   svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
-  for(let i = 0; i < svgElementsArray.length; i++) {
+  for (let i = 0; i < svgElementsArray.length; i++) {
     svgToRemove = document.getElementById(svgElementsArray[i]);
 
     if (svgToRemove)
       $(svgToRemove).remove();
     else {
       let ctr = 0
-      for (;;) {
+      for (; ;) {
         svgToRemove = document.getElementById(svgElementsArray[i] + ctr++)
         if (svgToRemove)
           $(svgToRemove).remove();
         else
-          break;  
+          break;
       }
-    }  
+    }
   };
 };
 
@@ -78,10 +78,12 @@ removeTooltipElements = function () {
 function setExampleVars() {
   // Select example values:
   $('.cancerTypeMultipleSelection').val(['PAAD']);
+  $('.clinicalMultipleSelection').val(['gender', 'race']);
   $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
 
   // Trigger the change:
   $('.cancerTypeMultipleSelection').trigger('change');
+  $('.clinicalMultipleSelection').trigger('change');
   $('.geneMultipleSelection').trigger('change');
 };
 
@@ -102,14 +104,14 @@ function setExampleVars() {
 // The JS code for building the plots to display:
 // Wait for user input to build plots:
 
-let buildPlots = async function() {
-  
+let buildPlots = async function () {
+
   let dataToPlotInfo;
 
   // Reset page formatting:
   document.getElementById('heatmapDiv0').innerHTML = "";
   document.getElementById('svgViolinDiv0').innerHTML = "";
-  
+
   // Remove existing div and svg elements if they're there:
   removeDiv();
   removeSVGelements();
@@ -121,14 +123,14 @@ let buildPlots = async function() {
 
   // Get gene query and cohort query values from select2 box:
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
-                    cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+    cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let geneQuery = $('.geneMultipleSelection').select2('data').map(
-                    geneInfo => geneInfo.text);
+    geneInfo => geneInfo.text);
   // Get mutation value(s) from select2 box
   let selectedVariantClassifications = $('.mutationMultipleSelection').select2('data').map(
-                                        mutationInfo => mutationInfo.text);
+    mutationInfo => mutationInfo.text);
 
-  if(selectedVariantClassifications == "") {
+  if (selectedVariantClassifications == "") {
 
     // Fetch RNA sequence data and display requested plots:
     dataToPlotInfo = getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
@@ -139,9 +141,9 @@ let buildPlots = async function() {
     let allVariantClassificationData = iniMutationFetch.MAF;
 
     let selectedVariantClassificationData = [];
-    for(let i = 0; i < allVariantClassificationData.length; i++) 
-      for(let j = 0; j < selectedVariantClassifications.length; j++) 
-        if(allVariantClassificationData[i].Variant_Classification == selectedVariantClassifications[j]) 
+    for (let i = 0; i < allVariantClassificationData.length; i++)
+      for (let j = 0; j < selectedVariantClassifications.length; j++)
+        if (allVariantClassificationData[i].Variant_Classification == selectedVariantClassifications[j])
           selectedVariantClassificationData.push(allVariantClassificationData[i])
 
     let selectedBarcodes = selectedVariantClassificationData.map(x => x.Tumor_Sample_Barcode);
@@ -150,10 +152,10 @@ let buildPlots = async function() {
 
     // get unique barcodes
     let barcodes = []
-    for(let i = 0; i < trimmedBarcodes.length; i++) {
-      if(i == 0) {
+    for (let i = 0; i < trimmedBarcodes.length; i++) {
+      if (i == 0) {
         barcodes.push(trimmedBarcodes[i])
-      } else if(!barcodes.includes(trimmedBarcodes[i])) {
+      } else if (!barcodes.includes(trimmedBarcodes[i])) {
         barcodes.push(trimmedBarcodes[i])
       }
     }
@@ -162,9 +164,9 @@ let buildPlots = async function() {
     dataToPlotInfo = getExpressionDataJSONarray_cgb(cohortQuery, geneQuery, barcodes);
 
   }
-  
+
   // Once data is returned, build the plots:
-  dataToPlotInfo.then(function(data) {
+  dataToPlotInfo.then(function (data) {
     // Check that the fetch worked:
     if (data == 'Error: Invalid Input Fields for Query.') {
       document.getElementById('heatmapDiv0').classList.remove('loader');               // Remove the loader.
@@ -172,25 +174,25 @@ let buildPlots = async function() {
       showError('geneError');
       return;
     }
-    
+
     // If the fetched worked, filter by clinical data:
     let res = data.map(x => Object.assign(x, clinicalQuery.find(y => y.tcga_participant_barcode == x.tcga_participant_barcode)));
     console.log(res);
     let feature;
-    var clinicalObj = {"clinical": clinicalValues};
+    var clinicalObj = { "clinical": clinicalValues };
     var sizeClinical = Object.keys(clinicalObj.clinical).length;
     console.log(clinicalObj);
     var keys = Object.keys(clinicalObj.clinical);
     var hasFeature = false;
     let clinicalRes = res.filter(x => {
-      for(let i = 0; i < sizeClinical; i++){ // iterates through pie chart types (gender, ethnicity, etc.)
+      for (let i = 0; i < sizeClinical; i++) { // iterates through pie chart types (gender, ethnicity, etc.)
         feature = keys[i];
-        for(let j = 0; j < clinicalObj.clinical[feature].length; j++){ // iterates through chosen pie slices (for gender it would be 'male' & 'female')
-          if(x[feature] === clinicalObj.clinical[feature][j]){ // if feature equals the chosen slice value then return this value
+        for (let j = 0; j < clinicalObj.clinical[feature].length; j++) { // iterates through chosen pie slices (for gender it would be 'male' & 'female')
+          if (x[feature] === clinicalObj.clinical[feature][j]) { // if feature equals the chosen slice value then return this value
             hasFeature = true;
           }
         }
-        if(!hasFeature)
+        if (!hasFeature)
           return false; // if it does not have a clinical feature chosen then don't return it
         hasFeature = false; // reset this variable to false
       }
@@ -201,8 +203,8 @@ let buildPlots = async function() {
 
 
     // Display Warning for any invalid genes:
-    let myGenesReturned = d3.map(data, function(d){return d.gene;}).keys();
-    let emptyGeneArray = geneQuery.filter(function(gene) { if (!myGenesReturned.includes(gene)) { return gene} });
+    let myGenesReturned = d3.map(data, function (d) { return d.gene; }).keys();
+    let emptyGeneArray = geneQuery.filter(function (gene) { if (!myGenesReturned.includes(gene)) { return gene } });
     if (emptyGeneArray.length > 0) {
       showWarning(emptyGeneArray)
     };
@@ -215,35 +217,74 @@ let buildPlots = async function() {
   });
 };
 
-buildHeatmap = async function(cohortQuery, data){
+fetchClinicalData_KM = async function (cohortQuery, clinQuery) {
+  let queryJSON = {
+    format: 'json',
+    cohort: cohortQuery.join(","),
+    fh_cde_name: clinQuery.join(","),
+    page: 1,
+    page_size: 2000,
+    sort_by: 'tcga_participant_barcode',
+  }
+
+  let hosturl = 'https://firebrowse.herokuapp.com';
+  let endpointurl = 'http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
+  let fetchedData = await fetch(hosturl + '?' + endpointurl + '?' + jQuery.param(queryJSON))
+
+  // Check if the fetch worked properly:
+  if (fetchedData == '')
+    return ['Error: Invalid Input Fields for Query.', 0];
+  else {
+    return fetchedData.json();
+  }
+}
+
+buildHeatmap = async function (cohortQuery, data) {
   // Remove the loader
   document.getElementById('heatmapDiv0').classList.remove('loader');
 
   // Create div object for heatmap and clear
   let divHeatMap = d3.select('#heatmapDiv0').html("");
 
+  // get selected clinical features from select box
+  let clinQuery = $('.clinicalMultipleSelection').select2('data').map(el => el.text); //.match(/\(([^)]+)\)/)
+  console.log("clin query:")
+  console.log(clinQuery)
+
+  // alternative is get from local storage
+  //let clinicalOpts = localStorage.getItem("clinicalFeatureOptions").split(',');
+  //console.log("clin opts:")
+  //console.log(clinicalOpts)
+
+  let TCGA_clinical = await fetchClinicalData_KM(cohortQuery,clinQuery)
+  console.log(TCGA_clinical)
+
+  // get clinicalData from local storage
+  //let clinicalData = JSON.parse(sessionStorage.getItem("clinicalDataQuery"));
+  let clinicalData = TCGA_clinical.Clinical_FH;
+  console.log("clinicalData:")
+  console.log(clinicalData)
   // Create the heatmap
-  createHeatmap(data, cohortQuery, divHeatMap);
+  createHeatmap(data, clinicalData, divHeatMap);
 };
 
-buildViolinPlot = async function(cohortQuery, data){
+buildViolinPlot = async function (cohortQuery, data) {
   // Remove the loader.
-  document.getElementById('svgViolinDiv0').classList.remove('loader');               
+  document.getElementById('svgViolinDiv0').classList.remove('loader');
 
   // Set up the figure dimensions:
-  let margin = {top: 80, right: 30, bottom: 30, left: 60},
-  width = 1250 - margin.left - margin.right,
-  height = 500 - margin.top - margin.bottom;
+  let margin = { top: 80, right: 30, bottom: 30, left: 60 },
+    width = 1250 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
   //Appending multiple g elements to svg object for violin plot
-  let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+  let myCohorts = d3.map(data, function (d) { return d.cohort; }).keys();
   //Define the number of cohorts to create a plot for
   let numCohorts = myCohorts.length;
   //Spacing between plots
   let ySpacing = margin.top;
 
   // Append an svg object for each cohort to create a violin plot for
-  for(var index = 0; index < numCohorts; index++)
-  {
+  for (var index = 0; index < numCohorts; index++) {
     //Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
 
@@ -252,8 +293,8 @@ buildViolinPlot = async function(cohortQuery, data){
       .attr("id", `svgViolinPlot${index}`)
       .append("g")
       .attr("transform",
-          "translate(" + (margin.left-20) + "," + 
-                      (margin.top + ySpacing*index*0.25) + ")");
+        "translate(" + (margin.left - 20) + "," +
+        (margin.top + ySpacing * index * 0.25) + ")");
 
     // Create the violin plot:
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
@@ -277,20 +318,20 @@ buildViolinPlot = async function(cohortQuery, data){
 
 // Function to display the error message:
 // NOTE: errors are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
-showError = function(errorType) {
+showError = function (errorType) {
   // Create div1 and set it to be alert class:
-  addDiv('div1','heatmapDiv0');
+  addDiv('div1', 'heatmapDiv0');
   let divElement = document.getElementById('div1');
   divElement.className = 'alert';
 
   // Creates span clone from span0 to add to div1:
   let span = document.getElementById('span0');
   let spanElement = span.cloneNode(true);
-  spanElement.setAttribute('id','span1');
+  spanElement.setAttribute('id', 'span1');
   divElement.appendChild(spanElement);
 
   // Adds the error message to the div:
-  if(errorType == 'geneError') {
+  if (errorType == 'geneError') {
     divElement.innerHTML += "Error: ".bold() + "Invalid Gene Fields for Query";
   } else if (errorType == 'cohortError') {
     divElement.innerHTML += "Error: ".bold() + "Invalid Cohort Fields for Query";
@@ -299,7 +340,7 @@ showError = function(errorType) {
 
 // Function to display a warning for genes that don't have mRNA-Seq data:
 // NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
-showWarning = function(emptyGeneArray_arg) {
+showWarning = function (emptyGeneArray_arg) {
   // Create div1 and set it to be warning class:
   let divElement = document.getElementById('heatmapDiv0');
   divElement.className = 'warning';
@@ -307,14 +348,14 @@ showWarning = function(emptyGeneArray_arg) {
   // Create span clone from span0 to add to div1:
   let span = document.getElementById('span0');
   let spanElement = span.cloneNode(true);
-  spanElement.setAttribute('id','span1');
+  spanElement.setAttribute('id', 'span1');
   divElement.appendChild(spanElement);
 
   // Add the warning message to the div:
   if (emptyGeneArray_arg.length == 1) {
-    divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " is an Invalid Gene for Query";
+    divElement.innerHTML += "Warning: ".bold() + emptyGeneArray_arg.join(', ') + " is an Invalid Gene for Query";
   } else {
-    divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " are Invalid Genes for Query";
+    divElement.innerHTML += "Warning: ".bold() + emptyGeneArray_arg.join(', ') + " are Invalid Genes for Query";
   };
 }
 

@@ -73,8 +73,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr("x", margin.left)
         .attr("y", margin.top - 25)
         .style("font-size", "26px")
-        .text(JSON.stringify(clinicalData))
-        //.text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
+        .text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
 
     // Add nested svg for dendrogram
     var svg_dendrogram = svg_frame
@@ -91,7 +90,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr("class", "sampletrack")
         .attr("width", frameWidth)
         .attr("height", margin.space + sampTrackHeight)
-        .attr("y", margin.top + dendHeight + margin.space + sampTrackHeight + margin.space)
+        .attr("y", margin.top + dendHeight + margin.space)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.space + ")");
 
@@ -101,7 +100,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr("class", "heatmap")
         .attr("width", frameWidth)
         .attr("height", heatHeight + margin.space + margin.bottom)
-        .attr("y", margin.top + dendHeight)
+        .attr("y", margin.top + dendHeight + margin.space + sampTrackHeight + margin.space)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.space + ")");
 
@@ -127,7 +126,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .style('width', frameWidth + 'px');
     div_sampLegend
         .append("text")
-        .style("font-size", "20px")
+        .style("font-size", "18px")
         .text("Clinical Feature Sample Tracks Legend:");
     var svg_sampLegend = div_sampLegend
         .append("div")
@@ -194,9 +193,9 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     };
 
     // Build color scale for gene expression (z-score)
-    let interpolateCol_exp = d3.interpolateRgbBasis(["blue", "white", "red"])
+    let interpCol_exp = d3.interpolateRgbBasis(["blue", "white", "red"])
     let colorScale_exp = d3.scaleSequential()
-        .interpolator(interpolateCol_exp) // d3 interpolated color gradient
+        .interpolator(interpCol_exp) // d3 interpolated color gradient
         .domain([minZ, maxZ]);
 
 
@@ -252,9 +251,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     }
     let mouseleave_samp = function (d) {
         tooltip.style("opacity", 0);
-        //let v = d3.select(this).attr("var")
-        //d3.select(this).style("fill", (d) => colorScale_all[v](d[v]) )
-        d3.select(this).style("fill", d3.select(this).attr("fill0"))
+        d3.select(this).style("fill", d3.select(this).attr("fill0")) // re-fill color based on stored attribute
         // Make dendrogram path unbold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
         svg_dendrogram.selectAll('path')
@@ -285,7 +282,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr("transform", "translate(" + heatWidth + ",0)")
         .call(d3.axisRight().scale(zScale).tickSize(5).ticks(5));
 
-    ///// Build the Heatmap, Legend, and Dendrogram Below /////
+    ///// Update function for creating plot with new order (clustering), new sample tracks
     function updateHeatmap() {
         // Build new x scale based on myGroups (in case re-sorted)
         x = x.domain(myGroups);
@@ -456,12 +453,14 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .style("stroke-width", "0.5px")
                 .attr("stroke", 'black')
 
-            // Give dendrogram svg height and shift down heatmap
+            // Give dendrogram svg height and shift down heatmap + sampletracks
             svg_dendrogram.attr("height", dendHeight);
+            svg_frame.select(".sampletrack")
+                .attr("y", margin.top + dendHeight)
             svg_frame.select(".heatmap")
-                .attr("y", margin.top + dendHeight);
-            frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-
+                .attr("y", margin.top + dendHeight + sampTrackHeight_total);
+            frameHeight = margin.top + dendHeight + margin.space + heatHeight + sampTrackHeight_total + margin.bottom;
+        
         } else { // otherwise remove the dendrogam and shift the heatmap up
             svg_dendrogram.attr("height", 0);
             svg_frame.select(".sampletrack")
