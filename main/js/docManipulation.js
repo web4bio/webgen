@@ -217,34 +217,15 @@ let buildPlots = async function () {
   });
 };
 
-fetchClinicalData_KM = async function (cohortQuery, clinQuery) {
-  let queryJSON = {
-    format: 'json',
-    cohort: cohortQuery.join(","),
-    fh_cde_name: clinQuery.join(","),
-    page: 1,
-    page_size: 2000,
-    sort_by: 'tcga_participant_barcode',
-  }
-
-  let hosturl = 'https://firebrowse.herokuapp.com';
-  let endpointurl = 'http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
-  let fetchedData = await fetch(hosturl + '?' + endpointurl + '?' + jQuery.param(queryJSON))
-
-  // Check if the fetch worked properly:
-  if (fetchedData == '')
-    return ['Error: Invalid Input Fields for Query.', 0];
-  else {
-    return fetchedData.json();
-  }
-}
-
 buildHeatmap = async function (cohortQuery, data) {
   // Remove the loader
   document.getElementById('heatmapDiv0').classList.remove('loader');
 
   // Create div object for heatmap and clear
   let divHeatMap = d3.select('#heatmapDiv0').html("");
+
+  ///// CUSTOM CLINICAL DATA QUERY /////
+  // because I can't find the clinical data object?
 
   // get selected clinical features from select box
   let clinQuery = $('.clinicalMultipleSelection').select2('data').map(el => el.text); //.match(/\(([^)]+)\)/)
@@ -256,12 +237,9 @@ buildHeatmap = async function (cohortQuery, data) {
   //console.log("clin opts:")
   //console.log(clinicalOpts)
 
-  let TCGA_clinical = await fetchClinicalData_KM(cohortQuery,clinQuery)
-  console.log(TCGA_clinical)
+  // call custom fetching function (using cohort and clinical data)
+  let clinicalData  = await getClinicalDataJSONarray_cc(cohortQuery, clinQuery)
 
-  // get clinicalData from local storage
-  //let clinicalData = JSON.parse(sessionStorage.getItem("clinicalDataQuery"));
-  let clinicalData = TCGA_clinical.Clinical_FH;
   console.log("clinicalData:")
   console.log(clinicalData)
   // Create the heatmap
