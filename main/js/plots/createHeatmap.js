@@ -1,9 +1,10 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
 // dataInput is the array os JSONs of gene expression data to visualize
+// clinicalData is the array containing clinical data
 // divObject is the div object on the html page to build the plot
 
-createHeatmap = async function (dataInput, divObject) {
+createHeatmap = async function (dataInput, clinicalData, divObject) {
 
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of genes called 'myVars'
@@ -51,11 +52,12 @@ createHeatmap = async function (dataInput, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Set up dimensions:
-    var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 60 },
+    var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 100 },
         frameWidth = 1250,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
+        sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
 
@@ -82,6 +84,16 @@ createHeatmap = async function (dataInput, divObject) {
         .attr("x", margin.left)
         .attr("y", margin.top);
 
+    // Add nested svg for sampletrack
+    var svg_sampletrack = svg_frame
+        .append("svg")
+        .attr("class", "sampletrack")
+        .attr("width", frameWidth)
+        .attr("height", margin.space + sampTrackHeight)
+        .attr("y", margin.top + dendHeight + margin.space + sampTrackHeight + margin.space)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.space + ")");
+
     // Add nested svg for heatmap
     var svg_heatmap = svg_frame
         .append("svg")
@@ -97,12 +109,36 @@ createHeatmap = async function (dataInput, divObject) {
         .append("div")
         .style("opacity", 0)
         .attr("class", "tooltip")
-        .style("background-color", "white")
         .style("border", "solid")
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
         .style('width', frameWidth + 'px');
+
+    // Add div for sample track legend
+    var div_sampLegend = divObject
+        .append("div")
+        .attr("class", "legend")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+        .style('width', frameWidth + 'px');
+    div_sampLegend
+        .append("text")
+        .style("font-size", "20px")
+        .text("Clinical Feature Sample Tracks Legend:");
+    var svg_sampLegend = div_sampLegend
+        .append("div")
+        .attr('id', 'legend')
+        .attr('class', 'viewport')
+        .style('overflow', 'scroll')
+        .append("svg")
+        .attr("class", "sampLegend")
+        .attr("width", frameWidth)
+        .attr("height", sampTrackHeight + 2 * margin.space)
+        .append("g")
+        .attr("transform", "translate(" + margin.space + "," + margin.space + ")");
 
     // Create div for sorting options (checkboxes)
     var sortOptionDiv = divObject
@@ -157,9 +193,9 @@ createHeatmap = async function (dataInput, divObject) {
     };
 
     // Build color scale for gene expression (z-score)
-    let interpolateRdBkGn = d3.interpolateRgbBasis(["blue", "white", "red"])
-    let myColor = d3.scaleSequential()
-        .interpolator(interpolateRdBkGn) // d3 interpolated color gradient
+    let interpolateCol_exp = d3.interpolateRgbBasis(["blue", "white", "red"])
+    let colorScale_exp = d3.scaleSequential()
+        .interpolator(interpolateCol_exp) // d3 interpolated color gradient
         .domain([minZ, maxZ]);
 
 
@@ -199,13 +235,32 @@ createHeatmap = async function (dataInput, divObject) {
     let mouseleave = function (d) {
         // Make tooltip disappear and heatmap object return to z-score color
         tooltip.style("opacity", 0);
-        d3.select(this).style("fill", d => myColor(d["z-score"]));
+        d3.select(this).style("fill", d => colorScale_exp(d["z-score"]));
         // Make dendrogram path unbold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
         svg_dendrogram.selectAll('path')
             .filter(d => d.data.indexes.includes(id_ind))
             .style("stroke-width", "0.5px");
     };
+    let mousemove_samp = function (d) {
+        let v = d3.select(this).attr("var")
+        tooltip.html("\xa0\xa0" +
+            "Cohort: " + d.cohort + spacing +
+            "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
+            v + ": " + d[v])
+    }
+    let mouseleave_samp = function (d) {
+        tooltip.style("opacity", 0);
+        //let v = d3.select(this).attr("var")
+        //d3.select(this).style("fill", (d) => colorScale_all[v](d[v]) )
+        d3.select(this).style("fill", d3.select(this).attr("fill0"))
+        // Make dendrogram path unbold
+        let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
+        svg_dendrogram.selectAll('path')
+            .filter(d => d.data.indexes.includes(id_ind))
+            .style("stroke-width", "0.5px");
+    };
+
 
     ///// Build the Heatmap, Legend, and Dendrogram Below /////
     // Append the y-axis to the heatmap:
@@ -222,7 +277,7 @@ createHeatmap = async function (dataInput, divObject) {
         .attr('y', d => zScale(d))
         .attr("width", legendWidth / 2)
         .attr("height", 1 + (heatHeight / zArr.length))
-        .style("fill", d => myColor(d));
+        .style("fill", d => colorScale_exp(d));
     // Append the z-axis to the legend:
     svg_heatmap.append("g")
         .style("font-size", 10)
@@ -243,10 +298,143 @@ createHeatmap = async function (dataInput, divObject) {
             .attr("y", d => y(d.gene))
             .attr("width", x.bandwidth())
             .attr("height", y.bandwidth())
-            .style("fill", d => myColor(d["z-score"]))
+            .style("fill", d => colorScale_exp(d["z-score"]))
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);
+
+        // Re/build sample tracks (currently only handles categorical data)
+        // Get sample track selected vars (only in observable)
+        //let sampTrackVars = getClinvarSelection();
+        let sampTrackVars = Object.keys(clinicalData[0]).filter(el => (el.match(/^(?!cohort|date|tcga_participant_barcode$)/)));
+
+        // Build color scales for all selected variables
+        let colorScale_all = sampTrackVars.reduce((acc, v) => {
+            let var_domain = d3.map(clinicalData, d => d[v]).keys().sort().filter(el => el !== "NA");
+            acc[v] = d3.scaleOrdinal()
+                .domain(var_domain)
+                .range(d3.schemeCategory10)
+                .unknown("lightgray"); return acc
+        }, {})
+
+        // Recompute total sample tracks height and update svg_sampletrack height
+        let sampTrackHeight_total = (sampTrackHeight + margin.space) * sampTrackVars.length;
+        svg_frame.select('.sampletrack').attr('height', sampTrackHeight_total)
+
+        // Build new scale for sample track labels:
+        let y_samp = d3.scaleBand()
+            .range([0, sampTrackHeight_total])
+            .domain(sampTrackVars);
+
+        // Build sample track for each variable
+        svg_sampletrack.html(""); // have to clear to keep some spaces as white
+        sampTrackVars.forEach(v => {
+            svg_sampletrack.selectAll()
+                .data(clinicalData, d => (d.tcga_participant_barcode + ":" + v))
+                .enter()
+                .append("rect")
+                .attr("var", v)
+                .attr("x", d => x(d.tcga_participant_barcode))
+                .attr("y", y_samp(v))
+                .attr("width", x.bandwidth())
+                .attr("height", sampTrackHeight)
+                .style("fill", d => colorScale_all[v](d[v]))
+                .attr("fill0", d => colorScale_all[v](d[v]))
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove_samp)
+                .on("mouseleave", mouseleave_samp);
+        })
+        // Append labels axis to the sample track:
+        svg_sampletrack.select('#sampLabels').remove(); // first remove previous labels
+        svg_sampletrack.append("g")
+            .attr('id', 'sampLabels')
+            .style('font-size', 9.5)
+            .call(d3.axisLeft(y_samp).tickSize(0))
+            .select(".domain").remove();
+
+        // Sample Track Legend:
+        // function to get width of bounding text box for a given string, font-size
+        let svg_temp = divObject.append("svg")
+        function getTextWidth(str, fs) {
+            let text_temp = svg_temp
+                .append('text')
+                .style('font-size', fs + "px")
+                .text(str);
+            var dim = text_temp.node().getBBox();
+            return dim.width
+        }
+
+        // get max sizes of variable name and all unique variable labels (for column width), and number of variables (for legend height)
+        let var_summary = sampTrackVars.map(v => {
+            let myLabs = d3.map(clinicalData, d => d[v]).keys().sort().filter(el => el !== "NA").map(el => ({ val: el }));
+            let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
+            let lab_width = Math.max(...myLabs.map(el => getTextWidth("\xa0" + el.val, 10))); // max text width of each unique label
+            return { var: v, labs: myLabs, nlab: myLabs.length, max_width: Math.ceil(Math.max(lab_width + sampTrackHeight, var_width)) }
+        })
+        svg_temp.html("")
+
+        // calculate cumulative sum of column widths with spacing for x-positioning each variable
+        const cumulativeSum = (sum => value => sum += value)(0);
+        let x_spacing = var_summary.map(el => el.max_width + margin.space).map(cumulativeSum);
+        var_summary = var_summary.map(o => { o.x = x_spacing[var_summary.indexOf(o)] - o.max_width; return o });
+
+        // fill sample track legend
+        svg_sampLegend.html("");
+        var_summary.forEach(v => {
+            svg_sampLegend
+                .append("text")
+                .attr("x", v.x)
+                .attr("alignment-baseline", "hanging")
+                .style("font-size", "15px")
+                .attr("text-decoration", "underline")
+                .text(v.var + ":");
+            svg_sampLegend.selectAll()
+                .data(v.labs, d => v.var + ":" + d.val + "_box")
+                .enter()
+                .append("rect")
+                .attr("x", v.x)
+                .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space))
+                .attr("width", sampTrackHeight)
+                .attr("height", sampTrackHeight)
+                .style("fill", d => colorScale_all[v.var](d.val))
+                .style("stroke", "black");
+            svg_sampLegend.selectAll()
+                .data(v.labs, d => v.var + ":" + d.val + "_text")
+                .enter()
+                .append("text")
+                .attr("x", v.x + sampTrackHeight)
+                .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space) + sampTrackHeight / 2)
+                .attr("alignment-baseline", "central")
+                .style("font-size", "10px")
+                .text(d => "\xa0" + d.val);
+        });
+        // adjust sampLegend size
+        // height is max number of labels times entry height, plus space for title
+        // width is cumulative sum of max label width for each column plus the colored rectangle and spacing
+        let sampLegendHeight = 20 + (sampTrackHeight + margin.space) * Math.max(...var_summary.map(el => el.nlab));
+        div_sampLegend.select(".sampLegend")
+            .attr("height", sampLegendHeight + margin.space)
+            .attr("width", var_summary.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0))
+        if (sampLegendHeight < 200) {
+            div_sampLegend.select('#legend')
+                .attr('height', sampLegendHeight + 'px')
+        } else {
+            div_sampLegend.select('#legend')
+                .style('height', '200px')
+        }
+
+        if (sampTrackVars.length == 0) {
+            svg_sampLegend
+                .append("text")
+                .attr("alignment-baseline", "hanging")
+                .style("font-size", "18px")
+                .text("No clinical features selected");
+            div_sampLegend.select(".sampLegend")
+                .attr("height", 20)
+                .attr("width", 250)
+            div_sampLegend.select('#legend')
+                .style('height', '20px')
+        };
 
         // Generate dendrogram IF clustering selected and ready
         if (doCluster && clusterReady) { // only show dendrogram if these flags indicate to show
@@ -275,9 +463,11 @@ createHeatmap = async function (dataInput, divObject) {
 
         } else { // otherwise remove the dendrogam and shift the heatmap up
             svg_dendrogram.attr("height", 0);
+            svg_frame.select(".sampletrack")
+                .attr("y", margin.top)
             svg_frame.select(".heatmap")
-                .attr("y", margin.top);
-            frameHeight = margin.top + heatHeight + margin.bottom;
+                .attr("y", margin.top + sampTrackHeight_total);
+            frameHeight = margin.top + heatHeight + sampTrackHeight_total + margin.bottom;
         }
         // apply new frameHeight (adjusting for dendrogram and # sample tracks)
         svg_frame.attr('height', frameHeight)

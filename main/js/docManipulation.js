@@ -223,7 +223,7 @@ buildHeatmap = async function(cohortQuery, data){
   let divHeatMap = d3.select('#heatmapDiv0').html("");
 
   // Create the heatmap
-  createHeatmap(data, divHeatMap);
+  createHeatmap(data, cohortQuery.Clinical_FH, divHeatMap);
 };
 
 buildViolinPlot = async function(cohortQuery, data){
