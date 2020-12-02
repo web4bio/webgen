@@ -1,24 +1,26 @@
-Live Web App at [web4bio.github.io/webgen/main/html](https://web4bio.github.io/webgen/main/html)                                          
-Live Presentation at [web4bio.github.io/webgen/presentationPoster/](https://web4bio.github.io/webgen/presentationPoster/)      
-Live README at [web4bio.github.io/webgen](https://web4bio.github.io/webgen)
-
-Conference call via [Zoom](https://sbubmi.page.link/vip) Fridays at 11AM EST
-
-# [Web Genomics](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/webgen_~_web_genomics/)
-
 [![Join the chat at https://gitter.im/web4bio/webgen](https://badges.gitter.im/web4bio/webgen.svg)](https://gitter.im/web4bio/webgen?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Precision Medicine requires an ever growing Biomedical BigData reference. This growth is particularly striking for pathologies with a genomic basis, like Cancer. Accordingly, NIH/NCI has spearheaded the establishment of interoperable multi-petabyte sized Genomic Data Commons ([gdc.cancer.gov](https://gdc.cancer.gov), also article [PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) that help find novel associations between genomic features and cancer phenotypes. For more information see [Stony Brook University VIP page](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)).
+# WebGenomics
+
+WebGen is hosted on GitHub Pages at [web4bio.github.io/webgen/main/html](https://web4bio.github.io/webgen/main/html)
+
+View our May 2020 interactive presentation at [web4bio.github.io/webgen/presentationPoster/](https://web4bio.github.io/webgen/presentationPoster/)
+
+Conference call via [Zoom](https://sbubmi.page.link/vip) Fridays at 11:45AM EST
+
+## Background
+
+Precision Medicine requires an ever-growing biomedical big data reference. This growth is particularly striking for pathologies with a genomic basis, like cancer. Accordingly, NIH/NCI has spearheaded the establishment of an interoperable multi-petabyte-sized [Genomic Data Commons](gdc.cancer.gov) ([PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen-scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web applications (apps) that help find novel associations between genomic features and cancer phenotypes. For more information see the [Stony Brook University VIP page](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)).
 
 ## To Do
 
-1. Create a Github account, request access to this project, list your id with your name below.
-2. Create a WebGen doc at https://beta.observablehq.com (use your Github credentials). Publish it.
+1. Create a GitHub account, request access to this project, and add your name/GitHub username to the participants table below.
+2. Create a WebGen [Observable notebook](https://beta.observablehq.com) using your Github credentials, and publish it.
 3. Have a look at [freecodecamp.org](https://www.freecodecamp.org) as reference for JS learning.
-4. Start checking your fellow participants' notebooks and Github activity.
-5. Study [GDC](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) (Genomics Data Commons) [API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retrieve data. So the next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
-6. Review official GDC tools (https://gdc.cancer.gov/access-data/gdc-community-tools)
-7. Check out some existing work (https://github.com/oncojs)
+4. Start checking your fellow participants' notebooks and GitHub activity.
+5. Study the [GDC API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retrieve data. The next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
+6. Review [official GDC tools](https://gdc.cancer.gov/access-data/gdc-community-tools).
+7. Check out some [existing work](https://github.com/oncojs).
 
 ## Participants
 
@@ -46,26 +48,26 @@ Precision Medicine requires an ever growing Biomedical BigData reference. This g
   * [Anthony Li](https://github.com/anthonyli22): [Sandbox](https://observablehq.com/@anthonyli22/webgen-notebook)
   * [Shweta Sankaranarayanan](https://github.com/shweta98): [Sandbox](https://observablehq.com/@shweta98/webgen)
   * [Nayan Pasari](https://github.com/npasari): [Sandbox](https://observablehq.com/@npasari)
-  * [Tony Jin](https://github.com/t5n): [notebook](https://beta.observablehq.com/@t5n)
+  * [Tony Jin](https://github.com/t5n): [Sandbox](https://beta.observablehq.com/@t5n)
   * [Chinonso Nwabueze](http://www.github.com/conwabueze)
-  * [Fenghsi Yu](http://www.github.com/fenghsi): [notebook](https://observablehq.com/@fenghsi/webgen/2)
-  * [Wen Cheng](http://www.github.com/wencheng921): [notebook](https://beta.observablehq.com/@wencheng921/webgen)
-  * [Sam Wang](http://www.github.com/SuperZam): [notebook](https://observablehq.com/@superzam/web-genomics/5)
-  * [Anuki Liyanage](https://github.com/ANUKI11): [notebook](https://observablehq.com/@anuki11/webgen/2)
-  * [Kevin Chang](https://github.com/Xnonx14): [notebook](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook)
-  * [Jonathan Krog](https://github.com/Jonathan-Krog): [notebook](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
-  * [Chantelle Dsilva](http://www.github.com/chantelle-dsilva): [notebook](https://beta.observablehq.com/@chantelle-dsilva/webgen)
+  * [Fenghsi Yu](http://www.github.com/fenghsi): [Sandbox](https://observablehq.com/@fenghsi/webgen/2)
+  * [Wen Cheng](http://www.github.com/wencheng921): [Sandbox](https://beta.observablehq.com/@wencheng921/webgen)
+  * [Sam Wang](http://www.github.com/SuperZam): [Sandbox](https://observablehq.com/@superzam/web-genomics/5)
+  * [Anuki Liyanage](https://github.com/ANUKI11): [Sandbox](https://observablehq.com/@anuki11/webgen/2)
+  * [Kevin Chang](https://github.com/Xnonx14): [Sandbox](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook)
+  * [Jonathan Krog](https://github.com/Jonathan-Krog): [Sandbox](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
+  * [Chantelle Dsilva](http://www.github.com/chantelle-dsilva): [Sandbox](https://beta.observablehq.com/@chantelle-dsilva/webgen)
 
 ## APIs
 * GDC https://api.gdc.cancer.gov
-  * [documentation](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/#api-endpoints)
-  * [example](https://api.gdc.cancer.gov/projects?fields=disease_type&size=2)
-* firebrowse http://firebrowse.org
-  * [documentation](http://firebrowse.org/api-docs/)
-  * [example](http://firebrowse.org/api/v1/Samples/mRNASeq?format=json&gene=GATA6&cohort=PAAD&page=1&page_size=2&sort_by=tcga_participant_barcode)
-* All of us https://public.api.researchallofus.org
-  * [documentation] ?
-  * [example] ?
+  * [Documentation](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/#api-endpoints)
+  * [Example](https://api.gdc.cancer.gov/projects?fields=disease_type&size=2)
+* FireBrowse http://firebrowse.org
+  * [Documentation](http://firebrowse.org/api-docs/)
+  * [Example](http://firebrowse.org/api/v1/Samples/mRNASeq?format=json&gene=GATA6&cohort=PAAD&page=1&page_size=2&sort_by=tcga_participant_barcode)
+* All of Us https://public.api.researchallofus.org
+  * [Documentation] ?
+  * [Example] ?
 ____
 
 ## Course information
@@ -85,24 +87,24 @@ Faculty:
 
 Team Established: Spring 2019
 
-Meeting Time: Friday 11:00-11:53am
+Meeting Time: Friday 11:45am-12:50pm
 
-Meeting Location: HSCENT 3-045B
+Meeting Location: [Zoom](https://sbubmi.page.link/vip)
 
 Contact: richard . moffitt @ stonybrookmedicine . edu
 
 ## Links
 * Related work
-  * [CbioPortal](https://www.cbioportal.org/)
+  * [cBioPortal](https://www.cbioportal.org/)
   * [Regulome explorer](http://explorer.cancerregulome.org/)
   * [IntOGen](www.intogen.org/)
   * [Xena](genome-cancer.ucsc.edu)
-  * [TCGA Splicing Variation Database](http://tsvdb.com/) [github](https://github.com/wenjie1991/TSVdb)
+  * [TCGA Splicing Variation Database](http://tsvdb.com/) [GitHub](https://github.com/wenjie1991/TSVdb)
 * Active friends of the project
-  * SBU's Integrative Informatics workshop [wiki](https://sites.google.com/mathbiol.org/integrativeinformatics/home)
+  * SBU's Integrative Informatics workshop [Wiki](https://sites.google.com/mathbiol.org/integrativeinformatics/home)
   * NCI Division of Cancer Epidemiology and Genetics
-    * cloud4bio [github](https://github.com/cloud4bio/cloud4bio.github.com) and [wiki](https://sites.google.com/mathbiol.org/cloud4bio/home)
-    * episphere [github](https://github.com/episphere) and [observable](https://observablehq.com/@episphere)
+    * cloud4bio [GitHub](https://github.com/cloud4bio/cloud4bio.github.com) and [Wiki](https://sites.google.com/mathbiol.org/cloud4bio/home)
+    * episphere [GitHub](https://github.com/episphere) and [Observable](https://observablehq.com/@episphere)
 * Previous related work
   * https://github.com/mathbiol/gdc
   * https://github.com/mathbiol/gdcfun
