@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!-- Load jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Select2 Library -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+
+    <!-- Load in files -->
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+
+    <script type ="text/javascript" src = "../js/imaging/buildImages.js"></script>
+    <script>var exports = {"__esModule": true};</script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <script src="../js/imaging/classifier.js"></script>
+    <script src="../js/imaging//reaction.js"></script>
+
+  </head>
+  <body>
+    <div id="page-container" style="min-height: 20vh">
+      <div id = "content-wrap">
+        <div class="navbar-fixed">
+          <nav>
+          <div class="nav-wrapper">
+            <a href="index.html" style="font-style: italic;" class="brand-logo center">WebGen</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+              <li class="active"><a href="about.html">About</a></li>
+            </ul>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+              <li class="active"><a href="image.html">Image</a></li>
+            </ul>
+          </div>
+          </nav>
+        </div>
+
+        <div id="inputFields" style="text-align: center;">
+          <input type="text" id="fileId" placeholder="File Id"> </input>
+          <input type="text" id="xCoord" placeholder="X Coordinate"> </input>
+          <input type="text" id="yCoord" placeholder="Y Coordinate"> </input>
+          <input type="text" id="zoomLevel" placeholder="Zoom Level"> </input>
+        </div>
+      
+        <div className="mainWindowButtons" id = "mainWindowButtons">
+          <button class="col s3 btn waves-effect waves-light" onclick="onResetFunc()" id='exampleButton'>Reset</button>
+          <button class="col s3 btn waves-effect waves-light" onclick="onSubmitFunc()" id='submitButton'>Submit</button>
+        </div>
+        
+        <div class="tabs_container">  
+          <div class="col s36">
+
+            <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
+              <li class="tab col s12" onclick="imageTabListener()"><a class="active" href="#viewImage">Image</a></li>
+              <li class="tab col s12" onclick="historyTabListener()"><a class="active" href="#history">History</a></li>
+            </ul>
+
+            <div id="imageContainerParent" class="col s12" style="display: block;">
+              <div id="imageContainer" style="margin-top:25px; float: left;">
+                <canvas id="canvas" style="border:2px solid teal"></canvas>
+                <input type="range" id="scale" min="1" max="10" step="0.5" value="1" style="position: relative;"/>
+                <div id='pos'>
+                </div>
+                <button id='renderButton' class="col s3 btn waves-effect waves-light" style="display: none;" onclick="initialize()">Render</button>
+              </div>
+
+              <div style="margin-top:25px ; float: left;">  
+                <canvas id="myCanvas" style="border: 2px solid teal;"  width="400" height="400"></canvas>
+              </div>
+            </div>
+
+            <div id="historyContainerParent" class="col s12" style="display: none;">
+              <div id="historyContainer" style="margin-top:25px">
+              </div>
+            
+            </div>
+          </div>
+        </div>
+
+        <script> 
+          var elem = document.querySelector('.tabs');
+          var options = {}
+          var instance = M.Tabs.init(elem, options);
+        </script>
+
+      </div>
+    </div> 
+  </body>
+  <footer class="page-footer" id="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col s12 m4 l8">
+          <h7 class="white-text">LINKS</h7>
+          <ul>
+            <li><a target="_blank" class="grey-text text-lighten-3" href="https://github.com/web4bio/webgen">GitHub</a></li>
+            <li><a target="_blank" class="grey-text text-lighten-3" href="http://firebrowse.org/api-docs/">Firebrowse API</a></li>
+            <li><a target="_blank" class="grey-text text-lighten-3" href="https://gdc.cancer.gov/">NCI Genomic Data Commons</a></li>
+            <li><a target="_blank" class="grey-text text-lighten-3" href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University VIP</a></li>
+          </ul>
+        </div>
+        <div class="col s12 m6 l3">
+          <h7 class="white-text">CONTACT</h7>
+          <ul>
+            <li><a class="grey-text text-lighten-3">richard.moffitt@stonybrookmedicine.edu</a></li>          
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+        <div class="center-align">
+          WebGen 2020
+        </div>
+      </div>
+    </div>
+  </footer>
+</html>
