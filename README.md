@@ -10,17 +10,20 @@ Conference call via [Zoom](https://sbubmi.page.link/vip) Fridays at 11:45AM EST
 
 ## Background
 
-Precision Medicine requires an ever-growing biomedical big data reference. This growth is particularly striking for pathologies with a genomic basis, like cancer. Accordingly, NIH/NCI has spearheaded the establishment of an interoperable multi-petabyte-sized [Genomic Data Commons](gdc.cancer.gov) ([PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen-scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web applications (apps) that help find novel associations between genomic features and cancer phenotypes. For more information see the [Stony Brook University VIP page](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)).
+Precision Medicine requires an ever-growing biomedical big data reference. This growth is particularly striking for pathologies with a genomic basis, like cancer. Accordingly, NIH/NCI has spearheaded the establishment of an interoperable multi-petabyte-sized [Genomic Data Commons](gdc.cancer.gov) ([PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen-scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web applications (apps) that help find novel associations between genomic features and cancer phenotypes.
 
-## To Do
+## How to Contribute
+
+This is a public, open-source project, as well as a project that students may receive academic credit for through the [Stony Brook University VIP program](https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)).
 
 1. Create a GitHub account, request access to this project, and add your name/GitHub username to the participants table below.
 2. Create a WebGen [Observable notebook](https://beta.observablehq.com) using your Github credentials, and publish it.
 3. Have a look at [freecodecamp.org](https://www.freecodecamp.org) as reference for JS learning.
 4. Start checking your fellow participants' notebooks and GitHub activity.
 5. Study the [GDC API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retrieve data. The next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
-6. Review [official GDC tools](https://gdc.cancer.gov/access-data/gdc-community-tools).
-7. Check out some [existing work](https://github.com/oncojs).
+6. Study the [FireBrowse API](http://firebrowse.org).
+7. Report issues or requests for new features.
+8. Create a fork or a branch, and make a pull request.
 
 ## Participants
 
@@ -70,28 +73,28 @@ Precision Medicine requires an ever-growing biomedical big data reference. This 
   * [Example] ?
 ____
 
-## Course information
-Participation in this project may count for SBU students as part of the [VIP program](https://www.stonybrook.edu/commcms/vertically-integrated-projects/prospective_students/how_credits_count), or [BMI 530](https://bmi.stonybrookmedicine.edu/courses) Software Development in Biomedical Informatics, or under another listing in your home department.
+## Course Information
+- Participation in this project may count for SBU students as part of the [VIP program](https://www.stonybrook.edu/commcms/vertically-integrated-projects/prospective_students/how_credits_count), or [BMI 530](https://bmi.stonybrookmedicine.edu/courses) Software Development in Biomedical Informatics, or under another listing in your home department.
 
-Issues: Cancer Genomics, Web Technologies, JavaScript, Artificial Intelligence, scalable distributed computing, social coding, patient-centered cancer prevention and treatment.
+- **Issues:** Cancer Genomics, Web Technologies, JavaScript, Artificial Intelligence, scalable distributed computing, social coding, patient-centered cancer prevention and treatment.
 
-Methods & Technologies: Web Technologies (JavaScript, Apps), Cancer Genomics, Computational Statistics, Artificial Intelligence, Precision Medicine
+- **Methods & Technologies:** Web Technologies (JavaScript, Apps), Cancer Genomics, Computational Statistics, Artificial Intelligence, Precision Medicine
 
-Disciplines: Applied Mathematics and Statistics, Biomedical Engineering, Biomedical Informatics, Computer Engineering, Computer Science
+- **Disciplines:** Applied Mathematics and Statistics, Biomedical Engineering, Biomedical Informatics, Computer Engineering, Computer Science
 
-Interests / Preparation by Major: Pre-existing knowledge of programming, particularly JavaScript, will be favored as it indicates an innate interest in social coding (user-facing application development). This is applicable to all students, regardless of focus being on Mathematics or Molecular Biology.
+- **Interests / Preparation by Major:** Pre-existing knowledge of programming, particularly JavaScript, will be favored as it indicates an innate interest in social coding (user-facing application development). This is applicable to all students, regardless of focus being on Mathematics or Molecular Biology.
 
-Faculty:
-    Richard Moffitt (Department of Biomedical Informatics)
-    Jonas S Almeida (Department of Biomedical Informatics)
+- **Faculty:**
+  - Richard Moffitt (Department of Biomedical Informatics)
+  - Jonas S Almeida (Department of Biomedical Informatics)
 
-Team Established: Spring 2019
+- **Team Established:** Spring 2019
 
-Meeting Time: Friday 11:45am-12:50pm
+- **Meeting Time:** Friday 11:45am-12:50pm
 
-Meeting Location: [Zoom](https://sbubmi.page.link/vip)
+- **Meeting Location:** [Zoom](https://sbubmi.page.link/vip)
 
-Contact: richard . moffitt @ stonybrookmedicine . edu
+- **Contact:** richard . moffitt @ stonybrookmedicine . edu
 
 ## Links
 * Related work
@@ -100,6 +103,7 @@ Contact: richard . moffitt @ stonybrookmedicine . edu
   * [IntOGen](www.intogen.org/)
   * [Xena](genome-cancer.ucsc.edu)
   * [TCGA Splicing Variation Database](http://tsvdb.com/) [GitHub](https://github.com/wenjie1991/TSVdb)
+  * [OncoJS](https://github.com/oncojs)
 * Active friends of the project
   * SBU's Integrative Informatics workshop [Wiki](https://sites.google.com/mathbiol.org/integrativeinformatics/home)
   * NCI Division of Cancer Epidemiology and Genetics
