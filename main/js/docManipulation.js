@@ -280,6 +280,14 @@ buildViolinPlot = async function(cohortQuery, data){
   //Spacing between plots
   let ySpacing = margin.top;
 
+  //Toggle switch for user to specify whether they want to view Expression vs. Gene (the default option) or Expression vs. Cohort
+  var toggleSwtitch = "<label class='switch'>" + 
+  "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
+  "<input type='checkbox'>" +
+  "<span class='slider round'></span>" +
+  "</label>";
+  document.getElementById("violinPlotRef").innerHTML += (toggleSwtitch);
+
   //Code to get the set of clinical data features to include the option
   //to facet by goes here. For now, gender will be a hardcoded field 
   //to facet by.
@@ -327,12 +335,6 @@ buildViolinPlot = async function(cohortQuery, data){
     violinDiv.innerHTML += rebuildButton;
     //violinDiv.appendChild(rebuildButton);
 
-    //Toggle switch for user to specify whether they want to view Expression vs. Gene (the default option) or Expression vs. Cohort
-    var toggleSwtitch = "<label class='switch'>" + 
-                          "<input type='checkbox'>" +
-                          "<span class='slider round'></span>" +
-                          "</label>";
-    violinDiv.innerHTML += (toggleSwtitch);
     // Create the violin plot:
     createViolinPlot('cohort', cohortQuery, data, violinDiv, curCohort, []);
 
