@@ -137,7 +137,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
 
     //create the svg element for the violin plot
     let svgObject = d3.select(violinDiv).append("svg")
-      .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
+      .attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
       .attr("id", svgID)
       .attr("indepVarType", "cohort") //The attributes added on this line and the lines below are used when rebuilding the plot
       .attr("indepVars", indepVars)
