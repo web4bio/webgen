@@ -294,6 +294,11 @@ buildViolinPlot = async function(cohortQuery, data){
     var violinDivName = "ViolinDiv"+index;
     var violinDiv = addDivInside(violinDivName, "violinPlotRef");
 
+    var partitionSelectorDivName = "violinClinicalPartition"+index;
+    //var partitionSelectorDiv = 
+    addDivInside(partitionSelectorDivName, violinDivName);
+    fillPartitionBox(partitionSelectorDivName);
+
     //Building the selector for each violin plot for faceting
     /*
     $('.clinicalMultipleSelection').select2({
@@ -301,20 +306,33 @@ buildViolinPlot = async function(cohortQuery, data){
     });
     */
 
-    var clinicalFeaturesSelector = "<p style='text-align: center;'><b>Clinical feature(s) to partition by</b></p>"+
-    "<div id='clinicalQuerySelectBox'>"+
-      "<select class='" + `clinicalMultipleSelectionViolin${index}` + "' name='selectedClinicals[]' multiple='multiple' id= '" + `violinPlot${index}` + "Partition' onchange = 'fillClinicalPartitionBox(\"clinicalMultipleSelectionViolin" + index + "\")'>"+
-      "</select>"+
+  /*
+   var selectBoxClassName = "clinicalPartitionSelection";
+   var selectBoxId = "clinicalPartitionSelection";
+   var selectObj = document.createElement("SELECT");
+   selectObj.className = selectBoxClassName;
+   selectObj.id = selectBoxId;
+
+   violinDiv.appendChild(selectObj);
+*/
+
+
+
+   /*
+    var clinicalFeaturesSelector = "<div id='clinicalPartitionSelectBox" + index + "'>"+
+      "<p style='text-align: center;'><b>Clinical feature(s) to partition by</b></p>"+
+      "<select class='" + `clinicalMultipleSelectionViolin${index}` + "' multiple='multiple' id= '" + `violinPlot${index}` + "Partition'>"+
+      "</select>" +
     "</div>";
-    violinDiv.innerHTML += (clinicalFeaturesSelector);    
     
+    violinDiv.innerHTML += (clinicalFeaturesSelector);    
+   */ 
     
     var rebuildButton = "<button id = " + `BTNViolinPlot${index}` + " class = 'BTNViolinPlots col s3 btn waves-effect waves-light' onclick = 'rebuildPlot(" + violinDivName + ")'>Rebuild Violin Plot</button>"
     //var rebuildButton = document.createElement("button");
     //rebuildButton.id = `BTNViolinPlot${index}`;
     //rebuildButton.className = "BTNViolinPlots col s3 btn waves-effect waves-light";
     //rebuildButton.innerHTML = "Rebuild Violin Plot";
-    console.log("Function added");
     
     //rebuildPlot(violinDiv);};
     //var vDiv = document.getElementById(violinDivName);
@@ -326,13 +344,7 @@ buildViolinPlot = async function(cohortQuery, data){
     
     violinDiv.innerHTML += rebuildButton;
     //violinDiv.appendChild(rebuildButton);
-
-    //Toggle switch for user to specify whether they want to view Expression vs. Gene (the default option) or Expression vs. Cohort
-    var toggleSwtitch = "<label class='switch'>" + 
-                          "<input type='checkbox'>" +
-                          "<span class='slider round'></span>" +
-                          "</label>";
-    violinDiv.innerHTML += (toggleSwtitch);
+    
     // Create the violin plot:
     createViolinPlot('cohort', cohortQuery, data, violinDiv, curCohort, []);
 
@@ -341,7 +353,7 @@ buildViolinPlot = async function(cohortQuery, data){
       placeholder: "Clinical Feature(s)"
     });
 
-    fillClinicalPartitionSelectBox(`violinPlot${index}` + "Partition", `clinicalMultipleSelectionViolin${index}`);
+    //fillClinicalPartitionSelectBox(`violinPlot${index}` + "Partition", `clinicalMultipleSelectionViolin${index}`);
   }
 };
 
@@ -403,6 +415,132 @@ showWarning = function(emptyGeneArray_arg) {
   };
 }
 
+fillPartitionBox = function(divId)
+{
+  let clinicalVars = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
+
+  var partitionBox = d3.select("#"+divId);
+  partitionBox.html("");
+  partitionBox.append("text")
+              .style("font-size", "20px")
+              .text("Select feature(s) to partition by:");
+  partitionBox.append("div")
+              .attr('class','viewport')
+              .style('overflow-y', 'scroll')
+              .style('height', '90px')
+              .style('width', '500px')
+              .append('div')
+              .attr('class','body');
+  var selectedText = partitionBox.append('text');
+  let divBody = partitionBox.select('.body');
+
+  var choices;
+  function update() 
+  {
+    choices = [];
+    d3.selectAll(".myCheckbox").each(function(d)
+    {
+      let checkbox = d3.select(this);
+      if(checkbox.property('checked')){ choices.push(checkbox.property('value')); };
+    });
+    if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
+    else { selectedText.text('None selected'); };
+  }
+
+  //Creates a checkbox, text + then pairs them
+  function renderCheckbox(divObj, data) 
+  {
+    //console.log(data);
+    /*
+    <label class='switch'>" + 
+                          "<input type='checkbox'>" +
+                          "<span class='slider round'></span>" +
+                          "</label>";
+                          */
+                /*
+    var checkboxLabel = document.createElement("label");
+    checkboxLabel.class = "switch";
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.class = "myCheckbox";
+    checkbox.value = data;
+    var spanObj = document.createElement("span")
+    spanObj.class = "slider round";
+    spanObj.innerHTML = data;
+    checkboxLabel.appendChild(checkbox);
+    checkboxLabel.appendChild(spanObj);
+    */
+    //console.log(checkboxLabel);    
+
+    //checkboxLabel.append("input");
+
+    const label = divObj.append('div').attr('id', data);
+    //console.log(typeof(data) + ": " + data);
+    
+    /*
+    innerDiv = document.createElement("div");
+    innerDiv.id = data;
+    innerDiv.appendChild(checkboxLabel);
+    console.log(divObj);
+    divObj.append("div").attr();
+    console.log(divObj)
+*/
+    
+    //innerDiv.append(checkboxLabel);
+    //divObj.append('div').attr('id', data).appendChild(checkboxLabel);
+
+    label.append("label")
+      .attr("class", "switch")
+      .append("input")
+      .attr("class", "myCheckbox")
+      .attr("value", data)
+      .attr("type", "checkbox")
+      .on('change',update)
+      .attr("style", 'opacity: 1; position: relative; pointer-events: all')
+      .append("span")
+      .attr("class", "slider round")
+      .attr('value', data);
+      //.on('change',update);
+
+      
+     /*
+    label.append('input')
+        .attr('type', 'checkbox')
+        .attr('class', 'myCheckbox')
+        .attr('value', data)
+        .on('change',update)
+        */
+        
+        //.property('checked',true)
+    label.append('text')
+        .text(data);
+    //*/    
+    //label.innerHTML += checkboxLabel;
+    //console.log(typeof(label));
+    //console.log(label);
+  }
+
+  // data to input = clinical vars from query
+  //let varOptions = clinicalVars.split(/[\s,]+/).map(el => ({id: el}));
+  varOptions = clinicalVars;
+  console.log(varOptions);
+  // make a checkbox for each option
+  varOptions.forEach(el => renderCheckbox(divBody,el));
+  update();
+};
+
+function getClinicalFeatureSelection(divId, num) 
+{
+  var choices = [];
+  console.log(d3.select('#' + divId).selectAll(".myCheckbox"));
+  d3.select('#' + divId).selectAll(".myCheckbox").each(function(d)
+  {
+      let checkbox = d3.select(this);
+      if(checkbox.property('checked')){ choices.push(checkbox.property('value')); };
+  });
+  return choices
+}
+
 //Rebuilds violin plot only at the moment. Will be updated to
 //differentiate between the different types of plots.
 rebuildPlot = function(violinDiv)
@@ -424,10 +562,15 @@ rebuildPlot = function(violinDiv)
   d3.select("#"+"tooltip"+divNum).remove();
 
   //Get the fields specified in the partition select box
+  /*
   var selectBox = document.getElementById("violinPlot" + svgId.charAt(svgId.length-1) + "Partition");
   var facetFields = [...selectBox.options]
                       .filter(option => option.selected)
                       .map(option => option.value);
+                      */
+  console.log("Called!");
+  var facetFields = getClinicalFeatureSelection("violinClinicalPartition"+divNum, divNum);
+  console.log(facetFields);
   //Rebuild violin plot
   createViolinPlot(indepVarType, indepVars, getExpressionDataJSONArray(), violinDiv, cohort, facetFields);
 };

@@ -189,11 +189,11 @@ let fillClinicalTypeSelectBox = async function() {
 };
 
 let fillClinicalPartitionSelectBox = async function(id, className)
-{
-    console.log(className);
-    
+{    
+    console.log("fillClinicalPartitionSelectBox() Called!");
+    console.log(id + ", " + className);
     let selectBox = document.getElementById(id);
-    let clinicalKeys = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
+    let clinicalKeys = Object.keys(clinicalQuery[0]);
     for(let index = 0; index < clinicalKeys.length; index++)
     {
         let currentOption = document.createElement("option");
@@ -203,16 +203,18 @@ let fillClinicalPartitionSelectBox = async function(id, className)
         selectBox.appendChild(currentOption);
     }
 
-    let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
-    if(clinicalFeatureOptions){
-        $('.' + className).val(clinicalFeatureOptions)
-    }
+    //let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
+    //if(clinicalFeatureOptions){
+    //    $('.' + className).val(clinicalFeatureOptions)
+    //}
 };
 
+/*
 let fillClinicalPartitionBox = async function(className)
 {
     $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
 };
+*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
