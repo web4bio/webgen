@@ -33,7 +33,9 @@ let fillCancerTypeSelectBox = async function() {
     let cancerTypeSelectedOptions = localStorage.getItem("cancerTypeSelectedOptions").split(',');
     if(cancerTypeSelectedOptions){
         $('.cancerTypeMultipleSelection').val(cancerTypeSelectedOptions);
-        fillClinicalTypeSelectBox();
+        if(cancerTypeSelectedOptions != "") {
+            fillClinicalTypeSelectBox();
+        }
     }
 };
 
@@ -137,7 +139,7 @@ let getBarcodesFromCohortForClinical = async function () {
     var results = dataFetched.mRNASeq;
     let tpBarcodes = [];
     results.forEach(element => tpBarcodes.push(element.tcga_participant_barcode));
-    console.log(tpBarcodes)
+    // console.log(tpBarcodes)
     return tpBarcodes;
 }
 
