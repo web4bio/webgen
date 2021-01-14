@@ -220,6 +220,7 @@ let buildPlots = async function() {
 
     // Remove the loader
     document.getElementById('heatmapDiv0').classList.remove('loader');
+    document.getElementById('svgViolinDiv0').classList.remove('loader');
 
     let sorryDiv = document.getElementById("sorryDiv");
     sorryDiv.innerHTML = "";
@@ -229,9 +230,21 @@ let buildPlots = async function() {
     para.innerText = "No patient barcodes exist for the combination of pie sectors selected.";  
     sorryDiv.appendChild(para);
 
+  // if no pie sectors were selected, tell the user to select some
+  } else if(intersectedBarcodes == 0) {
+      // Remove the loader
+      document.getElementById('heatmapDiv0').classList.remove('loader');
+      document.getElementById('svgViolinDiv0').classList.remove('loader');
+  
+      let sorryDiv = document.getElementById("sorryDiv");
+      sorryDiv.innerHTML = "";
+      para = document.createElement("P");
+      para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
+      para.setAttribute('id', 'noIntersectPara');        
+      para.innerText = "To visualize data, please select at least one pie chart sector.";
+
   // if there IS/ARE barcode(s) at the intersection, build heatmap and violin plots
   } else {
-
     sorryDiv.innerHTML = "";
     // Filter expression data based on intersection of barcodes
     let data = [];
