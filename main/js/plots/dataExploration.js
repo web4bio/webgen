@@ -121,15 +121,12 @@ let buildDataExplorePlots = async function() {
                         size: 14
                     },
                     itemwidth: 40,
+                    orientation: "v"
                     // title: {
                     //     text: "Mutations"
                     // }
                 },
-                margin: {
-                    autoexpand: true
-                },
                 extendpiecolors: true,
-                autosize: true
             };
 
             var config = {responsive: true}
