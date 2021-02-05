@@ -26,9 +26,9 @@ removeDiv = function () {
       i++;
     } else {
       continueBool = false;
-    };
-  };
-};
+    }
+  }
+}
 
 // Function to remove the current svg elements if they exist:
 removeSVGelements = function () {
@@ -47,18 +47,23 @@ removeSVGelements = function () {
         else
           break;
       }
+<<<<<<< HEAD
     }
   };
 };
+=======
+    }  
+  }
+}
+>>>>>>> development
 
 // Function to remove the tooltip div elements if they exist:
 removeTooltipElements = function () {
   let collection = document.getElementsByClassName('tooltip');
-
   for (let i = 0, len = collection.length || 0; i < len; i = i + 1) {
     collection[0].remove();
   }
-};
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,8 +83,12 @@ removeTooltipElements = function () {
 function setExampleVars() {
   // Select example values:
   $('.cancerTypeMultipleSelection').val(['PAAD']);
+<<<<<<< HEAD
   $('.clinicalMultipleSelection').val(['gender', 'race']);
   $('.geneMultipleSelection').val(['BRCA1', 'EGFR', 'KRAS', 'TP53']);
+=======
+  $('.clinicalMultipleSelection').val(['ethnicity', 'KRAS', 'EGFR', 'TP53']);
+>>>>>>> development
 
   // Trigger the change:
   $('.cancerTypeMultipleSelection').trigger('change');
@@ -104,10 +113,15 @@ function setExampleVars() {
 // The JS code for building the plots to display:
 // Wait for user input to build plots:
 
+<<<<<<< HEAD
 let buildPlots = async function () {
 
   let dataToPlotInfo;
 
+=======
+let buildPlots = async function() {
+  
+>>>>>>> development
   // Reset page formatting:
   document.getElementById('heatmapDiv0').innerHTML = "";
   document.getElementById('svgViolinDiv0').innerHTML = "";
@@ -121,8 +135,8 @@ let buildPlots = async function () {
   document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
   document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
 
-  // Get gene query and cohort query values from select2 box:
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
+<<<<<<< HEAD
     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let geneQuery = $('.geneMultipleSelection').select2('data').map(
     geneInfo => geneInfo.text);
@@ -134,22 +148,37 @@ let buildPlots = async function () {
 
     // Fetch RNA sequence data and display requested plots:
     dataToPlotInfo = getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
+=======
+                    cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  let geneQuery = $('.clinicalMultipleSelection').select2('data').map(
+                    clinicalInfo => clinicalInfo.text);
+>>>>>>> development
 
-  } else {
+  // Fetch RNA sequence data
+  let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
 
-    let iniMutationFetch = await fetchMutationData();
-    let allVariantClassificationData = iniMutationFetch.MAF;
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  // ***** Get ALL barcodes from selected pie sectors (below) *****
 
+<<<<<<< HEAD
     let selectedVariantClassificationData = [];
     for (let i = 0; i < allVariantClassificationData.length; i++)
       for (let j = 0; j < selectedVariantClassifications.length; j++)
         if (allVariantClassificationData[i].Variant_Classification == selectedVariantClassifications[j])
           selectedVariantClassificationData.push(allVariantClassificationData[i])
+=======
+  // clinicalValues is an array of key value pairs for gene(s) selected and mutation(s) selected
+  let clickedGenes = Object.keys(clinicalValues);
+  let concatFilteredBarcodes = [];
+>>>>>>> development
 
-    let selectedBarcodes = selectedVariantClassificationData.map(x => x.Tumor_Sample_Barcode);
+  // LOOP THRU ALL CLICKED GENES
+  for(let i = 0; i < clickedGenes.length; i++) {
 
-    let trimmedBarcodes = selectedBarcodes.map(x => x.slice(0, 12))
+    let currentGene = clickedGenes[i];
 
+<<<<<<< HEAD
     // get unique barcodes
     let barcodes = []
     for (let i = 0; i < trimmedBarcodes.length; i++) {
@@ -159,10 +188,16 @@ let buildPlots = async function () {
         barcodes.push(trimmedBarcodes[i])
       }
     }
+=======
+    await getAllVariantClassifications(currentGene).then(function(mutationData) { // get ALL mutation data for current gene of the selected genes
+>>>>>>> development
 
-    // Fetch RNA sequence data and display requested plots:
-    dataToPlotInfo = getExpressionDataJSONarray_cgb(cohortQuery, geneQuery, barcodes);
+      // LOOP THRU ALL CLICKED "MUTATIONS"
+      let clickedMutations = clinicalValues[currentGene];
+      for(let j = 0; j < clickedMutations.length; j++) {
+        let currentMutation = clickedMutations[j];
 
+<<<<<<< HEAD
   }
 
   // Once data is returned, build the plots:
@@ -195,29 +230,140 @@ let buildPlots = async function () {
         if (!hasFeature)
           return false; // if it does not have a clinical feature chosen then don't return it
         hasFeature = false; // reset this variable to false
+=======
+        // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
+        if(currentMutation != "Wild_Type") {
+          let allData = mutationData.filter(person => (person.Hugo_Symbol == currentGene) && (person.Variant_Classification == currentMutation));
+          let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
+          let trimmedOnlyBarcodes = onlyBarcodes.map(x => x.slice(0,12));
+          function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+          }
+          let filteredTrimmedOnlyBarcodes = trimmedOnlyBarcodes.filter(onlyUnique);
+          if(concatFilteredBarcodes['' + currentGene] == undefined)
+            concatFilteredBarcodes['' + currentGene] = filteredTrimmedOnlyBarcodes;
+          else 
+            concatFilteredBarcodes['' + currentGene] += filteredTrimmedOnlyBarcodes;
+
+        // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
+        } else {
+
+          // IF NO MUTATIONS EXIST AT ALL FOR THE CURRENT GENE, then get the associated barcodes from mRNAseq api's data
+          if(mutationData == undefined) {
+            let allData = expressionData.filter(person => person.gene == currentGene);
+            let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
+            if(concatFilteredBarcodes['' + currentGene] == undefined)
+              concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
+            else
+              concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
+
+          // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
+          } else {
+            
+            let allData_1 = mutationData.filter(person => person.Hugo_Symbol == currentGene);
+            let onlyBarcodes_1 = allData_1.map(x => x.Tumor_Sample_Barcode);
+            let trimmedOnlyBarcodes_1 = onlyBarcodes_1.map(x => x.slice(0,12));
+
+            allData_2 = expressionData.filter(person => person.gene == currentGene);
+            onlyBarcodes_2 = allData_2.map(x => x.tcga_participant_barcode);
+
+            let barcodesForWildType = [];
+            for(let i = 0; i < onlyBarcodes_2.length; i++)
+              if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
+                barcodesForWildType.push(onlyBarcodes_2[i]);
+            if(concatFilteredBarcodes['' + currentGene] == undefined)
+              concatFilteredBarcodes['' + currentGene] = barcodesForWildType;  
+            else
+              concatFilteredBarcodes['' + currentGene] += barcodesForWildType;
+          }
+        }
+>>>>>>> development
       }
-      return x; // if it exits the for loop then that means it has all the clinical features requested
     })
-    console.log(clinicalRes);
-    data = clinicalRes;
+  }
+  
+  // Get intersection of barcodes from selected pie sectors
 
+  let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
+  let intersectedBarcodes;
 
+<<<<<<< HEAD
     // Display Warning for any invalid genes:
     let myGenesReturned = d3.map(data, function (d) { return d.gene; }).keys();
     let emptyGeneArray = geneQuery.filter(function (gene) { if (!myGenesReturned.includes(gene)) { return gene } });
     if (emptyGeneArray.length > 0) {
       showWarning(emptyGeneArray)
     };
+=======
+  // If user clicked 0 or 1 gene/mutation combos, simply use these barcodes
+  if(clicked_gene_mutation.length <= 1) {
+    let currentGene = clicked_gene_mutation[0];
+    intersectedBarcodes = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
+>>>>>>> development
 
-    // Build the heatmap
-    buildHeatmap(cohortQuery, data);
+  // If user clicked >1 gene/mutation combos, compute intersection
+  } else {
+    for(let i = 0; i < clicked_gene_mutation.length - 1; i++) {
+      let current_gene_mutation = clicked_gene_mutation[i];
+      let next_gene_mutation = clicked_gene_mutation[i + 1];
+      let barcodesForCurrentGene = concatFilteredBarcodes[current_gene_mutation]; // barcode(s) for selected gene mutation combo in given cancer type
+      let barcodesForNextGene = concatFilteredBarcodes[next_gene_mutation];
+      intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
+    }  
+  }
 
-    // Build the violin plots
+  // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
+  if(intersectedBarcodes.length == 0) {
+
+    // Remove the loader
+    document.getElementById('heatmapDiv0').classList.remove('loader');
+    document.getElementById('svgViolinDiv0').classList.remove('loader');
+
+    let sorryDiv = document.getElementById("sorryDiv");
+    sorryDiv.innerHTML = "";
+    para = document.createElement("P");
+    para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
+    para.setAttribute('id', 'noIntersectPara');        
+    para.innerText = "No patient barcodes exist for the combination of pie sectors selected.";  
+    sorryDiv.appendChild(para);
+
+  // if no pie sectors were selected, tell the user to select some
+  } else if(intersectedBarcodes == 0) {
+      // Remove the loader
+      document.getElementById('heatmapDiv0').classList.remove('loader');
+      document.getElementById('svgViolinDiv0').classList.remove('loader');
+  
+      let sorryDiv = document.getElementById("sorryDiv");
+      sorryDiv.innerHTML = "";
+      para = document.createElement("P");
+      para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
+      para.setAttribute('id', 'noIntersectPara');        
+      para.innerText = "To visualize data, please select at least one pie chart sector.";
+
+  // if there IS/ARE barcode(s) at the intersection, build heatmap and violin plots
+  } else {
+    sorryDiv.innerHTML = "";
+    // Filter expression data based on intersection of barcodes
+    let data = [];
+    for(let i = 0; i < intersectedBarcodes.length; i++) 
+      for(let j = 0; j < expressionData.length; j++) 
+        if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
+          data.push(expressionData[j])
+    data = data.filter(x => clickedGenes.includes(x.gene))
+
+    buildHeatmap(data);
     buildViolinPlot(cohortQuery, data);
-  });
+    
+  }
+
 };
 
+<<<<<<< HEAD
 buildHeatmap = async function (cohortQuery, data) {
+=======
+buildHeatmap = async function(data){
+
+>>>>>>> development
   // Remove the loader
   document.getElementById('heatmapDiv0').classList.remove('loader');
 
@@ -236,6 +382,7 @@ buildHeatmap = async function (cohortQuery, data) {
   let clinicalData  = await getClinicalDataJSONarray_cc(cohortQuery, clinQuery)
 
   // Create the heatmap
+<<<<<<< HEAD
   createHeatmap(data, clinicalData, divHeatMap);
 };
 
@@ -250,13 +397,40 @@ buildViolinPlot = async function (cohortQuery, data) {
   //Appending multiple g elements to svg object for violin plot
   let myCohorts = d3.map(data, function (d) { return d.cohort; }).keys();
   //Define the number of cohorts to create a plot for
+=======
+  createHeatmap(data, divHeatMap);
+
+};
+
+buildViolinPlot = async function(cohortQuery, data){
+
+  // Remove the loader
+  document.getElementById('svgViolinDiv0').classList.remove('loader');               
+
+  // Set up the figure dimensions:
+  let margin = {top: 80, right: 30, bottom: 30, left: 60},
+  width = 1250 - margin.left - margin.right,
+  height = 500 - margin.top - margin.bottom;
+
+  // Appending multiple g elements to svg object for violin plot
+  let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+
+  // Define the number of cohorts to create a plot for
+>>>>>>> development
   let numCohorts = myCohorts.length;
-  //Spacing between plots
+
+  // Spacing between plots
   let ySpacing = margin.top;
 
   // Append an svg object for each cohort to create a violin plot for
+<<<<<<< HEAD
   for (var index = 0; index < numCohorts; index++) {
     //Define the current cohort to create the violin plot for
+=======
+  for(var index = 0; index < numCohorts; index++) {
+    
+    // Define the current cohort to create the violin plot for
+>>>>>>> development
     let curCohort = myCohorts[index];
 
     let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
@@ -289,6 +463,7 @@ buildViolinPlot = async function (cohortQuery, data) {
 
 // Function to display the error message:
 // NOTE: errors are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
+<<<<<<< HEAD
 showError = function (errorType) {
   // Create div1 and set it to be alert class:
   addDiv('div1', 'heatmapDiv0');
@@ -344,19 +519,48 @@ showWarning = function (emptyGeneArray_arg) {
 //     if (statusTemp == false) {
 //       return false;
 //     };
+=======
+// showError = function(errorType) {
+//   // Create div1 and set it to be alert class:
+//   addDiv('div1','heatmapDiv0');
+//   let divElement = document.getElementById('div1');
+//   divElement.className = 'alert';
+
+//   // Creates span clone from span0 to add to div1:
+//   let span = document.getElementById('span0');
+//   let spanElement = span.cloneNode(true);
+//   spanElement.setAttribute('id','span1');
+//   divElement.appendChild(spanElement);
+
+//   // Adds the error message to the div:
+//   if(errorType == 'geneError') {
+//     divElement.innerHTML += "Error: ".bold() + "Invalid Gene Fields for Query";
+//   } else if (errorType == 'cohortError') {
+//     divElement.innerHTML += "Error: ".bold() + "Invalid Cohort Fields for Query";
+>>>>>>> development
 //   };
-//   return true;
 // };
 
-// Function to count the number of genes
-// countNumberOfGenes = function(cohortQuery) {
-//   let total = 0;
-//   numCohorts = cohortQuery.length;
-//   for (let i = 0; i < numCohorts; i++) {
-//       total++;
+// Function to display a warning for genes that don't have mRNA-Seq data:
+// NOTE: warnings are no longer needed since we have introduced select2 boxes. Saving this code incase needed later:
+// showWarning = function(emptyGeneArray_arg) {
+//   // Create div1 and set it to be warning class:
+//   let divElement = document.getElementById('heatmapDiv0');
+//   divElement.className = 'warning';
+
+//   // Create span clone from span0 to add to div1:
+//   let span = document.getElementById('span0');
+//   let spanElement = span.cloneNode(true);
+//   spanElement.setAttribute('id','span1');
+//   divElement.appendChild(spanElement);
+
+//   // Add the warning message to the div:
+//   if (emptyGeneArray_arg.length == 1) {
+//     divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " is an Invalid Gene for Query";
+//   } else {
+//     divElement.innerHTML += "Warning: ".bold() +emptyGeneArray_arg.join(', ')+ " are Invalid Genes for Query";
 //   };
-//   return total;
-// };
+// }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

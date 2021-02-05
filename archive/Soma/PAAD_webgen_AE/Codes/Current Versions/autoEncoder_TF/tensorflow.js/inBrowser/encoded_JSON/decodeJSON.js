@@ -1,0 +1,1 @@
+const selectedFile = document.getElementById('input');
