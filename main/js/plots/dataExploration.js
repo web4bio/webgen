@@ -99,8 +99,8 @@ let buildDataExplorePlots = async function() {
                 values: xCounts,
                 labels: uniqueValuesForCurrentFeature,
                 type: 'pie',
-                textinfo: "label+percent",
-                textposition: "outside",
+                textinfo: "none",
+                // textposition: "inside",
                 marker: {
                     colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
                     '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
@@ -116,8 +116,20 @@ let buildDataExplorePlots = async function() {
                 width: 500,
                 title: currentFeature + "",
                 showlegend: true,
-                extendpiecolors: true
+                legend: {
+                    font: {
+                        size: 14
+                    },
+                    itemwidth: 40,
+                    orientation: "v"
+                    // title: {
+                    //     text: "Mutations"
+                    // }
+                },
+                extendpiecolors: true,
             };
+
+            var config = {responsive: true}
         
             let parentRowDiv = document.getElementById("dataexploration");        
             let newDiv = document.createElement("div");
@@ -125,7 +137,7 @@ let buildDataExplorePlots = async function() {
             newDiv.setAttribute("id", currentFeature + "Div");
             parentRowDiv.appendChild(newDiv);
             
-            Plotly.newPlot(currentFeature + 'Div', data, layout, {scrollZoom: true});
+            Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
