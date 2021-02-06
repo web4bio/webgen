@@ -42,6 +42,7 @@ This is a public, open-source project, as well as a project that students may re
 | [Eric Ruan](https://github.com/ericr491) | [Fall 2020 Log](https://docs.google.com/document/d/1RldOmYmN9yAjB2dhHcvPQdRe_WidyJhlccK51Nb8tL8/edit?usp=sharing) | [Sandbox](https://observablehq.com/@ericr491/webgen) | |
 | [Jillian Unkenholz](https://github.com/jillianunk32)  | [Fall 2020 Log](https://docs.google.com/document/d/1c1T6mJisOjjH_uQheGSuq5BtZTJ1u-04OMFvhlM-PAY/edit?usp=sharing)|[Sandbox](https://observablehq.com/@jillianunk32/webgen) | |
 | [Chowdhury An-Noor](https://github.com/chowdhuryannoor) |[Fall 2020 Log](https://docs.google.com/document/d/1LGMLUeRYprQLJjIqrcAhkt0rZmliiRqFKP8AvuWq1z0/edit?usp=sharing) |[Sandbox](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
+| [Purva Shenoy](https://github.com/prvshenoy01) | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
