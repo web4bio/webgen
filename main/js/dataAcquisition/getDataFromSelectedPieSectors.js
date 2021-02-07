@@ -34,8 +34,8 @@ getDataFromSelectedPieSectors = async function(expressionData) {
 
           if(concatFilteredBarcodes['' + currentGene] == undefined)
             concatFilteredBarcodes['' + currentGene] = uniqueTrimmedOnlyBarcodes;
-          else 
-            concatFilteredBarcodes['' + currentGene] += uniqueTrimmedOnlyBarcodes;
+          else
+            concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(uniqueTrimmedOnlyBarcodes);
         
         // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
         } else {
@@ -46,8 +46,8 @@ getDataFromSelectedPieSectors = async function(expressionData) {
             let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
             if(concatFilteredBarcodes['' + currentGene] == undefined)
               concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
-            else
-              concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
+            // else
+            //   concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
 
           // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
           } else {
@@ -66,7 +66,7 @@ getDataFromSelectedPieSectors = async function(expressionData) {
             if(concatFilteredBarcodes['' + currentGene] == undefined)
               concatFilteredBarcodes['' + currentGene] = barcodesForWildType;  
             else
-              concatFilteredBarcodes['' + currentGene] += barcodesForWildType;
+              concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(barcodesForWildType);
           }
         }
       }
@@ -74,7 +74,7 @@ getDataFromSelectedPieSectors = async function(expressionData) {
   }
   
   // Get intersection of barcodes from selected pie sectors
-
+  console.log(concatFilteredBarcodes)
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
   let intersectedBarcodes;
 
@@ -86,10 +86,10 @@ getDataFromSelectedPieSectors = async function(expressionData) {
   // If user clicked >1 gene/mutation combos, compute intersection
   } else {
     for(let i = 0; i < clicked_gene_mutation.length - 1; i++) {
-      let current_gene_mutation = clicked_gene_mutation[i];
-      let next_gene_mutation = clicked_gene_mutation[i + 1];
-      let barcodesForCurrentGene = concatFilteredBarcodes[current_gene_mutation]; // barcode(s) for selected gene mutation combo in given cancer type
-      let barcodesForNextGene = concatFilteredBarcodes[next_gene_mutation];
+      let currentGene = clicked_gene_mutation[i];
+      let nextGene = clicked_gene_mutation[i + 1];
+      let barcodesForCurrentGene = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
+      let barcodesForNextGene = concatFilteredBarcodes[nextGene];
       intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
     }  
   }
