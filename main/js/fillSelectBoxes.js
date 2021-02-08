@@ -133,16 +133,17 @@ let getValidGeneList = async function() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// get barcodes for which expression data exists for those cancer types that were selected
 let getBarcodesFromCohortForClinical = async function () {
     let myCohort = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     var dataFetched = await fetchExpressionData_cg(myCohort, 'bcl2');
     var results = dataFetched.mRNASeq;
     let tpBarcodes = [];
     results.forEach(element => tpBarcodes.push(element.tcga_participant_barcode));
-    // console.log(tpBarcodes)
     return tpBarcodes;
 }
 
+// fetch CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
 let fetchClinicalData = async function() {
     let barcodes = await getBarcodesFromCohortForClinical();
     let clinicalData = await firebrowse.getClinical_FH(barcodes);
@@ -154,6 +155,7 @@ let fetchClinicalData = async function() {
 }
 
 let allClinicalData;
+
 let fillClinicalTypeSelectBox = async function() {
 
     let dataFetched = await fetchClinicalData();
@@ -168,7 +170,9 @@ let fillClinicalTypeSelectBox = async function() {
     //     selectBox.appendChild(currentOption);
     // }
 
-    let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
+    $('#clinicalMultipleSelection').val(null).trigger('change');
+
+    let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
     for(let i = 0; i < geneList.length; i++) {
         let currentOption = document.createElement("option");
         currentOption.value = geneList[i].hugoSymbol;
@@ -181,7 +185,6 @@ let fillClinicalTypeSelectBox = async function() {
     if(clinicalFeatureOptions){
         $('.clinicalMultipleSelection').val(clinicalFeatureOptions)
     }
-
     
 };
 
