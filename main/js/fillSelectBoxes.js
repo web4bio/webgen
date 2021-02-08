@@ -172,13 +172,15 @@ let fillClinicalTypeSelectBox = async function() {
 
     $('#clinicalMultipleSelection').val(null).trigger('change');
 
-    let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
-    for(let i = 0; i < geneList.length; i++) {
-        let currentOption = document.createElement("option");
-        currentOption.value = geneList[i].hugoSymbol;
-        currentOption.text = geneList[i].hugoSymbol;
-        currentOption.id = geneList[i].hugoSymbol;
-        selectBox.appendChild(currentOption);
+    if (!$('#clinicalMultipleSelection').find("option[value='" + "TP53" + "']").length) {
+        let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
+        for(let i = 0; i < geneList.length; i++) {
+            let currentOption = document.createElement("option");
+            currentOption.value = geneList[i].hugoSymbol;
+            currentOption.text = geneList[i].hugoSymbol;
+            currentOption.id = geneList[i].hugoSymbol;
+            selectBox.appendChild(currentOption);
+        }
     }
 
     let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
