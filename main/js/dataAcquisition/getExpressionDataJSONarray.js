@@ -26,8 +26,7 @@ getExpressionDataJSONarray_cg = async function(cohortQuery, geneQuery) {
   var dataFetched = await fetchExpressionData_cg(cohortQuery,geneQuery);
   // Remove the uppermost level of the data (cleaning)
   var results = dataFetched.mRNASeq;
-  globalResults = results;
-  console.log(results)
+  // console.log(results)
   return await results;
 };
 
@@ -36,8 +35,7 @@ getExpressionDataJSONarray_cgb = async function(cohortQuery, geneQuery, barcodes
   var dataFetched = await fetchExpressionData_cgb(cohortQuery,geneQuery, barcodes);
   // Remove the uppermost level of the data (cleaning)
   var results = dataFetched.mRNASeq;
-  globalResults = results;
-  console.log(results)
+  // console.log(results)
   return await results;
 };
 

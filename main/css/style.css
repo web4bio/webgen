@@ -38,7 +38,7 @@
 .loader {
     position: absolute;
     left: 50%;
-    top: 40%;
+    top: 58%;
     z-index: 1;
     width: 150px;
     height: 150px;
@@ -147,7 +147,8 @@
 
 #submitButton {
     width: 15%;
-    margin-right: 35%;
+    /* margin-right: 35%; */
+    margin-left: 43%;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
