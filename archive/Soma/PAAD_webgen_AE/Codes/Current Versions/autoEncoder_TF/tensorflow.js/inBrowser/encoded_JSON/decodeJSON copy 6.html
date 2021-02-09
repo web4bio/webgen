@@ -1,0 +1,43 @@
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
+<input type="file" id="fileid">
+<script type="text/javascript">
+  function readjson(inputfile){
+    $.getJSON(inputfile, function(data){
+      $.each(data.patches, function(i, f) {
+        var tblRow = "<tr>" + "<td>" + f.name + "</td>" + "</tr>" + "<tr>" + "<td>" +  f.data + "</td>" + "</tr>"
+          $(tblRow).appendTo("#userdata tbody");
+      })
+    })
+  }
+  $("#fileid").change(function() {
+
+
+  var people = [];
+  const jsonfile = $("#fileid");
+  console.log(jsonfile);
+  readjson(jsonfile);
+  });
+</script>
+</head>
+
+<body>
+
+<div class="wrapper">
+<div class="profile">
+   <table id= "userdata" border="2">
+  <thead>
+            <th>Name</th>
+            <th>Data</th>
+        </thead>
+      <tbody>
+
+       </tbody>
+   </table>
+
+</div>
+</div>
+
+</body>
+</html>

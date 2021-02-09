@@ -1,0 +1,3 @@
+- Loading tons of images for training takes way too long --> convert images to TFRecords format for easy loading 
+- Adding a dense layer 
+- Going from tensor back to image in the browser 

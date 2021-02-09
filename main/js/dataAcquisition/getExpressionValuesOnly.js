@@ -47,7 +47,7 @@ getExpressionValuesOnly = async function(cohortQuery, geneQuery) {
   // Display warning for missing genes
   var emptyGenesArrayDeduped = [...new Set(emptyGenesArray)];
   if (emptyGenesArrayDeduped.length != 0) {
-    document.getElementById('div0').classList.remove('loader');                              // Remove the loader.
+    document.getElementById('heatmapDiv0').classList.remove('loader');                              // Remove the loader.
     showWarning(emptyGenesArrayDeduped);
   }
 
