@@ -457,41 +457,8 @@ fillPartitionBox = function(divId)
   //Creates a checkbox, text + then pairs them
   function renderCheckbox(divObj, data) 
   {
-    //console.log(data);
-    /*
-    <label class='switch'>" + 
-                          "<input type='checkbox'>" +
-                          "<span class='slider round'></span>" +
-                          "</label>";
-                          */
-                /*
-    var checkboxLabel = document.createElement("label");
-    checkboxLabel.class = "switch";
-    var checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.class = "myCheckbox";
-    checkbox.value = data;
-    var spanObj = document.createElement("span")
-    spanObj.class = "slider round";
-    spanObj.innerHTML = data;
-    checkboxLabel.appendChild(checkbox);
-    checkboxLabel.appendChild(spanObj);
-    */
-    //console.log(checkboxLabel);    
-
-    //checkboxLabel.append("input");
-
     const label = divObj.append('div').attr('id', data);
-    //console.log(typeof(data) + ": " + data);
     
-    /*
-    innerDiv = document.createElement("div");
-    innerDiv.id = data;
-    innerDiv.appendChild(checkboxLabel);
-    console.log(divObj);
-    divObj.append("div").attr();
-    console.log(divObj)
-*/
     
     //innerDiv.append(checkboxLabel);
     //divObj.append('div').attr('id', data).appendChild(checkboxLabel);
@@ -521,16 +488,11 @@ fillPartitionBox = function(divId)
         //.property('checked',true)
     label.append('text')
         .text(data);
-    //*/    
-    //label.innerHTML += checkboxLabel;
-    //console.log(typeof(label));
-    //console.log(label);
   }
 
   // data to input = clinical vars from query
   //let varOptions = clinicalVars.split(/[\s,]+/).map(el => ({id: el}));
   varOptions = clinicalVars;
-  console.log(varOptions);
   // make a checkbox for each option
   varOptions.forEach(el => renderCheckbox(divBody,el));
   update();
@@ -575,7 +537,6 @@ rebuildPlot = function(violinDiv)
                       .filter(option => option.selected)
                       .map(option => option.value);
                       */
-  console.log("Called!");
   var facetFields = getClinicalFeatureSelection("violinClinicalPartition"+divNum, divNum);
   console.log(facetFields);
   //Rebuild violin plot
