@@ -124,6 +124,10 @@ let buildPlots = async function() {
   // Fetch RNA sequence data for selected cancer type(s) and gene(s)
   let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
 
+  // Fetch clinical data for cohort and specified clinical fields (temporarily hard-coded)
+  let clinicalQuery = ["gender", "race", "vital_status", "histological_type", "tumor_tissue_site"];
+  let clinicalData = await getClinicalDataJSONarray_cc(cohortQuery, clinicalQuery);
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   let data = await getDataFromSelectedPieSectors(expressionData);
