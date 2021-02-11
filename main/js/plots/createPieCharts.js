@@ -24,8 +24,11 @@ let buildDataExplorePlots = async function() {
 
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
 
+    // if no clinical features are selected, do not display any pie charts
     if(mySelectedClinicalFeatures.length == 0) {
         document.getElementById('dataexploration').innerHTML = ""
+
+    // if clinical feature(s) is/are selected, display pie chart(s)
     } else {
 
         // clear all previous plots that were displayed
@@ -40,7 +43,7 @@ let buildDataExplorePlots = async function() {
             let uniqueValuesForCurrentFeature = [];
             let xCounts = [];
 
-            // if current feature is a gene
+            // if current feature is a gene,
             // get values and labels for this feature
             if(currentFeature[0] === currentFeature[0].toUpperCase()) {
 
@@ -54,10 +57,20 @@ let buildDataExplorePlots = async function() {
                     // if mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
                     if(mutationsForThisGene != undefined) { 
                         for(let i = 0; i < mutationsForThisGene.length; i++) {
-                            allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification); // add all variant classifications (with duplicates) to the array
-                            allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode);   // add all associated barcodes to the array
+
+                            // add all variant classifications (i.e., mutation types) (WITH DUPLICATES) for the given gene to the array
+                            allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification);
+
+                            // add all associated barcodes that correspond to the cancer type and gene to the array
+                            allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode);
                         }
+
+                        // create an array of unique variant classifications (i.e., mutation types) for each gene selected
+                        // these will become the labels for the legend items 
                         uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
+                        
+                        // count how many occurrences there are for each mutation type for the given gene
+                        // xCounts is an array that will be used to label number of occurrences of each mutation for the given gene
                         xCounts.length = uniqueValuesForCurrentFeature.length;
                         for(let i = 0; i < xCounts.length; i++)
                             xCounts[i] = 0;
@@ -67,6 +80,8 @@ let buildDataExplorePlots = async function() {
                             totalNumberMutations++;
                         }
 
+                        // if there are fewer patients with mutations than the total number of patients for the given cancer type and gene,
+                        // then create a new pie sector for patients with a wild-type version of the gene
                         if(totalNumberMutations < totalNumberBarcodes) {
                             uniqueValuesForCurrentFeature[uniqueValuesForCurrentFeature.length] = "Wild_Type"
                             xCounts[xCounts.length] = totalNumberBarcodes - totalNumberMutations;
