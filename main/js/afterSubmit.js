@@ -132,12 +132,12 @@ let buildPlots = async function() {
   
   let data = await getDataFromSelectedPieSectors(expressionData);
 
-  buildHeatmap(data);
+  buildHeatmap(data, clinicalData);
   buildViolinPlot(cohortQuery, data);
 
 };
 
-buildHeatmap = async function(data){
+buildHeatmap = async function(expData, clinData){
   // Remove the loader
   document.getElementById('heatmapDiv0').classList.remove('loader');
 
@@ -145,7 +145,7 @@ buildHeatmap = async function(data){
   let divHeatMap = d3.select('#heatmapDiv0').html("");
 
   // Create the heatmap
-  createHeatmap(data, divHeatMap);
+  createHeatmap(expData, clinData, divHeatMap);
 
 };
 
