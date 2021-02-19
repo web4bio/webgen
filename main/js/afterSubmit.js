@@ -77,11 +77,11 @@ removeTooltipElements = function () {
 function setExampleVars() {
   // Select example values:
   $('.cancerTypeMultipleSelection').val(['PAAD']);
-  $('.clinicalMultipleSelection').val(['ethnicity', 'KRAS', 'EGFR', 'TP53']);
+  $('.mutationMultipleSelection').val(['ethnicity', 'KRAS', 'EGFR', 'TP53']);
 
   // Trigger the change:
   $('.cancerTypeMultipleSelection').trigger('change');
-  $('.geneMultipleSelection').trigger('change');
+  $('.mutationMultipleSelection').trigger('change');
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ let buildPlots = async function() {
 
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let geneQuery = $('.clinicalMultipleSelection').select2('data').map(
+  let geneQuery = $('.mutationMultipleSelection').select2('data').map(
                     clinicalInfo => clinicalInfo.text);
 
   // Fetch RNA sequence data for selected cancer type(s) and gene(s)

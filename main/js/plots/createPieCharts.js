@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-let clinicalValues = [];
+let selectedData = [];
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
@@ -22,7 +22,9 @@ let buildDataExplorePlots = async function() {
         return self.indexOf(value) === index;
     }
 
-    let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    let mySelectedClinicalFeatures = $('.mutationMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    mySelectedClinicalFeatures = mySelectedClinicalFeatures.concat(mySelectedClinicalFeatures2)
 
     // if no clinical features are selected, do not display any pie charts
     if(mySelectedClinicalFeatures.length == 0) {
@@ -172,18 +174,18 @@ let buildDataExplorePlots = async function() {
                     colore = data.points[i].data.marker.colors;
                     slice = data.points[i].label;
                 }
-                if(clinicalValues[currentFeature] != null){
-                    if(clinicalValues[currentFeature].findIndex(element => element == slice) != -1){
+                if(selectedData[currentFeature] != null){
+                    if(selectedData[currentFeature].findIndex(element => element == slice) != -1){
                         colore[pts] = sliceColors[pts];
-                        clinicalValues[currentFeature].pop(slice);
+                        selectedData[currentFeature].pop(slice);
                     }
                     else{
-                        clinicalValues[currentFeature].push(slice);
+                        selectedData[currentFeature].push(slice);
                         colore[pts] = '#FFF34B';
                     }
                 }
                 else{
-                    clinicalValues[currentFeature] = [slice];
+                    selectedData[currentFeature] = [slice];
                     colore[pts] = '#FFF34B';
                 }
                 var update = {'marker': {colors: colore, 
