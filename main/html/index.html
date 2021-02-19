@@ -45,16 +45,18 @@
     <!-- Load in files -->
     <link rel="stylesheet" type="text/css" href="../css/style.css">
 
+    <script type="text/javascript" src = "../js/dataAcquisition/fetchClinicalData.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/fetchExpressionData.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/fetchSigMutationData.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getClinicalDataJSONarray.js"></script>
     <script type="text/javascript" src = "../js/dataAcquisition/getDataFromSelectedPieSectors.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
+    <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
 
     <script type="text/javascript" src = "../js/dataProcessing/mergeExpression.js"></script>
     
     <script type="text/javascript" src = "../js/plots/createHeatmap.js"></script>
-    <script type = "text/javascript" src = "../js/plots/createViolinPlot.js"></script>
+    <script type="text/javascript" src = "../js/plots/createViolinPlot.js"></script>
 
     <script type="text/javascript" src = "../js/afterSubmit.js"></script>
     <script type ="text/javascript" src = "../js/fillSelectBoxes.js"></script>
@@ -117,7 +119,20 @@
 
               // For Clinical Select2 Drop down:
               $('.clinicalMultipleSelection').select2({
-                placeholder: "Clinical Feature(s)"
+                placeholder: "Clinical Feature(s)",
+                tags: true,
+                createTag: function (params) {
+                  // If the gene entered is not valid, don't create new tag:
+                  if (~validGeneList.includes(params.term.toUpperCase()) === -1) {
+                    return null;
+                  }
+              
+                  // If the gene entered is valid, create new tag:
+                  return {
+                    id: params.term.toUpperCase(),
+                    text: params.term.toUpperCase()
+                  }
+                }
               });
 
               fillCancerTypeSelectBox();
