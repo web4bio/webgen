@@ -119,7 +119,20 @@
 
               // For Mutation Select2 Drop down:
               $('.mutationMultipleSelection').select2({
-                placeholder: "Gene(s)"
+                placeholder: "Gene(s)",
+                tags: true,
+                createTag: function (params) {
+                  // If the gene entered is not valid, don't create new tag:
+                  if (~validGeneList.includes(params.term.toUpperCase()) === -1) {
+                    return null;
+                  }
+              
+                  // If the gene entered is valid, create new tag:
+                  return {
+                    id: params.term.toUpperCase(),
+                    text: params.term.toUpperCase()
+                  }
+                }
               });
 
               // For Clinical Select2 Drop down:
