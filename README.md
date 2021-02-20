@@ -43,7 +43,7 @@ This is a public, open-source project, as well as a project that students may re
 | [Jillian Unkenholz](https://github.com/jillianunk32)  | [Fall 2020 Log](https://docs.google.com/document/d/1c1T6mJisOjjH_uQheGSuq5BtZTJ1u-04OMFvhlM-PAY/edit?usp=sharing), [Spring 2021 Log](https://docs.google.com/document/d/1t9JfmrQJ7Xjy29iUG4icd3QaqzZ0-LQQeVNzT-IzbxI/edit?usp=sharing)|[Sandbox](https://observablehq.com/@jillianunk32/webgen) | |
 | [Chowdhury An-Noor](https://github.com/chowdhuryannoor) |[Fall 2020 Log](https://docs.google.com/document/d/1LGMLUeRYprQLJjIqrcAhkt0rZmliiRqFKP8AvuWq1z0/edit?usp=sharing) |[Sandbox](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
 | [Amara Im](https://github.com/amaraim22) |[Spring 2021 Log](https://docs.google.com/document/d/1L9jJvpQX5DLRC43ajV3Sk4Cll0koJPJI6Uu3oediN1Y/edit?usp=sharing) | |
-| [Purva Shenoy](https://github.com/prvshenoy01) | |
+| [Purva Shenoy](https://github.com/prvshenoy01) |[Spring 2021 Log](https://docs.google.com/document/d/1vo6JgeLybK2bQZVbIQKpvwXKHdMI1QGGGrPGXOzRIrA/edit?usp=sharing)| |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
