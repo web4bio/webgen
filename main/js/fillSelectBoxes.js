@@ -171,9 +171,9 @@ let fillGeneTypeSelectBox = async function() {
         }
     }
 
-    let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
-    if(clinicalFeatureOptions){
-        $('.mutationMultipleSelection').val(clinicalFeatureOptions)
+    let geneSelectedOptions = localStorage.getItem("geneSelectedOptions").split(',');
+    if(geneSelectedOptions){
+        $('.mutationMultipleSelection').val(geneSelectedOptions)
     }
     
 };
@@ -227,9 +227,9 @@ let fillClinicalTypeSelectBox = async function() {
 
     $('#clinicalMultipleSelection').val(null).trigger('change');
 
-    let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
-    if(clinicalFeatureOptions){
-        $('.clinicalMultipleSelection').val(clinicalFeatureOptions)
+    let clinicalSelectedOptions = localStorage.getItem("clinicalSelectedOptions").split(',');
+    if(clinicalSelectedOptions){
+        $('.clinicalMultipleSelection').val(clinicalSelectedOptions)
     }
     
 };
@@ -290,11 +290,11 @@ let saveInLocalStorage = async function() {
     let cancerTypeSelectedOptions = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     localStorage.setItem("cancerTypeSelectedOptions", cancerTypeSelectedOptions);
 
-    let clinicalFeatureOptions = $('.mutationMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
-    localStorage.setItem("clinicalFeatureOptions", clinicalFeatureOptions);
+    let geneSelectedOptions = $('.mutationMultipleSelection').select2('data').map(gene => gene.text);
+    localStorage.setItem("geneSelectedOptions", geneSelectedOptions);
 
-    let clinicalFeatureOptions2 = $('.clinicalMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
-    localStorage.setItem("clinicalFeatureOptions", clinicalFeatureOptions2);
+    let clinicalSelectedOptions = $('.clinicalMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
+    localStorage.setItem("clinicalSelectedOptions", clinicalSelectedOptions);
 
 
 }
