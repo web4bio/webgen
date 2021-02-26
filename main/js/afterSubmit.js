@@ -213,18 +213,21 @@ buildViolinPlot = async function(cohortQuery, data){
 
   // Append an svg object for each cohort to create a violin plot for
   for(var index = 0; index < numCohorts; index++) {
-    
+    console.log("Violin Plot " + index);
     // Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
     
     //Create a new div for each cohort
     var violinDivName = "ViolinDiv"+index;
     var violinDiv = addDivInside(violinDivName, "violinPlotRef");
+    console.log(violinDivName + " created");
 
-    var partitionSelectorDivName = "violinClinicalPartition"+index;
-    //var partitionSelectorDiv = 
-    addDivInside(partitionSelectorDivName, violinDivName);
-    fillPartitionBox(partitionSelectorDivName);
+
+    var partitionSelectDivName = "violinPartitionSelect"+index;
+    addDivInside(partitionSelectDivName, violinDivName);
+    console.log(partitionSelectDivName + "added");
+    fillViolinPartitionBox(partitionSelectDivName);
+    console.log("Partition select box selected");
 
     //Building the selector for each violin plot for faceting
     /*
@@ -278,8 +281,6 @@ buildViolinPlot = async function(cohortQuery, data){
     $(".clinicalMultipleSelectionViolin" + index).select2({
       placeholder: "Clinical Feature(s)"
     });
-
-    //fillClinicalPartitionSelectBox(`violinPlot${index}` + "Partition", `clinicalMultipleSelectionViolin${index}`);
   }
 };
 
