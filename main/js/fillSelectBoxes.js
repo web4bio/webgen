@@ -35,6 +35,8 @@ let fillCancerTypeSelectBox = async function() {
         $('.cancerTypeMultipleSelection').val(cancerTypeSelectedOptions);
         if(cancerTypeSelectedOptions != "") {
             fillFirstGeneSelectBox();
+            fillClinicalSelectBox();
+            fillSecondGeneSelectBox();
         }
     }
 };
@@ -160,6 +162,7 @@ let fillFirstGeneSelectBox = async function() {
 
     $('#geneOneMultipleSelection').val(null).trigger('change');
 
+    // only populate dropdown options if they have not already been populated
     if (!$('#geneOneMultipleSelection').find("option[value='" + "TP53" + "']").length) {
         let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
         for(let i = 0; i < geneList.length; i++) {
@@ -178,12 +181,13 @@ let fillFirstGeneSelectBox = async function() {
     
 };
 
-let fillSecondGeneTypeSelectBox = async function() {
+let fillSecondGeneSelectBox = async function() {
 
     let selectBox2 = document.getElementById("geneTwoMultipleSelection");
 
     $('#geneTwoMultipleSelection').val(null).trigger('change');
 
+    // only populate dropdown options if they have not already been populated
     if (!$('#geneTwoMultipleSelection').find("option[value='" + "TP53" + "']").length) {
         let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
         for(let i = 0; i < geneList.length; i++) {
@@ -216,6 +220,7 @@ let fillClinicalSelectBox = async function() {
 
     let selectBox = document.getElementById("clinicalMultipleSelection");
 
+    // only populate dropdown options if they have not already been populated
     if (!$('#clinicalMultipleSelection').find("option[value='" + "cohort" + "']").length) {
         let clinicalKeys = Object.keys(allClinicalData[0]);
         for (let i = 0; i < clinicalKeys.length; i++) {
@@ -226,8 +231,6 @@ let fillClinicalSelectBox = async function() {
             selectBox.appendChild(currentOption);
         }
     }
-
-    $('#clinicalMultipleSelection').val(null).trigger('change');
 
     let clinicalSelectedOptions = localStorage.getItem("clinicalSelectedOptions").split(',');
     if(clinicalSelectedOptions){
