@@ -118,7 +118,7 @@
               });
 
               // For Mutation Select2 Drop down:
-              $('.mutationMultipleSelection').select2({
+              $('.geneOneMultipleSelection').select2({
                 placeholder: "Gene(s)",
                 tags: true,
                 createTag: function (params) {
@@ -141,7 +141,7 @@
               });
 
               // For Gene Select2 Drop down:
-              $('.geneMultipleSelection').select2({
+              $('.geneTwoMultipleSelection').select2({
                 placeholder: "Gene(s)"
               });
 
@@ -154,7 +154,7 @@
         <div>
         <p style="text-align: center;"><b>1) Select cancer type(s)</b></p>
         <div id='cancerQuerySelectBox'>
-            <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillGeneTypeSelectBox(), fillSecondGeneTypeSelectBox(), fillClinicalTypeSelectBox(), displayNumberSamples(), saveInLocalStorage()">
+            <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillFirstGeneSelectBox(), fillSecondGeneTypeSelectBox(), fillClinicalSelectBox(), displayNumberSamples(), saveInLocalStorage()">
                 <!-- Filled by fillSelectBoxes.js -->
             </select>
         </div>
@@ -163,8 +163,8 @@
         <div class='row'>
         <p style="text-align: center;"><b>2) Filter data by gene mutation signature and/or by metadata</b></p>
 
-        <div id='mutationQuerySelectBox' class = 'col s6'>
-          <select class="mutationMultipleSelection" name="selectedMutations[]" multiple="multiple" id="mutationMultipleSelection" onchange="buildDataExplorePlots(), saveInLocalStorage()";> 
+        <div id='geneOneQuerySelectBox' class = 'col s6'>
+          <select class="geneOneMultipleSelection" name="selectedMutations[]" multiple="multiple" id="geneOneMultipleSelection" onchange="buildDataExplorePlots(), saveInLocalStorage()";> 
               <!-- Filled by fillSelectBoxes.js -->
           </select>
         </div>
@@ -199,8 +199,8 @@
 
         <div>
           <p style="text-align: center;"><b>3) Select genes that you would like to visualize</b></p>
-          <div id='geneQuerySelectBox'>
-              <select class="geneMultipleSelection" name="genes[]" multiple="multiple" id="geneMultipleSelection">
+          <div id='geneTwoQuerySelectBox'>
+              <select class="geneTwoMultipleSelection" name="genes[]" multiple="multiple" id="geneTwoMultipleSelection">
                   <!-- Filled by fillSelectBoxes.js -->
               </select>
           </div>
