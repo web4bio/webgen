@@ -131,6 +131,8 @@ let buildPlots = async function() {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   let data = await getDataFromSelectedPieSectors(expressionData);
+  //Add expression data as a field in localStorage
+  localStorage.setItem("expressionData", JSON.stringify(data));
 
   buildHeatmap(data, clinicalData);
   buildViolinPlot(cohortQuery, data);
