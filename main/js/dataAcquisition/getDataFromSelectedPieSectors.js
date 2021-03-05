@@ -3,74 +3,108 @@
 
 getDataFromSelectedPieSectors = async function(expressionData) {
 
-  // clinicalValues is an array of key value pairs for gene(s) selected and mutation(s) selected
-  let clickedGenes = Object.keys(clinicalValues);
+  console.log(selectedData)
+
+  // a "field" is either a gene name or a clinical feature
+  let selectedFields = Object.keys(selectedData);
   let concatFilteredBarcodes = [];
 
-  // LOOP THRU ALL CLICKED GENES
-  for(let i = 0; i < clickedGenes.length; i++) {
+  // LOOP THRU ALL CLICKED FIELDS
+  for(let i = 0; i < selectedFields.length; i++) {
 
-    let currentGene = clickedGenes[i];
+    let currentField = selectedFields[i];
 
-    await getAllVariantClassifications(currentGene).then(function(mutationData) { // get ALL mutation data for current gene of the selected genes
+    // if current selected sector belongs to a gene...
+    if(currentField[i].toUpperCase() == currentField[i]) {
 
-      // LOOP THRU ALL CLICKED "MUTATIONS"
-      let clickedMutations = clinicalValues[currentGene];
-      for(let j = 0; j < clickedMutations.length; j++) {
-        let currentMutation = clickedMutations[j];
-        // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
-        if(currentMutation != "Wild_Type") {
-          let allData = mutationData.filter(person => (person.Variant_Classification == currentMutation));
-          let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
-          let trimmedOnlyBarcodes = onlyBarcodes.map(x => x.slice(0,12));
+      let currentGene = currentField;
 
-          // we need to perform filtering to get only unique barcodes because some genes with a given
-          // mutation type will result in more than one type of protein change... this will result in
-          // a barcode appearing more than once in the data
-          function onlyUnique(value, index, self) {
-            return self.indexOf(value) === index;
-          }
-          let uniqueTrimmedOnlyBarcodes = trimmedOnlyBarcodes.filter(onlyUnique);
+      await getAllVariantClassifications(currentGene).then(function(mutationData) { // get ALL mutation data for current gene of the selected genes
 
-          if(concatFilteredBarcodes['' + currentGene] == undefined)
-            concatFilteredBarcodes['' + currentGene] = uniqueTrimmedOnlyBarcodes;
-          else
-            concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(uniqueTrimmedOnlyBarcodes);
-        
-        // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
-        } else {
+        // LOOP THRU ALL CLICKED "MUTATIONS"
+        let clickedMutations = selectedData[currentGene];
+        for(let j = 0; j < clickedMutations.length; j++) {
+          let currentMutation = clickedMutations[j];
+          // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
+          if(currentMutation != "Wild_Type") {
+            let allData = mutationData.filter(person => (person.Variant_Classification == currentMutation));
+            let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
+            let trimmedOnlyBarcodes = onlyBarcodes.map(x => x.slice(0,12));
 
-          // IF NO MUTATIONS EXIST AT ALL FOR THE CURRENT GENE, then get the associated barcodes from mRNAseq api's data
-          if(mutationData == undefined) {
-            let allData = expressionData.filter(person => person.gene == currentGene);
-            let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
+            // we need to perform filtering to get only unique barcodes because some genes with a given
+            // mutation type will result in more than one type of protein change... this will result in
+            // a barcode appearing more than once in the data
+            function onlyUnique(value, index, self) {
+              return self.indexOf(value) === index;
+            }
+            let uniqueTrimmedOnlyBarcodes = trimmedOnlyBarcodes.filter(onlyUnique);
+
             if(concatFilteredBarcodes['' + currentGene] == undefined)
-              concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
-            // else
-            //   concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
-
-          // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
-          } else {
-            
-            let allData_1 = mutationData.filter(person => person.Hugo_Symbol == currentGene);
-            let onlyBarcodes_1 = allData_1.map(x => x.Tumor_Sample_Barcode);
-            let trimmedOnlyBarcodes_1 = onlyBarcodes_1.map(x => x.slice(0,12));
-
-            allData_2 = expressionData.filter(person => person.gene == currentGene);
-            onlyBarcodes_2 = allData_2.map(x => x.tcga_participant_barcode);
-
-            let barcodesForWildType = [];
-            for(let i = 0; i < onlyBarcodes_2.length; i++)
-              if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
-                barcodesForWildType.push(onlyBarcodes_2[i]);
-            if(concatFilteredBarcodes['' + currentGene] == undefined)
-              concatFilteredBarcodes['' + currentGene] = barcodesForWildType;  
+              concatFilteredBarcodes['' + currentGene] = uniqueTrimmedOnlyBarcodes;
             else
-              concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(barcodesForWildType);
+              concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(uniqueTrimmedOnlyBarcodes);
+          
+          // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
+          } else {
+
+            // IF NO MUTATIONS EXIST AT ALL FOR THE CURRENT GENE, then get the associated barcodes from mRNAseq api's data
+            if(mutationData == undefined) {
+              let allData = expressionData.filter(person => person.gene == currentGene);
+              let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
+              if(concatFilteredBarcodes['' + currentGene] == undefined)
+                concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
+              // else
+              //   concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
+
+            // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
+            } else {
+              
+              let allData_1 = mutationData.filter(person => person.Hugo_Symbol == currentGene);
+              let onlyBarcodes_1 = allData_1.map(x => x.Tumor_Sample_Barcode);
+              let trimmedOnlyBarcodes_1 = onlyBarcodes_1.map(x => x.slice(0,12));
+
+              allData_2 = expressionData.filter(person => person.gene == currentGene);
+              onlyBarcodes_2 = allData_2.map(x => x.tcga_participant_barcode);
+
+              let barcodesForWildType = [];
+              for(let i = 0; i < onlyBarcodes_2.length; i++)
+                if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
+                  barcodesForWildType.push(onlyBarcodes_2[i]);
+              if(concatFilteredBarcodes['' + currentGene] == undefined)
+                concatFilteredBarcodes['' + currentGene] = barcodesForWildType;  
+              else
+                concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(barcodesForWildType);
+            }
           }
         }
+      })
+    } else {
+
+      let currentClinicalFeature = currentField;
+      let filteredClinicalData = [];
+      let uniqueBarcodes;
+
+      let clickedClinicalValues = selectedData[currentClinicalFeature];
+      for(let j = 0; j < clickedClinicalValues.length; j++) {
+
+        let currentClinicalValue = clickedClinicalValues[j];
+
+        filteredClinicalData = allClinicalData.filter(person => (person[currentClinicalFeature] == currentClinicalValue))
+
+        let onlyBarcodes = filteredClinicalData.map(x => x.tcga_participant_barcode);
+
+        function onlyUnique(value, index, self) {
+          return self.indexOf(value) === index;
+        }
+        uniqueBarcodes = onlyBarcodes.filter(onlyUnique);
+
+        if(concatFilteredBarcodes['' + currentClinicalFeature] == undefined)
+          concatFilteredBarcodes['' + currentClinicalFeature] = uniqueBarcodes;
+        else
+          concatFilteredBarcodes['' + currentClinicalFeature] = concatFilteredBarcodes['' + currentClinicalFeature].concat(uniqueBarcodes);
+
       }
-    })
+    }
   }
   
   // Get intersection of barcodes from selected pie sectors
@@ -135,7 +169,7 @@ getDataFromSelectedPieSectors = async function(expressionData) {
       for(let j = 0; j < expressionData.length; j++) 
         if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
           data.push(expressionData[j])
-    data = data.filter(x => clickedGenes.includes(x.gene))
+    data = data.filter(x => selectedFields.includes(x.gene))
     return data;
   }
 
