@@ -77,11 +77,11 @@ removeTooltipElements = function () {
 function setExampleVars() {
   // Select example values:
   $('.cancerTypeMultipleSelection').val(['PAAD']);
-  $('.mutationMultipleSelection').val(['ethnicity', 'KRAS', 'EGFR', 'TP53']);
+  $('.geneOneMultipleSelection').val(['ethnicity', 'KRAS', 'EGFR', 'TP53']);
 
   // Trigger the change:
   $('.cancerTypeMultipleSelection').trigger('change');
-  $('.mutationMultipleSelection').trigger('change');
+  $('.geneOneMultipleSelection').trigger('change');
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,8 +118,8 @@ let buildPlots = async function() {
 
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let geneQuery = $('.mutationMultipleSelection').select2('data').map(
-                    clinicalInfo => clinicalInfo.text);
+  let geneQuery = $('.geneTwoMultipleSelection').select2('data').map(
+                    gene => gene.text);
 
   // Fetch RNA sequence data for selected cancer type(s) and gene(s)
   let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);

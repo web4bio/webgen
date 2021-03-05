@@ -22,7 +22,7 @@ let buildDataExplorePlots = async function() {
         return self.indexOf(value) === index;
     }
 
-    let mySelectedClinicalFeatures = $('.mutationMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     mySelectedClinicalFeatures = mySelectedClinicalFeatures.concat(mySelectedClinicalFeatures2)
 

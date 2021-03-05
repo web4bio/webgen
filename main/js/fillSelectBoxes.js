@@ -34,7 +34,7 @@ let fillCancerTypeSelectBox = async function() {
     if(cancerTypeSelectedOptions){
         $('.cancerTypeMultipleSelection').val(cancerTypeSelectedOptions);
         if(cancerTypeSelectedOptions != "") {
-            fillGeneTypeSelectBox();
+            fillFirstGeneSelectBox();
         }
     }
 };
@@ -154,13 +154,13 @@ let fetchClinicalData = async function() {
     }
 }
 
-let fillGeneTypeSelectBox = async function() {
+let fillFirstGeneSelectBox = async function() {
 
-    let selectBox = document.getElementById("mutationMultipleSelection");
+    let selectBox = document.getElementById("geneOneMultipleSelection");
 
-    $('#mutationMultipleSelection').val(null).trigger('change');
+    $('#geneOneMultipleSelection').val(null).trigger('change');
 
-    if (!$('#mutationMultipleSelection').find("option[value='" + "TP53" + "']").length) {
+    if (!$('#geneOneMultipleSelection').find("option[value='" + "TP53" + "']").length) {
         let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
         for(let i = 0; i < geneList.length; i++) {
             let currentOption = document.createElement("option");
@@ -173,18 +173,18 @@ let fillGeneTypeSelectBox = async function() {
 
     let geneSelectedOptions = localStorage.getItem("geneSelectedOptions").split(',');
     if(geneSelectedOptions){
-        $('.mutationMultipleSelection').val(geneSelectedOptions)
+        $('.geneOneMultipleSelection').val(geneSelectedOptions)
     }
     
 };
 
 let fillSecondGeneTypeSelectBox = async function() {
 
-    let selectBox2 = document.getElementById("geneMultipleSelection");
+    let selectBox2 = document.getElementById("geneTwoMultipleSelection");
 
-    $('#geneMultipleSelection').val(null).trigger('change');
+    $('#geneTwoMultipleSelection').val(null).trigger('change');
 
-    if (!$('#geneMultipleSelection').find("option[value='" + "TP53" + "']").length) {
+    if (!$('#geneTwoMultipleSelection').find("option[value='" + "TP53" + "']").length) {
         let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
         for(let i = 0; i < geneList.length; i++) {
             let currentOption = document.createElement("option");
@@ -195,9 +195,11 @@ let fillSecondGeneTypeSelectBox = async function() {
         }
     }
 
-    let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
-    if(clinicalFeatureOptions){
-        $('.mutationMultipleSelection').val(clinicalFeatureOptions)
+    $('#clinicalMultipleSelection').val(null).trigger('change');
+
+    let secondGeneSelectedOptions = localStorage.getItem("secondGeneSelectedOptions").split(',');
+    if(secondGeneSelectedOptions){
+        $('.geneTwoMultipleSelection').val(secondGeneSelectedOptions)
     }
     
 };
@@ -205,7 +207,7 @@ let fillSecondGeneTypeSelectBox = async function() {
 
 let allClinicalData;
 
-let fillClinicalTypeSelectBox = async function() {
+let fillClinicalSelectBox = async function() {
 
     let dataFetched = await fetchClinicalData();
     allClinicalData = dataFetched.Clinical_FH;
@@ -290,11 +292,13 @@ let saveInLocalStorage = async function() {
     let cancerTypeSelectedOptions = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     localStorage.setItem("cancerTypeSelectedOptions", cancerTypeSelectedOptions);
 
-    let geneSelectedOptions = $('.mutationMultipleSelection').select2('data').map(gene => gene.text);
+    let geneSelectedOptions = $('.geneOneMultipleSelection').select2('data').map(gene => gene.text);
     localStorage.setItem("geneSelectedOptions", geneSelectedOptions);
 
     let clinicalSelectedOptions = $('.clinicalMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
     localStorage.setItem("clinicalSelectedOptions", clinicalSelectedOptions);
 
+    let secondGeneSelectedOptions = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
+    localStorage.setItem("secondGeneSelectedOptions", secondGeneSelectedOptions);
 
 }
