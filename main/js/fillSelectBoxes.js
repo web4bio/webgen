@@ -174,9 +174,9 @@ let fillFirstGeneSelectBox = async function() {
         }
     }
 
-    let geneSelectedOptions = localStorage.getItem("geneSelectedOptions").split(',');
-    if(geneSelectedOptions){
-        $('.geneOneMultipleSelection').val(geneSelectedOptions)
+    let geneOneSelectedOptions = localStorage.getItem("geneOneSelectedOptions").split(',');
+    if(geneOneSelectedOptions){
+        $('.geneOneMultipleSelection').val(geneOneSelectedOptions)
     }
     
 };
@@ -189,21 +189,21 @@ let fillSecondGeneSelectBox = async function() {
 
     // only populate dropdown options if they have not already been populated
     if (!$('#geneTwoMultipleSelection').find("option[value='" + "TP53" + "']").length) {
-        let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
-        for(let i = 0; i < geneList.length; i++) {
-            let currentOption = document.createElement("option");
-            currentOption.value = geneList[i].hugoSymbol;
-            currentOption.text = geneList[i].hugoSymbol;
-            currentOption.id = geneList[i].hugoSymbol;
-            selectBox2.appendChild(currentOption)
+        let geneList2 = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json());
+        for(let i = 0; i < geneList2.length; i++) {
+            let currentOption2 = document.createElement("option");
+            currentOption2.value = geneList2[i].hugoSymbol;
+            currentOption2.text = geneList2[i].hugoSymbol;
+            currentOption2.id = geneList2[i].hugoSymbol;
+            selectBox2.appendChild(currentOption2)
         }
     }
 
     $('#clinicalMultipleSelection').val(null).trigger('change');
 
-    let secondGeneSelectedOptions = localStorage.getItem("secondGeneSelectedOptions").split(',');
-    if(secondGeneSelectedOptions){
-        $('.geneTwoMultipleSelection').val(secondGeneSelectedOptions)
+    let geneTwoSelectedOptions = localStorage.getItem("geneTwoSelectedOptions").split(',');
+    if(geneTwoSelectedOptions){
+        $('.geneTwoMultipleSelection').val(geneTwoSelectedOptions)
     }
     
 };
@@ -295,13 +295,13 @@ let saveInLocalStorage = async function() {
     let cancerTypeSelectedOptions = $('.cancerTypeMultipleSelection').select2('data').map(cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
     localStorage.setItem("cancerTypeSelectedOptions", cancerTypeSelectedOptions);
 
-    let geneSelectedOptions = $('.geneOneMultipleSelection').select2('data').map(gene => gene.text);
-    localStorage.setItem("geneSelectedOptions", geneSelectedOptions);
+    let geneOneSelectedOptions = $('.geneOneMultipleSelection').select2('data').map(gene => gene.text);
+    localStorage.setItem("geneOneSelectedOptions", geneOneSelectedOptions);
 
     let clinicalSelectedOptions = $('.clinicalMultipleSelection').select2('data').map(clinicalFeature => clinicalFeature.text);
     localStorage.setItem("clinicalSelectedOptions", clinicalSelectedOptions);
 
-    let secondGeneSelectedOptions = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
-    localStorage.setItem("secondGeneSelectedOptions", secondGeneSelectedOptions);
+    let geneTwoSelectedOptions = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
+    localStorage.setItem("geneTwoSelectedOptions", geneTwoSelectedOptions);
 
 }
