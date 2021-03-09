@@ -1,7 +1,7 @@
   
   // ***** Get ALL barcodes from selected pie sectors (below) *****
 
-getDataFromSelectedPieSectors = async function(expressionData) {
+getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
 
   console.log(selectedData)
 
@@ -164,12 +164,20 @@ getDataFromSelectedPieSectors = async function(expressionData) {
     // The final data array may include a fewer number of barcodes than that contained in 
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
-    let data = [];
-    for(let i = 0; i < intersectedBarcodes.length; i++) 
-      for(let j = 0; j < expressionData.length; j++) 
-        if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
-          data.push(expressionData[j])
-    data = data.filter(x => selectedFields.includes(x.gene))
+    
+    // console.log(intersectedBarcodes)
+
+    // let data = [];
+    // for(let i = 0; i < intersectedBarcodes.length; i++) 
+    //   for(let j = 0; j < expressionData.length; j++) 
+    //     if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
+    //       data.push(expressionData[j])
+    // data = data.filter(x => selectedFields.includes(x.gene))
+
+    let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
+
+    let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)
+
     return data;
   }
 
