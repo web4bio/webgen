@@ -1,0 +1,39 @@
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"> </script>
+<input type="file" id="fileid">
+<script type="text/javascript">
+    $(function() {
+      $("#fileid").change($(function() {
+        var people = []
+        $.getJSON($("#fileid"),function(data){
+          $.each(data.patches, function(i, f) {
+            var tblRow = "<tr>" + "<td>" + f.name + "</td>" + "</tr>" + "<tr>" + "<td>" +  f.data + "</td>" + "</tr>"
+             $(tblRow).appendTo("#userdata tbody");
+     });
+
+   });
+      }))
+    });
+</script>
+</head>
+
+<body>
+
+<div class="wrapper">
+<div class="profile">
+   <table id= "userdata" border="2">
+  <thead>
+            <th>Name</th>
+            <th>Data</th>
+        </thead>
+      <tbody>
+
+       </tbody>
+   </table>
+
+</div>
+</div>
+
+</body>
+</html>

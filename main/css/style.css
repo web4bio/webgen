@@ -34,7 +34,7 @@
 .loader {
     position: absolute;
     left: 50%;
-    top: 40%;
+    top: 58%;
     z-index: 1;
     width: 150px;
     height: 150px;
@@ -78,36 +78,38 @@
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
-#geneQuerySelectBox {
-    text-align: center;
+#geneOneQuerySelectBox {
+    text-align: right;
     margin-bottom: 10px;
 }
 
-#geneMultipleSelection {
-    width: 90%;
+#geneOneMultipleSelection {
+    width: 45%;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
 #clinicalQuerySelectBox {
-    text-align: center;
+    text-align: left;
     margin-bottom: 10px;
 }
 
 #clinicalMultipleSelection {
-    width: 90%;
+    width: 45%;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
-#mutationQuerySelectBox {
-    text-align: center;
+#geneTwoQuerySelectBox {
     margin-bottom: 10px;
+    margin-top: 10px;
+    text-align: center;
 }
 
-#mutationMultipleSelection {
+#geneTwoMultipleSelection {
     width: 90%;
 }
+
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -137,7 +139,8 @@
 
 #submitButton {
     width: 15%;
-    margin-right: 35%;
+    /* margin-right: 35%; */
+    margin-left: 43%;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
