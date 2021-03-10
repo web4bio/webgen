@@ -118,7 +118,7 @@ let buildPlots = async function() {
 
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let geneQuery = $('.geneTwoMultipleSelection').select2('data').map(
+  let geneQuery = $('.geneOneMultipleSelection').select2('data').map(
                     gene => gene.text);
 
   // Fetch RNA sequence data for selected cancer type(s) and gene(s)
@@ -130,7 +130,8 @@ let buildPlots = async function() {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  let data = await getDataFromSelectedPieSectors(expressionData);
+  let data = await getDataFromSelectedPieSectors(expressionData, cohortQuery);
+
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(data));
 
