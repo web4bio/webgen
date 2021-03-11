@@ -163,8 +163,26 @@ let buildPlots = async function() {
   
   let data = await getDataFromSelectedPieSectors(expressionData);
 
+  var toggleSwitch = "<label class='switch'>" + 
+  "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
+  "<input type='checkbox' id= 'toggleSwitch'>" +
+  "<span class='slider round'></span>" +
+  "</label>";
+  document.getElementById("violinPlotRef").innerHTML += (toggleSwitch);
+
+  //Checkbox for toggling between gene vs. cohort for violin plots
+  toggleSwitch = document.getElementById('toggleSwitch')
+  toggleSwitch.addEventListener('change', function(e){
+    if(toggleSwitch.checked){
+      buildViolinPlot(geneQuery, data, "gene");
+    }else{
+      buildViolinPlot(cohortQuery, data, "cohort");
+    }
+
+  })
+
   buildHeatmap(data, clinicalData);
-  buildViolinPlot(cohortQuery, data);
+  buildViolinPlot(cohortQuery, data, "cohort");
 
 };
 
@@ -180,8 +198,9 @@ buildHeatmap = async function(expData, clinData){
 
 };
 
-buildViolinPlot = async function(cohortQuery, data){
+buildViolinPlot = async function(cohortORGeneQuery, data, independantVarType){
 
+  console.log(data)
   // Remove the loader
   document.getElementById('svgViolinDiv0').classList.remove('loader');               
 
@@ -190,29 +209,33 @@ buildViolinPlot = async function(cohortQuery, data){
   width = 1250 - margin.left - margin.right,
   height = 500 - margin.top - margin.bottom;
 
-  // Appending multiple g elements to svg object for violin plot
-  let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+  let myCohorts;
+  if(independantVarType === 'gene'){
+    myCohorts = d3.map(data, function(d){return d.gene;}).keys();
+  }else{
+    myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+  }
+  
+
+  
 
   // Define the number of cohorts to create a plot for
-  let numCohorts = myCohorts.length;
+  let numOfIndependantVars = myCohorts.length;
 
   // Spacing between plots
   let ySpacing = margin.top;
 
-  //Toggle switch for user to specify whether they want to view Expression vs. Gene (the default option) or Expression vs. Cohort
-  var toggleSwtitch = "<label class='switch'>" + 
-  "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
-  "<input type='checkbox'>" +
-  "<span class='slider round'></span>" +
-  "</label>";
-  document.getElementById("violinPlotRef").innerHTML += (toggleSwtitch);
+//   toggleSwitch = document.getElementById('toggleSwitch')
+//   toggleSwitch.addEventListener('change', function(e){
+//       console.log(toggleSwitch.checked)
+// })
 
   //Code to get the set of clinical data features to include the option
   //to facet by goes here. For now, gender will be a hardcoded field 
   //to facet by.
 
   // Append an svg object for each cohort to create a violin plot for
-  for(var index = 0; index < numCohorts; index++) {
+  for(var index = 0; index < numOfIndependantVars; index++) {
     console.log("Violin Plot " + index);
     // Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
@@ -275,7 +298,7 @@ buildViolinPlot = async function(cohortQuery, data){
     violinDiv.innerHTML += rebuildButton;
     //violinDiv.appendChild(rebuildButton);
     // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, violinDiv, curCohort, []);
+    createViolinPlot(independantVarType, cohortORGeneQuery, data, violinDiv, curCohort, []);
 
     // For Clinical Select2 Drop down:
     $(".clinicalMultipleSelectionViolin" + index).select2({

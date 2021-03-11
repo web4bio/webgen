@@ -428,14 +428,14 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
             .style("font-size", "26px")
             .text("Gene Expression Violin Plot for "+ curCohort)
     } 
-    else if (indepVarType == 'mutatedGene') {
+    else if (indepVarType == 'gene') {
         // Add title to graph
         svgObject.append("text")
         .attr("x", 0)
         .attr("y", -25)
         .attr("text-anchor", "left")
         .style("font-size", "26px")
-        .text("Gene Expression Violin Plot for Patients with a mutated "+indepVars+" Gene")
+        .text("Gene Expression Violin Plot for "+indepVars+" Gene")
     };
 };
 
