@@ -33,8 +33,13 @@
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
     <!-- Select2 Library -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" /> 
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css" />
+
+    <!-- lodash Library for pagination -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
     
     <!-- Plotly Library -->
     <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -114,13 +119,43 @@
                 placeholder: "Cancer Type(s)"
               });
 
-              // For Clinical Select2 Drop down:
-              $('.clinicalMultipleSelection').select2({
-                placeholder: "Clinical Feature(s)"
-              });
-
               fillCancerTypeSelectBox();
 
+              // Map the array of geneList with attributes of id, text, and value
+              var geneListArray = _.map(_.range(0, validGeneList.length), function(i) {
+                return {
+                  id: validGeneList[i],
+                  text: validGeneList[i],
+                  value: validGeneList[i],
+                };
+              });
+
+              // For Clinical Select2 Drop down:
+              $('.clinicalMultipleSelection').select2({
+                data: geneListArray,
+                multiple: true,
+                placeholder: "Clinical Feature(s)",
+                // creating query with pagination functionality.
+                query: function (data) {
+                  var pageSize,
+                          dataset,
+                          that = this;
+                  pageSize = 5; // Number of the option loads at a time
+                  results = [];
+                  if (data.term && data.term !== '') {
+                    // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
+                    results = _.filter(that.data, function (e) {
+                      return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
+                    });
+                  } else if (data.term === '') {
+                    results = that.data;
+                  }
+                  data.callback({
+                    results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
+                    more: results.length >= data.page * pageSize,
+                  });
+                },
+              });              
             });
           });
         </script>
@@ -128,7 +163,7 @@
         <div>
         <p style="text-align: center;"><b>1) Select cancer type(s)</b></p>
         <div id='cancerQuerySelectBox'>
-            <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillClinicalTypeSelectBox(), displayNumberSamples(), saveInLocalStorage()">
+            <select class="cancerTypeMultipleSelection" name="cancerTypes[]" style="width:80%;" multiple="multiple" id="cancerTypeMultipleSelection" onchange="fillClinicalTypeSelectBox(), displayNumberSamples(), saveInLocalStorage()">
                 <!-- Filled by fillSelectBoxes.js -->
             </select>
         </div>
@@ -136,10 +171,8 @@
 
         <div>
         <p style="text-align: center;"><b>2) Select gene(s)</b></p>
-        <div id='clinicalQuerySelectBox'>
-          <select class="clinicalMultipleSelection" name="selectedClinicals[]" multiple="multiple" id="clinicalMultipleSelection" onchange="buildDataExplorePlots(), saveInLocalStorage()";> 
-              <!-- Filled by fillSelectBoxes.js -->
-          </select>
+        <div id ='clinicalQuerySelectBox'>
+          <input class="clinicalMultipleSelection" id="clinicalMultipleSelection" style="width:80%;" name="selectedClinicals[]" onchange="buildDataExplorePlots(), saveInLocalStorage()"; />
         </div>
         </div>
 

@@ -168,14 +168,14 @@ let fillClinicalTypeSelectBox = async function() {
     //     selectBox.appendChild(currentOption);
     // }
 
-    let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
+    /*let geneList = await fetch("https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json").then(response => response.json())
     for(let i = 0; i < geneList.length; i++) {
         let currentOption = document.createElement("option");
         currentOption.value = geneList[i].hugoSymbol;
         currentOption.text = geneList[i].hugoSymbol;
         currentOption.id = geneList[i].hugoSymbol;
         selectBox.appendChild(currentOption);
-    }
+    }*/
 
     let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
     if(clinicalFeatureOptions){
