@@ -2,8 +2,10 @@
   // ***** Get ALL barcodes from selected pie sectors (below) *****
 
 getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
-
   console.log(selectedData)
+
+  // allData is used when no pie slices are chosen
+  let allData = allClinicalData
 
   // a "field" is either a gene name or a clinical feature
   let selectedFields = Object.keys(selectedData);
@@ -128,9 +130,14 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
     }  
   }
 
-  // if no pie sectors were selected, tell the user to select some
+  // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {
-    // Remove the loader
+    let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
+    let allBarcodes = allData.map(x => x.tcga_participant_barcode);
+    let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, allBarcodes)
+    console.log(data);
+    return data;
+    /* // Remove the loader
     document.getElementById('heatmapDiv0').classList.remove('loader');
     document.getElementById('svgViolinDiv0').classList.remove('loader');
 
@@ -140,7 +147,7 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
     para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
     para.setAttribute('id', 'noIntersectPara');        
     para.innerText = "To visualize data, please select at least one pie chart sector.";
-    sorryDiv.appendChild(para);
+    sorryDiv.appendChild(para); */
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
@@ -177,7 +184,7 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
     let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
 
     let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)
-
+    console.log(data);
     return data;
   }
 
