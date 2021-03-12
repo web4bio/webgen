@@ -284,6 +284,117 @@ let fillClinicalSelectBox = async function () {
   }
 };
 
+let fillViolinPartitionBox = async function(id)
+{
+    var div_box = d3.select('#'+id);
+    div_box.html("");
+    div_box.append('text')
+        .style("font-size", "20px")
+        .text('Select variables to partition violin curves by:');
+    console.log(div_box);
+    div_box.append('div')
+        .attr('class','viewport')
+        .style('overflow-y', 'scroll')
+        .style('height', '90px')
+        .style('width', '500px')
+        .append('div')
+        .attr('class','body');
+        
+    var selectedText = div_box.append('text');
+    let div_body = div_box.select('.body');
+    
+    var choices;
+    function update() 
+    {
+        choices = [];
+        d3.selectAll(".myCheckbox").each(function(d)
+        {
+            let cb = d3.select(this);
+            if(cb.property('checked')){ choices.push(cb.property('value')); };
+        });
+    
+        if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
+        else { selectedText.text('None selected'); };
+    }
+  
+  // function to create a pair of checkbox and text
+    function renderCB(div_obj, data) 
+    {
+        /*
+        const label = div_obj.append('div').attr('id', data.id);
+        label.append('input')
+            .attr('type', 'checkbox')
+            .attr('class', 'myCheckbox')
+            .attr('value', data.id)
+            .on('change',update)
+            //.property('checked',true)
+        label.append('text')
+            .text(data.id);
+            */
+
+        const label = div_obj.append('div').attr('id', data);
+
+        label.append("label")
+           .attr("class", "switch")
+           .append("input")
+           .attr("class", "myCheckbox")
+           .attr("value", data)
+           .attr("type", "checkbox")
+           .on('change',update)
+           .attr("style", 'opacity: 1; position: relative; pointer-events: all')
+           .append("span")
+           .attr("class", "slider round")
+           .attr('value', data);
+
+        label.append('text')
+           .text(data);
+    }
+    
+    // data to input = clinical vars from query
+    //let var_opts = clin_vars.split(/[\s,]+/).map(el => ({id: el}));
+    let clinicalVars = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
+    var_opts = clinicalVars;
+
+    // make a checkbox for each option
+    var_opts.forEach(el => renderCB(div_body,el))
+    update();
+
+    var choices = [];
+    d3.select('#'+id).selectAll(".myCheckbox").each(function(d)
+    {
+        let cb = d3.select(this);
+        if(cb.property('checked')){ choices.push(cb.property('value')); };
+    });
+    return choices;
+    
+    /*
+    console.log("fillViolinPartitionBox() Called!");
+    console.log(id + ", " + className);
+    let selectBox = document.getElementById(id);
+    let clinicalKeys = Object.keys(clinicalQuery[0]);
+    for(let index = 0; index < clinicalKeys.length; index++)
+    {
+        let currentOption = document.createElement("option");
+        currentOption.value = clinicalKeys[index];
+        currentOption.text = clinicalKeys[index];
+        currentOption.id = clinicalKeys[index];
+        selectBox.appendChild(currentOption);
+    }
+    */
+
+    //let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
+    //if(clinicalFeatureOptions){
+    //    $('.' + className).val(clinicalFeatureOptions)
+    //}
+};
+
+/*
+let fillClinicalPartitionBox = async function(className)
+{
+    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
+};
+*/
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// Fill Clinical Select Box (above) //////////////////////////////////////////////////////////

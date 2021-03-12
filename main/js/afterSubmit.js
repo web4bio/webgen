@@ -15,6 +15,16 @@ addDiv = function(newDivID, oldDivID) {
   document.getElementById(oldDivID).after(newDiv); 
 }
 
+//Useful or adding div inside a div.
+//Currently being used for violins
+addDivInside = function(newDivID, parentDivID){
+  let newDiv = document.createElement("div");
+  newDiv.setAttribute('id', newDivID);
+  newDiv.setAttribute("style", "margin-top:25px");
+  document.getElementById(parentDivID).appendChild(newDiv); 
+  return newDiv;
+}
+
 // Function to remove the current div elements if they exist:
 removeDiv = function() {
   let i = 1;
@@ -51,6 +61,13 @@ removeSVGelements = function() {
   }
 }
 
+removeViolinButtons = function(){
+  var BTNElementArray = document.getElementsByClassName('BTNViolinPlots');
+  for(let i = 0, len = BTNElementArray.length || 0; i < len; i = i+1){
+    BTNElementArray[0].remove();
+  }
+}
+
 // Function to remove the tooltip div elements if they exist:
 removeTooltipElements = function () {
   let collection = document.getElementsByClassName('tooltip');
@@ -58,6 +75,15 @@ removeTooltipElements = function () {
     collection[0].remove();
   }
 }
+
+removeHeatmapsAndViolins = function(){
+  let heatmapDiv = document.getElementById("heatmapRef");
+  heatmapDiv.innerHTML = "";
+  let violinDiv = document.getElementById("violinPlotRef");
+  violinDiv.innerHTML = "";
+};
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,17 +130,22 @@ function setExampleVars() {
 let buildPlots = async function() {
   
   // Reset page formatting:
-  document.getElementById('heatmapDiv0').innerHTML = "";
-  document.getElementById('svgViolinDiv0').innerHTML = "";
-  
+  // document.getElementById('heatmapDiv0').innerHTML = "";
+  // document.getElementById('svgViolinDiv0').innerHTML = "";
+
+  let heatDiv = addDivInside("heatmapDiv0", "heatmapRef");
+  var violinDiv = addDivInside("svgViolinDiv0", "violinPlotRef");
+  violinDiv.setAttribute('align', 'center');
+
   // Remove existing div and svg elements if they're there:
-  removeDiv();
-  removeSVGelements();
-  removeTooltipElements();
+  // removeDiv();
+  // removeSVGelements();
+  // removeTooltipElements();
+  // removeViolinButtons();
 
   // Display loader:
-  document.getElementById('heatmapDiv0').className = 'loader';                       // Create the loader.
-  document.getElementById('svgViolinDiv0').className = 'loader';                     // Create the loader.
+  heatDiv.className = 'loader';                       // Create the loader.
+  violinDiv.className = 'loader';                     // Create the loader.
 
   let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
@@ -135,8 +166,26 @@ let buildPlots = async function() {
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(data));
 
+  var toggleSwitch = "<label class='switch'>" + 
+  "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
+  "<input type='checkbox' id= 'toggleSwitch'>" +
+  "<span class='slider round'></span>" +
+  "</label>";
+  document.getElementById("violinPlotRef").innerHTML += (toggleSwitch);
+
+  //Checkbox for toggling between gene vs. cohort for violin plots
+  toggleSwitch = document.getElementById('toggleSwitch')
+  toggleSwitch.addEventListener('change', function(e){
+    if(toggleSwitch.checked){
+      buildViolinPlot(geneQuery, data, "gene");
+    }else{
+      buildViolinPlot(cohortQuery, data, "cohort");
+    }
+
+  })
+
   buildHeatmap(data, clinicalData);
-  buildViolinPlot(cohortQuery, data);
+  buildViolinPlot(cohortQuery, data, "cohort");
 
 };
 
@@ -152,8 +201,9 @@ buildHeatmap = async function(expData, clinData){
 
 };
 
-buildViolinPlot = async function(cohortQuery, data){
+buildViolinPlot = async function(cohortORGeneQuery, data, independantVarType){
 
+  console.log(data)
   // Remove the loader
   document.getElementById('svgViolinDiv0').classList.remove('loader');               
 
@@ -162,31 +212,101 @@ buildViolinPlot = async function(cohortQuery, data){
   width = 1250 - margin.left - margin.right,
   height = 500 - margin.top - margin.bottom;
 
-  // Appending multiple g elements to svg object for violin plot
-  let myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+  let myCohorts;
+  if(independantVarType === 'gene'){
+    myCohorts = d3.map(data, function(d){return d.gene;}).keys();
+  }else{
+    myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
+  }
+  
+
+  
 
   // Define the number of cohorts to create a plot for
-  let numCohorts = myCohorts.length;
+  let numOfIndependantVars = myCohorts.length;
 
   // Spacing between plots
   let ySpacing = margin.top;
 
+//   toggleSwitch = document.getElementById('toggleSwitch')
+//   toggleSwitch.addEventListener('change', function(e){
+//       console.log(toggleSwitch.checked)
+// })
+
+  //Code to get the set of clinical data features to include the option
+  //to facet by goes here. For now, gender will be a hardcoded field 
+  //to facet by.
+
   // Append an svg object for each cohort to create a violin plot for
-  for(var index = 0; index < numCohorts; index++) {
-    
+  for(var index = 0; index < numOfIndependantVars; index++) {
+    console.log("Violin Plot " + index);
     // Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
+    
+    //Create a new div for each cohort
+    var violinDivName = "ViolinDiv"+index;
+    var violinDiv = addDivInside(violinDivName, "violinPlotRef");
+    console.log(violinDivName + " created");
 
-    let svgViolinPlot = d3.select("#violinPlotRef").append("svg")
-      .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
-      .attr("id", `svgViolinPlot${index}`)
-      .append("g")
-      .attr("transform",
-          "translate(" + (margin.left-20) + "," + 
-                      (margin.top + ySpacing*index*0.25) + ")");
 
+    var partitionSelectDivName = "violinPartitionSelect"+index;
+    addDivInside(partitionSelectDivName, violinDivName);
+    console.log(partitionSelectDivName + "added");
+    fillViolinPartitionBox(partitionSelectDivName);
+    console.log("Partition select box selected");
+
+    //Building the selector for each violin plot for faceting
+    /*
+    $('.clinicalMultipleSelection').select2({
+      placeholder: "Clinical feature(s) to partition by"
+    });
+    */
+
+  /*
+   var selectBoxClassName = "clinicalPartitionSelection";
+   var selectBoxId = "clinicalPartitionSelection";
+   var selectObj = document.createElement("SELECT");
+   selectObj.className = selectBoxClassName;
+   selectObj.id = selectBoxId;
+
+   violinDiv.appendChild(selectObj);
+*/
+
+
+
+   /*
+    var clinicalFeaturesSelector = "<div id='clinicalPartitionSelectBox" + index + "'>"+
+      "<p style='text-align: center;'><b>Clinical feature(s) to partition by</b></p>"+
+      "<select class='" + `clinicalMultipleSelectionViolin${index}` + "' multiple='multiple' id= '" + `violinPlot${index}` + "Partition'>"+
+      "</select>" +
+    "</div>";
+    
+    violinDiv.innerHTML += (clinicalFeaturesSelector);    
+   */ 
+    
+    var rebuildButton = "<button id = " + `BTNViolinPlot${index}` + " class = 'BTNViolinPlots col s3 btn waves-effect waves-light' onclick = 'rebuildPlot(" + violinDivName + ")'>Rebuild Violin Plot</button>"
+    //var rebuildButton = document.createElement("button");
+    //rebuildButton.id = `BTNViolinPlot${index}`;
+    //rebuildButton.className = "BTNViolinPlots col s3 btn waves-effect waves-light";
+    //rebuildButton.innerHTML = "Rebuild Violin Plot";
+    
+    //rebuildPlot(violinDiv);};
+    //var vDiv = document.getElementById(violinDivName);
+    //rebuildButton.addEventListener("click", console.log("Hello world!"));
+    //{
+      //Change function call to add the parameter of the values specified in the partition select box
+      //rebuildPlot(violinDiv);
+    //});
+    
+    violinDiv.innerHTML += rebuildButton;
+    //violinDiv.appendChild(rebuildButton);
     // Create the violin plot:
-    createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
+    createViolinPlot(independantVarType, cohortORGeneQuery, data, violinDiv, curCohort, []);
+
+    // For Clinical Select2 Drop down:
+    $(".clinicalMultipleSelectionViolin" + index).select2({
+      placeholder: "Clinical Feature(s)"
+    });
   }
 };
 
