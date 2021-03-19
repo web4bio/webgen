@@ -110,7 +110,7 @@ const onResetFunc = () => {
 // Uses localStorage
 const storeHistory = (fileId) => {
   const history = JSON.parse(localStorage.getItem('fileIds') || '[]')
-  if (history.length > 10)
+  if (history.length >= 10)
     history.splice(0, 1)
 
   const newSubmit = {
@@ -150,11 +150,11 @@ document.onkeydown = (e) => {
     case 37:
       zoomInput.value = Number(zoomInput.value || 0) - 1 + ''
       onSubmitFunc()
-      break;
+      break
     case 39:
       zoomInput.value = Number(zoomInput.value || 0) + 1 + ''
       onSubmitFunc()
-      break;
+      break
   }
 }
 
