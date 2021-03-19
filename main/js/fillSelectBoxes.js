@@ -43,11 +43,6 @@ let fillCancerTypeSelectBox = async function () {
     .split(",");
   if (cancerTypeSelectedOptions) {
     $(".cancerTypeMultipleSelection").val(cancerTypeSelectedOptions);
-    if (cancerTypeSelectedOptions != "") {
-      fillFirstGeneSelectBox();
-      fillClinicalSelectBox();
-      fillSecondGeneSelectBox();
-    }
   }
 };
 
@@ -202,7 +197,6 @@ let fillFirstGeneSelectBox = async function () {
     let geneList = await fetch(
       "https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json"
     ).then((response) => response.json());
-    console.log(geneList);
     for (let i = 0; i < geneList.length; i++) {
       let currentOption = document.createElement("option");
       currentOption.value = geneList[i].hugoSymbol;
@@ -233,7 +227,6 @@ let fillSecondGeneSelectBox = async function () {
     let geneList2 = await fetch(
       "https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json"
     ).then((response) => response.json());
-    console.log(geneList2);
     for (let i = 0; i < geneList2.length; i++) {
       let currentOption2 = document.createElement("option");
       currentOption2.value = geneList2[i].hugoSymbol;
@@ -282,6 +275,14 @@ let fillClinicalSelectBox = async function () {
   if (clinicalSelectedOptions) {
     $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
   }
+
+  let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+  let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+
+  if(mySelectedClinicalFeatures.length >= 1 || mySelectedClinicalFeatures2 >= 1) {
+    buildDataExplorePlots(allClinicalData);
+  }
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
