@@ -55,8 +55,6 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
               let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
               if(concatFilteredBarcodes['' + currentGene] == undefined)
                 concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
-              // else
-              //   concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
 
             // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
             } else {
@@ -137,17 +135,6 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
     let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, allBarcodes)
     console.log(data);
     return data;
-    /* // Remove the loader
-    document.getElementById('heatmapDiv0').classList.remove('loader');
-    document.getElementById('svgViolinDiv0').classList.remove('loader');
-
-    let sorryDiv = document.getElementById("sorryDiv");
-    sorryDiv.innerHTML = "";
-    para = document.createElement("P");
-    para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
-    para.setAttribute('id', 'noIntersectPara');        
-    para.innerText = "To visualize data, please select at least one pie chart sector.";
-    sorryDiv.appendChild(para); */
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
@@ -167,7 +154,7 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
   // if there IS/ARE barcode(s) at the intersection, build heatmap and violin plots
   } else {
     sorryDiv.innerHTML = "";
-    
+
     // Filter expression data based on intersection of barcodes
     // The final data array may include a fewer number of barcodes than that contained in 
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
@@ -179,5 +166,4 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
     console.log(data);
     return data;
   }
-
 }
