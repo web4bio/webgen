@@ -22,14 +22,19 @@
 // Note: to use getExpressionDataJSONarray, you must set a variable equal to the result returned by the function,
 // then use the .then(function(finalResult)) method to use the finalResult inside the Promise that is returned.
 
-// Function that calls fetchExpressionData and returns the useful format of the data:
-getExpressionDataJSONarray = async function(cohortQuery, geneQuery) {
-  
-  var dataFetched = await fetchExpressionData(cohortQuery,geneQuery);
-
+getExpressionDataJSONarray_cg = async function(cohortQuery, geneQuery) {
+  var dataFetched = await fetchExpressionData_cg(cohortQuery,geneQuery);
   // Remove the uppermost level of the data (cleaning)
   var results = dataFetched.mRNASeq;
-  
+  // console.log(results)
   return await results;
+};
 
+// Function that calls fetchExpressionData and returns the useful format of the data:
+getExpressionDataJSONarray_cgb = async function(cohortQuery, geneQuery, barcodes) {
+  var dataFetched = await fetchExpressionData_cgb(cohortQuery,geneQuery, barcodes);
+  // Remove the uppermost level of the data (cleaning)
+  var results = dataFetched.mRNASeq;
+  // console.log(results)
+  return await results;
 };

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang='en'>
-
-<!--
+<html lang="en">
+  <!--
   Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
 -->
 
@@ -10,204 +9,428 @@
   -->
   <head>
     <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <!-- Load d3.js -->
     <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
 
     <!-- Load jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    
+
+    <!-- Load Jonas's FireBrowse library -->
+    <script src="https://episphere.github.io/firebrowse/firebrowse.js"></script>
+
+    <!-- Load hclust library (for clustering) -->
+    <script src="../js/libraries/hclust.min.js"></script>
+
     <!-- Load color palettes -->
-    <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
     <!-- Select2 Library -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-    
+
     <!-- Plotly Library -->
-    <script type="text/javascript" src = "https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.plot.ly/plotly-latest.min.js"
+    ></script>
+
+    <!-- Load hclust library (for clustering) -->
+    <script src="../js/libraries/hclust.min.js"></script>
 
     <!-- Load in files -->
-    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
 
-    <script type="text/javascript" src = "../js/dataAcquisition/fetchExpressionData.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/fetchSigMutationData.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getSigMutationArray.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getCohortIDs.js"></script>
-    <script type="text/javascript" src = "../js/dataAcquisition/getCohortDescriptions.js"></script>
-    
-    <script type="text/javascript" src = "../js/plots/createHeatmap.js"></script>
-    <script type = "text/javascript" src = "../js/plots/createViolinPlot.js"></script>
+    <script
+      type="text/javascript"
+      src="../js/dataAcquisition/fetchClinicalData.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/dataAcquisition/fetchExpressionData.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/dataAcquisition/fetchSigMutationData.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/dataAcquisition/getClinicalDataJSONarray.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/dataAcquisition/getDataFromSelectedPieSectors.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/dataAcquisition/getExpressionDataJSONarray.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="../js/dataAcquisition/getSigMutationArray.js"
+    ></script>
 
-    <script type="text/javascript" src = "../js/docManipulation.js"></script>
-    <script type ="text/javascript" src = "../js/fillSelectBoxes.js"></script>
+    <script
+      type="text/javascript"
+      src="../js/dataProcessing/mergeExpression.js"
+    ></script>
 
+    <script type="text/javascript" src="../js/plots/createHeatmap.js"></script>
+    <script
+      type="text/javascript"
+      src="../js/plots/createViolinPlot.js"
+    ></script>
+
+    <script type="text/javascript" src="../js/afterSubmit.js"></script>
+    <script type="text/javascript" src="../js/fillSelectBoxes.js"></script>
   </head>
-  
-  <!--
-    Set up the navbar:
-  -->
+
   <body>
-
     <div id="page-container">
-
-    <div id = "content-wrap">
-
-    <div class="navbar-fixed">
-        <nav>
-        <div class="nav-wrapper">
-          <a href="html/index.html" style="font-style: italic;" class="brand-logo center">WebGen</a>
-          <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li class="active"><a href="html/about.html">About</a></li>
-          </ul>
+      <div id="content-wrap">
+        <!--
+        Set up the navbar:
+      -->
+        <div class="navbar-fixed">
+          <nav>
+            <div class="nav-wrapper">
+              <a
+                href="index.html"
+                style="font-style: italic"
+                class="brand-logo center"
+                >WebGen</a
+              >
+              <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li class="active"><a href="about.html">About</a></li>
+              </ul>
+              <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li class="active"><a href="image.html">Image</a></li>
+              </ul>
+            </div>
+          </nav>
         </div>
-        </nav>
-    </div>
 
+        <!--
+        Set up subtitles
+      -->
+        <div>
+          <br />
+          <br />
+          <h5
+            style="
+              text-align: center;
+              font-style: italic;
+              font-family: Georgia, 'Times New Roman', Times, serif;
+            "
+          >
+            A tool for exploring cancer data from The Cancer Genome Atlas
+          </h5>
+          <p
+            style="
+              text-align: center;
+              font-family: Georgia, 'Times New Roman', Times, serif;
+            "
+          >
+            Currently, this tool enables visualization of gene expression
+            (RNA-seq) data from primary solid tumor samples via heatmap and
+            violin plot.
+          </p>
+          <br />
+        </div>
 
-<!--
-  Setting up the user input text fields and buttons.
--->
-    <script>
-      // Get the list of valid genes users can search for:
-      validGeneListFetch = getValidGeneList();
-      validGeneListFetch.then(function(validGeneList){
+        <div>
+          <h5
+            style="
+              text-align: center;
+              color: lightcoral;
+              font-family: Georgia, 'Times New Roman', Times, serif;
+            "
+          >
+            <strong>Define Your Cohort:</strong>
+          </h5>
+          <br />
+        </div>
 
-        $(document).ready(function() {
+        <!--
+      Set up the user input text fields
+      -->
+        <script>
+          // Get the list of valid genes users can search for:
+          validGeneListFetch = getValidGeneList();
+          validGeneListFetch.then(function (validGeneList) {
+            $(document).ready(function () {
+              // For Cancer Type Select2 Drop down:
+              $(".cancerTypeMultipleSelection").select2({
+                placeholder: "Cancer Type(s)",
+              });
 
-          // For Cancer Type Select2 Drop down:
-          $('.cancerTypeMultipleSelection').select2({
-            placeholder: "Select Cancer Type(s)"
+              // For Mutation Select2 Drop down:
+              $(".geneOneMultipleSelection").select2({
+                placeholder: "Gene(s)",
+                tags: true,
+                createTag: function (params) {
+                  // If the gene entered is not valid, don't create new tag:
+                  if (
+                    ~validGeneList.includes(params.term.toUpperCase()) === -1
+                  ) {
+                    return null;
+                  }
+
+                  // If the gene entered is valid, create new tag:
+                  return {
+                    id: params.term.toUpperCase(),
+                    text: params.term.toUpperCase(),
+                  };
+                },
+              });
+
+              // For Clinical Select2 Drop down:
+              $(".clinicalMultipleSelection").select2({
+                placeholder: "Clinical Feature(s)",
+              });
+
+              // For Gene Select2 Drop down:
+              $(".geneTwoMultipleSelection").select2({
+                placeholder: "Gene(s)",
+              });
+
+              fillCancerTypeSelectBox();
+              fillFirstGeneSelectBox();
+              fillSecondGeneSelectBox();
+            });
           });
+        </script>
 
-          // For Gene Select2 Drop down:
-          $('.geneMultipleSelection').select2({
-            tags: true,
-            createTag: function (params) {
-              // If the gene entered is not valid, don't create new tag:
-              if (~validGeneList.includes(params.term.toUpperCase()) === -1) {
-                return null;
-              }
-              
-              // If the gene entered is valid, create new tag:
-              return {
-                id: params.term.toUpperCase(),
-                text: params.term.toUpperCase()
-              }
-            },
-            placeholder: "Enter Gene ID(s)"
-          });
+        <div>
+          <p style="text-align: center"><b>1) Select cancer type(s)</b></p>
+          <div id="cancerQuerySelectBox">
+            <select
+              class="cancerTypeMultipleSelection"
+              name="cancerTypes[]"
+              multiple="multiple"
+              id="cancerTypeMultipleSelection"
+              onchange="fillClinicalSelectBox(), displayNumberSamples(), saveInLocalStorage()"
+            >
+              <!-- Filled by fillSelectBoxes.js -->
+            </select>
+          </div>
+        </div>
 
-          // Fill the Select2 Boxes:
-          fillCancerTypeSelectBox();
-          fillGeneSelectBox();
-        });
-      });
-    </script>
+        <div class="row">
+          <p style="text-align: center">
+            <b>2) Filter data by gene mutation signature and/or by metadata</b>
+          </p>
 
-  <div  id = 'cancerQuerySelectBox'>
-      <select class="cancerTypeMultipleSelection" name="cancerTypes[]" multiple="multiple" id = "cancerTypeMultipleSelection">
-          <!-- Filled by fillSelectBoxes.js -->
-      </select>
-  </div>
+          <div id="geneOneQuerySelectBox" class="col s6">
+            <select
+              class="geneOneMultipleSelection"
+              name="selectedMutations[]"
+              multiple="multiple"
+              id="geneOneMultipleSelection"
+              onchange="buildDataExplorePlots(), saveInLocalStorage()"
+              ;
+            >
+              <!-- Filled by fillSelectBoxes.js -->
+            </select>
+          </div>
 
-  <div id = 'geneQuerySelectBox'>
-      <select class="geneMultipleSelection" name="selectedGenes[]" multiple="multiple" id = "geneMultipleSelection">
-          <!-- Filled by fillSelectBoxes.js -->
-      </select>
-  </div>
+          <div id="clinicalQuerySelectBox" class="col s6">
+            <select
+              class="clinicalMultipleSelection"
+              name="selectedClinicals[]"
+              multiple="multiple"
+              id="clinicalMultipleSelection"
+              onchange="buildDataExplorePlots(), saveInLocalStorage()"
+              ;
+            >
+              <!-- Filled by fillSelectBoxes.js -->
+            </select>
+          </div>
+        </div>
 
-  <!--
-  Setting up the buttons.
--->
-    <div className="mainWindowButtons" id = "mainWindowButtons">
-        <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button>
-        <button class="col s3 btn waves-effect waves-light" onclick="setVars()" id='submitButton'>Submit</button>
-    </div>
-  <!--
-    Setting up the tabs.
-  -->
-<div class="tabs_container">  
-  <div class="col s36">
-    <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
-      <li class="tab col s12"><a class="active" href="#heatmapRef">Heatmap</a></li>
-      <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
-      <li class="tab col s12"><a href="#violinPlotRef">Violin Plot</a></li>
-    </ul>
-    <!--
-      Setting up the plots to go under each tab.
+        <!-- <div>
+        <p style="text-align: center;"><b>3) Click pie sectors to define gene types </b></p>
+        <p style="text-align: center; color: gray">Hint 1: Click items in legend to change view of plot</p> 
+        <p style="text-align: center; color: gray">Hint 2: In plot, click on wild-type or mutated genes that you would like to visualize. Selected data will be highlighted <b><span style="color: orange">yelllow</span></b>.</p> 
+        </div> -->
+
+        <!-- 
+          Data exploration div
+        -->
+        <div class="row" id="dataexploration">
+          <script
+            type="text/javascript"
+            src="../js/plots/createPieCharts.js"
+          ></script>
+        </div>
+
+        <div>
+          <h5
+            style="
+              text-align: center;
+              color: lightcoral;
+              font-family: Georgia, 'Times New Roman', Times, serif;
+            "
+          >
+            <strong>Explore Your Cohort:</strong>
+          </h5>
+          <br />
+        </div>
+
+        <div>
+          <p style="text-align: center">
+            <b>3) Select genes that you would like to visualize</b>
+          </p>
+          <div id="geneTwoQuerySelectBox">
+            <select
+              class="geneTwoMultipleSelection"
+              name="genes[]"
+              multiple="multiple"
+              id="geneTwoMultipleSelection"
+              onchange="saveInLocalStorage()"
+            >
+              <!-- Filled by fillSelectBoxes.js -->
+            </select>
+          </div>
+        </div>
+
+        <br />
+
+        <!--
+      Setting up the buttons.
+      -->
+        <div className="mainWindowButtons" id="mainWindowButtons">
+          <!-- <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button> -->
+          <button
+            class="col s3 btn waves-effect waves-light"
+            onclick="buildPlots()"
+            id="submitButton"
+          >
+            Submit
+          </button>
+        </div>
+
+        <!--
+        Setting up the tabs.
+      -->
+        <div class="tabs_container">
+          <div class="col s36">
+            <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
+              <li class="tab col s12">
+                <a class="active" href="#heatmapRef">Heatmap</a>
+              </li>
+              <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
+              <li class="tab col s12">
+                <a href="#violinPlotRef">Violin Plot</a>
+              </li>
+            </ul>
+            <!--
+              Setting up the plots to go under each tab.
+            -->
+            <div id="heatmapRef" class="col s12">
+              <div id="heatmapDiv0" style="margin-top: 25px"></div>
+            </div>
+            <div id="violinPlotRef" class="col s12">
+              <div
+                id="svgViolinDiv0"
+                style="margin-top: 25px"
+                align="center"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="sorryDiv"></div>
+
+        <!--
+      Setting tabs:
     -->
-    <div id="heatmapRef" class="col s12">
-      <div id=div0 style="margin-top:25px"></div>
-    </div>
-    <div id="violinPlotRef" class="col s12">
-      <div id=svgViolinDiv0 style="margin-top:25px" align="center"></div>
-    </div>
-  </div>
-</div>
+        <script>
+          var elem = document.querySelector(".tabs");
+          var options = {};
+          var instance = M.Tabs.init(elem, options);
+        </script>
+      </div>
 
-<!--
-  Setting tabs:
--->
-<script> 
-  var elem = document.querySelector('.tabs');
-  var options = {}
-  var instance = M.Tabs.init(elem, options);
-</script>
+      <br />
+      <br />
+      <br />
+      <br />
 
-</div>
-
-<br>
-<br>
-<br>
-<br>
-
-<!--
+      <!--
   Footer:
 -->
-<footer class="page-footer" id="footer">
-  <div class="container">
-    <div class="row">
+      <footer class="page-footer" id="footer">
+        <div class="container">
+          <div class="row">
+            <div class="col s12 m4 l8">
+              <h7 class="white-text">LINKS</h7>
+              <ul>
+                <li>
+                  <a
+                    target="_blank"
+                    class="grey-text text-lighten-3"
+                    href="https://github.com/web4bio/webgen"
+                    >GitHub</a
+                  >
+                </li>
+                <li>
+                  <a
+                    target="_blank"
+                    class="grey-text text-lighten-3"
+                    href="http://firebrowse.org/api-docs/"
+                    >Firebrowse API</a
+                  >
+                </li>
+                <li>
+                  <a
+                    target="_blank"
+                    class="grey-text text-lighten-3"
+                    href="https://gdc.cancer.gov/"
+                    >NCI Genomic Data Commons</a
+                  >
+                </li>
+                <li>
+                  <a
+                    target="_blank"
+                    class="grey-text text-lighten-3"
+                    href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)"
+                    >Stony Brook University VIP</a
+                  >
+                </li>
+              </ul>
+            </div>
 
-      <div class="col s12 m4 l8">
-        <h7 class="white-text">LINKS</h7>
-        <ul>
-          <li><a target="_blank" class="grey-text text-lighten-3" href="https://github.com/web4bio/webgen">GitHub</a></li>
-          <li><a target="_blank" class="grey-text text-lighten-3" href="http://firebrowse.org/api-docs/">Firebrowse API</a></li>
-          <li><a target="_blank" class="grey-text text-lighten-3" href="https://gdc.cancer.gov/">NCI Genomic Data Commons</a></li>
-          <li><a target="_blank" class="grey-text text-lighten-3" href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)">Stony Brook University VIP</a></li>
-        </ul>
-      </div>
+            <div class="col s12 m6 l3">
+              <h7 class="white-text">CONTACT</h7>
+              <ul>
+                <li>
+                  <a class="grey-text text-lighten-3"
+                    >richard.moffitt@stonybrookmedicine.edu</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
-      <div class="col s12 m6 l3">
-        <h7 class="white-text">CONTACT</h7>
-        <ul>
-          <li><a class="grey-text text-lighten-3">richard.moffitt@stonybrookmedicine.edu</a></li>          
-        </ul>
-      </div>
-
+        <div class="footer-copyright">
+          <div class="container">
+            <div class="center-align">WebGen 2020</div>
+          </div>
+        </div>
+      </footer>
     </div>
-
-  </div>
-
-  <div class="footer-copyright">
-    <div class="container">
-      <div class="center-align">
-        WebGen 2020
-      </div>
-    </div>
-  </div>
-
-</footer>
-
-</div>
-
-</body>
-
+  </body>
 </html>
