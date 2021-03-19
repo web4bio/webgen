@@ -11,6 +11,11 @@ let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 
 let buildDataExplorePlots = async function() {
 
+    if (document.getElementById("numAtIntersectionText")) {
+        console.log("yeah")
+        document.getElementById("numAtIntersectionText").remove();
+    }
+
     // get total number of barcodes for selected cancer type(s)
     let dataFetched = await fetchNumberSamples();
     let countQuery = dataFetched.Counts;
@@ -191,7 +196,41 @@ let buildDataExplorePlots = async function() {
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
+                displayNumberBarcodesAtIntersection()
             });
         }
     }
 }}
+
+let displayNumberBarcodesAtIntersection = async function () {
+
+    let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
+        cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+
+    let geneQuery = $('.geneOneMultipleSelection').select2('data').map(
+        gene => gene.text);
+
+    // Fetch RNA sequence data for selected cancer type(s) and gene(s)
+    let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
+
+    let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData);
+
+    if (document.getElementById("numAtIntersectionText")) {
+      document.getElementById("numAtIntersectionText").remove();
+    }
+
+    let para = document.createElement("P");
+    para.setAttribute(
+      "style",
+      'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
+    );
+
+    let string = intersectedBarcodes.length + ""
+
+    para.setAttribute("id", "numAtIntersectionText");
+    para.innerText = "Number of samples with expression data in defined cohort: " + string;
+
+    let blah = document.getElementById("numIntersectedBarcodesDiv")
+    blah.appendChild(para);
+
+};

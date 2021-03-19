@@ -130,7 +130,9 @@ let buildPlots = async function() {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  let data = await getDataFromSelectedPieSectors(expressionData, cohortQuery);
+  let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData);
+
+  let data = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, cohortQuery);
 
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(data));

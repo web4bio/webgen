@@ -1,11 +1,7 @@
   
-  // ***** Get ALL barcodes from selected pie sectors (below) *****
+// ***** Get intersection of barcodes from selected pie sectors (below) *****
 
-getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
-  console.log(selectedData)
-
-  // allData is used when no pie slices are chosen
-  let allData = allClinicalData
+getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
   // a "field" is either a gene name or a clinical feature
   let selectedFields = Object.keys(selectedData);
@@ -127,6 +123,15 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
       intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
     }  
   }
+
+  return intersectedBarcodes
+}
+
+
+getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery){
+
+  // allData is used when no pie slices are chosen
+  let allData = allClinicalData
 
   // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {
