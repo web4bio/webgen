@@ -8,6 +8,17 @@
 let selectedData = [];
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+let continousData = ['agebegansmokinginyears', 'age_at_diagnosis', 'date_of_initial_pathologic_diagnosis',
+    'days_to_death', 'days_to_last_followup', 'days_to_last_known_alive',
+    'days_to_psa','days_to_submitted_specimen_dx','days_to_tumor_recurrence',
+    'height_cm_at_diagnosis','initial_pathologic_dx_year','number_of_lymph_nodes',
+    'number_pack_years_smoked','pregnancies_count_ectopic','pregnancies_count_live_birth',
+    'pregnancies_count_stillbirth','pregnancies_count_total','pregnancy_spontaneous_abortion_count',
+    'pregnancy_therapeutic_abortion_count','tobacco_smoking_pack_years_smoked',
+    'tobacco_smoking_year_stopped','weight_kg_at_diagnosis','years_to_birth',
+    'year_of_tobacco_smoking_onset'
+    ];
+let continuous = false;
 
 let buildDataExplorePlots = async function() {
 
@@ -35,7 +46,6 @@ let buildDataExplorePlots = async function() {
 
         // clear all previous plots that were displayed
         document.getElementById('dataexploration').innerHTML = "";
-
         // loop through each selected clinical feature
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
@@ -48,7 +58,6 @@ let buildDataExplorePlots = async function() {
             // if current feature is a gene,
             // get values and labels for this feature
             if(currentFeature[0] === currentFeature[0].toUpperCase()) {
-
                 let currentGeneSelected = currentFeature;
                 let allVariantClassifications = [];
                 let allBarcodes = []; // barcodes that correspond to a mutation
@@ -99,6 +108,13 @@ let buildDataExplorePlots = async function() {
             // if current feature is clinical (i.e., not a gene)
             // get values and labels for this feature
             } else {
+                if(continousData.includes(currentFeature)){
+                    continuous = true;
+                }
+                else{
+                    continuous = false;
+                }
+
                 for(let i = 0; i < allClinicalData.length; i++) 
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
@@ -111,7 +127,8 @@ let buildDataExplorePlots = async function() {
                         if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
                             xCounts[k]++;
             }
-        
+
+  
             var data = [{
                 values: xCounts,
                 labels: uniqueValuesForCurrentFeature,
@@ -126,6 +143,12 @@ let buildDataExplorePlots = async function() {
                         width: 1
                     }
                 }
+            }];
+
+            var histo_data = [{
+                x: uniqueValuesForCurrentFeature,
+                y: xCounts,
+                type: 'histogram'
             }];
             
             var layout = {
@@ -154,7 +177,11 @@ let buildDataExplorePlots = async function() {
             newDiv.setAttribute("id", currentFeature + "Div");
             parentRowDiv.appendChild(newDiv);
             
-            Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
+            if(continuous)
+                Plotly.newPlot(currentFeature + 'Div', histo_data, layout, config, {scrollZoom: true});
+            else
+                Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
