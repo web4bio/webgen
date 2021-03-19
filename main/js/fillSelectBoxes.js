@@ -93,8 +93,8 @@ let fetchNumberSamples = async function () {
 };
 
 let displayNumberSamples = async function () {
-  if (document.getElementById("erikaPara")) {
-    document.getElementById("erikaPara").remove();
+  if (document.getElementById("numSamplesText")) {
+    document.getElementById("numSamplesText").remove();
   }
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
@@ -111,17 +111,17 @@ let displayNumberSamples = async function () {
         "style",
         'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
       );
-      para.setAttribute("id", "erikaPara");
+      para.setAttribute("id", "numSamplesText");
       para.innerText = "Number of samples: " + string;
       cancerQuerySelectBox.appendChild(para);
     } else {
-      document.getElementById("erikaPara").remove();
+      document.getElementById("numSamplesText").remove();
       string += ", " + myCohort[i] + ": " + countQuery[i].mrnaseq;
       para.setAttribute(
         "style",
         'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
       );
-      para.setAttribute("id", "erikaPara");
+      para.setAttribute("id", "numSamplesText");
       para.innerText = "Number of samples: " + string;
       cancerQuerySelectBox.appendChild(para);
     }
