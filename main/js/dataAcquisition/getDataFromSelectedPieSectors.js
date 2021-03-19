@@ -167,20 +167,12 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
   // if there IS/ARE barcode(s) at the intersection, build heatmap and violin plots
   } else {
     sorryDiv.innerHTML = "";
+    
     // Filter expression data based on intersection of barcodes
     // The final data array may include a fewer number of barcodes than that contained in 
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
     
-    // console.log(intersectedBarcodes)
-
-    // let data = [];
-    // for(let i = 0; i < intersectedBarcodes.length; i++) 
-    //   for(let j = 0; j < expressionData.length; j++) 
-    //     if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
-    //       data.push(expressionData[j])
-    // data = data.filter(x => selectedFields.includes(x.gene))
-
     let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
 
     let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)
