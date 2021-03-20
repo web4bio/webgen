@@ -190,62 +190,40 @@
               });
 
               // For Mutation Select2 Drop down:
-              $(".geneOneMultipleSelection").select2({                
-                data: geneListArray,
-                multiple: true,
-                placeholder: "Gene(s)",
-                // creating query with pagination functionality.
-                query: function (data) {
-                  var pageSize,
-                          dataset,
-                          that = this;
-                  pageSize = 5; // Number of the option loads at a time
-                  results = [];
-                  if (data.term && data.term !== '') {
-                    // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
-                    results = _.filter(that.data, function (e) {
-                      return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
+              var fillGeneSelectBoxes = (geneSelectionBox) => {
+                $(geneSelectionBox).select2({                
+                  data: geneListArray,
+                  multiple: true,
+                  placeholder: "Gene(s)",
+                  // creating query with pagination functionality.
+                  query: function (data) {
+                    var pageSize,
+                            dataset,
+                            thatQuery = this;
+                    pageSize = 5; // Number of the option loads at a time
+                    results = [];
+                    if (data.term && data.term !== '') {
+                      // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
+                      results = _.filter(thatQuery.data, function (e) {
+                        return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
+                      });
+                    } else {
+                      results = thatQuery.data;
+                    }
+                    data.callback({
+                      results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
+                      more: results.length >= data.page * pageSize,
                     });
-                  } else if (data.term === '') {
-                    results = that.data;
-                  }
-                  data.callback({
-                    results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
-                    more: results.length >= data.page * pageSize,
-                  });
-                },
-              });
+                  },
+                });
+              }
+              
+              fillGeneSelectBoxes(".geneOneMultipleSelection");
+              fillGeneSelectBoxes(".geneTwoMultipleSelection");
 
               // For Clinical Select2 Drop down:
               $(".clinicalMultipleSelection").select2({
                 placeholder: "Clinical Feature(s)",
-              });
-
-              // For Gene Select2 Drop down:
-              $(".geneTwoMultipleSelection").select2({
-                data: geneListArray,
-                multiple: true,
-                placeholder: "Gene(s)",
-                // creating query with pagination functionality.
-                query: function (data) {
-                  var pageSize,
-                          dataset,
-                          that = this;
-                  pageSize = 5; // Number of the option loads at a time
-                  results = [];
-                  if (data.term && data.term !== '') {
-                    // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
-                    results = _.filter(that.data, function (e) {
-                      return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
-                    });
-                  } else if (data.term === '') {
-                    results = that.data;
-                  }
-                  data.callback({
-                    results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
-                    more: results.length >= data.page * pageSize,
-                  });
-                },
               });
               
               fillFirstGeneSelectBox();
