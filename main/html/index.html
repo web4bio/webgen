@@ -34,11 +34,14 @@
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
     <!-- Select2 Library -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
+    <link rel="stylesheet" 
+      href="//cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" /> 
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css" />
+
+    <!-- lodash Library for pagination -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
 
     <!-- Plotly Library -->
     <script
@@ -175,37 +178,54 @@
                 placeholder: "Cancer Type(s)",
               });
 
-              // For Mutation Select2 Drop down:
-              $(".geneOneMultipleSelection").select2({
-                placeholder: "Gene(s)",
-                tags: true,
-                createTag: function (params) {
-                  // If the gene entered is not valid, don't create new tag:
-                  if (
-                    ~validGeneList.includes(params.term.toUpperCase()) === -1
-                  ) {
-                    return null;
-                  }
+              fillCancerTypeSelectBox();
 
-                  // If the gene entered is valid, create new tag:
-                  return {
-                    id: params.term.toUpperCase(),
-                    text: params.term.toUpperCase(),
-                  };
-                },
+              // Map the array of geneList with attributes of id, text, and value
+              var geneListArray = _.map(_.range(0, validGeneList.length), function(i) {
+                return {
+                  id: validGeneList[i],
+                  text: validGeneList[i],
+                  value: validGeneList[i],
+                };
               });
+
+              // For Mutation Select2 Drop down:
+              var fillGeneSelectBoxes = (geneSelectionBox) => {
+                $(geneSelectionBox).select2({                
+                  data: geneListArray,
+                  multiple: true,
+                  placeholder: "Gene(s)",
+                  // creating query with pagination functionality.
+                  query: function (data) {
+                    var pageSize,
+                            dataset,
+                            thatQuery = this;
+                    pageSize = 5; // Number of the option loads at a time
+                    results = [];
+                    if (data.term && data.term !== '') {
+                      // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
+                      results = _.filter(thatQuery.data, function (e) {
+                        return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
+                      });
+                    } else {
+                      results = thatQuery.data;
+                    }
+                    data.callback({
+                      results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
+                      more: results.length >= data.page * pageSize,
+                    });
+                  },
+                });
+              }
+              
+              fillGeneSelectBoxes(".geneOneMultipleSelection");
+              fillGeneSelectBoxes(".geneTwoMultipleSelection");
 
               // For Clinical Select2 Drop down:
               $(".clinicalMultipleSelection").select2({
                 placeholder: "Clinical Feature(s)",
               });
-
-              // For Gene Select2 Drop down:
-              $(".geneTwoMultipleSelection").select2({
-                placeholder: "Gene(s)",
-              });
-
-              fillCancerTypeSelectBox();
+              
               fillFirstGeneSelectBox();
               fillSecondGeneSelectBox();
             });
@@ -216,6 +236,7 @@
           <p style="text-align: center"><b>1) Select cancer type(s)</b></p>
           <div id="cancerQuerySelectBox">
             <select
+              style="width: 80%"
               class="cancerTypeMultipleSelection"
               name="cancerTypes[]"
               multiple="multiple"
@@ -233,20 +254,22 @@
           </p>
 
           <div id="geneOneQuerySelectBox" class="col s6">
-            <select
+            <input
+              style="width:80%"
               class="geneOneMultipleSelection"
               name="selectedMutations[]"
               multiple="multiple"
               id="geneOneMultipleSelection"
               onchange="buildDataExplorePlots(allClinicalData), saveInLocalStorage()"
               ;
-            >
+            />
               <!-- Filled by fillSelectBoxes.js -->
-            </select>
+            
           </div>
 
           <div id="clinicalQuerySelectBox" class="col s6">
             <select
+              style="width:80%"
               class="clinicalMultipleSelection"
               name="selectedClinicals[]"
               multiple="multiple"
@@ -295,15 +318,16 @@
             <b>3) Select genes that you would like to visualize</b>
           </p>
           <div id="geneTwoQuerySelectBox">
-            <select
+            <input
+              style="width:80%"
               class="geneTwoMultipleSelection"
               name="genes[]"
               multiple="multiple"
               id="geneTwoMultipleSelection"
               onchange="saveInLocalStorage()"
-            >
+            />
               <!-- Filled by fillSelectBoxes.js -->
-            </select>
+            
           </div>
         </div>
 
