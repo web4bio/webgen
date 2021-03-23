@@ -123,13 +123,13 @@ let buildPlots = async function() {
   let clinicalQuery = $('.clinicalMultipleSelection').select2('data').map(el => el.text);
   //["gender", "race", "vital_status", "histological_type", "tumor_tissue_site"];
 
-  // Fetch RNA sequence data for selected cancer type(s) and gene(s)
+  // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
   let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+  // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData);
 
+  // Extract expression data only at intersectedBarcodes
   let data = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, cohortQuery);
 
   // Get clinical data for specified clinical fields
