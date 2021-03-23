@@ -60,7 +60,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-
+        
     // Create svg object frame for the plots
     var svg_frame = divObject.append("svg")
         //.attr("viewBox", '0 0 '+frameWidth+' '+frameHeight)
@@ -107,14 +107,13 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     // Create div for tooltip
     var div_tooltip = divObject
         .append("div")
-        .style("opacity", 0)
-        .attr("class", "tooltip")
+        .style("opacity", 1)
         .style("border", "solid")
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
         .style('width', frameWidth + 'px')
-        .style('height', 30 + "px");
+    div_tooltip.html("\xa0\xa0Hover over an element to use tooltip.")
 
     // Add div for sample track legend
     var div_sampLegend = divObject
