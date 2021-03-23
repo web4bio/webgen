@@ -120,19 +120,27 @@ let buildPlots = async function() {
                     cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let geneQuery = $('.geneOneMultipleSelection').select2('data').map(
                     gene => gene.text);
+  let clinicalQuery = $('.clinicalMultipleSelection').select2('data').map(el => el.text);
+  //["gender", "race", "vital_status", "histological_type", "tumor_tissue_site"];
 
   // Fetch RNA sequence data for selected cancer type(s) and gene(s)
   let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
-
-  // Fetch clinical data for cohort and specified clinical fields (temporarily hard-coded)
-  let clinicalQuery = ["gender", "race", "vital_status", "histological_type", "tumor_tissue_site"];
-  let clinicalData = await getClinicalDataJSONarray_cc(cohortQuery, clinicalQuery);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData);
 
   let data = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, cohortQuery);
+
+  // Get clinical data for specified clinical fields
+  let clinicalData
+  if (intersectedBarcodes && intersectedBarcodes.length) {
+    // query clinical data at selected barcodes
+    clinicalData = await getClinicalDataJSONarray_bc(intersectedBarcodes, clinicalQuery);
+  } else {
+    // if no barcodes, query entire cohort for clinical data
+    clinicalData = await getClinicalDataJSONarray_cc(cohortQuery, clinicalQuery);
+  }
 
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(data));
