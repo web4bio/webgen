@@ -43,11 +43,6 @@ let fillCancerTypeSelectBox = async function () {
     .split(",");
   if (cancerTypeSelectedOptions) {
     $(".cancerTypeMultipleSelection").val(cancerTypeSelectedOptions);
-    if (cancerTypeSelectedOptions != "") {
-      fillFirstGeneSelectBox();
-      fillClinicalSelectBox();
-      fillSecondGeneSelectBox();
-    }
   }
 };
 
@@ -98,8 +93,8 @@ let fetchNumberSamples = async function () {
 };
 
 let displayNumberSamples = async function () {
-  if (document.getElementById("erikaPara")) {
-    document.getElementById("erikaPara").remove();
+  if (document.getElementById("numSamplesText")) {
+    document.getElementById("numSamplesText").remove();
   }
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
@@ -116,17 +111,17 @@ let displayNumberSamples = async function () {
         "style",
         'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
       );
-      para.setAttribute("id", "erikaPara");
+      para.setAttribute("id", "numSamplesText");
       para.innerText = "Number of samples: " + string;
       cancerQuerySelectBox.appendChild(para);
     } else {
-      document.getElementById("erikaPara").remove();
+      document.getElementById("numSamplesText").remove();
       string += ", " + myCohort[i] + ": " + countQuery[i].mrnaseq;
       para.setAttribute(
         "style",
         'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
       );
-      para.setAttribute("id", "erikaPara");
+      para.setAttribute("id", "numSamplesText");
       para.innerText = "Number of samples: " + string;
       cancerQuerySelectBox.appendChild(para);
     }
@@ -202,7 +197,6 @@ let fillFirstGeneSelectBox = async function () {
     let geneList = await fetch(
       "https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json"
     ).then((response) => response.json());
-    console.log(geneList);
     for (let i = 0; i < geneList.length; i++) {
       let currentOption = document.createElement("option");
       currentOption.value = geneList[i].hugoSymbol;
@@ -233,7 +227,6 @@ let fillSecondGeneSelectBox = async function () {
     let geneList2 = await fetch(
       "https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json"
     ).then((response) => response.json());
-    console.log(geneList2);
     for (let i = 0; i < geneList2.length; i++) {
       let currentOption2 = document.createElement("option");
       currentOption2.value = geneList2[i].hugoSymbol;
@@ -282,6 +275,14 @@ let fillClinicalSelectBox = async function () {
   if (clinicalSelectedOptions) {
     $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
   }
+
+  let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+  let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+
+  if(mySelectedClinicalFeatures.length >= 1 || mySelectedClinicalFeatures2 >= 1) {
+    buildDataExplorePlots(allClinicalData);
+  }
+
 };
 
 let fillViolinPartitionBox = async function(id)
