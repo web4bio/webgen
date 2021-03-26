@@ -187,15 +187,15 @@ let buildPlots = async function() {
   toggleSwitch = document.getElementById('toggleSwitch')
   toggleSwitch.addEventListener('change', function(e){
     if(toggleSwitch.checked){
-      buildViolinPlot(geneQuery, data, "gene");
+      buildViolinPlot(geneQuery, data, 'gene');
     }else{
-      buildViolinPlot(cohortQuery, data, "cohort");
+      buildViolinPlot(cohortQuery, data, 'cohort');
     }
 
   })
 
   buildHeatmap(data, clinicalData);
-  buildViolinPlot(cohortQuery, data, "cohort");
+  buildViolinPlot(cohortQuery, data, 'cohort');
 
 };
 

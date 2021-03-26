@@ -29,11 +29,20 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
 
     //Filter out data that does not belong to curPlot
     if(indepVarType == "gene")
-        dataInput = dataInput.filter(patientData => patientData.cohort == curPlot);
-    else if(indepVarType == "cohort")
         dataInput = dataInput.filter(patientData => patientData.gene == curPlot);
+    else if(indepVarType == "cohort")
+        dataInput = dataInput.filter(patientData => patientData.cohort == curPlot);
 
     var myGroups;
+    
+    //defines the opposite y variable
+    let opVar;
+    if(indepVarType == 'cohort'){
+        opVar = 'gene'
+    }else if(indepVarType == 'gene'){
+        opVar = 'cohort'
+    }
+
     //Add new field to data for purpose of creating keys and populating myGroups
     if(facetByFields.length > 0)
     {        
@@ -72,15 +81,21 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
     }
     else
     {
-        myGroups = d3.map(dataInput, function(d){return d.cohort}).keys();
+        myGroups = d3.map(dataInput, function(d){return d[opVar];}).keys();
     }
 
-    console.log(myGroups);
+    console.log(facetByFields.length)
+    console.log(myGroups)
 
     // Helper function to sort groups by median expression:
-    function compareGeneExpressionMedian(a,b) {
-        var aArray = d3.map(dataInput.filter(x => x[indepVarType] == a), function(d){return d.expression_log2;}).keys();
-        var bArray = d3.map(dataInput.filter(x => x[indepVarType] == b), function(d){return d.expression_log2;}).keys();
+    function compareGeneExpressionMedian(a,b,type) {
+        if(type == 'cohort'){
+            var aArray = d3.map(dataInput.filter(x => x.gene == a), function(d){return d.expression_log2;}).keys();
+            var bArray = d3.map(dataInput.filter(x => x.gene == b), function(d){return d.expression_log2;}).keys();
+        }else if(type == 'gene'){
+            var aArray = d3.map(dataInput.filter(x => x.cohort == a), function(d){return d.expression_log2;}).keys();
+            var bArray = d3.map(dataInput.filter(x => x.cohort == b), function(d){return d.expression_log2;}).keys();
+        }
         var aMedian = d3.quantile(aArray.sort(function(a,b) {return a - b ;}), 0.5);
         var bMedian = d3.quantile(bArray.sort(function(a,b) {return a - b ;}), 0.5);
         
@@ -88,11 +103,17 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
     };
 
     // Sort myGroups by median expression:
-    if(facetByFields.length == 0)
-        myGroups.sort((a,b) => compareGeneExpressionMedian(a,b));
+    if(facetByFields.length == 0){
+        if(indepVarType == 'cohort'){
+            myGroups.sort((a,b) => compareGeneExpressionMedian(a,b,'cohort'));
+        }else if(indepVarType == 'gene'){
+            myGroups.sort((a,b) => compareGeneExpressionMedian(a,b,'gene'));
+        }
+    }
     else
         myGroups.sort();
 
+    console.log(myGroups);
 
     //Populate violinCurveColors
     var colorsArrIndex = 0;
@@ -178,7 +199,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
     svgObject.append("text")             
         .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 30) + ")")
         //.style("text-anchor", "middle")
-        .text("Gene");
+        .text(opVar);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
