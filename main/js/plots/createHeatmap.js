@@ -60,7 +60,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-
+        
     // Create svg object frame for the plots
     var svg_frame = divObject.append("svg")
         //.attr("viewBox", '0 0 '+frameWidth+' '+frameHeight)
@@ -105,15 +105,15 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr("transform", "translate(" + margin.left + "," + margin.space + ")");
 
     // Create div for tooltip
-    var tooltip = divObject
+    var div_tooltip = divObject
         .append("div")
-        .style("opacity", 0)
-        .attr("class", "tooltip")
+        .style("opacity", 1)
         .style("border", "solid")
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
-        .style('width', frameWidth + 'px');
+        .style('width', frameWidth + 'px')
+    div_tooltip.html("\xa0\xa0Hover over an element to use tooltip.")
 
     // Add div for sample track legend
     var div_sampLegend = divObject
@@ -214,7 +214,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     // Three functions that change the tooltip when user hover / move / leave a cell
     let mouseover = function (d) {
         // Make tooltip appear and color heatmap object black
-        tooltip.style("opacity", 1);
+        div_tooltip.style("opacity", 1);
         d3.select(this).style("fill", "black");
         // Make dendrogram path bold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
@@ -224,8 +224,9 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     };
     const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
     let mousemove = function (d) {
+        if (!d.expression_log2) {d.expression_log2 = 0} // catch error if null
         // Print data to tooltip from hovered-over heatmap element d
-        tooltip.html("\xa0\xa0" +
+        div_tooltip.html("\xa0\xa0" +
             "Cohort: " + d.cohort + spacing +
             "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
             "Gene: " + d.gene + spacing +
@@ -234,7 +235,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     };
     let mouseleave = function (d) {
         // Make tooltip disappear and heatmap object return to z-score color
-        tooltip.style("opacity", 0);
+        div_tooltip.style("opacity", 0);
         d3.select(this).style("fill", d => colorScale_exp(d["z-score"]));
         // Make dendrogram path unbold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
@@ -244,13 +245,13 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     };
     let mousemove_samp = function (d) {
         let v = d3.select(this).attr("var")
-        tooltip.html("\xa0\xa0" +
+        div_tooltip.html("\xa0\xa0" +
             "Cohort: " + d.cohort + spacing +
             "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
             v + ": " + d[v])
     }
     let mouseleave_samp = function (d) {
-        tooltip.style("opacity", 0);
+        div_tooltip.style("opacity", 0);
         d3.select(this).style("fill", d3.select(this).attr("fill0")) // re-fill color based on stored attribute
         // Make dendrogram path unbold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
