@@ -134,7 +134,7 @@ let buildPlots = async function() {
   // document.getElementById('svgViolinDiv0').innerHTML = "";
 
   let heatDiv = addDivInside("heatmapDiv0", "heatmapRef");
-  var violinDiv = addDivInside("svgViolinDiv0", "violinPlotRef");
+  var violinDiv = addDivInside("violinDiv0", "violinPlotRef");
   violinDiv.setAttribute('align', 'center');
 
   // Remove existing div and svg elements if they're there:
@@ -214,26 +214,18 @@ buildHeatmap = async function(expData, clinData){
 buildViolinPlot = async function(cohortORGeneQuery, data, independantVarType){
 
   console.log(data)
+  console.log(cohortORGeneQuery)
   // Remove the loader
-  document.getElementById('svgViolinDiv0').classList.remove('loader');               
+  document.getElementById('violinDiv0').classList.remove('loader');            
 
   // Set up the figure dimensions:
   let margin = {top: 80, right: 30, bottom: 30, left: 60},
   width = 1250 - margin.left - margin.right,
   height = 500 - margin.top - margin.bottom;
-
-  let myCohorts;
-  if(independantVarType === 'gene'){
-    myCohorts = d3.map(data, function(d){return d.gene;}).keys();
-  }else{
-    myCohorts = d3.map(data, function(d){return d.cohort;}).keys();
-  }
-  
-
   
 
   // Define the number of cohorts to create a plot for
-  let numOfIndependantVars = myCohorts.length;
+  let numOfIndependantVars = cohortORGeneQuery.length;
 
   // Spacing between plots
   let ySpacing = margin.top;
@@ -251,7 +243,7 @@ buildViolinPlot = async function(cohortORGeneQuery, data, independantVarType){
   for(var index = 0; index < numOfIndependantVars; index++) {
     console.log("Violin Plot " + index);
     // Define the current cohort to create the violin plot for
-    let curCohort = myCohorts[index];
+    let curCohort = cohortORGeneQuery[index];
     
     //Create a new div for each cohort
     var violinDivName = "ViolinDiv"+index;

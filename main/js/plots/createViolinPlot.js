@@ -1,6 +1,6 @@
 // Async function to create a d3 violin plot for a given independent variable and a set of genes
 
-// indepVarType is the type of independent variable for the plot (probably either 'cohort' or 'mutatedGene')
+// indepVarType is the type of independent variable for the plot (probably either 'cohort' or 'gene')
     // NOTE: The function is currently only set to handle indepVarType='cohort'
 // indepVar is the independent variable (ex1: 'PAAD', ex2: 'TP53')
 // dataInput is the array os JSONs of gene expression data to visualize
@@ -72,10 +72,10 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
     }
     else
     {
-        myGroups = d3.map(dataInput, function(d){return d[indepVarType];}).keys();
+        myGroups = d3.map(dataInput, function(d){return d.cohort}).keys();
     }
 
-    console.log(dataInput);
+    console.log(myGroups);
 
     // Helper function to sort groups by median expression:
     function compareGeneExpressionMedian(a,b) {
