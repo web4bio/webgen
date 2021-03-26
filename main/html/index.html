@@ -167,8 +167,14 @@
       Set up the user input text fields
       -->
         <script>
-          //Get the list of valid pathways users can search for
-          validPathwaysListFetch = getValidPathwaysList();
+          $(document).ready(function () {
+              //For Pathways Select2 Drop down:
+              $(".pathwayMultipleSelection").select2({
+                placeholder: "Pathway(s)",
+              });
+
+              fillPathwaySelectBox();
+            });
           
           // Get the list of valid genes users can search for:
           validGeneListFetch = getValidGeneList();
@@ -242,6 +248,7 @@
               name="pathways[]"
               multiple="multiple"
               id="pathwayMultipleSelection"
+              change="fillPathwaySelectBox()"
             >
               <!-- Filled by fillSelectBoxes.js -->
             </select>
