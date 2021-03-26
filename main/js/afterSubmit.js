@@ -121,7 +121,6 @@ let buildPlots = async function() {
   let geneQuery = $('.geneOneMultipleSelection').select2('data').map(
                     gene => gene.text);
   let clinicalQuery = $('.clinicalMultipleSelection').select2('data').map(el => el.text);
-  //["gender", "race", "vital_status", "histological_type", "tumor_tissue_site"];
 
   // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
   let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
@@ -145,6 +144,7 @@ let buildPlots = async function() {
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(data));
 
+  buildDownloadData(cohortQuery, geneQuery, clinicalQuery, data, clinicalData)
   buildHeatmap(data, clinicalData);
   buildViolinPlot(cohortQuery, data);
 
@@ -205,3 +205,69 @@ buildViolinPlot = async function(cohortQuery, data){
 /////////////////////////////////////////////////// Build Plots on Page (above) /////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Downloading data functions
+saveFile=function(x,fileName) { // x is the content of the file
+  var bb = new Blob([x]);
+  var url = URL.createObjectURL(bb);
+  var a = document.createElement('a');
+  a.href=url;
+  a.download=fileName
+  a.click() // then download it automatically 
+  return a
+}
+
+buildDownloadData = async function(cohortID, genes, clin_vars, expressionData, clinicalData) {
+
+  let barcodes_exp = d3.map(expressionData, d => d.tcga_participant_barcode).keys();
+  let barcodes_clin = d3.map(clinicalData, d => d.tcga_participant_barcode).keys();
+  let barcodes = [... new Set([...barcodes_exp,...barcodes_clin])]; // unique union of expression + clinical barcodes
+
+  // define the firebrowse query strings (for header)
+  // add barcodes else cohort
+  let fb_str_exp = jQuery.param({
+    format: 'json',
+    cohort: cohortID,
+    tcga_participant_barcode: barcodes,
+    gene: genes,
+    page: 1,
+    page_size: 2000,
+    sort_by: 'tcga_participant_barcode',
+    sample_type: 'TP'
+  });
+  let fb_str_clin = jQuery.param({
+    format: 'json',
+    cohort: cohortID,
+    tcga_participant_barcode: barcodes,
+    fh_cde_name: clin_vars,
+    page: 1,
+    page_size: 2000,
+    sort_by: 'tcga_participant_barcode',
+  });
+
+  // create header for json (describes dataset)
+  let headerObject = {cohort: cohortID,
+    barcodes: barcodes,
+    //filter: "no filter", // put in what pie chart slices are selected
+    genes_query: genes,
+    clinical_features: clin_vars,
+    firebrowse_expression_query_string: fb_str_exp,
+    firebrowse_clinical_query_string: fb_str_clin};
+
+    console.log(["header", headerObject])
+
+  // make saveObject for json download
+  let saveObject = {header: headerObject,
+    expression_data: expressionData,
+    clinical_data: clinicalData}
+
+  // clear div and add new buttons for json and csv
+  d3.select("#downloadDataButtons").html("");
+  d3.select("#downloadDataButtons")
+          .append("button")
+          .attr("type","button")
+          .attr("class","btn-btn")
+          .on('click', function() {saveFile(JSON.stringify(saveObject), "WebGen_data.json")})
+          .text("Download data as JSON");
+
+}
