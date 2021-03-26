@@ -66,13 +66,13 @@
 
 /* Select Boxes */
 
-#cancerQuerySelectBox {
+#cancerQuerySelectBox, #pathwaySelectBox {
     margin-bottom: 10px;
     margin-top: 10px;
     text-align: center;
 }
 
-#cancerTypeMultipleSelection {
+#cancerTypeMultipleSelection, #pathwayMultipleSelection {
     width: 90%;
 }
 

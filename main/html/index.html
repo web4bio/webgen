@@ -167,6 +167,9 @@
       Set up the user input text fields
       -->
         <script>
+          //Get the list of valid pathways users can search for
+          validPathwaysListFetch = getValidPathwaysList();
+          
           // Get the list of valid genes users can search for:
           validGeneListFetch = getValidGeneList();
           validGeneListFetch.then(function (validGeneList) {
@@ -229,6 +232,21 @@
             });
           });
         </script>
+
+        <div>
+          <p style="text-align: center"><b>Optional) Specify a pathway(s)</b></p>
+          <div id = "pathwaySelectBox">
+            <select
+              style="width: 80%"
+              class="pathwayMultipleSelection"
+              name="pathways[]"
+              multiple="multiple"
+              id="pathwayMultipleSelection"
+            >
+              <!-- Filled by fillSelectBoxes.js -->
+            </select>
+          </div>
+        </div>
 
         <div>
           <p style="text-align: center"><b>1) Select cancer type(s)</b></p>
