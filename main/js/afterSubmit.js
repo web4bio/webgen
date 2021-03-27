@@ -305,5 +305,5 @@ buildDownloadData = async function (
     .on("click", function () {
       saveFile(JSON.stringify(saveObject), "WebGen_data.json");
     })
-    .text("Download data as JSON");
+    .text("Download (JSON)");
 };
