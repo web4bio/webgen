@@ -240,22 +240,6 @@
         </script>
 
         <div>
-          <p style="text-align: center"><b>Optional) Specify a pathway(s)</b></p>
-          <div id = "pathwaySelectBox">
-            <select
-              style="width: 80%"
-              class="pathwayMultipleSelection"
-              name="pathways[]"
-              multiple="multiple"
-              id="pathwayMultipleSelection"
-              change="fillPathwaySelectBox()"
-            >
-              <!-- Filled by fillSelectBoxes.js -->
-            </select>
-          </div>
-        </div>
-
-        <div>
           <p style="text-align: center"><b>1) Select cancer type(s)</b></p>
           <div id="cancerQuerySelectBox">
             <select
@@ -334,11 +318,11 @@
           <br />
         </div>
 
-        <div>
+        <div class = "row">
           <p style="text-align: center">
             <b>3) Select genes that you would like to visualize</b>
           </p>
-          <div id="geneTwoQuerySelectBox">
+          <div id="geneTwoQuerySelectBox" class="col s6">
             <input
               style="width:80%"
               class="geneTwoMultipleSelection"
@@ -349,6 +333,21 @@
             />
               <!-- Filled by fillSelectBoxes.js -->
             
+          </div>
+
+          <div>
+            <div id = "pathwaySelectBox" class = "col s6">
+              <select
+                style="width: 80%"
+                class="pathwayMultipleSelection"
+                name="pathways[]"
+                multiple="multiple"
+                id="pathwayMultipleSelection"
+                onchange="fillPathwaySelectBox()"
+              >
+                <!-- Filled by fillSelectBoxes.js -->
+              </select>
+            </div>
           </div>
         </div>
 

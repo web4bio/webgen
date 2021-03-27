@@ -160,7 +160,10 @@ let getValidGeneList = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//NOTE: The URL in the fetch command needs to be updated to use the github.io link instead of the current method
 let getValidPathwaysList = async function () {
+  //Note the specification of the 'preselectedGenes' branch name.
+  //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
   let validPathwaysList = await fetch(
     "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
     ).then((response) => response.json());
@@ -168,6 +171,15 @@ let getValidPathwaysList = async function () {
   return await validPathwaysList;
 };
 
+//Returns array of genes associated with pathway
+let getGenesByPathway = async function(pathway) {
+  let validPathwaysList = await fetch(
+    "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
+    ).then((response) => response.json());
+  return validPathwaysList[pathway];
+};
+
+//Populates the pathway select box
 let fillPathwaySelectBox = async function () {
   validPathwaysList = await getValidPathwaysList();
   let selectBox = document.getElementById("pathwayMultipleSelection");
