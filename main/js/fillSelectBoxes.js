@@ -166,17 +166,21 @@ let getValidPathwaysList = async function () {
   //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
   let validPathwaysList = await fetch(
     "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
-    ).then((response) => response.json());
+  ).then((response) => response.json());
   validPathwaysList = Object.keys(validPathwaysList);
+  localStorage.setItem("genePathways", validPathwaysList);
   return await validPathwaysList;
 };
 
 //Returns array of genes associated with pathway
-let getGenesByPathway = async function(pathway) {
-  let validPathwaysList = await fetch(
-    "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
-    ).then((response) => response.json());
-  return validPathwaysList[pathway];
+let getGenesByPathway = async function () {
+  let myCohort = $(".pathwayMultipleSelection")
+    .select2("data")
+    .map((curPathway) => curPathway.id);
+  console.log(myCohort);
+  // TODO  Somehow query the genes of the specific pathways the user has selected, maybe save them in localStorage for future use?
+  // TODO  Combine the pasthways genes with the specific genes the user selected in the first select box, remove duplicates.
+  // TODO  Query Firebrowse using the list
 };
 
 //Populates the pathway select box
@@ -194,6 +198,8 @@ let fillPathwaySelectBox = async function () {
     selectBox.appendChild(currentOption);
   }
 };
+
+// Gets all genes according to selected pathway
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -323,13 +329,19 @@ let fillClinicalSelectBox = async function () {
     $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
   }
 
-  let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-  let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+  let mySelectedClinicalFeatures = $(".geneOneMultipleSelection")
+    .select2("data")
+    .map((clinicalInfo) => clinicalInfo.text);
+  let mySelectedClinicalFeatures2 = $(".clinicalMultipleSelection")
+    .select2("data")
+    .map((clinicalInfo) => clinicalInfo.text);
 
-  if(mySelectedClinicalFeatures.length >= 1 || mySelectedClinicalFeatures2 >= 1) {
+  if (
+    mySelectedClinicalFeatures.length >= 1 ||
+    mySelectedClinicalFeatures2 >= 1
+  ) {
     buildDataExplorePlots(allClinicalData);
   }
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
