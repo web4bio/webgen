@@ -39,7 +39,7 @@ removeSVGelements = function () {
     if (svgToRemove) $(svgToRemove).remove();
     else {
       let ctr = 0;
-      for (;;) {
+      for (; ;) {
         svgToRemove = document.getElementById(svgElementsArray[i] + ctr++);
         if (svgToRemove) $(svgToRemove).remove();
         else break;
@@ -113,22 +113,18 @@ let buildPlots = async function () {
   document.getElementById("svgViolinDiv0").className = "loader"; // Create the loader.
 
   let cohortQuery = $(".cancerTypeMultipleSelection")
-    .select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let gene1Query = $(".geneOneMultipleSelection")
-    .select2("data")
-    .map((gene) => gene.text);
+    .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  let mutationQuery = $(".geneOneMultipleSelection")
+    .select2("data").map((gene) => gene.text);
   let clinicalQuery = $(".clinicalMultipleSelection")
-    .select2("data")
-    .map((el) => el.text);
-  let gene2Query = $(".geneTwoMultipleSelection")
-    .select2("data")
-    .map((gene) => gene.text);
+    .select2("data").map((el) => el.text);
+  let expressionQuery = $(".geneTwoMultipleSelection")
+    .select2("data").map((gene) => gene.text);
 
   // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
   let expressionData_1 = await getExpressionDataJSONarray_cg(
     cohortQuery,
-    gene1Query
+    mutationQuery
   );
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
@@ -158,11 +154,11 @@ let buildPlots = async function () {
     );
   }
 
-  expressionData = expressionData.filter(el => el.sample_type==="TP") // quick fix. queried data includes normal samples ("NT"), this needs to be fixed in "getExpressionDataFromIntersectedBarcodes"
+  expressionData = expressionData.filter(el => el.sample_type === "TP") // quick fix. queried data includes normal samples ("NT"), this needs to be fixed in "getExpressionDataFromIntersectedBarcodes"
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(expressionData));
 
-  buildDownloadData(cohortQuery, gene2Query, clinicalQuery, expressionData, clinicalData);
+  buildDownloadData(cohortQuery, expressionQuery, clinicalQuery, expressionData, clinicalData);
   buildHeatmap(expressionData, clinicalData);
   buildViolinPlot(cohortQuery, expressionData);
 };
@@ -214,10 +210,10 @@ buildViolinPlot = async function (cohortQuery, data) {
       .attr(
         "transform",
         "translate(" +
-          (margin.left - 20) +
-          "," +
-          (margin.top + ySpacing * index * 0.25) +
-          ")"
+        (margin.left - 20) +
+        "," +
+        (margin.top + ySpacing * index * 0.25) +
+        ")"
       );
 
     // Create the violin plot:
