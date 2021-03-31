@@ -126,18 +126,18 @@ let buildPlots = async function () {
     .map((gene) => gene.text);
 
   // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
-  let expressionData = await getExpressionDataJSONarray_cg(
+  let expressionData_1 = await getExpressionDataJSONarray_cg(
     cohortQuery,
     gene1Query
   );
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(
-    expressionData
+    expressionData_1
   );
 
   // Extract expression data only at intersectedBarcodes
-  let data = await getExpressionDataFromIntersectedBarcodes(
+  let expressionData = await getExpressionDataFromIntersectedBarcodes(
     intersectedBarcodes,
     cohortQuery
   );
@@ -158,12 +158,13 @@ let buildPlots = async function () {
     );
   }
 
+  expressionData = expressionData.filter(el => el.sample_type==="TP") // quick fix. queried data includes normal samples ("NT"), this needs to be fixed in "getExpressionDataFromIntersectedBarcodes"
   //Add expression data as a field in localStorage
-  localStorage.setItem("expressionData", JSON.stringify(data));
+  localStorage.setItem("expressionData", JSON.stringify(expressionData));
 
-  buildDownloadData(cohortQuery, gene2Query, clinicalQuery, data, clinicalData);
-  buildHeatmap(data, clinicalData);
-  buildViolinPlot(cohortQuery, data);
+  buildDownloadData(cohortQuery, gene2Query, clinicalQuery, expressionData, clinicalData);
+  buildHeatmap(expressionData, clinicalData);
+  buildViolinPlot(cohortQuery, expressionData);
 };
 
 buildHeatmap = async function (expData, clinData) {
@@ -314,11 +315,6 @@ buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, 
       else { csv_string_clin += val } // add to string
     })
   })
-
-  console.log("Debug data")
-  console.log(expressionData)
-  console.log(barcodes_exp)
-  console.log(barcodes_exp.join(","))
 
   // clear div and add new button for json, csv_exp, csv_clin
   d3.select("#downloadDataButtons").html("");
