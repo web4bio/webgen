@@ -177,7 +177,7 @@ let getBarcodesFromCohortForClinical = async function () {
 // fetch CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
 let fetchClinicalData = async function () {
   let barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.getClinical_FH(barcodes);
+  let clinicalData = await firebrowse.getClinical_FH_b(barcodes);
   if (clinicalData == "") return ["Error: Invalid Input Fields for Query.", 0];
   else {
     return clinicalData;

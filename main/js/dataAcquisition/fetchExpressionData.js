@@ -60,54 +60,54 @@ fetchExpressionData_cg = async function(cohortQuery, geneQuery) {
 
 }
 
-fetchExpressionData_cgb = async function(cohortQuery, geneQuery, barcodes) {
+// fetchExpressionData_cgb = async function(cohortQuery, geneQuery, barcodes) {
 
-    // Set up host and endpoint urls
-    const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl='http://firebrowse.org/api/v1/Samples/mRNASeq';
+//     // Set up host and endpoint urls
+//     const hosturl = 'https://firebrowse.herokuapp.com';
+//     const endpointurl='http://firebrowse.org/api/v1/Samples/mRNASeq';
 
-    // Set up endpoint url fields (except cohort and gene) with preset values
-    const endpointurl_presets = {
-        format: 'json',
-        gene: geneQuery,
-        cohort: cohortQuery,
-        sample_type: 'TP',   
-        tcga_participant_barcode: barcodes,   
-        protocol: 'RSEM',
-        page: '1',
-        page_size: 2001,
-        sort_by: 'tcga_participant_barcode' 
-    };
+//     // Set up endpoint url fields (except cohort and gene) with preset values
+//     const endpointurl_presets = {
+//         format: 'json',
+//         gene: geneQuery,
+//         cohort: cohortQuery,
+//         sample_type: 'TP',   
+//         tcga_participant_barcode: barcodes,   
+//         protocol: 'RSEM',
+//         page: '1',
+//         page_size: 2001,
+//         sort_by: 'tcga_participant_barcode' 
+//     };
 
-    // Assemble a string by concatenating all fields and field values for endpoint url
-    const endpointurl_fieldsWithValues = 
-        'format=' + endpointurl_presets.format + 
-        '&gene=' + geneQuery + 
-        '&tcga_participant_barcode=' + barcodes +
-        '&cohort=' + cohortQuery + 
-        '&sample_type=' + endpointurl_presets.sample_type +
-        '&protocol=' + endpointurl_presets.protocol +
-        '&page=' + endpointurl_presets.page + 
-        '&page_size=' + endpointurl_presets.page_size.toString() + 
-        '&sort_by=' + endpointurl_presets.sort_by;
+//     // Assemble a string by concatenating all fields and field values for endpoint url
+//     const endpointurl_fieldsWithValues = 
+//         'format=' + endpointurl_presets.format + 
+//         '&gene=' + geneQuery + 
+//         '&tcga_participant_barcode=' + barcodes +
+//         '&cohort=' + cohortQuery + 
+//         '&sample_type=' + endpointurl_presets.sample_type +
+//         '&protocol=' + endpointurl_presets.protocol +
+//         '&page=' + endpointurl_presets.page + 
+//         '&page_size=' + endpointurl_presets.page_size.toString() + 
+//         '&sort_by=' + endpointurl_presets.sort_by;
 
 
-    // Monitor the performance of the fetch:
-    const fetchStart = performance.now();
+//     // Monitor the performance of the fetch:
+//     const fetchStart = performance.now();
 
-    // Fetch data from stitched api:
-    var fetchedExpressionData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues);
+//     // Fetch data from stitched api:
+//     var fetchedExpressionData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues);
 
-    // Monitor the performance of the fetch:
-    var fetchTime = performance.now() - fetchStart;
-    console.info("Performance of fetch: ");
-    console.info(fetchTime);
+//     // Monitor the performance of the fetch:
+//     var fetchTime = performance.now() - fetchStart;
+//     console.info("Performance of fetch: ");
+//     console.info(fetchTime);
 
-    // Check if the fetch worked properly:
-    if (fetchedExpressionData == '')
-        return ['Error: Invalid Input Fields for Query.', 0];
-    else {
-        return fetchedExpressionData.json();
-    }
+//     // Check if the fetch worked properly:
+//     if (fetchedExpressionData == '')
+//         return ['Error: Invalid Input Fields for Query.', 0];
+//     else {
+//         return fetchedExpressionData.json();
+//     }
 
-}
+// }
