@@ -177,72 +177,10 @@ let getBarcodesFromCohortForClinical = async function () {
 // fetch CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
 let fetchClinicalData = async function () {
   let barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.getClinical_FH(barcodes);
+  let clinicalData = await firebrowse.getClinical_FH_b(barcodes);
   if (clinicalData == "") return ["Error: Invalid Input Fields for Query.", 0];
   else {
     return clinicalData;
-  }
-};
-
-let fillFirstGeneSelectBox = async function () {
-  let selectBox = document.getElementById("geneOneMultipleSelection");
-
-  $("#geneOneMultipleSelection").val(null).trigger("change");
-
-  // only populate dropdown options if they have not already been populated
-  if (
-    !$("#geneOneMultipleSelection").find("option[value='" + "TP53" + "']")
-      .length
-  ) {
-    let geneList = await fetch(
-      "https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json"
-    ).then((response) => response.json());
-    for (let i = 0; i < geneList.length; i++) {
-      let currentOption = document.createElement("option");
-      currentOption.value = geneList[i].hugoSymbol;
-      currentOption.text = geneList[i].hugoSymbol;
-      currentOption.id = geneList[i].hugoSymbol;
-      selectBox.appendChild(currentOption);
-    }
-  }
-
-  let geneOneSelectedOptions = localStorage
-    .getItem("geneOneSelectedOptions")
-    .split(",");
-  if (geneOneSelectedOptions) {
-    $(".geneOneMultipleSelection").val(geneOneSelectedOptions);
-  }
-};
-
-let fillSecondGeneSelectBox = async function () {
-  let selectBox2 = document.getElementById("geneTwoMultipleSelection");
-
-  $("#geneTwoMultipleSelection").val(null).trigger("change");
-
-  // only populate dropdown options if they have not already been populated
-  if (
-    !$("#geneTwoMultipleSelection").find("option[value='" + "TP53" + "']")
-      .length
-  ) {
-    let geneList2 = await fetch(
-      "https://raw.githubusercontent.com/web4bio/webgen/master/main/geneList.json"
-    ).then((response) => response.json());
-    for (let i = 0; i < geneList2.length; i++) {
-      let currentOption2 = document.createElement("option");
-      currentOption2.value = geneList2[i].hugoSymbol;
-      currentOption2.text = geneList2[i].hugoSymbol;
-      currentOption2.id = geneList2[i].hugoSymbol + "_";
-      selectBox2.appendChild(currentOption2);
-    }
-  }
-
-  $("#clinicalMultipleSelection").val(null).trigger("change");
-
-  let geneTwoSelectedOptions = localStorage
-    .getItem("geneTwoSelectedOptions")
-    .split(",");
-  if (geneTwoSelectedOptions) {
-    $(".geneTwoMultipleSelection").val(geneTwoSelectedOptions);
   }
 };
 

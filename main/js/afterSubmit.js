@@ -143,10 +143,10 @@ let buildPlots = async function () {
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
     // query clinical data at selected barcodes
-    clinicalData = await getClinicalDataJSONarray_bc(
+    clinicalData = (await firebrowse.getClinical_FH_bf(
       intersectedBarcodes,
       clinicalQuery
-    );
+    )).Clinical_FH;
   } else {
     // if no barcodes, query entire cohort for clinical data
     clinicalData = await getClinicalDataJSONarray_cc(
