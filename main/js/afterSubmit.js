@@ -115,17 +115,20 @@ let buildPlots = async function () {
   let cohortQuery = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let geneQuery = $(".geneOneMultipleSelection")
+  let gene1Query = $(".geneOneMultipleSelection")
     .select2("data")
     .map((gene) => gene.text);
   let clinicalQuery = $(".clinicalMultipleSelection")
     .select2("data")
     .map((el) => el.text);
+  let gene2Query = $(".geneTwoMultipleSelection")
+    .select2("data")
+    .map((gene) => gene.text);
 
   // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
   let expressionData = await getExpressionDataJSONarray_cg(
     cohortQuery,
-    geneQuery
+    gene1Query
   );
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
@@ -158,7 +161,7 @@ let buildPlots = async function () {
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(data));
 
-  buildDownloadData(cohortQuery, geneQuery, clinicalQuery, data, clinicalData);
+  buildDownloadData(cohortQuery, gene2Query, clinicalQuery, data, clinicalData);
   buildHeatmap(data, clinicalData);
   buildViolinPlot(cohortQuery, data);
 };
@@ -239,27 +242,17 @@ saveFile = function (x, fileName) {
   return a;
 };
 
-buildDownloadData = async function (
-  cohortID,
-  genes,
-  clin_vars,
-  expressionData,
-  clinicalData
-) {
-  let barcodes_exp = d3
-    .map(expressionData, (d) => d.tcga_participant_barcode)
-    .keys();
-  let barcodes_clin = d3
-    .map(clinicalData, (d) => d.tcga_participant_barcode)
-    .keys();
-  let barcodes = [...new Set([...barcodes_exp, ...barcodes_clin])]; // unique union of expression + clinical barcodes
+buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, clinicalData) {
+  let barcodes_exp = d3.map(expressionData, (d) => d.tcga_participant_barcode).keys().sort();
+  let barcodes_clin = d3.map(clinicalData, (d) => d.tcga_participant_barcode).keys().sort();
+  let barcodes_all = [...new Set([...barcodes_exp, ...barcodes_clin])]; // unique union of expression + clinical barcodes
 
-  // define the firebrowse query strings (for header)
-  // add barcodes else cohort
+  // define the firebrowse query strings (to include in header)
+  // add barcodes else cohort ?
   let fb_str_exp = jQuery.param({
     format: "json",
     cohort: cohortID,
-    tcga_participant_barcode: barcodes,
+    tcga_participant_barcode: barcodes_all,
     gene: genes,
     page: 1,
     page_size: 2000,
@@ -269,7 +262,7 @@ buildDownloadData = async function (
   let fb_str_clin = jQuery.param({
     format: "json",
     cohort: cohortID,
-    tcga_participant_barcode: barcodes,
+    tcga_participant_barcode: barcodes_all,
     fh_cde_name: clin_vars,
     page: 1,
     page_size: 2000,
@@ -279,15 +272,13 @@ buildDownloadData = async function (
   // create header for json (describes dataset)
   let headerObject = {
     cohort: cohortID,
-    barcodes: barcodes,
+    barcodes: barcodes_all,
     //filter: "no filter", // put in what pie chart slices are selected
     genes_query: genes,
     clinical_features: clin_vars,
     firebrowse_expression_query_string: fb_str_exp,
     firebrowse_clinical_query_string: fb_str_clin,
   };
-
-  console.log(["header", headerObject]);
 
   // make saveObject for json download
   let saveObject = {
@@ -296,14 +287,65 @@ buildDownloadData = async function (
     clinical_data: clinicalData,
   };
 
-  // clear div and add new buttons for json and csv
+  // Make Expression CSV string
+  let csv_string_exp = "Gene," + barcodes_exp.join(","); // first row is column names
+  // for each gene, add a row to csv, each comma-separated element is the gene expression for that barcode
+  genes.sort().forEach(g => {
+    csv_string_exp += "\n" + g; // add newline and name of gene g in first column
+    barcodes_exp.forEach(b => {
+      csv_string_exp += ","
+      // filter out one barcode/gene combination
+      let val = expressionData.filter(el => (el.tcga_participant_barcode === b) && (el.gene === g)).map(el => el["z-score"])
+      if (!val.length) { csv_string_exp += "NA" }
+      else { csv_string_exp += val } // add to string
+    })
+  })
+
+  // Make Clinical CSV string
+  let csv_string_clin = "Clinical Feature," + barcodes_clin.join(","); // first row is column names
+  // for each clinical feature, add a row to csv, each comma-separated element is the feature value for that barcode
+  clin_vars.sort().forEach(f => {
+    csv_string_clin += "\n" + f; // add newline and name of feature f in first column
+    barcodes_clin.forEach(b => {
+      csv_string_clin += ","
+      // filter out barcode b, get field of feature f
+      let val = clinicalData.filter(el => (el.tcga_participant_barcode === b)).map(el => el[f])
+      if (!val.length) { csv_string_clin += "NA" }
+      else { csv_string_clin += val } // add to string
+    })
+  })
+
+  console.log("Debug data")
+  console.log(expressionData)
+  console.log(barcodes_exp)
+  console.log(barcodes_exp.join(","))
+
+  // clear div and add new button for json, csv_exp, csv_clin
   d3.select("#downloadDataButtons").html("");
   d3.select("#downloadDataButtons")
     .append("button")
     .attr("type", "button")
-    .attr("class", "col s3 btn waves-effect waves-light")
+    //.attr("class", "col s3 btn waves-effect waves-light") // style making button too small and cutting off text
     .on("click", function () {
-      saveFile(JSON.stringify(saveObject), "WebGen_data.json");
+      saveFile(JSON.stringify(saveObject), "WebGen_data.json"); // use saveFile function
     })
-    .text("Download (JSON)");
+    .text("Download All Data (JSON)");
+
+  d3.select("#downloadDataButtons")
+    .append("button")
+    .attr("type", "button")
+    //.attr("class", "col s3 btn waves-effect waves-light")
+    .on("click", function () {
+      saveFile(csv_string_exp, "WebGen_expression.csv"); // use saveFile function
+    })
+    .text("Download Expression Data (CSV)");
+
+  d3.select("#downloadDataButtons")
+    .append("button")
+    .attr("type", "button")
+    //.attr("class", "col s3 btn waves-effect waves-light")
+    .on("click", function () {
+      saveFile(csv_string_clin, "WebGen_clinical.csv"); // use saveFile function
+    })
+    .text("Download Clinical Data (CSV)");
 };
