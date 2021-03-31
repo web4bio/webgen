@@ -137,7 +137,7 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
   if(intersectedBarcodes === undefined) {
     let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
-    let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, allBarcodes)
+    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, allBarcodes)).mRNASeq
     console.log(data);
     return data;
 
@@ -167,7 +167,7 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     
     let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
 
-    let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)
+    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)).mRNASeq
     console.log(data);
     return data;
   }
