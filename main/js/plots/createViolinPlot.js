@@ -6,7 +6,7 @@
 // dataInput is the array os JSONs of gene expression data to visualize
 // svgObject is the object on the html page to build the plot
  
-createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject, curCohort) {
+createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject, curCohort, violinDivName) {
 
     //Set up violin curve colors
     var colors = ["#f1f291", "#69b3a2", "#bfb7f7", "#f26d5c", "#71a9d1", "#f0a94f"];
@@ -153,7 +153,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
     
     // Build the scroll over tool:
     // create a tooltip
-    var tooltip = d3.select("#violinPlotRef")
+    var tooltip = d3.select("#" + violinDivName)
         .append("div")
         .style("opacity", 0)
         .attr("class", "tooltip")
@@ -356,6 +356,112 @@ function standardDeviation(mean, values)
     return (Number)(Math.pow(sum/(values.length-1), 0.5));
 }
 
+//
+let createViolinPartitionBox = async function(violinDivId, curPlot)
+{
+    var div_box = d3.select('#'+violinDivId);
+    div_box.append('text')
+        .style("font-size", "20px")
+        .text('Select variables to partition violin curves by:');
+    div_box.append('div')
+        .attr('class','viewport')
+        .style('overflow-y', 'scroll')
+        .style('height', '90px')
+        .style('width', '500px')
+        .append('div')
+        .attr('class','body');
+    var selectedText = div_box.append('text');
+    let div_body = div_box.select('.body');
+    
+    var choices;
+    function update() 
+    {
+        choices = [];
+        d3.selectAll(".myCheckbox").each(function(d)
+        {
+            let cb = d3.select(this);
+            if(cb.property('checked')){ choices.push(cb.property('value')); };
+        });
+    
+        if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
+        else { selectedText.text('None selected'); };
+    }
+  
+  // function to create a pair of checkbox and text
+    function renderCB(div_obj, data) 
+    {
+        const label = div_obj.append('div').attr('id', data);
+
+        label.append("label")
+           .attr("class", "switch")
+           .append("input")
+           .attr("class", "myCheckbox")
+           .attr("value", data)
+           .attr("type", "checkbox")
+           .on('change',update)
+           .attr("style", 'opacity: 1; position: relative; pointer-events: all')
+           .append("span")
+           .attr("class", "slider round")
+           .attr('value', data);
+
+        label.append('text')
+           .text(data);
+    }
+    
+    // data to input = clinical vars from query
+    let clinicalVars = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
+    let var_opts = clinicalVars;
+
+    // make a checkbox for each option
+    var_opts.forEach(el => renderCB(div_body,el))
+    update();
+
+    var choices = [];
+    d3.select('#'+violinDivId).selectAll(".myCheckbox").each(function(d)
+    {
+        let cb = d3.select(this);
+        if(cb.property('checked')){ choices.push(cb.property('value')); };
+    });
+
+    div_box.append("break");
+    div_box.append('button')
+        .text("Rebuild Violin Plot")
+        .attr("class", "col s3 btn waves-effect waves-light")
+        .attr("id", "submitButton")
+        .attr("onclick", "rebuildViolinPlot('" + violinDivId + "', '" + curPlot + "')");
+
+    return choices;
+};
+
+let rebuildViolinPlot = async function(violinDivId, curPlot) {
+    var svgId = "svgViolinPlot" + violinDivId[violinDivId.length - 1];
+    let margin = { top: 80, right: 30, bottom: 30, left: 60 },
+        width = 1250 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+        
+    // Spacing between plots
+    let ySpacing = margin.top;
+    
+    d3.select("#" + svgId).remove();
+    let svgViolinPlot = d3
+        .select("#" + violinDivId)
+        .append("svg")
+        .attr("viewBox", `0 0 1250 500`) // This line makes the svg responsive
+        .attr("id", svgId)
+        .append("g")
+        .attr(
+          "transform",
+          "translate(" +
+          (margin.left - 20) +
+          "," +
+          (margin.top + ySpacing * index * 0.25) +
+          ")"
+        );
+    let cohortQuery = $(".cancerTypeMultipleSelection")
+        .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+
+    createViolinPlot("cohort", cohortQuery, localStorage.getItem("expressionData"), svgViolinPlot, curPlot, violinDivId);
+};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////// End Of Program ///////////////////////////////////////////////////////////////

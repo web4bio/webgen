@@ -200,9 +200,9 @@ buildViolinPlot = async function (cohortQuery, data) {
   for (var index = 0; index < numCohorts; index++) {
     // Define the current cohort to create the violin plot for
     let curCohort = myCohorts[index];
-
+    addDiv(`violinPlot${index}`, 'violinPlotRef');
     let svgViolinPlot = d3
-      .select("#violinPlotRef")
+      .select(`#violinPlot${index}`)
       .append("svg")
       .attr("viewBox", `0 0 1250 500`) // This line makes the svg responsive
       .attr("id", `svgViolinPlot${index}`)
@@ -216,8 +216,11 @@ buildViolinPlot = async function (cohortQuery, data) {
         ")"
       );
 
+    //Create partition selector
+    createViolinPartitionBox(`violinPlot${index}`, curCohort);
+
     // Create the violin plot:
-    createViolinPlot("cohort", cohortQuery, data, svgViolinPlot, curCohort);
+    createViolinPlot("cohort", cohortQuery, data, svgViolinPlot, curCohort, `violinPlot${index}`);
   }
 };
 
