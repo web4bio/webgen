@@ -63,10 +63,6 @@
     ></script>
     <script
       type="text/javascript"
-      src="../js/dataAcquisition/fetchSigMutationData.js"
-    ></script>
-    <script
-      type="text/javascript"
       src="../js/dataAcquisition/getClinicalDataJSONarray.js"
     ></script>
     <script
@@ -76,10 +72,6 @@
     <script
       type="text/javascript"
       src="../js/dataAcquisition/getExpressionDataJSONarray.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="../js/dataAcquisition/getSigMutationArray.js"
     ></script>
 
     <script
@@ -170,12 +162,13 @@
           // Get the list of valid genes users can search for:
           validGeneListFetch = getValidGeneList();
           validGeneListFetch.then(function (validGeneList) {
+
             $(document).ready(function () {
+
               // For Cancer Type Select2 Drop down:
               $(".cancerTypeMultipleSelection").select2({
                 placeholder: "Cancer Type(s)",
               });
-
               fillCancerTypeSelectBox();
 
               // Map the array of geneList with attributes of id, text, and value
@@ -187,7 +180,7 @@
                 };
               });
 
-              // For Mutation Select2 Drop down:
+              // For Gene Select2 Dropdown:
               var fillGeneSelectBoxes = (geneSelectionBox) => {
                 $(geneSelectionBox).select2({                
                   data: geneListArray,
@@ -215,17 +208,14 @@
                   },
                 });
               }
-              
               fillGeneSelectBoxes(".geneOneMultipleSelection");
               fillGeneSelectBoxes(".geneTwoMultipleSelection");
 
-              // For Clinical Select2 Drop down:
+              // For Clinical feature Select2 Drop down:
               $(".clinicalMultipleSelection").select2({
                 placeholder: "Clinical Feature(s)",
               });
               
-              fillFirstGeneSelectBox();
-              fillSecondGeneSelectBox();
             });
           });
         </script>
@@ -343,6 +333,12 @@
           </button>
         </div>
 
+         <!--
+      Space for download data buttons.
+      -->
+      <div className="downloadDataButtons" id="downloadDataButtons" align="center">
+      </div>
+
         <!--
         Setting up the tabs.
       -->
@@ -361,7 +357,7 @@
               Setting up the plots to go under each tab.
             -->
             <div id="heatmapRef" class="col s12">
-              <div id="heatmapDiv0" style="margin-top: 25px"></div>
+              <div id="heatmapDiv0" style="margin-top: 25px" align="center"></div>
             </div>
             <div id="violinPlotRef" class="col s12">
               <div
