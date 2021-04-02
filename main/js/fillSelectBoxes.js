@@ -174,13 +174,41 @@ let getValidPathwaysList = async function () {
 
 //Returns array of genes associated with pathway
 let getGenesByPathway = async function () {
-  let myCohort = $(".pathwayMultipleSelection")
-    .select2("data")
-    .map((curPathway) => curPathway.id);
-  console.log(myCohort);
-  // TODO  Somehow query the genes of the specific pathways the user has selected, maybe save them in localStorage for future use?
-  // TODO  Combine the pasthways genes with the specific genes the user selected in the first select box, remove duplicates.
-  // TODO  Query Firebrowse using the list
+  var pathwaySelectBoxLength = $(".pathwayMultipleSelection").select2("data").length;
+  var uniqueGenesByPathways = [];
+
+  //would only run if an option from pathway select box is selected
+  if (pathwaySelectBoxLength > 0) {
+    let validPathwaysList = await fetch(
+      "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
+    ).then((response) => response.json());
+    
+    //Get the pathway(s) selected
+    let myPathway = $(".pathwayMultipleSelection")
+      .select2("data")
+      .map((curPathway) => curPathway.id);
+    
+    //Map all the genes from pathway(s) into an array
+    var allGenesByPathways = [];
+    for (let i = 0; i < myPathway.length; i++) {
+      let pathwayStr = String(myPathway[i]);
+      allGenesByPathways = allGenesByPathways.concat(validPathwaysList[pathwayStr]);
+    }
+
+    //Remove duplicates if any  
+    $.each(allGenesByPathways, function(i, element){
+      if($.inArray(element, uniqueGenesByPathways) === -1) 
+        uniqueGenesByPathways.push(element);
+    });
+
+    // TODO  Somehow query the genes of the specific pathways the user has selected, maybe save them in localStorage for future use?
+    // TODO  Combine the pathways genes with the specific genes the user selected in the first select box, remove duplicates.
+    // TODO  Query Firebrowse using the list
+
+  }
+
+  console.log(uniqueGenesByPathways);
+  return await uniqueGenesByPathways;
 };
 
 //Populates the pathway select box
