@@ -9,6 +9,68 @@ let selectedData = [];
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
+let colorOutOfSpace = {
+    yellowAt: {},
+    createColorArray: (keyName) => {
+        let yellowArray = colorOutOfSpace.yellowAt[keyName]['YellowAt'] || []
+        return sliceColors.map((color, index) => {
+            if (yellowArray.includes(index))
+                return '#FFF34B'
+            else
+                return color 
+        })
+    },
+    createSliceKey: (listOfSlices) => {
+        return listOfSlices.reduce((obj, ele, index) => {
+            return {...obj, [ele]: index}
+            }, {}
+        )
+    },
+    createGlobalColorDict: (keyName, listOfSlices) => {
+      colorOutOfSpace.yellowAt = {
+          ...colorOutOfSpace.yellowAt, 
+          [keyName]: {
+              'YellowAt': [],
+              'Key': colorOutOfSpace.createSliceKey(listOfSlices),
+          },
+      }
+    },
+    updateGlobalColorDict: (newListOfSlices, keyName) => {
+        let oldArray = colorOutOfSpace.yellowAt[keyName]['YellowAt']
+        let oldArrayCopy = [...oldArray]
+        const oldDict = colorOutOfSpace.yellowAt[keyName]['Key']
+        const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
+        console.log({...newDict})
+        const newKeys = Object.keys(newDict) // perhaps this should be oldDict
+        for (let i = 0; i < newKeys.length; i++) {
+            const num = oldDict[newKeys[i]]
+            const index = oldArray.indexOf(num)
+            if (index !== -1) {
+                oldArrayCopy[index] = newDict[newKeys[i]]
+            }
+        }
+
+        colorOutOfSpace.yellowAt[keyName] = {
+            'YellowAt': [...oldArrayCopy],
+            'Key': {...newDict}
+        }
+        console.log({...colorOutOfSpace.yellowAt})
+    },
+    updateYellowAt: (keyName, sliceToChange) => {
+        const geneDict = colorOutOfSpace.yellowAt[keyName]
+        const key = geneDict['Key']
+        const yellowArray = geneDict['YellowAt']
+        const newNumber = key[sliceToChange]
+        if (yellowArray.includes(newNumber)) {
+            let newA = yellowArray.filter((ele) => ele !== newNumber)
+            colorOutOfSpace.yellowAt[keyName]['YellowAt'] = newA
+        } else {
+            let newA = yellowArray.concat(newNumber).sort()
+            colorOutOfSpace.yellowAt[keyName]['YellowAt'] = newA
+        }
+    }
+}
+
 let buildDataExplorePlots = async function(metadata) {
 
     if($('.cancerTypeMultipleSelection').select2('data').map(cancer => cancer.text).length > 0) {
@@ -120,7 +182,7 @@ let buildDataExplorePlots = async function(metadata) {
                     xCounts.length = uniqueValuesForCurrentFeature.length;
                     for(let i = 0; i < xCounts.length; i++)
                         xCounts[i] = 0;
-                    console.log(metadata[0][currentFeature]) // i.e., ~first~ patient's ethnicity
+                    // console.log(metadata[0][currentFeature]) // i.e., ~first~ patient's ethnicity
                     for(let i = 0; i < metadata.length; i++) 
                         for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++) 
                             if(metadata[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
@@ -147,6 +209,20 @@ let buildDataExplorePlots = async function(metadata) {
                     }
                 }];
                 
+                if (colorOutOfSpace.yellowAt[currentFeature]) {
+                  // if (Object.keys(colorOutOfSpace.yellowAt[currentFeature]['Key']).length !== uniqueValuesForCurrentFeature.length) {}
+                    colorOutOfSpace.updateGlobalColorDict(uniqueValuesForCurrentFeature, currentFeature)
+                    data[0] = {...data[0], marker: {
+                        colors: colorOutOfSpace.createColorArray(currentFeature),
+                        line: {
+                          color: 'black', 
+                          width: 1
+                        }
+                    }}
+                } else {
+                    colorOutOfSpace.createGlobalColorDict(currentFeature, uniqueValuesForCurrentFeature)
+                }
+
                 var layout = {
                     height: 400,
                     width: 500,
@@ -196,15 +272,18 @@ let buildDataExplorePlots = async function(metadata) {
                         if(selectedData[currentFeature].findIndex(element => element == slice) != -1){
                             colore[pts] = sliceColors[pts];
                             selectedData[currentFeature].pop(slice);
+                            colorOutOfSpace.updateYellowAt(currentFeature, slice) // removes it
                         }
                         else{
                             selectedData[currentFeature].push(slice);
+                            colorOutOfSpace.updateYellowAt(currentFeature, slice) // adds it
                             colore[pts] = '#FFF34B';
                         }
                     }
                     else{
                         selectedData[currentFeature] = [slice];
                         colore[pts] = '#FFF34B';
+                        colorOutOfSpace.updateYellowAt(currentFeature, slice)
                     }
                     var update = {'marker': {colors: colore, 
                                             line: {color: 'black', width: 1}}};

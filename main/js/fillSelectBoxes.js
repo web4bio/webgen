@@ -39,8 +39,11 @@ let fillCancerTypeSelectBox = async function () {
     selectBox.appendChild(currentOption);
   }
   let cancerTypeSelectedOptions = localStorage
-    .getItem("cancerTypeSelectedOptions")
-    .split(",");
+    .getItem("cancerTypeSelectedOptions") || null
+  if (cancerTypeSelectedOptions) {
+    cancerTypeSelectedOptions = cancerTypeSelectedOptions.split(",");
+  }
+
   if (cancerTypeSelectedOptions) {
     $(".cancerTypeMultipleSelection").val(cancerTypeSelectedOptions);
   }
