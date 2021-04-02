@@ -150,7 +150,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
       .append("g")
       .attr("id", (svgID + 'Position'))
       .attr("transform",
-          "translate(" + (margin.left-20) + "," + 
+          "translate(" + (margin.left) + "," + 
                       (margin.top + ySpacing*index*0.25) + ")");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,6 +167,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
 
     // Get min and max expression values for y axis:
     var geneExpressionValues = d3.map(dataInput, function(d){return d.expression_log2}).keys();
+    console.log(geneExpressionValues);
     let minExpressionLevel = Math.min(...geneExpressionValues);
     let maxExpressionLevel = Math.max(...geneExpressionValues);
     
