@@ -81,6 +81,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
       let uniqueBarcodes;
 
       let clickedClinicalValues = selectedData[currentClinicalFeature];
+
       for(let j = 0; j < clickedClinicalValues.length; j++) {
 
         let currentClinicalValue = clickedClinicalValues[j];
@@ -98,10 +99,34 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
           concatFilteredBarcodes['' + currentClinicalFeature] = uniqueBarcodes;
         else
           concatFilteredBarcodes['' + currentClinicalFeature] = concatFilteredBarcodes['' + currentClinicalFeature].concat(uniqueBarcodes);
-
       }
     }
   }
+  let continuousRangeData = selectedRange;
+  // loop through all range data
+  for(let i = 0; i < continuousRangeData.length; i++) {
+    let continuousFeature = continuousRangeData[i];
+    var div = document.getElementById(continuousFeature + 'Div');
+    let rangeValue = div.layout.xaxis.range;
+    console.log(continuousFeature);
+    console.log(rangeValue[0]);
+    console.log(rangeValue[1]);
+
+    filteredRangeData = allClinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
+
+    let onlyBarcodes = filteredRangeData.map(x => x.tcga_participant_barcode);
+
+    function onlyUnique(value, index, self) {
+      return self.indexOf(value) === index;
+    }
+    uniqueBarcodes = onlyBarcodes.filter(onlyUnique);
+
+    if(concatFilteredBarcodes['' + continuousFeature] == undefined)
+      concatFilteredBarcodes['' + continuousFeature] = uniqueBarcodes;
+    else
+      concatFilteredBarcodes['' + continuousFeature] = concatFilteredBarcodes['' + continuousFeature].concat(uniqueBarcodes);
+  }
+
   
   // Get intersection of barcodes from selected pie sectors
   console.log(concatFilteredBarcodes)

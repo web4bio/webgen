@@ -6,6 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 let selectedData = [];
+let selectedRange = [];
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 let continuous = false;
@@ -174,9 +175,6 @@ let buildDataExplorePlots = async function() {
                     },
                     itemwidth: 40,
                     orientation: "v"
-                    // title: {
-                    //     text: "Mutations"
-                    // }
                 },
                 xaxis: {
                     rangeselector: {},
@@ -195,10 +193,12 @@ let buildDataExplorePlots = async function() {
             newDiv.setAttribute("id", currentFeature + "Div");
             parentRowDiv.appendChild(newDiv);
             
-            if(continuous)
+            if(continuous){
                 Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true});
-            else
+            }
+            else{
                 Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
+            }
 
 
 
@@ -206,8 +206,14 @@ let buildDataExplorePlots = async function() {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////// On-click event for pie charts below ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////////////////////////          
+            document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
+                //checks if continuous data range has been added yet
+                if(selectedRange.findIndex(element => element == currentFeature) == -1){
+                    selectedRange.push(currentFeature);
+                    console.log(selectedRange);
+                }
+            });
             document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
                 var pts = '';
                 var colore;
