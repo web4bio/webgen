@@ -227,7 +227,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
         {
             if(facetByFields.length == 0)  
             {
-                return d[indepVarType];
+                return d[opVar];
             }
             else
             {
@@ -257,7 +257,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
         var currentExpressionArray
         if(facetByFields.length == 0)
         {
-            currentExpressionArray = d3.map(dataInput.filter(x => x[indepVarType] == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+            currentExpressionArray = d3.map(dataInput.filter(x => x[opVar] == sumstat[i].key), function(d){return d.expression_log2;}).keys();
         }
         else
         {
@@ -316,7 +316,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv,
         for (prop in this) {
             const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
             var tooltipstring = "\xa0\xa0" + 
-                                "Gene: " + d.key + spacing +
+                                "${opVar} " + d.key + spacing +
                                 "Min: " + String(d.min.toFixed(4)) + spacing +
                                 "Q1: " + String(d.Qone.toFixed(4)) + spacing +
                                 "Median: " + String(d.median.toFixed(4)) + spacing +
