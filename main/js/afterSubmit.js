@@ -126,8 +126,8 @@ function setExampleVars() {
 
 let buildPlots = async function () {
   // Reset page formatting:
-  // document.getElementById('heatmapDiv0').innerHTML = "";
-  // document.getElementById('svgViolinDiv0').innerHTML = "";
+  if(document.getElementById("violinDiv0") != null)
+    document.getElementById("violinDiv0").outerHTML = "";
 
   let heatDiv = addDivInside("heatmapDiv0", "heatmapRef");
   var violinDiv = addDivInside("violinDiv0", "violinPlotRef");
@@ -191,6 +191,9 @@ let buildPlots = async function () {
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(expressionData));
 
+  //Remove the 'violinPlots' div should it exist
+  if(document.getElementById("violinPlots") != null)
+    document.getElementById("violinPlots").outerHTML = "";
   //Create checkbox to toggle between gene vs. cohort for violin plots
   var toggleSwitch = "<label class='switch'>" + 
   "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
@@ -198,17 +201,16 @@ let buildPlots = async function () {
   "<span class='slider round'></span>" +
   "</label>";
   //Append toggle switch to the top of violin plots section
+  document.getElementById("violinDiv0").innerHTML = "";
   document.getElementById("violinDiv0").innerHTML += (toggleSwitch);
   addDiv("violinPlots", "violinDiv0");
 
   //Checkbox for toggling between gene vs. cohort for violin plots
   toggleSwitch = document.getElementById('toggleSwitch')
   toggleSwitch.addEventListener('change', function(e){
-    
-    //Clear HTML content ov violinPlots div
     var violinsDiv = document.getElementById("violinPlots");
     violinsDiv.innerHTML = "";
-
+    
     //Call buildViolinPlot with a different parameter based on the status of the toggle switch
     if(toggleSwitch.checked){
       buildViolinPlot(expressionQuery, expressionData, 'gene');
@@ -237,8 +239,10 @@ buildHeatmap = async function (expData, clinData) {
 buildViolinPlot = async function(cohortORGeneQuery, data, independantVarType){
   // Remove the loader
   document.getElementById('violinDiv0').classList.remove('loader');            
+  //Clear HTML content ov violinPlots div
+  var violinsDiv = document.getElementById("violinPlots");
+  violinsDiv.innerHTML = "";
 
-  //Create violinPlots div to store violin plots in
 
   // Set up the figure dimensions:
   let margin = {top: 80, right: 30, bottom: 30, left: 60},
@@ -260,8 +264,9 @@ buildViolinPlot = async function(cohortORGeneQuery, data, independantVarType){
 
     //Create partition selector
     createViolinPartitionBox(`violinPlot${index}`, curCohort);
+    
+    addDivInside(`svgViolin${index}`, `violinPlot${index}`);
 
-  
     var violinDiv = document.getElementById(`violinPlot${index}`);
 
     createViolinPlot(independantVarType, data, violinDiv, curCohort, []);

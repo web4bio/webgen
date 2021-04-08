@@ -7,7 +7,6 @@
 // curPlot is the name of the Expression vs. indeptVarType plot we are generating
 
 var tooltipNum = 0;
-//createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv, curPlot, facetByFields) {    
 createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, facetByFields) {    
     //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
@@ -17,7 +16,12 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
         clinicalData = JSON.parse(localStorage.getItem("clinicalData"));
 
     //Set up violin curve colors
-    var colors = ["#f1f291", "#69b3a2", "#bfb7f7", "#f26d5c", "#71a9d1", "#f0a94f"];
+    var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
+                    "#ffff33","#a65628","#f781bf","#999999"];
+    function shuffle(array) {
+        array.sort(() => Math.random() - 0.5);
+    }
+    shuffle(colors);
     var violinCurveColors = [];
 
     // Set up the figure dimensions:
@@ -86,10 +90,6 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
         myGroups = d3.map(dataInput, function(d){return d[opVar];}).keys();
     }
 
-    console.log(facetByFields);
-    console.log(facetByFields.length)
-    console.log(myGroups)
-
     // Helper function to sort groups by median expression:
     function compareGeneExpressionMedian(a,b,type) {
         if(type == 'cohort'){
@@ -142,9 +142,11 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
     
     //matching the num of div to num of svg in the div
     let svgID = "svgViolinPlot" + divNum;
+    let svgDivId = `svgViolin${divNum}`;
 
     //create the svg element for the violin plot
-    let svgObject = d3.select(violinDiv).append("svg")
+    //let svgObject = d3.select(violinDiv).append("svg")
+    let svgObject = d3.select("#" + svgDivId).append("svg")
       .attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
       .attr("id", svgID)
       .attr("indepVarType", indepVarType) //The attributes added on this line and the lines below are used when rebuilding the plot
@@ -154,7 +156,7 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
       .attr("id", (svgID + 'Position'))
       .attr("transform",
           "translate(" + (margin.left) + "," + 
-                      (margin.top + ySpacing*index*0.25) + ")");
+                      (margin.top + ySpacing*divNum*0.25) + ")");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,7 +293,7 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
     
     // Build the scroll over tool:
     // create a tooltip
-    var tooltip = d3.select("#" + violinDiv.id)
+    var tooltip = d3.select("#" + svgDivId)
         .append("div")
         .style("opacity", 0)
         .attr("id", "tooltip" + divNum)
@@ -319,7 +321,7 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
         for (prop in this) {
             const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
             var tooltipstring = "\xa0\xa0" + 
-                                "${opVar} " + d.key + spacing +
+                                `${opVar} ` + d.key + spacing +
                                 "Min: " + String(d.min.toFixed(4)) + spacing +
                                 "Q1: " + String(d.Qone.toFixed(4)) + spacing +
                                 "Median: " + String(d.median.toFixed(4)) + spacing +
@@ -498,13 +500,15 @@ function standardDeviation(mean, values)
 //
 let createViolinPartitionBox = async function(violinDivId, curPlot)
 {
-    var div_box = d3.select('#'+violinDivId);
+    var partitionDivId = "violinPartition" + violinDivId[violinDivId.length - 1]
+    addDivInside(partitionDivId, violinDivId);
+    var div_box = d3.select('#'+partitionDivId);
     div_box.append('text')
         .style("font-size", "20px")
         .text('Select variables to partition violin curves by:');
     div_box.append('div')
         .attr('class','viewport')
-        .attr("id", "violinPartition" + violinDivId[violinDivId.length-1])
+        .attr("id", "partitionSelectViolinPlot" + violinDivId[violinDivId.length-1])
         .style('overflow-y', 'scroll')
         .style('height', '90px')
         .style('width', '500px')
@@ -568,8 +572,8 @@ let createViolinPartitionBox = async function(violinDivId, curPlot)
         .text("Rebuild Violin Plot")
         .attr("class", "col s3 btn waves-effect waves-light")
         .attr("id", "submitButton")
-        .attr("onclick", "rebuildViolinPlot('" + violinDivId + "', '" + curPlot + 
-                "', 'violinPartition" + violinDivId[violinDivId.length-1] + "')");
+        .attr("onclick", "rebuildViolinPlot('" + violinDivId + "', '" + curPlot + "')");
+                //"', 'partitionSelectViolinPlot" + violinDivId[violinDivId.length-1] + "')");
 
    
     return choices;
@@ -590,29 +594,11 @@ let getPartitionBoxSelections = function(violinDivId)
 //Rebuilds the violin plot associated with violinDivId
 let rebuildViolinPlot = function(violinDivId, curPlot) {
     var selectedOptions = getPartitionBoxSelections(violinDivId);
-    var svgId = "svgViolinPlot" + violinDivId[violinDivId.length - 1];
-    let margin = { top: 80, right: 30, bottom: 30, left: 60 },
-        width = 1250 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-        
-    // Spacing between plots
-    let ySpacing = margin.top;
+    var svgDivId = "svgViolin" + violinDivId[violinDivId.length - 1];
     
-    d3.select("#" + svgId).remove();
-    let svgViolinPlot = d3
-        .select("#" + violinDivId)
-        .append("svg")
-        .attr("viewBox", `0 0 1250 500`) // This line makes the svg responsive
-        .attr("id", svgId)
-        .append("g")
-        .attr(
-          "transform",
-          "translate(" +
-          (margin.left - 20) +
-          "," +
-          (margin.top + ySpacing * violinDivId[violinDivId.length - 1] * 0.25) +
-          ")"
-        );
+    var svgDiv = document.getElementById(svgDivId);
+    svgDiv.innerHTML = "";
+    //document.getElementById("violinPartition" + violinDivId[violinDivId.length - 1]).outerHTML;
     
     var toggleSwitch = document.getElementById('toggleSwitch');
     var toggleVal = "cohort";
