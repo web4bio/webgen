@@ -1,12 +1,20 @@
 // Async function to create a d3 violin plot for a given independent variable and a set of genes
 
-// indepVarType is the type of independent variable for the plot (probably either 'cohort' or 'mutatedGene')
-    // NOTE: The function is currently only set to handle indepVarType='cohort'
+// indepVarType is the type of independent variable for the plot (probably either 'cohort' or 'gene')
 // indepVar is the independent variable (ex1: 'PAAD', ex2: 'TP53')
 // dataInput is the array os JSONs of gene expression data to visualize
-// svgObject is the object on the html page to build the plot
- 
-createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject, curCohort, violinDivName) {
+// violinDiv is the name of the object on the html page to build the plot
+// curPlot is the name of the Expression vs. indeptVarType plot we are generating
+
+var tooltipNum = 0;
+//createViolinPlot = async function(indepVarType, indepVars, dataInput, violinDiv, curPlot, facetByFields) {    
+createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, facetByFields) {    
+    //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
+    let divNum = violinDiv.id[violinDiv.id.length - 1];
+
+    let clinicalData = "";
+    if(facetByFields.length > 0)
+        clinicalData = JSON.parse(localStorage.getItem("clinicalData"));
 
     //Set up violin curve colors
     var colors = ["#f1f291", "#69b3a2", "#bfb7f7", "#f26d5c", "#71a9d1", "#f0a94f"];
@@ -14,24 +22,83 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
 
     // Set up the figure dimensions:
     //var margin = {top: 10, right: 30, bottom: 30, left: 40},
-    var margin = {top: 10, right: 30, bottom: 50, left: 40},
+    var margin = {top: 10, right: 30, bottom: 80, left: 40},
         width = 1250 - margin.left - margin.right,
         height = 440 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
 
-    //Filter out data that does not belong to curCohort
-    dataInput = dataInput.filter(patientData => patientData.cohort == curCohort);
+    //Filter out data that does not belong to curPlot
+    if(indepVarType == "gene")
+        dataInput = dataInput.filter(patientData => patientData.gene == curPlot);
+    else if(indepVarType == "cohort")
+        dataInput = dataInput.filter(patientData => patientData.cohort == curPlot);
 
-    // Get myGroups of genes:
-    var myGroups = d3.map(dataInput, function(d){return d.gene;}).keys();
-    var numOfGenes = myGroups.length;
+    var myGroups;
+    
+    //defines the opposite y variable
+    let opVar;
+    if(indepVarType == 'cohort'){
+        opVar = 'gene'
+    }else if(indepVarType == 'gene'){
+        opVar = 'cohort'
+    }
 
-    // Helper function to sort genes by median expression:
-    function compareGeneExpressionMedian(a,b) {
-        var aArray = d3.map(dataInput.filter(x => x.gene == a), function(d){return d.expression_log2;}).keys();
-        var bArray = d3.map(dataInput.filter(x => x.gene == b), function(d){return d.expression_log2;}).keys();
+    //Add new field to data for purpose of creating keys and populating myGroups
+    if(facetByFields.length > 0)
+    {        
+        for(var i = 0; i < dataInput.length; i++)
+        {
+            //Get matching index in clinicalData for current patient index in dataInput
+            var clinicalDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
+         
+            if(clinicalDataIndex >= 0)
+            {
+                var keyToFacetBy = dataInput[i][opVar] + " (";
+                //Iterate over the clinical fields to facet by to create keyToFacetBy
+                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++)
+                {
+                    //Append additional JSON field to data for the purpose of creating a key to facet by
+                    clinicalField = facetByFields[fieldIndex];
+                    //dataInput[i][clinicalField] = clinicalData[clinicalDataIndex][clinicalField];
+                    keyToFacetBy += clinicalData[clinicalDataIndex][clinicalField] 
+                    if(fieldIndex < facetByFields.length-1)
+                    {
+                        keyToFacetBy += " ";
+                    }
+                }
+                keyToFacetBy += ")";
+                dataInput[i]["facetByFieldKey"] = keyToFacetBy;
+            }
+
+            else
+            {
+                dataInput[i]["facetByFieldKey"] = dataInput[i][opVar] + " (NA)";
+            }
+
+        }
+
+        myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
+    }
+    else
+    {
+        myGroups = d3.map(dataInput, function(d){return d[opVar];}).keys();
+    }
+
+    console.log(facetByFields);
+    console.log(facetByFields.length)
+    console.log(myGroups)
+
+    // Helper function to sort groups by median expression:
+    function compareGeneExpressionMedian(a,b,type) {
+        if(type == 'cohort'){
+            var aArray = d3.map(dataInput.filter(x => x.gene == a), function(d){return d.expression_log2;}).keys();
+            var bArray = d3.map(dataInput.filter(x => x.gene == b), function(d){return d.expression_log2;}).keys();
+        }else if(type == 'gene'){
+            var aArray = d3.map(dataInput.filter(x => x.cohort == a), function(d){return d.expression_log2;}).keys();
+            var bArray = d3.map(dataInput.filter(x => x.cohort == b), function(d){return d.expression_log2;}).keys();
+        }
         var aMedian = d3.quantile(aArray.sort(function(a,b) {return a - b ;}), 0.5);
         var bMedian = d3.quantile(bArray.sort(function(a,b) {return a - b ;}), 0.5);
         
@@ -39,8 +106,17 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
     };
 
     // Sort myGroups by median expression:
-    myGroups.sort((a,b) => compareGeneExpressionMedian(a,b));
+    if(facetByFields.length == 0){
+        if(indepVarType == 'cohort'){
+            myGroups.sort((a,b) => compareGeneExpressionMedian(a,b,'cohort'));
+        }else if(indepVarType == 'gene'){
+            myGroups.sort((a,b) => compareGeneExpressionMedian(a,b,'gene'));
+        }
+    }
+    else
+        myGroups.sort();
 
+    console.log(myGroups);
 
     //Populate violinCurveColors
     var colorsArrIndex = 0;
@@ -55,6 +131,36 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////// Build SVG Object Below //////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //Spacing between plots
+    let ySpacing = margin.top;
+    
+    //matching the num of div to num of svg in the div
+    let svgID = "svgViolinPlot" + divNum;
+
+    //create the svg element for the violin plot
+    let svgObject = d3.select(violinDiv).append("svg")
+      .attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
+      .attr("id", svgID)
+      .attr("indepVarType", indepVarType) //The attributes added on this line and the lines below are used when rebuilding the plot
+      //.attr("indepVars", indepVars)
+      .attr(indepVarType, curPlot)
+      .append("g")
+      .attr("id", (svgID + 'Position'))
+      .attr("transform",
+          "translate(" + (margin.left) + "," + 
+                      (margin.top + ySpacing*index*0.25) + ")");
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////// Build SVG Object Above //////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,6 +170,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
 
     // Get min and max expression values for y axis:
     var geneExpressionValues = d3.map(dataInput, function(d){return d.expression_log2}).keys();
+    console.log(geneExpressionValues);
     let minExpressionLevel = Math.min(...geneExpressionValues);
     let maxExpressionLevel = Math.max(...geneExpressionValues);
     
@@ -72,6 +179,14 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         .domain([minExpressionLevel, maxExpressionLevel])
         .range([height, 0]);
     svgObject.append("g").call( d3.axisLeft(y));
+    //Append y-axis label
+    svgObject.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Expression Level");
 
     // Build and Show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
     var x = d3.scaleBand()
@@ -82,6 +197,13 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
     svgObject.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
+        .selectAll(".tick text")
+        .call(wrap, x.bandwidth());
+
+    svgObject.append("text")             
+        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 30) + ")")
+        //.style("text-anchor", "middle")
+        .text(opVar);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +226,17 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
 
     // Compute the binning for each group of the dataset
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
-        .key(function(d) {return d.gene;})
+        .key(function(d) 
+        {
+            if(facetByFields.length == 0)  
+            {
+                return d[opVar];
+            }
+            else
+            {
+                return d.facetByFieldKey;
+            }
+        })
         .rollup(function(d) {                                              // For each key..
             input = d.map(function(g) { return g.expression_log2;});
             density = kde(input);                                           // Implement kernel density estimation
@@ -124,8 +256,16 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
             maxNum = longest;
         }
 
-        // Add statisitc info for each gene:
-        var currentExpressionArray = d3.map(dataInput.filter(x => x.gene == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        // Add statisitc info for each group:
+        var currentExpressionArray
+        if(facetByFields.length == 0)
+        {
+            currentExpressionArray = d3.map(dataInput.filter(x => x[opVar] == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        }
+        else
+        {
+            currentExpressionArray = d3.map(dataInput.filter(x => x.facetByFieldKey == sumstat[i].key), function(d){return d.expression_log2;}).keys();
+        }
         currentExpressionArray.sort(function(a,b) {return a - b ;});
         sumstat[i].median = d3.quantile(currentExpressionArray, 0.5);
         sumstat[i].Qthree = d3.quantile(currentExpressionArray, 0.75);
@@ -137,25 +277,24 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length-1]);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////// Set up Distributions and Statistics Info for Each Gene's Expression Above /////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Set up Distributions and Statistics Info for Each Gene's Expression Above /////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////// Build the Mouseover Tool Below ///////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// Build the Mouseover Tool Below ///////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     // Build the scroll over tool:
     // create a tooltip
-    var tooltip = d3.select("#" + violinDivName)
+    var tooltip = d3.select("#" + violinDiv.id)
         .append("div")
         .style("opacity", 0)
+        .attr("id", "tooltip" + divNum)
         .attr("class", "tooltip")
         .style("background-color", "white")
         .style("border", "solid")
@@ -172,7 +311,6 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         .style("opacity", 1)             
     }
     var mousemove = function(d) {
-        console.log(d);
         tooltip
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")
@@ -181,7 +319,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         for (prop in this) {
             const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
             var tooltipstring = "\xa0\xa0" + 
-                                "Gene: " + d.key + spacing +
+                                "${opVar} " + d.key + spacing +
                                 "Min: " + String(d.min.toFixed(4)) + spacing +
                                 "Q1: " + String(d.Qone.toFixed(4)) + spacing +
                                 "Median: " + String(d.median.toFixed(4)) + spacing +
@@ -192,7 +330,7 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
                                 "Max: " + String(d.max.toFixed(4))
                                 ;
             return tooltip.style("visibility", "visible").html(tooltipstring);
-                                                               
+                                                            
         };
 
     }
@@ -203,19 +341,19 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
         .style("stroke", "none")
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////// Build the Mouseover Tool Above ///////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// Build the Mouseover Tool Above ///////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////// Build the Violin Plot Below /////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////// Build the Violin Plot Below /////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // The maximum width of a violin must be x.bandwidth = the width dedicated to a group
     var xNum = d3.scaleLinear()
@@ -297,18 +435,19 @@ createViolinPlot = async function(indepVarType, indepVars, dataInput, svgObject,
             .attr("y", -25)
             .attr("text-anchor", "left")
             .style("font-size", "26px")
-            .text("Gene Expression Violin Plot for "+ curCohort)
+            .text("Gene Expression Violin Plot for "+ curPlot)
     } 
-    else if (indepVarType == 'mutatedGene') {
+    else if (indepVarType == 'gene') {
         // Add title to graph
         svgObject.append("text")
         .attr("x", 0)
         .attr("y", -25)
         .attr("text-anchor", "left")
         .style("font-size", "26px")
-        .text("Gene Expression Violin Plot for Patients with a mutated "+indepVars+" Gene")
+        .text("Gene Expression Violin Plot for "+ curPlot +" Gene")
     };
 };
+
 
 
 
@@ -365,6 +504,7 @@ let createViolinPartitionBox = async function(violinDivId, curPlot)
         .text('Select variables to partition violin curves by:');
     div_box.append('div')
         .attr('class','viewport')
+        .attr("id", "violinPartition" + violinDivId[violinDivId.length-1])
         .style('overflow-y', 'scroll')
         .style('height', '90px')
         .style('width', '500px')
@@ -428,12 +568,28 @@ let createViolinPartitionBox = async function(violinDivId, curPlot)
         .text("Rebuild Violin Plot")
         .attr("class", "col s3 btn waves-effect waves-light")
         .attr("id", "submitButton")
-        .attr("onclick", "rebuildViolinPlot('" + violinDivId + "', '" + curPlot + "')");
+        .attr("onclick", "rebuildViolinPlot('" + violinDivId + "', '" + curPlot + 
+                "', 'violinPartition" + violinDivId[violinDivId.length-1] + "')");
 
+   
     return choices;
 };
 
-let rebuildViolinPlot = async function(violinDivId, curPlot) {
+//Returns array of the selection clinical features in the partition box corresponding to violinDivId
+let getPartitionBoxSelections = function(violinDivId)
+{
+    var selectedOptions = [];
+    d3.select('#'+violinDivId).selectAll(".myCheckbox").each(function(d)
+    {
+        let cb = d3.select(this);
+        if(cb.property('checked')){ selectedOptions.push(cb.property('value')); };
+    }); 
+    return selectedOptions;
+}
+
+//Rebuilds the violin plot associated with violinDivId
+let rebuildViolinPlot = function(violinDivId, curPlot) {
+    var selectedOptions = getPartitionBoxSelections(violinDivId);
     var svgId = "svgViolinPlot" + violinDivId[violinDivId.length - 1];
     let margin = { top: 80, right: 30, bottom: 30, left: 60 },
         width = 1250 - margin.left - margin.right,
@@ -454,14 +610,64 @@ let rebuildViolinPlot = async function(violinDivId, curPlot) {
           "translate(" +
           (margin.left - 20) +
           "," +
-          (margin.top + ySpacing * index * 0.25) +
+          (margin.top + ySpacing * violinDivId[violinDivId.length - 1] * 0.25) +
           ")"
         );
-    let cohortQuery = $(".cancerTypeMultipleSelection")
-        .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-
-    createViolinPlot("cohort", cohortQuery, localStorage.getItem("expressionData"), svgViolinPlot, curPlot, violinDivId);
+    
+    var toggleSwitch = document.getElementById('toggleSwitch');
+    var toggleVal = "cohort";
+    if(toggleSwitch.checked)
+        toggleVal = "gene";
+    else
+        toggleVal = "cohort";
+    createViolinPlot(toggleVal, JSON.parse(localStorage.getItem("expressionData")), 
+                        document.getElementById(violinDivId), curPlot, selectedOptions);
 };
+
+//Helper function to acquire the index of a patient's clinical data based on their tcga_participant_barcode
+function findMatchByTCGABarcode(patient, clinicalData)
+{
+    for(var index = 0; index < clinicalData.length; index++)
+    {
+        if(clinicalData[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
+            return index;
+    }
+
+    return -1;
+}
+
+//Helper function to create multi-line x-axis labels
+function wrap(text, width) 
+{
+    text.each(function() 
+    {
+      var text = d3.select(this),
+          words = text.text().split(/\s+/).reverse(),
+          word,
+          line = [],
+          lineNumber = 0,
+          lineHeight = 1.1, // ems
+          y = text.attr("y"),
+          dy = parseFloat(text.attr("dy")),
+          tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+      while (word = words.pop()) 
+      {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width) 
+        {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = text.append("tspan").attr("x", 0)
+                                        .attr("y", y)
+                                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                        .text(word);
+        }
+      }
+    });
+  }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////// End Of Program ///////////////////////////////////////////////////////////////
