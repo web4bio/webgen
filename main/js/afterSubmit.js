@@ -292,8 +292,8 @@ saveFile = function (x, fileName) {
 };
 
 buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, clinicalData) {
-  let barcodes_exp = d3.map(expressionData, (d) => d.tcga_participant_barcode).keys().sort();
-  let barcodes_clin = d3.map(clinicalData, (d) => d.tcga_participant_barcode).keys().sort();
+  let barcodes_exp = d3.map(expressionData, (d) => {if (d) return d.tcga_participant_barcode; else return d}).keys().sort();
+  let barcodes_clin = d3.map(clinicalData, (d) => {if (d) return d.tcga_participant_barcode; else return d}).keys().sort();
   let barcodes_all = [...new Set([...barcodes_exp, ...barcodes_clin])]; // unique union of expression + clinical barcodes
 
   // define the firebrowse query strings (to include in header)
