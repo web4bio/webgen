@@ -159,6 +159,85 @@ let getValidGeneList = async function () {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////// Get Pathways List (below) ///////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//NOTE: The URL in the fetch command needs to be updated to use the github.io link instead of the current method
+let getValidPathwaysList = async function () {
+  //Note the specification of the 'preselectedGenes' branch name.
+  //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
+  let validPathwaysList = await fetch(
+    "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
+  ).then((response) => response.json());
+  validPathwaysList = Object.keys(validPathwaysList);
+  localStorage.setItem("genePathways", validPathwaysList);
+  return await validPathwaysList;
+};
+
+//Returns array of genes associated with pathway
+let getGenesByPathway = async function () {
+  var pathwaySelectBoxLength = $(".pathwayMultipleSelection").select2("data").length;
+  var allGenesByPathways = {};
+
+  //would only run if an option from pathway select box is selected
+  if (pathwaySelectBoxLength > 0) {
+    let validPathwaysList = await fetch(
+      "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
+    ).then((response) => response.json());
+    
+    //Get the pathway(s) selected
+    let myPathway = $(".pathwayMultipleSelection")
+      .select2("data")
+      .map((curPathway) => curPathway.id);
+    
+    //Map all the genes from pathway(s) into an array
+    allGenesByPathways = _.map(
+      _.range(0, myPathway.length),
+      function (i) {
+        return {
+          id: i,
+          pathway: String(myPathway[i]),
+          genes: validPathwaysList[String(myPathway[i])],
+        };
+      }
+    );
+
+    // TODO  Somehow query the genes of the specific pathways the user has selected, maybe save them in localStorage for future use?
+    // TODO  Combine the pathways genes with the specific genes the user selected in the first select box, remove duplicates.
+    // TODO  Query Firebrowse using the list
+
+  }
+  console.log(allGenesByPathways);
+  return await allGenesByPathways;
+};
+
+//Populates the pathway select box
+let fillPathwaySelectBox = async function () {
+  validPathwaysList = await getValidPathwaysList();
+  let selectBox = document.getElementById("pathwayMultipleSelection");
+
+  $("#geneOneMultipleSelection").val(null).trigger("change");
+
+  for (let i = 0; i < validPathwaysList.length; i++) {
+    let currentOption = document.createElement("option");
+    currentOption.value = validPathwaysList[i];
+    currentOption.text = validPathwaysList[i];
+    currentOption.id = validPathwaysList[i];
+    selectBox.appendChild(currentOption);
+  }
+};
+
+// Gets all genes according to selected pathway
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////// Fill Pathways Select Box (above) ///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// Fill Clinical Select Box (below) //////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,13 +296,19 @@ let fillClinicalSelectBox = async function () {
     $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
   }
 
-  let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-  let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+  let mySelectedClinicalFeatures = $(".geneOneMultipleSelection")
+    .select2("data")
+    .map((clinicalInfo) => clinicalInfo.text);
+  let mySelectedClinicalFeatures2 = $(".clinicalMultipleSelection")
+    .select2("data")
+    .map((clinicalInfo) => clinicalInfo.text);
 
-  if(mySelectedClinicalFeatures.length >= 1 || mySelectedClinicalFeatures2 >= 1) {
+  if (
+    mySelectedClinicalFeatures.length >= 1 ||
+    mySelectedClinicalFeatures2 >= 1
+  ) {
     buildDataExplorePlots(allClinicalData);
   }
-
 };
 
 let fillViolinPartitionBox = async function(id)

@@ -124,14 +124,14 @@
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
-#geneTwoQuerySelectBox {
-  margin-bottom: 10px;
-  margin-top: 10px;
-  text-align: center;
+#geneTwoQuerySelectBox, #pathwaySelectBox {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    text-align: center;
 }
 
-#geneTwoMultipleSelection {
-  width: 90%;
+#geneTwoMultipleSelection, #pathwayMultipleSelection {
+    width: 90%;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
