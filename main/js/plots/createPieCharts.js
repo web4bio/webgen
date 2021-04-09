@@ -165,11 +165,12 @@ let buildDataExplorePlots = async function() {
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
 
                 var numbers = /^[0-9/.]+$/;
-                var firstElement = (allClinicalData[0][currentFeature]).match(numbers);
-                var secondElement = (allClinicalData[1][currentFeature]).match(numbers);
-                console.log(firstElement);
-                console.log(secondElement);
-                if(firstElement != null || secondElement != null)
+                var continuousMap = allClinicalData.map(x => x[currentFeature].match(numbers));
+                var nullCount = continuousMap.filter(x => x == null).length;
+                var totalCount = continuousMap.length;
+                var percentContinuous = nullCount / totalCount;
+                console.log(percentContinuous);
+                if(percentContinuous < 0.75)
                     continuous = true;
                 else
                     continuous = false;
