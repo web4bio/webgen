@@ -42,7 +42,7 @@ let colorOutOfSpace = {
         let oldArrayCopy = [...oldArray]
         const oldDict = colorOutOfSpace.yellowAt[keyName]['Key']
         const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
-        console.log({...newDict})
+        // console.log({...newDict})
         const newKeys = Object.keys(newDict) // perhaps this should be oldDict
         for (let i = 0; i < newKeys.length; i++) {
             const num = oldDict[newKeys[i]]
@@ -56,7 +56,7 @@ let colorOutOfSpace = {
             'YellowAt': [...oldArrayCopy],
             'Key': {...newDict}
         }
-        console.log({...colorOutOfSpace.yellowAt})
+        // console.log({...colorOutOfSpace.yellowAt})
     },
     updateYellowAt: (keyName, sliceToChange) => {
         const geneDict = colorOutOfSpace.yellowAt[keyName]
@@ -167,8 +167,8 @@ let buildDataExplorePlots = async function() {
                 var numbers = /^[0-9/.]+$/;
                 var firstElement = (allClinicalData[0][currentFeature]).match(numbers);
                 var secondElement = (allClinicalData[1][currentFeature]).match(numbers);
-                console.log(firstElement);
-                console.log(secondElement);
+                // console.log(firstElement);
+                // console.log(secondElement);
                 if(firstElement != null || secondElement != null)
                     continuous = true;
                 else
@@ -178,7 +178,7 @@ let buildDataExplorePlots = async function() {
                 xCounts.length = uniqueValuesForCurrentFeature.length;
                 for(let i = 0; i < xCounts.length; i++)
                     xCounts[i] = 0;
-                console.log(allClinicalData[0][currentFeature]) // i.e., ~first~ patient's ethnicity
+                // console.log(allClinicalData[0][currentFeature]) // i.e., ~first~ patient's ethnicity
                 for(let i = 0; i < allClinicalData.length; i++) 
                     for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++) 
                         if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
