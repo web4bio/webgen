@@ -75,17 +75,6 @@ let colorOutOfSpace = {
 
 let buildDataExplorePlots = async function() {
 
-    // get total number of barcodes for selected cancer type(s)
-    let dataFetched = await fetchNumberSamples();
-    let countQuery = dataFetched.Counts;
-    let totalNumberBarcodes = 0;
-    for(let i = 0; i < countQuery.length; i++) {
-        totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
-
-    function onlyUnique(value, index, self) {
-        return self.indexOf(value) === index;
-    }
-
     let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     mySelectedClinicalFeatures = mySelectedClinicalFeatures.concat(mySelectedClinicalFeatures2)
@@ -99,6 +88,18 @@ let buildDataExplorePlots = async function() {
 
         // clear all previous plots that were displayed
         document.getElementById('dataexploration').innerHTML = "";
+
+        // get total number of barcodes for selected cancer type(s)
+        let dataFetched = await fetchNumberSamples();
+        let countQuery = dataFetched.Counts;
+        let totalNumberBarcodes = 0;
+        for(let i = 0; i < countQuery.length; i++) {
+            totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
+
+        function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+        }
+
         // loop through each selected clinical feature
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
