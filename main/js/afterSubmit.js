@@ -15,6 +15,16 @@ addDiv = function (newDivID, oldDivID) {
   document.getElementById(oldDivID).after(newDiv);
 };
 
+//Useful or adding div inside a div.
+//Currently being used for violins
+addDivInside = function(newDivID, parentDivID){
+  let newDiv = document.createElement("div");
+  newDiv.setAttribute('id', newDivID);
+  newDiv.setAttribute("style", "margin-top:25px");
+  document.getElementById(parentDivID).appendChild(newDiv); 
+  return newDiv;
+}
+
 // Function to remove the current div elements if they exist:
 removeDiv = function () {
   let i = 1;
@@ -48,6 +58,13 @@ removeSVGelements = function () {
   }
 };
 
+removeViolinButtons = function(){
+  var BTNElementArray = document.getElementsByClassName('BTNViolinPlots');
+  for(let i = 0, len = BTNElementArray.length || 0; i < len; i = i+1){
+    BTNElementArray[0].remove();
+  }
+}
+
 // Function to remove the tooltip div elements if they exist:
 removeTooltipElements = function () {
   let collection = document.getElementsByClassName("tooltip");
@@ -55,6 +72,15 @@ removeTooltipElements = function () {
     collection[0].remove();
   }
 };
+
+removeHeatmapsAndViolins = function(){
+  let heatmapDiv = document.getElementById("heatmapRef");
+  heatmapDiv.innerHTML = "";
+  let violinDiv = document.getElementById("violinPlotRef");
+  violinDiv.innerHTML = "";
+};
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,17 +126,22 @@ function setExampleVars() {
 
 let buildPlots = async function () {
   // Reset page formatting:
-  document.getElementById("heatmapDiv0").innerHTML = "";
-  document.getElementById("svgViolinDiv0").innerHTML = "";
+  if(document.getElementById("violinDiv0") != null)
+    document.getElementById("violinDiv0").outerHTML = "";
+
+  let heatDiv = addDivInside("heatmapDiv0", "heatmapRef");
+  var violinDiv = addDivInside("violinDiv0", "violinPlotRef");
+  violinDiv.setAttribute('align', 'center');
 
   // Remove existing div and svg elements if they're there:
-  removeDiv();
-  removeSVGelements();
-  removeTooltipElements();
+  // removeDiv();
+  // removeSVGelements();
+  // removeTooltipElements();
+  // removeViolinButtons();
 
   // Display loader:
   document.getElementById("heatmapDiv0").className = "loader"; // Create the loader.
-  document.getElementById("svgViolinDiv0").className = "loader"; // Create the loader.
+  document.getElementById("violinDiv0").className = "loader"; // Create the loader.
 
   let cohortQuery = $(".cancerTypeMultipleSelection")
     .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
@@ -154,13 +185,44 @@ let buildPlots = async function () {
     );
   }
 
+  localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
+
   expressionData = expressionData.filter(el => el.sample_type === "TP") // quick fix. queried data includes normal samples ("NT"), this needs to be fixed in "getExpressionDataFromIntersectedBarcodes"
   //Add expression data as a field in localStorage
   localStorage.setItem("expressionData", JSON.stringify(expressionData));
 
+  //Remove the 'violinPlots' div should it exist
+  if(document.getElementById("violinPlots") != null)
+    document.getElementById("violinPlots").outerHTML = "";
+  //Create checkbox to toggle between gene vs. cohort for violin plots
+  var toggleSwitch = "<label class='switch'>" + 
+  "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
+  "<input type='checkbox' id= 'toggleSwitch'>" +
+  "<span class='slider round'></span>" +
+  "</label>";
+  //Append toggle switch to the top of violin plots section
+  document.getElementById("violinDiv0").innerHTML = "";
+  document.getElementById("violinDiv0").innerHTML += (toggleSwitch);
+  addDiv("violinPlots", "violinDiv0");
+
+  //Checkbox for toggling between gene vs. cohort for violin plots
+  toggleSwitch = document.getElementById('toggleSwitch')
+  toggleSwitch.addEventListener('change', function(e){
+    var violinsDiv = document.getElementById("violinPlots");
+    violinsDiv.innerHTML = "";
+    
+    //Call buildViolinPlot with a different parameter based on the status of the toggle switch
+    if(toggleSwitch.checked){
+      buildViolinPlot(expressionQuery, expressionData, 'gene');
+    }else{
+      buildViolinPlot(cohortQuery, expressionData, 'cohort');
+    }
+
+  });
+
   buildDownloadData(cohortQuery, expressionQuery, clinicalQuery, expressionData, clinicalData);
   buildHeatmap(expressionData, clinicalData);
-  buildViolinPlot(cohortQuery, expressionData);
+  buildViolinPlot(cohortQuery, expressionData, 'cohort');
 };
 
 buildHeatmap = async function (expData, clinData) {
@@ -174,52 +236,42 @@ buildHeatmap = async function (expData, clinData) {
   createHeatmap(expData, clinData, divHeatMap);
 };
 
-buildViolinPlot = async function (cohortQuery, data) {
+buildViolinPlot = async function(cohortORGeneQuery, data, independantVarType){
   // Remove the loader
-  document.getElementById("svgViolinDiv0").classList.remove("loader");
+  document.getElementById('violinDiv0').classList.remove('loader');            
+  //Clear HTML content ov violinPlots div
+  var violinsDiv = document.getElementById("violinPlots");
+  violinsDiv.innerHTML = "";
+
 
   // Set up the figure dimensions:
-  let margin = { top: 80, right: 30, bottom: 30, left: 60 },
-    width = 1250 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-  // Appending multiple g elements to svg object for violin plot
-  let myCohorts = d3
-    .map(data, function (d) {
-      return d.cohort;
-    })
-    .keys();
+  let margin = {top: 80, right: 30, bottom: 30, left: 60},
+  width = 1250 - margin.left - margin.right,
+  height = 500 - margin.top - margin.bottom;
+  
 
   // Define the number of cohorts to create a plot for
-  let numCohorts = myCohorts.length;
+  let numOfIndependantVars = cohortORGeneQuery.length;
 
   // Spacing between plots
   let ySpacing = margin.top;
 
   // Append an svg object for each cohort to create a violin plot for
-  for (var index = 0; index < numCohorts; index++) {
-    // Define the current cohort to create the violin plot for
-    let curCohort = myCohorts[index];
+  for (var index = 0; index < numOfIndependantVars; index++) {
+    // Define the current cohort to create the violin plot for and create a new div for each cohort
+    let curCohort = cohortORGeneQuery[index];
+    addDivInside(`violinPlot${index}`, 'violinPlots');
 
-    let svgViolinPlot = d3
-      .select("#violinPlotRef")
-      .append("svg")
-      .attr("viewBox", `0 0 1250 500`) // This line makes the svg responsive
-      .attr("id", `svgViolinPlot${index}`)
-      .append("g")
-      .attr(
-        "transform",
-        "translate(" +
-        (margin.left - 20) +
-        "," +
-        (margin.top + ySpacing * index * 0.25) +
-        ")"
-      );
+    //Create partition selector
+    createViolinPartitionBox(`violinPlot${index}`, curCohort);
+    
+    addDivInside(`svgViolin${index}`, `violinPlot${index}`);
 
-    // Create the violin plot:
-    createViolinPlot("cohort", cohortQuery, data, svgViolinPlot, curCohort);
+    var violinDiv = document.getElementById(`violinPlot${index}`);
+
+    createViolinPlot(independantVarType, data, violinDiv, curCohort, []);
   }
-};
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
