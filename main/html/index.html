@@ -35,8 +35,10 @@
 
     <!-- Select2 Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
-    <link rel="stylesheet" 
-      href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css"
+    />
 
     <!-- lodash Library for pagination -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
@@ -159,6 +161,15 @@
       Set up the user input text fields
       -->
         <script>
+          $(document).ready(function () {
+            //For Pathways Select2 Drop down:
+            $(".pathwayMultipleSelection").select2({
+              placeholder: "Pathway(s)",
+            });
+
+            fillPathwaySelectBox();
+          });
+
           // Get the list of valid genes users can search for:
           validGeneListFetch = getValidGeneList();
           validGeneListFetch.then(function (validGeneList) {
@@ -172,37 +183,47 @@
               fillCancerTypeSelectBox();
 
               // Map the array of geneList with attributes of id, text, and value
-              var geneListArray = _.map(_.range(0, validGeneList.length), function(i) {
-                return {
-                  id: validGeneList[i],
-                  text: validGeneList[i],
-                  value: validGeneList[i],
-                };
-              });
+              var geneListArray = _.map(
+                _.range(0, validGeneList.length),
+                function (i) {
+                  return {
+                    id: validGeneList[i],
+                    text: validGeneList[i],
+                    value: validGeneList[i],
+                  };
+                }
+              );
 
               // For Gene Select2 Dropdown:
               var fillGeneSelectBoxes = (geneSelectionBox) => {
-                $(geneSelectionBox).select2({                
+                $(geneSelectionBox).select2({
                   data: geneListArray,
                   multiple: true,
                   placeholder: "Gene(s)",
                   // creating query with pagination functionality.
                   query: function (data) {
                     var pageSize,
-                            dataset,
-                            thatQuery = this;
+                      dataset,
+                      thatQuery = this;
                     pageSize = 5; // Number of the option loads at a time
                     results = [];
-                    if (data.term && data.term !== '') {
+                    if (data.term && data.term !== "") {
                       // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
                       results = _.filter(thatQuery.data, function (e) {
-                        return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
+                        return (
+                          e.text
+                            .toUpperCase()
+                            .indexOf(data.term.toUpperCase()) >= 0
+                        );
                       });
                     } else {
                       results = thatQuery.data;
                     }
                     data.callback({
-                      results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
+                      results: results.slice(
+                        (data.page - 1) * pageSize,
+                        data.page * pageSize
+                      ),
                       more: results.length >= data.page * pageSize,
                     });
                   },
@@ -243,20 +264,19 @@
 
           <div id="geneOneQuerySelectBox" class="col s6">
             <input
-              style="width:80%"
+              style="width: 80%"
               class="geneOneMultipleSelection"
               name="selectedMutations[]"
               multiple="multiple"
               id="geneOneMultipleSelection"
               onchange="buildDataExplorePlots(allClinicalData), saveInLocalStorage()"
             />
-              <!-- Filled by fillSelectBoxes.js -->
-            
+            <!-- Filled by fillSelectBoxes.js -->
           </div>
 
           <div id="clinicalQuerySelectBox" class="col s6">
             <select
-              style="width:80%"
+              style="width: 80%"
               class="clinicalMultipleSelection"
               name="selectedClinicals[]"
               multiple="multiple"
@@ -285,7 +305,7 @@
         </div>
 
         <div id="numIntersectedBarcodesDiv"></div>
-        <br>
+        <br />
         <div>
           <h5
             style="
@@ -299,21 +319,35 @@
           <br />
         </div>
 
-        <div>
+        <div class="row">
           <p style="text-align: center">
             <b>3) Select genes that you would like to visualize</b>
           </p>
-          <div id="geneTwoQuerySelectBox">
+          <div id="geneTwoQuerySelectBox" class="col s6">
             <input
-              style="width:80%"
+              style="width: 80%"
               class="geneTwoMultipleSelection"
               name="genes[]"
               multiple="multiple"
               id="geneTwoMultipleSelection"
               onchange="saveInLocalStorage()"
             />
-              <!-- Filled by fillSelectBoxes.js -->
-            
+            <!-- Filled by fillSelectBoxes.js -->
+          </div>
+
+          <div>
+            <div id="pathwaySelectBox" class="col s6">
+              <select
+                style="width: 80%"
+                class="pathwayMultipleSelection"
+                name="pathways[]"
+                multiple="multiple"
+                id="pathwayMultipleSelection"
+                onchange="getGenesByPathway()"
+              >
+                <!-- Filled by fillSelectBoxes.js -->
+              </select>
+            </div>
           </div>
         </div>
 
@@ -333,11 +367,14 @@
           </button>
         </div>
 
-         <!--
+        <!--
       Space for download data buttons.
       -->
-      <div className="downloadDataButtons" id="downloadDataButtons" align="center">
-      </div>
+        <div
+          className="downloadDataButtons"
+          id="downloadDataButtons"
+          align="center"
+        ></div>
 
         <!--
         Setting up the tabs.
@@ -357,7 +394,11 @@
               Setting up the plots to go under each tab.
             -->
             <div id="heatmapRef" class="col s12">
-              <div id="heatmapDiv0" style="margin-top: 25px" align="center"></div>
+              <div
+                id="heatmapDiv0"
+                style="margin-top: 25px"
+                align="center"
+              ></div>
             </div>
             <div id="violinPlotRef" class="col s12">
               <div
