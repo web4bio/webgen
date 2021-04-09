@@ -350,12 +350,14 @@ let displayNumberBarcodesAtIntersection = async function () {
       'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
     );
 
-    let string = intersectedBarcodes.length + ""
+    if(intersectedBarcodes) {
+        let string = intersectedBarcodes.length + ""
 
-    para.setAttribute("id", "numAtIntersectionText");
-    para.innerText = "Number of samples with expression data in defined cohort: " + string;
+        para.setAttribute("id", "numAtIntersectionText");
+        para.innerText = "Number of samples with expression data in defined cohort: " + string;
 
-    let blah = document.getElementById("numIntersectedBarcodesDiv")
-    blah.appendChild(para);
+        let blah = document.getElementById("numIntersectedBarcodesDiv")
+        blah.appendChild(para);
+    }
 
 };
