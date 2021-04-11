@@ -269,25 +269,48 @@ let fetchClinicalData = async function () {
 let allClinicalData;
 
 let fillClinicalSelectBox = async function () {
+
+  document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
+
   let dataFetched = await fetchClinicalData();
   allClinicalData = dataFetched.Clinical_FH;
 
-  let selectBox = document.getElementById("clinicalMultipleSelection");
+  // ------------------------------------------------------------------------------------------------------------------------
 
-  // only populate dropdown options if they have not already been populated
-  if (
-    !$("#clinicalMultipleSelection").find("option[value='" + "cohort" + "']")
-      .length
-  ) {
-    let clinicalKeys = Object.keys(allClinicalData[0]);
-    for (let i = 0; i < clinicalKeys.length; i++) {
-      let currentOption = document.createElement("option");
-      currentOption.value = clinicalKeys[i];
-      currentOption.text = clinicalKeys[i];
-      currentOption.id = clinicalKeys[i];
-      selectBox.appendChild(currentOption);
-    }
+  // if more than one cancer type is selected, the intersection of available clinical features between the two cancer types
+  // is populated as options in the dropdown for clinical features
+
+  let myCohort = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  let clinicalKeys = [];
+  for(i = 0; i < myCohort.length; i++)
+    for(j = 0; j < allClinicalData.length; j++)
+      if(allClinicalData[j].cohort == myCohort[i]) {
+        clinicalKeys.push(Object.keys(allClinicalData[j]));
+        break;
+      }
+  
+  let intersectedFeatures;
+  if(clinicalKeys.length > 1)
+    for(let i = 0; i < clinicalKeys.length - 1; i++) {
+      let currentFeatures = clinicalKeys[i];
+      let nextFeatures = clinicalKeys[i + 1];
+      intersectedFeatures = currentFeatures.filter(x => nextFeatures.includes(x));
+    } 
+  else
+    intersectedFeatures = clinicalKeys[0];
+
+  $('#clinicalMultipleSelection').val(null).trigger('change'); // clear any preexisting selections
+  $('#clinicalMultipleSelection').empty(); // clear any preexisting options in dropdown
+  let selectBox = document.getElementById("clinicalMultipleSelection");
+  for (let i = 1; i < intersectedFeatures.length; i++) {
+    let currentOption = document.createElement("option");
+    currentOption.value = intersectedFeatures[i];
+    currentOption.text = intersectedFeatures[i];
+    currentOption.id = intersectedFeatures[i];
+    selectBox.appendChild(currentOption);
   }
+
+  // ------------------------------------------------------------------------------------------------------------------------
 
   let clinicalSelectedOptions = localStorage
     .getItem("clinicalSelectedOptions")
