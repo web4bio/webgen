@@ -205,6 +205,8 @@ let buildDataExplorePlots = async function() {
             var histo_data = [{
                 x: uniqueValuesForCurrentFeature,
                 y: xCounts,
+                hovertemplate: '<b>Number of samples:</b> %{y}<br>'+
+                               '<extra></extra>',
                 type: 'histogram'
             }];
             
