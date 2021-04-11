@@ -241,6 +241,7 @@ let buildDataExplorePlots = async function() {
             };
 
             var histo_layout = {
+                bargap: 0.05,
                 height: 400,
                 width: 500,
                 title: currentFeature + "",
