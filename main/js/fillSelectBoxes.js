@@ -42,11 +42,10 @@ let fillCancerTypeSelectBox = async function () {
     .getItem("cancerTypeSelectedOptions") || null
   if (cancerTypeSelectedOptions) {
     cancerTypeSelectedOptions = cancerTypeSelectedOptions.split(",");
+    $(".cancerTypeMultipleSelection").val(cancerTypeSelectedOptions);
+    $(".cancerTypeMultipleSelection").trigger('change');
   }
 
-  if (cancerTypeSelectedOptions) {
-    $(".cancerTypeMultipleSelection").val(cancerTypeSelectedOptions);
-  }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
