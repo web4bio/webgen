@@ -129,7 +129,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
   
   // Get intersection of barcodes from selected pie sectors
-  console.log(concatFilteredBarcodes)
+  // console.log(concatFilteredBarcodes)
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
   let intersectedBarcodes;
 

@@ -42,7 +42,7 @@ let colorOutOfSpace = {
         let oldArrayCopy = [...oldArray]
         const oldDict = colorOutOfSpace.yellowAt[keyName]['Key']
         const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
-        console.log({...newDict})
+        // console.log({...newDict})
         const newKeys = Object.keys(newDict) // perhaps this should be oldDict
         for (let i = 0; i < newKeys.length; i++) {
             const num = oldDict[newKeys[i]]
@@ -56,7 +56,7 @@ let colorOutOfSpace = {
             'YellowAt': [...oldArrayCopy],
             'Key': {...newDict}
         }
-        console.log({...colorOutOfSpace.yellowAt})
+        // console.log({...colorOutOfSpace.yellowAt})
     },
     updateYellowAt: (keyName, sliceToChange) => {
         const geneDict = colorOutOfSpace.yellowAt[keyName]
@@ -75,17 +75,6 @@ let colorOutOfSpace = {
 
 let buildDataExplorePlots = async function() {
 
-    // get total number of barcodes for selected cancer type(s)
-    let dataFetched = await fetchNumberSamples();
-    let countQuery = dataFetched.Counts;
-    let totalNumberBarcodes = 0;
-    for(let i = 0; i < countQuery.length; i++) {
-        totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
-
-    function onlyUnique(value, index, self) {
-        return self.indexOf(value) === index;
-    }
-
     let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     mySelectedClinicalFeatures = mySelectedClinicalFeatures.concat(mySelectedClinicalFeatures2)
@@ -99,6 +88,18 @@ let buildDataExplorePlots = async function() {
 
         // clear all previous plots that were displayed
         document.getElementById('dataexploration').innerHTML = "";
+
+        // get total number of barcodes for selected cancer type(s)
+        let dataFetched = await fetchNumberSamples();
+        let countQuery = dataFetched.Counts;
+        let totalNumberBarcodes = 0;
+        for(let i = 0; i < countQuery.length; i++) {
+            totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
+
+        function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+        }
+
         // loop through each selected clinical feature
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
@@ -165,12 +166,11 @@ let buildDataExplorePlots = async function() {
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
 
                 var numbers = /^[0-9/.]+$/;
-                var continuousMap = allClinicalData.map(x => x[currentFeature].match(numbers));
-                var nullCount = continuousMap.filter(x => x == null).length;
-                var totalCount = continuousMap.length;
-                var percentContinuous = nullCount / totalCount;
-                console.log(percentContinuous);
-                if(percentContinuous < 0.75)
+                var firstElement = (allClinicalData[0][currentFeature]).match(numbers);
+                var secondElement = (allClinicalData[1][currentFeature]).match(numbers);
+                // console.log(firstElement);
+                // console.log(secondElement);
+                if(firstElement != null || secondElement != null)
                     continuous = true;
                 else
                     continuous = false;
@@ -179,7 +179,7 @@ let buildDataExplorePlots = async function() {
                 xCounts.length = uniqueValuesForCurrentFeature.length;
                 for(let i = 0; i < xCounts.length; i++)
                     xCounts[i] = 0;
-                console.log(allClinicalData[0][currentFeature]) // i.e., ~first~ patient's ethnicity
+                // console.log(allClinicalData[0][currentFeature]) // i.e., ~first~ patient's ethnicity
                 for(let i = 0; i < allClinicalData.length; i++) 
                     for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++) 
                         if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
@@ -350,12 +350,14 @@ let displayNumberBarcodesAtIntersection = async function () {
       'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
     );
 
-    let string = intersectedBarcodes.length + ""
+    if(intersectedBarcodes) {
+        let string = intersectedBarcodes.length + ""
 
-    para.setAttribute("id", "numAtIntersectionText");
-    para.innerText = "Number of samples with expression data in defined cohort: " + string;
+        para.setAttribute("id", "numAtIntersectionText");
+        para.innerText = "Number of samples with expression data in defined cohort: " + string;
 
-    let blah = document.getElementById("numIntersectedBarcodesDiv")
-    blah.appendChild(para);
+        let blah = document.getElementById("numIntersectedBarcodesDiv")
+        blah.appendChild(para);
+    }
 
 };
