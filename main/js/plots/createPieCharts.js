@@ -247,14 +247,7 @@ let buildDataExplorePlots = async function() {
                 height: 400,
                 width: 500,
                 title: currentFeature + "",
-                showlegend: true,
-                legend: {
-                    font: {
-                        size: 14
-                    },
-                    itemwidth: 40,
-                    orientation: "v"
-                },
+                showlegend: false,
                 xaxis: {
                     rangeselector: {},
                     rangeslider: {}
