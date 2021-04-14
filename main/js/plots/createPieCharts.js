@@ -11,65 +11,76 @@ let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
 let colorOutOfSpace = {
-    yellowAt: {},
-    createColorArray: (keyName) => {
-        let yellowArray = colorOutOfSpace.yellowAt[keyName]['YellowAt'] || []
-        return sliceColors.map((color, index) => {
-            if (yellowArray.includes(index))
-                return '#FFF34B'
-            else
-                return color 
-        })
-    },
-    createSliceKey: (listOfSlices) => {
-        return listOfSlices.reduce((obj, ele, index) => {
-            return {...obj, [ele]: index}
-            }, {}
-        )
-    },
-    createGlobalColorDict: (keyName, listOfSlices) => {
-      colorOutOfSpace.yellowAt = {
-          ...colorOutOfSpace.yellowAt, 
-          [keyName]: {
-              'YellowAt': [],
-              'Key': colorOutOfSpace.createSliceKey(listOfSlices),
-          },
-      }
-    },
-    updateGlobalColorDict: (newListOfSlices, keyName) => {
-        let oldArray = colorOutOfSpace.yellowAt[keyName]['YellowAt']
-        let oldArrayCopy = [...oldArray]
-        const oldDict = colorOutOfSpace.yellowAt[keyName]['Key']
-        const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
-        // console.log({...newDict})
-        const newKeys = Object.keys(newDict) // perhaps this should be oldDict
-        for (let i = 0; i < newKeys.length; i++) {
-            const num = oldDict[newKeys[i]]
-            const index = oldArray.indexOf(num)
-            if (index !== -1) {
-                oldArrayCopy[index] = newDict[newKeys[i]]
-            }
-        }
-
-        colorOutOfSpace.yellowAt[keyName] = {
-            'YellowAt': [...oldArrayCopy],
-            'Key': {...newDict}
-        }
-        // console.log({...colorOutOfSpace.yellowAt})
-    },
-    updateYellowAt: (keyName, sliceToChange) => {
-        const geneDict = colorOutOfSpace.yellowAt[keyName]
-        const key = geneDict['Key']
-        const yellowArray = geneDict['YellowAt']
-        const newNumber = key[sliceToChange]
-        if (yellowArray.includes(newNumber)) {
-            let newA = yellowArray.filter((ele) => ele !== newNumber)
-            colorOutOfSpace.yellowAt[keyName]['YellowAt'] = newA
-        } else {
-            let newA = yellowArray.concat(newNumber).sort()
-            colorOutOfSpace.yellowAt[keyName]['YellowAt'] = newA
-        }
+  yellowAt: {},
+  createColorArray: (keyName) => {
+      let yellowArray = colorOutOfSpace.yellowAt[keyName]['YellowAt'] || []
+      return sliceColors.map((color, index) => {
+          if (yellowArray.includes(index))
+              return '#FFF34B'
+          else
+              return color 
+      })
+  },
+  createSliceKey: (listOfSlices) => {
+      return listOfSlices.reduce((obj, ele, index) => {
+          return {...obj, [ele]: index}
+          }, {}
+      )
+  },
+  createGlobalColorDict: (keyName, listOfSlices) => {
+    colorOutOfSpace.yellowAt = {
+        ...colorOutOfSpace.yellowAt, 
+        [keyName]: {
+            'YellowAt': [],
+            'Key': colorOutOfSpace.createSliceKey(listOfSlices),
+        },
     }
+  },
+  updateGlobalColorDict: (newListOfSlices, keyName) => {
+      let oldArray = colorOutOfSpace.yellowAt[keyName]['YellowAt']
+      let oldArrayCopy = [...oldArray]
+      const oldDict = colorOutOfSpace.yellowAt[keyName]['Key']
+      const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
+      // console.log({...newDict})
+      const newKeys = Object.keys(newDict)
+      
+      // scenario occurs when newKeys has less keys than oldKeys
+      const oldKeys = Object.keys(oldDict)
+      if (newKeys.length < oldKeys.length) {
+          for (let i = 0; i < oldKeys.length; i++) {
+              if (newDict[oldKeys[i]] === undefined) { // oldKey does not exist in the new Dict
+                  oldArrayCopy[oldArray.indexOf(oldDict[oldKeys[i]])] = 'X'
+                  // replace it with a placeholder val, do not want to change the position of the elements                    
+              } 
+          }
+      }
+
+      for (let i = 0; i < newKeys.length; i++) {
+          const num = oldDict[newKeys[i]]
+          const index = oldArray.indexOf(num)
+          if (index !== -1) {
+              oldArrayCopy[index] = newDict[newKeys[i]]
+          }
+      }
+
+      colorOutOfSpace.yellowAt[keyName] = {
+          'YellowAt': oldArrayCopy.filter(ele => ele !== 'X'),
+          'Key': {...newDict}
+      }
+      // console.log({...colorOutOfSpace.yellowAt})
+  },
+  updateYellowAt: (keyName, sliceToChange) => {
+      const geneDict = colorOutOfSpace.yellowAt[keyName]
+      const key = geneDict['Key']
+      const yellowArray = geneDict['YellowAt']
+      const newNumber = key[sliceToChange]
+      if (yellowArray.includes(newNumber)) {
+          var newA = yellowArray.filter((ele) => ele !== newNumber)
+      } else {
+          var newA = yellowArray.concat(newNumber).sort()
+      }
+      colorOutOfSpace.yellowAt[keyName]['YellowAt'] = newA
+  }
 }
 
 let buildDataExplorePlots = async function() {
@@ -303,19 +314,17 @@ let buildDataExplorePlots = async function() {
                     if(selectedData[currentFeature].findIndex(element => element == slice) != -1){
                         colore[pts] = sliceColors[pts];
                         selectedData[currentFeature].pop(slice);
-                        colorOutOfSpace.updateYellowAt(currentFeature, slice) // removes it
                     }
                     else {
                         selectedData[currentFeature].push(slice);
-                        colorOutOfSpace.updateYellowAt(currentFeature, slice) // adds it
                         colore[pts] = '#FFF34B';
                     }
                 }
                 else {
                     selectedData[currentFeature] = [slice];
                     colore[pts] = '#FFF34B';
-                    colorOutOfSpace.updateYellowAt(currentFeature, slice)
                 }
+                colorOutOfSpace.updateYellowAt(currentFeature, slice)
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
