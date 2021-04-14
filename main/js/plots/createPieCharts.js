@@ -9,7 +9,6 @@ let selectedData = [];
 let selectedRange = [];
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
-let continuous = false;
 
 let colorOutOfSpace = {
     yellowAt: {},
@@ -103,6 +102,7 @@ let buildDataExplorePlots = async function() {
         // loop through each selected clinical feature
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
+            let continuous = false;
             let currentFeature = mySelectedClinicalFeatures[i];
             let allValuesForCurrentFeature = []; 
             let mutationsForThisGene;
@@ -165,15 +165,17 @@ let buildDataExplorePlots = async function() {
                 for(let i = 0; i < allClinicalData.length; i++) 
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
 
-                var numbers = /^[0-9/.]+$/;
-                var firstElement = (allClinicalData[0][currentFeature]).match(numbers);
-                var secondElement = (allClinicalData[1][currentFeature]).match(numbers);
-                // console.log(firstElement);
-                // console.log(secondElement);
-                if(firstElement != null || secondElement != null)
-                    continuous = true;
-                else
-                    continuous = false;
+                let checkIfClinicalFeatureArrayIsNumeric = async function() {
+                    var numbers = /^[0-9/.]+$/;
+                    var firstElement = (allClinicalData[0][currentFeature]).match(numbers);
+                    var secondElement = (allClinicalData[1][currentFeature]).match(numbers);
+                    // console.log(firstElement);
+                    // console.log(secondElement);
+                    if(firstElement != null || secondElement != null)
+                        continuous = true;
+                }
+
+                await checkIfClinicalFeatureArrayIsNumeric();
 
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
                 xCounts.length = uniqueValuesForCurrentFeature.length;
@@ -247,14 +249,7 @@ let buildDataExplorePlots = async function() {
                 height: 400,
                 width: 500,
                 title: currentFeature + "",
-                showlegend: true,
-                legend: {
-                    font: {
-                        size: 14
-                    },
-                    itemwidth: 40,
-                    orientation: "v"
-                },
+                showlegend: false,
                 xaxis: {
                     rangeselector: {},
                     rangeslider: {}
@@ -279,12 +274,12 @@ let buildDataExplorePlots = async function() {
                 Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
             }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////// On-click event for pie charts below ///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////  
-          
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+            //////////////////////// On-click event for pie charts below ///////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////  
+                    
             document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
                 //checks if continuous data range has been added yet
                 if(selectedRange.findIndex(element => element == currentFeature) == -1){
