@@ -17,7 +17,7 @@ let colorOutOfSpace = {
     buildColorCodeKeyGene: (arrayOfPieSlices) => {
         arrayOfPieSlices.forEach((ele) => {
             if (colorOutOfSpace.colorCodeKey[ele] === undefined) {
-                colorOutOfSpace.colorCodeKey[ele] = sliceColors[colorOutOfSpace.dictLength]
+                colorOutOfSpace.colorCodeKey[ele] = sliceColors[colorOutOfSpace.dictLength % 10]
                 colorOutOfSpace.dictLength = colorOutOfSpace.dictLength + 1  
             }
         })
