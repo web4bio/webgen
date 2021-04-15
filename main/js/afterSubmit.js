@@ -230,15 +230,17 @@ buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) {
     violinsDiv.innerHTML = "";
 
     // Set up the figure dimensions:
+    /*
     let margin = { top: 80, right: 30, bottom: 30, left: 60 },
         width = 1250 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
+    */
 
     // Define the number of cohorts to create a plot for
     let numOfIndependantVars = cohortORGeneQuery.length;
 
     // Spacing between plots
-    let ySpacing = margin.top;
+    //let ySpacing = margin.top;
 
     // Append an svg object for each cohort to create a violin plot for
     for (var index = 0; index < numOfIndependantVars; index++) {
