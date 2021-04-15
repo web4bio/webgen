@@ -498,17 +498,16 @@ function standardDeviation(mean, values)
 }
 
 //
-let createViolinPartitionBox = async function(violinDivId, curPlot)
+let createViolinPartitionBox = async function(violinsDivId, cohortORGeneQuery)
 {
-    var partitionDivId = "violinPartition" + violinDivId[violinDivId.length - 1]
-    addDivInside(partitionDivId, violinDivId);
+    var partitionDivId = "violinPartition";
     var div_box = d3.select('#'+partitionDivId);
     div_box.append('text')
         .style("font-size", "20px")
         .text('Select variables to partition violin curves by:');
     div_box.append('div')
         .attr('class','viewport')
-        .attr("id", "partitionSelectViolinPlot" + violinDivId[violinDivId.length-1])
+        .attr("id", "partitionSelectViolinPlot")
         .style('overflow-y', 'scroll')
         .style('height', '90px')
         .style('width', '500px')
@@ -553,7 +552,7 @@ let createViolinPartitionBox = async function(violinDivId, curPlot)
     }
     
     // data to input = clinical vars from query
-    let clinicalVars = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
+    let clinicalVars = localStorage.getItem("clinicalFeatureKeys").split(",");
     let var_opts = clinicalVars;
 
     // make a checkbox for each option
@@ -561,7 +560,7 @@ let createViolinPartitionBox = async function(violinDivId, curPlot)
     update();
 
     var choices = [];
-    d3.select('#'+violinDivId).selectAll(".myCheckbox").each(function(d)
+    d3.select('#'+violinsDivId).selectAll(".myCheckbox").each(function(d)
     {
         let cb = d3.select(this);
         if(cb.property('checked')){ choices.push(cb.property('value')); };
@@ -572,18 +571,16 @@ let createViolinPartitionBox = async function(violinDivId, curPlot)
         .text("Rebuild Violin Plot")
         .attr("class", "col s3 btn waves-effect waves-light")
         .attr("id", "submitButton")
-        .attr("onclick", "rebuildViolinPlot('" + violinDivId + "', '" + curPlot + "')");
-                //"', 'partitionSelectViolinPlot" + violinDivId[violinDivId.length-1] + "')");
-
+        .attr("onclick", "rebuildViolinPlot('" + violinsDivId + "', '" + cohortORGeneQuery + "')");
    
     return choices;
 };
 
 //Returns array of the selection clinical features in the partition box corresponding to violinDivId
-let getPartitionBoxSelections = function(violinDivId)
+let getPartitionBoxSelections = function(violinsDivId)
 {
     var selectedOptions = [];
-    d3.select('#'+violinDivId).selectAll(".myCheckbox").each(function(d)
+    d3.select('#'+violinsDivId).selectAll(".myCheckbox").each(function(d)
     {
         let cb = d3.select(this);
         if(cb.property('checked')){ selectedOptions.push(cb.property('value')); };
@@ -592,22 +589,24 @@ let getPartitionBoxSelections = function(violinDivId)
 }
 
 //Rebuilds the violin plot associated with violinDivId
-let rebuildViolinPlot = function(violinDivId, curPlot) {
-    var selectedOptions = getPartitionBoxSelections(violinDivId);
-    var svgDivId = "svgViolin" + violinDivId[violinDivId.length - 1];
-    
-    var svgDiv = document.getElementById(svgDivId);
-    svgDiv.innerHTML = "";
-    //document.getElementById("violinPartition" + violinDivId[violinDivId.length - 1]).outerHTML;
-    
+let rebuildViolinPlot = function(violinsDivId, cohortORGeneQuery) {
+    var selectedOptions = getPartitionBoxSelections(violinsDivId);
     var toggleSwitch = document.getElementById('toggleSwitch');
     var toggleVal = "cohort";
     if(toggleSwitch.checked)
         toggleVal = "gene";
     else
         toggleVal = "cohort";
-    createViolinPlot(toggleVal, JSON.parse(localStorage.getItem("expressionData")), 
-                        document.getElementById(violinDivId), curPlot, selectedOptions);
+
+    for(var index = 0; index < cohortORGeneQuery.length; index++) {
+        var svgDivId = "svgViolin" + index;
+        var svgDiv = document.getElementById(svgDivId);
+        svgDiv.innerHTML = "";
+        var violinDivId = "violinPlot" + index;
+        createViolinPlot(toggleVal, JSON.parse(localStorage.getItem("expressionData")), 
+                        document.getElementById(violinDivId), cohortORGeneQuery[index], selectedOptions);
+    }
+    //document.getElementById("violinPartition" + violinDivId[violinDivId.length - 1]).outerHTML;
 };
 
 //Helper function to acquire the index of a patient's clinical data based on their tcga_participant_barcode
