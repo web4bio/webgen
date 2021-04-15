@@ -48,8 +48,8 @@ fetchExpressionData_cg = async function(cohortQuery, geneQuery) {
 
     // Monitor the performance of the fetch:
     var fetchTime = performance.now() - fetchStart;
-    console.info("Performance of fetch: ");
-    console.info(fetchTime);
+    // console.info("Performance of fetch: ");
+    // console.info(fetchTime);
 
     // Check if the fetch worked properly:
     if (fetchedExpressionData == '')
