@@ -171,7 +171,7 @@ let buildDataExplorePlots = async function() {
                     var secondElement = (allClinicalData[1][currentFeature]).match(numbers);
                     // console.log(firstElement);
                     // console.log(secondElement);
-                    if(firstElement != null || secondElement != null)
+                    if((firstElement != null || secondElement != null) & (currentFeature != 'vital_status'))
                         continuous = true;
                 }
 
