@@ -121,10 +121,17 @@ let buildPlots = async function () {
   let expressionQuery = $(".geneTwoMultipleSelection")
     .select2("data").map((gene) => gene.text);
 
-  let temp = await getGenesByPathway();
-  console.log(temp);
-  if(temp.length > 0)
-    expressionQuery = expressionQuery.concat(temp[0].genes);
+  let genesFromPathways = await getGenesByPathway();
+  if(genesFromPathways.length > 0) {
+    for(let i = 0; i < genesFromPathways.length; i++) {
+      expressionQuery = expressionQuery.concat(genesFromPathways[i].genes);
+    }
+    let removedDuplicates = [];
+    $.each(expressionQuery, function(i, element){
+      if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
+    });
+    expressionQuery = removedDuplicates;
+  }
     
 
   // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)

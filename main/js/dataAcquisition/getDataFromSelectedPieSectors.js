@@ -162,9 +162,17 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
   if(intersectedBarcodes === undefined) {
     let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
 
-    let temp = await getGenesByPathway();
-    if(temp.length > 0)
-      geneTwoQuery = geneTwoQuery.concat(temp[0].genes);
+    let genesFromPathways = await getGenesByPathway();
+    if(genesFromPathways.length > 0) {
+      for(let i = 0; i < genesFromPathways.length; i++) {
+        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
+      }
+      let removedDuplicates = [];
+      $.each(geneTwoQuery, function(i, element){
+        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
+      });
+      geneTwoQuery = removedDuplicates;
+    }
 
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
     let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, allBarcodes)).mRNASeq
@@ -196,9 +204,18 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     // contained in intersectedBarcodes
     
     let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
-    let temp = await getGenesByPathway();
-    if(temp.length > 0)
-    geneTwoQuery = geneTwoQuery.concat(temp[0].genes);
+
+    let genesFromPathways = await getGenesByPathway();
+    if(genesFromPathways.length > 0) {
+      for(let i = 0; i < genesFromPathways.length; i++) {
+        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
+      }
+      let removedDuplicates = [];
+      $.each(geneTwoQuery, function(i, element){
+        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
+      });
+      geneTwoQuery = removedDuplicates;
+    }
 
     let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)).mRNASeq
     console.log(data);
