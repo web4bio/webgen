@@ -99,6 +99,10 @@ let buildDataExplorePlots = async function() {
             return self.indexOf(value) === index;
         }
 
+        // reset isSelected, so when a plot is deleted the clinicalType arr is updated
+        for(let j = 0; j < clinicalType.length; j++){
+            clinicalType[j].isSelected = false;
+        }
         // loop through each selected clinical feature
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
 
@@ -165,23 +169,18 @@ let buildDataExplorePlots = async function() {
                 for(let i = 0; i < allClinicalData.length; i++) 
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
 
-                let checkIfClinicalFeatureArrayIsNumeric = async function() {
-                    var numbers = /^[0-9/.]+$/;
-                    var firstElement = (allClinicalData[0][currentFeature]).match(numbers);
-                    var secondElement = (allClinicalData[1][currentFeature]).match(numbers);
-                    // console.log(firstElement);
-                    // console.log(secondElement);
-                    if((firstElement != null || secondElement != null) & (currentFeature != 'vital_status'))
-                        continuous = true;
-                }
-
-                await checkIfClinicalFeatureArrayIsNumeric();
+                var index = clinicalType.findIndex(p => p.name == currentFeature);
+                clinicalType[index].isSelected = true;
+                if(clinicalType[index].type === "continuous")
+                    continuous = true;
+                else
+                    continuous = false;
+                console.log(clinicalType);
 
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
                 xCounts.length = uniqueValuesForCurrentFeature.length;
                 for(let i = 0; i < xCounts.length; i++)
                     xCounts[i] = 0;
-                // console.log(allClinicalData[0][currentFeature]) // i.e., ~first~ patient's ethnicity
                 for(let i = 0; i < allClinicalData.length; i++) 
                     for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++) 
                         if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
@@ -193,7 +192,6 @@ let buildDataExplorePlots = async function() {
                 labels: uniqueValuesForCurrentFeature,
                 type: 'pie',
                 textinfo: "none",
-                // textposition: "inside",
                 marker: {
                     colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
                     '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
