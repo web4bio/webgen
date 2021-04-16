@@ -497,7 +497,7 @@ function standardDeviation(mean, values)
     return (Number)(Math.pow(sum/(values.length-1), 0.5));
 }
 
-//
+//Creates the partition selector for the violin plots
 let createViolinPartitionBox = async function(violinsDivId, cohortORGeneQuery)
 {
     var partitionDivId = "violinPartition";
@@ -597,7 +597,9 @@ let rebuildViolinPlot = function(violinsDivId, cohortORGeneQuery) {
         toggleVal = "gene";
     else
         toggleVal = "cohort";
-
+        
+    cohortORGeneQuery = cohortORGeneQuery.split(",");
+    console.log(typeof(cohortORGeneQuery));
     for(var index = 0; index < cohortORGeneQuery.length; index++) {
         var svgDivId = "svgViolin" + index;
         var svgDiv = document.getElementById(svgDivId);
@@ -606,7 +608,6 @@ let rebuildViolinPlot = function(violinsDivId, cohortORGeneQuery) {
         createViolinPlot(toggleVal, JSON.parse(localStorage.getItem("expressionData")), 
                         document.getElementById(violinDivId), cohortORGeneQuery[index], selectedOptions);
     }
-    //document.getElementById("violinPartition" + violinDivId[violinDivId.length - 1]).outerHTML;
 };
 
 //Helper function to acquire the index of a patient's clinical data based on their tcga_participant_barcode
