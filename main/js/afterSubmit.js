@@ -121,6 +121,12 @@ let buildPlots = async function () {
   let expressionQuery = $(".geneTwoMultipleSelection")
     .select2("data").map((gene) => gene.text);
 
+  let temp = await getGenesByPathway();
+  console.log(temp);
+  if(temp.length > 0)
+    expressionQuery = expressionQuery.concat(temp[0].genes);
+    
+
   // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
   let expressionData_1 = await getExpressionDataJSONarray_cg(
     cohortQuery,
