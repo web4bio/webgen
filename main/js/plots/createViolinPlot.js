@@ -26,9 +26,9 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
 
     // Set up the figure dimensions:
     //var margin = {top: 10, right: 30, bottom: 30, left: 40},
-    var margin = {top: 10, right: 30, bottom: 80, left: 40},
-        width = 1250 - margin.left - margin.right,
-        height = 440 - margin.top - margin.bottom;
+    var margin = {top: 10, right: 30, bottom: 10, left: 40},
+        width = 600 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -147,10 +147,10 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
     //create the svg element for the violin plot
     //let svgObject = d3.select(violinDiv).append("svg")
     let svgObject = d3.select("#" + svgDivId).append("svg")
-      .attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
+      //.attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
+      .attr("viewBox", `0 -35 1250 475`)  // This line makes the svg responsive
       .attr("id", svgID)
       .attr("indepVarType", indepVarType) //The attributes added on this line and the lines below are used when rebuilding the plot
-      //.attr("indepVars", indepVars)
       .attr(indepVarType, curPlot)
       .append("g")
       .attr("id", (svgID + 'Position'))
@@ -316,7 +316,7 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
         tooltip
         .style("left", (d3.mouse(this)[0]+70) + "px")
         .style("top", (d3.mouse(this)[1]) + "px")
-        .attr("transform", "translate(" + width/2 + ")")
+        .attr("transform", "translate(" + width/4 + ")")
 
         for (prop in this) {
             const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
