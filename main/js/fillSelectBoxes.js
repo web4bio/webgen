@@ -207,7 +207,6 @@ let getGenesByPathway = async function () {
     // TODO  Query Firebrowse using the list
 
   }
-  console.log(allGenesByPathways);
   return await allGenesByPathways;
 };
 
