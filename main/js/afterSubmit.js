@@ -221,7 +221,7 @@ let buildPlots = async function () {
 
   buildDownloadData(cohortQuery, expressionQuery, clinicalQuery, expressionData, clinicalData);
   buildHeatmap(expressionData, clinicalData);
-  buildViolinPlot(cohortQuery, expressionData);
+  buildViolinPlot(cohortQuery, expressionData, "cohort");
 };
 
 buildHeatmap = async function (expData, clinData) {
