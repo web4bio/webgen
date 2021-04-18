@@ -11,7 +11,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     var div_clinSelect = divObject.append("div");
     div_clinSelect.append('text')
         .style("font-size", "20px")
-        .text('Select variables to display sample tracks:');
+        .text('Select clinical variables to display sample tracks:');
     div_clinSelect.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
@@ -21,7 +21,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr('class','clin_selector');
     let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
     var selectedText = div_clinSelect.append('text'); // text to update what variables selected
-    div_clinSelect.append('button')
+    div_clinSelect.append('div')
+        .append('button')
         .attr('type', 'button')
         .attr('class', 'updateHeatmapButton')
         .text('Update heatmap'); // button to update heatmap, define update function below
