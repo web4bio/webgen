@@ -169,31 +169,24 @@
 }
 
 #downloadDataButtons {
-    width: 15%;
-    margin-left: 43%;
     margin-bottom: 1%;
-    /* margin-right: 35%; */
+    margin: auto;
+    width: 60%;
+    padding: 5px;
+    padding-bottom: 30px;
 }
 
 #downloadAllButton {
-    width: 100%;
     font-size: 0.7vw;
-    margin-top: 3%;
-    display: none;
+    display: inline-block;
+    margin-left: 19%;
 }
-
-#downloadExpressionButton {
-    width: 100%;
-    font-size: 0.7vw;
-    margin-top: 3%;
-    display: none;
-}
-
+#downloadExpressionZscoreButton,
+#downloadExpressionLog2Button,
 #downloadClinicalButton {
-    width: 100%;
     font-size: 0.7vw;
-    margin-top: 3%;
-    display: none;
+    display: inline-block;
+    margin-left: 5px;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
