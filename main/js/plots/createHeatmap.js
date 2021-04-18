@@ -371,15 +371,38 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         // Re/build sample tracks (currently only handles categorical data)
         // Get sample track selected vars (only in observable)
         let sampTrackVars = getClinvarSelection();
-
+        // make new structure with fields for variable varname, domain of unique values, vartype (default categorical)
+        let sampTrack_obj = sampTrackVars.map(v => {
+            let domain = d3.map(clinicalData, d =>  d[v]).keys().sort().filter(el => el !== "NA")
+            let temp = {varname: v, vartype: "categorical", domain: domain};
+            var continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
+            var percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
+            if(percentNull < 0.75 & (v != 'vital_status')) {temp.vartype = "continuous"};
+            return temp
+        })
+        
         // Build color scales for all selected variables
-        let colorScale_all = sampTrackVars.reduce((acc, v) => {
-            let var_domain = d3.map(clinicalData, d => d[v]).keys().sort().filter(el => el !== "NA");
-            acc[v] = d3.scaleOrdinal()
-                .domain(var_domain)
+        // let colorScale_all = sampTrackVars.reduce((acc, v) => {
+        //     let var_domain = d3.map(clinicalData, d => d[v]).keys().sort().filter(el => el !== "NA");
+        //     acc[v] = d3.scaleOrdinal()
+        //         .domain(var_domain)
+        //         .range(d3.schemeCategory10)
+        //         .unknown("lightgray"); return acc
+        // }, {});
+        // adjust scales for categorical or continuous
+        let colorScale_all = sampTrack_obj.reduce( (acc,el) => {
+            if (el.vartype == "continuous") {
+              acc[el.varname] = d3.scaleLinear()
+                .domain([0, el.domain.length - 1])
+                .range([ "lightblue", "red"]);
+            } else {
+              acc[el.varname] = d3.scaleOrdinal()
+                .domain(el.domain)
                 .range(d3.schemeCategory10)
-                .unknown("lightgray"); return acc
-        }, {});
+                .unknown("lightgray")
+            }
+            return acc
+        }, {})
 
         // Recompute total sample tracks height and update svg_sampletrack height
         let sampTrackHeight_total = (sampTrackHeight + margin.space) * sampTrackVars.length;
@@ -392,7 +415,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
         // Build sample track for each variable
         svg_sampletrack.html(""); // have to clear to keep some spaces as white
-        sampTrackVars.forEach(v => {
+        sampTrack_obj.forEach(el => {
+            let v = el.varname
             svg_sampletrack.selectAll()
                 .data(clinicalData, d => (d.tcga_participant_barcode + ":" + v))
                 .enter()
@@ -402,8 +426,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .attr("y", y_samp(v))
                 .attr("width", x.bandwidth())
                 .attr("height", sampTrackHeight)
-                .style("fill", d => colorScale_all[v](d[v]))
-                .attr("fill0", d => colorScale_all[v](d[v]))
+                .style("fill", d => {if (el.vartype == "categorical") { return colorScale_all[v](d[v]) } else { return colorScale_all[v](el.domain.indexOf(d[v])) } })
+                .attr("fill0", d => {if (el.vartype == "categorical") { return colorScale_all[v](d[v]) } else { return colorScale_all[v](el.domain.indexOf(d[v])) } })
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove_samp)
                 .on("mouseleave", mouseleave_samp);

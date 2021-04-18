@@ -311,7 +311,7 @@ let fillClinicalSelectBox = async function () {
   // ------------------------------------------------------------------------------------------------------------------------
   // create data structure to determine if clinical features are continuous or categorical
   clinicalType = [];
-  for(let i = 0; i < intersectedFeatures.length - 1; i++){
+  for(let i = 0; i < intersectedFeatures.length; i++){
     let currentFeature = intersectedFeatures[i];
     let temp = {name: currentFeature, type: "", isSelected: false};
 
