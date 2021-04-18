@@ -6,52 +6,70 @@
 
 createHeatmap = async function (dataInput, clinicalData, divObject) {
 
-    ///// DATA PROCESSING /////
-    // Set the columns to be the set of TCGA participant barcodes 'myGroups' and the rows to be the set of genes called 'myVars'
-    let myGroups = d3.map(dataInput, d => d.tcga_participant_barcode).keys();
-    let myVars = d3.map(dataInput, d => d.gene).keys();
-
-    // Get unique cohort IDs (for title)
-    const cohortIDs = d3.map(dataInput, d => d.cohort).keys();
-
-    // Get unique TCGA IDs
-    var unique_ids = d3.map(dataInput, d => d.tcga_participant_barcode).keys();
-
-    // Cluster IDs by expression:
-    // 1. Merge data into wide format (for hclust algorithm)
-    var data_merge = mergeExpression(dataInput);
-
-    // sort groups based on doCluster flag (default=false, controlled by checkbox)
-    // false: sort by mean expression (default)
-    // true : sort by hierarchichal clustering
-    var doCluster = false, clusterReady = false, clust_results, sortOrder;
-    function sortGroups() {
-        if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
-            // call clustering function from hclust library
-            clust_results = clusterData({ data: data_merge, key: 'exps' });
-            sortOrder = clust_results.order; // extract sort order from clust_results
-            clusterReady = true;
-        } else if (doCluster && clusterReady) { // if clustering already done, no need to re-run
-            sortOrder = clust_results.order;
-        }
-        else { // sort by mean expression
-            // compute expression means
-            const ngene = data_merge[0].genes.length;
-            const means = data_merge.map(el => (el.exps.reduce((acc, val) => acc + val, 0)) / ngene);
-
-            // sort by mean value
-            sortOrder = new Array(data_merge.length);
-            for (var i = 0; i < data_merge.length; ++i) sortOrder[i] = i;
-            sortOrder.sort((a, b) => { return means[a] > means[b] ? -1 : 1; });
-        }
-        myGroups = unique_ids;
-        myGroups = sortOrder.map(i => myGroups[i]);
-    };
-    sortGroups();
-
-
     ///// BUILD SVG OBJECTS /////
-    // Set up dimensions:
+    // Create div for clinical feature sample track variable selector as scrolling check box list
+    var div_clinSelect = divObject.append("div")
+    div_clinSelect.append('text')
+        .style("font-size", "20px")
+        .text('Select variables to display sample tracks:')
+    div_clinSelect.append('div')
+        .attr('class','viewport')
+        .style('overflow-y', 'scroll')
+        .style('height', '90px')
+        .style('width', '500px')
+      .append('div')
+        .attr('class','clin_selector');
+    let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
+    var selectedText = div_clinSelect.append('text'); // text to update what variables selected
+    div_clinSelect.append('button')
+        .attr('type', 'button')
+        .attr('class', 'updateHeatmapButton')
+        .text('Update heatmap'); // button to update heatmap, define update function below
+
+    // functions to get check box selection and update text
+    var choices;
+    function getClinvarSelection() {
+        choices = [];
+        div_selectBody.selectAll(".myCheckbox").each(function(d){
+            let cb = d3.select(this);
+            if(cb.property('checked')){ choices.push(cb.property('value')); };
+          });
+        return choices
+    }
+    function updateSelectedText() {
+        choices = getClinvarSelection();
+        if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
+        else { selectedText.text('None selected'); };
+    }
+
+    // function to create a pair of checkbox and text
+    function renderCB(div_obj, id) {
+        const label = div_obj.append('div')
+        label.append('input')
+            .attr('id', 'check' + id)
+            .attr('type', 'checkbox')
+            .attr('class', 'myCheckbox')
+            .attr('value', id)
+            .on('change',updateSelectedText)
+            .attr("style", 'opacity: 1; position: relative; pointer-events: all')
+            //.property('checked',true)
+        label.append('text')
+            .text(id);
+    }
+    // populate clinical feature sample track variable selector
+    // get unique clinical features
+    var clin_vars = Object.keys(clinicalData[0]);
+    clin_vars.forEach(el => renderCB(div_selectBody, el))
+
+    // automatically check off selected boxes from local storage
+    sampTrackVars = localStorage.getItem("clinicalFeatureKeys").split(",");
+    console.log(sampTrackVars)
+    sampTrackVars.forEach(id => {
+        div_selectBody.select('#check'+id).property('checked', true)
+    })
+    updateSelectedText()
+
+    // Set up dimensions for heatmap:
     var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 100 },
         frameWidth = 1250,
         heatWidth = frameWidth - margin.left - margin.right,
@@ -60,7 +78,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-        
+
     // Create svg object frame for the plots
     var svg_frame = divObject.append("svg")
         //.attr("viewBox", '0 0 '+frameWidth+' '+frameHeight)
@@ -68,6 +86,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .attr('height', frameHeight);
 
     // Add title listing cohorts
+    // Get unique cohort IDs (for title)
+    const cohortIDs = d3.map(dataInput, d => d.cohort).keys();
     svg_frame.append("text")
         .attr('id', 'heatmapTitle')
         .attr("x", margin.left)
@@ -163,20 +183,60 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         });
     sortOptionDiv.append('button')
         .attr('type', 'button')
-        .attr('id', 'updateHeatmapButton')
-        .text('Update heatmap'); // add update behavior later (after update function defined)
+        .attr('class', 'updateHeatmapButton')
+        .text('Update heatmap'); // button to update heatmap, define update function below
+
+
+    ///// DATA PROCESSING /////
+    // Set the columns to be the set of TCGA participant barcodes 'barcodes' and the rows to be the set of genes called 'geneID'
+    // Get unique TCGA IDs
+    var unique_ids = d3.map(dataInput, d => d.tcga_participant_barcode).keys();
+    let barcodes = unique_ids;
+    let geneID = d3.map(dataInput, d => d.gene).keys();
+
+    // Cluster IDs by expression:
+    // 1. Merge data into wide format (for hclust algorithm)
+    var data_merge = mergeExpression(dataInput);
+
+    // sort groups based on doCluster flag (default=false, controlled by checkbox)
+    // false: sort by mean expression (default)
+    // true : sort by hierarchichal clustering
+    var doCluster = false, clusterReady = false, clust_results, sortOrder;
+    function sortGroups() {
+        if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
+            // call clustering function from hclust library
+            clust_results = clusterData({ data: data_merge, key: 'exps' });
+            sortOrder = clust_results.order; // extract sort order from clust_results
+            clusterReady = true;
+        } else if (doCluster && clusterReady) { // if clustering already done, no need to re-run
+            sortOrder = clust_results.order;
+        }
+        else { // sort by mean expression
+            // compute expression means
+            const ngene = data_merge[0].genes.length;
+            const means = data_merge.map(el => (el.exps.reduce((acc, val) => acc + val, 0)) / ngene);
+
+            // sort by mean value
+            sortOrder = new Array(data_merge.length);
+            for (var i = 0; i < data_merge.length; ++i) sortOrder[i] = i;
+            sortOrder.sort((a, b) => { return means[a] > means[b] ? -1 : 1; });
+        }
+        barcodes = unique_ids;
+        barcodes = sortOrder.map(i => barcodes[i]);
+    };
+    sortGroups();
 
 
     ///// Build the Axis and Color Scales Below /////
     // Build x scale for heatmap
     let x = d3.scaleBand()
         .range([0, heatWidth - legendWidth])
-        .domain(myGroups);
+        .domain(barcodes);
 
     // Build y scale for heatmap
     let y = d3.scaleBand()
         .range([0, heatHeight])
-        .domain(myVars);
+        .domain(geneID);
 
     // Define minZ and maxZ for the color interpolator
     let minZ = -2,
@@ -285,8 +345,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
     ///// Update function for creating plot with new order (clustering), new sample tracks
     function updateHeatmap() {
-        // Build new x scale based on myGroups (in case re-sorted)
-        x = x.domain(myGroups);
+        // Build new x scale based on borcodes (in case re-sorted)
+        x = x.domain(barcodes);
 
         // Re/build the heatmap (selecting by custom key 'tcga_id:gene'):
         svg_heatmap.selectAll()
@@ -304,8 +364,10 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
         // Re/build sample tracks (currently only handles categorical data)
         // Get sample track selected vars (only in observable)
-        //let sampTrackVars = getClinvarSelection();
-        let sampTrackVars = Object.keys(clinicalData[0]).filter(el => (el.match(/^(?!cohort|date|tcga_participant_barcode$)/)));
+        let sampTrackVars = getClinvarSelection();
+        console.log("Samp track vars:")
+        console.log(sampTrackVars)
+        //let sampTrackVars = Object.keys(clinicalData[0]).filter(el => (el.match(/^(?!cohort|date|tcga_participant_barcode$)/)));
 
         // Build color scales for all selected variables
         let colorScale_all = sampTrackVars.reduce((acc, v) => {
@@ -475,10 +537,11 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     }
     updateHeatmap()
 
-    // add update function to update button
-    sortOptionDiv.select('#updateHeatmapButton')
+    // add updateHeatmap function to any buttons with updateHeatmapButton class
+    divObject.select('.updateHeatmapButton')
         .on('click', function () {
             sortGroups();
             updateHeatmap();
-        })
+        });
 };
+
