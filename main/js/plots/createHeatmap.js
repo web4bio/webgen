@@ -15,7 +15,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     div_clinSelect.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
-        .style('height', '90px')
+        .style('height', '100px')
         .style('width', '500px')
       .append('div')
         .attr('class','clin_selector');
