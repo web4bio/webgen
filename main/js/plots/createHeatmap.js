@@ -141,7 +141,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
-        .style('width', frameWidth + 'px');
+        .style('width', frameWidth + 'px')
+        .style('height', frameHeight/2);
     div_sampLegend
         .append("text")
         .style("font-size", "18px")
