@@ -170,15 +170,20 @@
 
 #downloadDataButtons {
     margin-bottom: 1%;
-    display: none;
+    margin: auto;
+    width: 60%;
+    padding: 5px;
+    padding-bottom: 30px;
 }
 
-#downloadAllButton{
+#downloadAllButton {
     font-size: 0.7vw;
     display: inline-block;
-    margin-left: 23%;
+    margin-left: 19%;
 }
-#downloadExpressionZscoreButton, #downloadExpressionLog2Button, #downloadClinicalButton {
+#downloadExpressionZscoreButton,
+#downloadExpressionLog2Button,
+#downloadClinicalButton {
     font-size: 0.7vw;
     display: inline-block;
     margin-left: 5px;
