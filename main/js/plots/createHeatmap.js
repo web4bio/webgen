@@ -8,10 +8,10 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
-    var div_clinSelect = divObject.append("div")
+    var div_clinSelect = divObject.append("div");
     div_clinSelect.append('text')
         .style("font-size", "20px")
-        .text('Select variables to display sample tracks:')
+        .text('Select variables to display sample tracks:');
     div_clinSelect.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
@@ -35,37 +35,37 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
             if(cb.property('checked')){ choices.push(cb.property('value')); };
           });
         return choices
-    }
+    };
     function updateSelectedText() {
         choices = getClinvarSelection();
         if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
         else { selectedText.text('None selected'); };
-    }
+    };
 
     // function to create a pair of checkbox and text
     function renderCB(div_obj, id) {
-        const label = div_obj.append('div')
+        const label = div_obj.append('div');
         label.append('input')
             .attr('id', 'check' + id)
             .attr('type', 'checkbox')
             .attr('class', 'myCheckbox')
             .attr('value', id)
             .on('change',updateSelectedText)
-            .attr("style", 'opacity: 1; position: relative; pointer-events: all')
+            .attr("style", 'opacity: 1; position: relative; pointer-events: all');
         label.append('text')
             .text(id);
-    }
+    };
     // populate clinical feature sample track variable selector
     // get unique clinical features
     var clin_vars = Object.keys(clinicalData[0]);
-    clin_vars.forEach(el => renderCB(div_selectBody, el))
+    clin_vars.forEach(el => renderCB(div_selectBody, el));
 
     // automatically check off selected boxes from clinical query box
     sampTrackVars = $(".clinicalMultipleSelection").select2("data").map((el) => el.text);
     sampTrackVars.forEach(id => {
-        div_selectBody.select('#check'+id).property('checked', true)
-    })
-    updateSelectedText()
+        div_selectBody.select('#check'+id).property('checked', true);
+    });
+    updateSelectedText();
 
     // Set up dimensions for heatmap:
     var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 100 },
@@ -130,8 +130,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
-        .style('width', frameWidth + 'px')
-    div_tooltip.html("\xa0\xa0Hover over an element to use tooltip.")
+        .style('width', frameWidth + 'px');
+    div_tooltip.html("\xa0\xa0Hover over an element to use tooltip.");
 
     // Add div for sample track legend
     var div_sampLegend = divObject
@@ -176,8 +176,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .on('change', function () {
             // function to update state of sortCurrentText and doCluster
             // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
-            sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)')
-            doCluster = (this.checked ? true : false)
+            sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
+            doCluster = (this.checked ? true : false);
         });
     sortOptionDiv.append('button')
         .attr('type', 'button')
@@ -196,6 +196,12 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     // 1. Merge data into wide format (for hclust algorithm)
     var data_merge = mergeExpression(dataInput);
 
+    // function for mean expression of a branch of tree
+    function branchMean(branch) {
+        let leaf_ind = [].concat.apply([], branch.leaves().map(el => el.data.indexes)); 
+        return leaf_ind.reduce((a, b) => a + data_merge[b].exps.reduce((a,b) => a+b,0),0) / leaf_ind.length;
+    };
+
     // sort groups based on doCluster flag (default=false, controlled by checkbox)
     // false: sort by mean expression (default)
     // true : sort by hierarchichal clustering
@@ -204,7 +210,11 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
             // call clustering function from hclust library
             clust_results = clusterData({ data: data_merge, key: 'exps' });
-            sortOrder = clust_results.order; // extract sort order from clust_results
+            // re-sort clustering based on average expression within leaves
+            let root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
+            sortOrder =  [].concat.apply([], root.leaves().map(el => el.data.indexes));
+
+            clust_results.order = sortOrder; // extract sort order from clust_results
             clusterReady = true;
         } else if (doCluster && clusterReady) { // if clustering already done, no need to re-run
             sortOrder = clust_results.order;
@@ -256,11 +266,6 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         .interpolator(interpCol_exp) // d3 interpolated color gradient
         .domain([minZ, maxZ]);
 
-
-    // Declare data structures for dendrogram layout
-    var cluster, data;
-    var root = { data: { height: [] } };
-
     // Elbow function for dendrogram connections
     function elbow(d) {
         const scale = dendHeight / root.data.height;
@@ -282,14 +287,14 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     };
     const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
     let mousemove = function (d) {
-        if (!d.expression_log2) {d.expression_log2 = 0} // catch error if null
+        if (!d.expression_log2) {d.expression_log2 = 0}; // catch error if null
         // Print data to tooltip from hovered-over heatmap element d
         div_tooltip.html("\xa0\xa0" +
             "Cohort: " + d.cohort + spacing +
             "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
             "Gene: " + d.gene + spacing +
             "Expression Level (log2): " + d.expression_log2.toFixed(5) + spacing +
-            "Expression Z-Score: " + d["z-score"].toFixed(5))
+            "Expression Z-Score: " + d["z-score"].toFixed(5));
     };
     let mouseleave = function (d) {
         // Make tooltip disappear and heatmap object return to z-score color
@@ -302,15 +307,15 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
             .style("stroke-width", "0.5px");
     };
     let mousemove_samp = function (d) {
-        let v = d3.select(this).attr("var")
+        let v = d3.select(this).attr("var");
         div_tooltip.html("\xa0\xa0" +
             "Cohort: " + d.cohort + spacing +
             "TCGA Participant Barcode: " + d.tcga_participant_barcode + spacing +
-            v + ": " + d[v])
-    }
+            v + ": " + d[v]);
+    };
     let mouseleave_samp = function (d) {
         div_tooltip.style("opacity", 0);
-        d3.select(this).style("fill", d3.select(this).attr("fill0")) // re-fill color based on stored attribute
+        d3.select(this).style("fill", d3.select(this).attr("fill0")); // re-fill color based on stored attribute
         // Make dendrogram path unbold
         let id_ind = unique_ids.indexOf(d.tcga_participant_barcode);
         svg_dendrogram.selectAll('path')
@@ -363,9 +368,6 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         // Re/build sample tracks (currently only handles categorical data)
         // Get sample track selected vars (only in observable)
         let sampTrackVars = getClinvarSelection();
-        console.log("Samp track vars:")
-        console.log(sampTrackVars)
-        //let sampTrackVars = Object.keys(clinicalData[0]).filter(el => (el.match(/^(?!cohort|date|tcga_participant_barcode$)/)));
 
         // Build color scales for all selected variables
         let colorScale_all = sampTrackVars.reduce((acc, v) => {
@@ -374,11 +376,11 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .domain(var_domain)
                 .range(d3.schemeCategory10)
                 .unknown("lightgray"); return acc
-        }, {})
+        }, {});
 
         // Recompute total sample tracks height and update svg_sampletrack height
         let sampTrackHeight_total = (sampTrackHeight + margin.space) * sampTrackVars.length;
-        svg_frame.select('.sampletrack').attr('height', sampTrackHeight_total)
+        svg_frame.select('.sampletrack').attr('height', sampTrackHeight_total);
 
         // Build new scale for sample track labels:
         let y_samp = d3.scaleBand()
@@ -413,7 +415,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
         // Sample Track Legend:
         // function to get width of bounding text box for a given string, font-size
-        let svg_temp = divObject.append("svg")
+        let svg_temp = divObject.append("svg");
         function getTextWidth(str, fs) {
             let text_temp = svg_temp
                 .append('text')
@@ -421,7 +423,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .text(str);
             var dim = text_temp.node().getBBox();
             return dim.width
-        }
+        };
 
         // get max sizes of variable name and all unique variable labels (for column width), and number of variables (for legend height)
         let var_summary = sampTrackVars.map(v => {
@@ -429,8 +431,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
             let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
             let lab_width = Math.max(...myLabs.map(el => getTextWidth("\xa0" + el.val, 10))); // max text width of each unique label
             return { var: v, labs: myLabs, nlab: myLabs.length, max_width: Math.ceil(Math.max(lab_width + sampTrackHeight, var_width)) }
-        })
-        svg_temp.html("")
+        });
+        svg_temp.html("");
 
         // calculate cumulative sum of column widths with spacing for x-positioning each variable
         const cumulativeSum = (sum => value => sum += value)(0);
@@ -473,14 +475,14 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         let sampLegendHeight = 20 + (sampTrackHeight + margin.space) * Math.max(...var_summary.map(el => el.nlab));
         div_sampLegend.select(".sampLegend")
             .attr("height", sampLegendHeight + margin.space)
-            .attr("width", var_summary.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0))
+            .attr("width", var_summary.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0));
         if (sampLegendHeight < 200) {
             div_sampLegend.select('#legend')
-                .attr('height', sampLegendHeight + 'px')
+                .attr('height', sampLegendHeight + 'px');
         } else {
             div_sampLegend.select('#legend')
-                .style('height', '200px')
-        }
+                .style('height', '200px');
+        };
 
         if (sampTrackVars.length == 0) {
             svg_sampLegend
@@ -490,18 +492,16 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .text("No clinical features selected");
             div_sampLegend.select(".sampLegend")
                 .attr("height", 20)
-                .attr("width", 250)
+                .attr("width", 250);
             div_sampLegend.select('#legend')
-                .style('height', '20px')
+                .style('height', '20px');
         };
 
         // Generate dendrogram IF clustering selected and ready
         if (doCluster && clusterReady) { // only show dendrogram if these flags indicate to show
             // Build dendrogram as links between nodes:
-            cluster = d3.cluster().size([heatWidth - legendWidth, dendHeight]); // match dendrogram width to heatmap x axis range
-            // Give the data to this cluster layout:
-            data = clust_results.clusters;
-            root = d3.hierarchy(data);
+            var cluster = d3.cluster().size([heatWidth - legendWidth, dendHeight]); // match dendrogram width to heatmap x axis range
+            root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
             cluster(root);
 
             // Build dendrogram as links between nodes:
@@ -512,7 +512,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .attr("d", elbow)
                 .style("fill", 'none')
                 .style("stroke-width", "0.5px")
-                .attr("stroke", 'black')
+                .attr("stroke", 'black');
 
             // Give dendrogram svg height and shift down heatmap + sampletracks
             svg_dendrogram.attr("height", dendHeight);
@@ -531,12 +531,12 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
             frameHeight = margin.top + heatHeight + sampTrackHeight_total + margin.bottom;
         }
         // apply new frameHeight (adjusting for dendrogram and # sample tracks)
-        svg_frame.attr('height', frameHeight)
-    }
-    updateHeatmap()
+        svg_frame.attr('height', frameHeight);
+    };
+    updateHeatmap();
 
     // add updateHeatmap function to any buttons with updateHeatmapButton class
-    divObject.select('.updateHeatmapButton')
+    divObject.selectAll('.updateHeatmapButton')
         .on('click', function () {
             sortGroups();
             updateHeatmap();
