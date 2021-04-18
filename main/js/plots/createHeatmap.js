@@ -8,9 +8,9 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
-    var div_clinSelect = divObject.append("div");
+    var div_clinSelect = divObject.append('div');
     div_clinSelect.append('text')
-        .style("font-size", "20px")
+        .style('font-size', '20px')
         .text('Select clinical variables to display sample tracks:');
     div_clinSelect.append('div')
         .attr('class','viewport')
@@ -20,18 +20,19 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
       .append('div')
         .attr('class','clin_selector');
     let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
-    var selectedText = div_clinSelect.append('text'); // text to update what variables selected
+    var selectedText = div_clinSelect.append('text') // text to update what variables selected
+        .style('font-size', '16px');
     div_clinSelect.append('div')
-        .append('button')
+        .append('button') // button to update heatmap, define update function below
         .attr('type', 'button')
         .attr('class', 'updateHeatmapButton')
-        .text('Update heatmap'); // button to update heatmap, define update function below
+        .text('Update heatmap');
 
     // functions to get check box selection and update text
     var choices;
     function getClinvarSelection() {
         choices = [];
-        div_selectBody.selectAll(".myCheckbox").each(function(d){
+        div_selectBody.selectAll('.myCheckbox').each(function(d){
             let cb = d3.select(this);
             if(cb.property('checked')){ choices.push(cb.property('value')); };
           });
@@ -52,7 +53,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
             .attr('class', 'myCheckbox')
             .attr('value', id)
             .on('change',updateSelectedText)
-            .attr("style", 'opacity: 1; position: relative; pointer-events: all');
+            .attr('style', 'opacity: 1; position: relative; pointer-events: all');
         label.append('text')
             .text(id);
     };
@@ -62,7 +63,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
     // automatically check off selected boxes from clinical query box
-    sampTrackVars = $(".clinicalMultipleSelection").select2("data").map((el) => el.text);
+    sampTrackVars = $('.clinicalMultipleSelection').select2('data').map((el) => el.text);
     sampTrackVars.forEach(id => {
         div_selectBody.select('#check'+id).property('checked', true);
     });
@@ -79,7 +80,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
 
     // Create svg object frame for the plots
-    var svg_frame = divObject.append("svg")
+    var svg_frame = divObject.append('svg')
         //.attr("viewBox", '0 0 '+frameWidth+' '+frameHeight)
         .attr('width', frameWidth)
         .attr('height', frameHeight);
