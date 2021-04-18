@@ -7,12 +7,12 @@
 // Function to append div elemnts to an HTML document with an existing div element with id='oldDivID'.
 // Useful for when you have a variable amount of plots to display on the page:
 addDiv = function (newDivID, oldDivID) {
-    // create a new div element
-    let newDiv = document.createElement("div");
-    newDiv.setAttribute("id", newDivID);
-    newDiv.setAttribute("style", "margin-top:25px");
-    // add the newly created element and its content into the DOM
-    document.getElementById(oldDivID).after(newDiv);
+  // create a new div element
+  let newDiv = document.createElement("div");
+  newDiv.setAttribute("id", newDivID);
+  newDiv.setAttribute("style", "margin-top:25px");
+  // add the newly created element and its content into the DOM
+  document.getElementById(oldDivID).after(newDiv);
 };
 
 //Useful or adding div inside a div.
@@ -27,35 +27,35 @@ addDivInside = function (newDivID, parentDivID) {
 
 // Function to remove the current div elements if they exist:
 removeDiv = function () {
-    let i = 1;
-    let continueBool = true;
-    while (continueBool == true) {
-        divToRemove = document.getElementById("div" + i);
-        if (divToRemove) {
-            $(divToRemove).remove();
-            i++;
-        } else {
-            continueBool = false;
-        }
+  let i = 1;
+  let continueBool = true;
+  while (continueBool == true) {
+    divToRemove = document.getElementById("div" + i);
+    if (divToRemove) {
+      $(divToRemove).remove();
+      i++;
+    } else {
+      continueBool = false;
     }
+  }
 };
 
 // Function to remove the current svg elements if they exist:
 removeSVGelements = function () {
-    svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
-    for (let i = 0; i < svgElementsArray.length; i++) {
-        svgToRemove = document.getElementById(svgElementsArray[i]);
+  svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
+  for (let i = 0; i < svgElementsArray.length; i++) {
+    svgToRemove = document.getElementById(svgElementsArray[i]);
 
+    if (svgToRemove) $(svgToRemove).remove();
+    else {
+      let ctr = 0;
+      for (; ;) {
+        svgToRemove = document.getElementById(svgElementsArray[i] + ctr++);
         if (svgToRemove) $(svgToRemove).remove();
-        else {
-            let ctr = 0;
-            for (;;) {
-                svgToRemove = document.getElementById(svgElementsArray[i] + ctr++);
-                if (svgToRemove) $(svgToRemove).remove();
-                else break;
-            }
-        }
+        else break;
+      }
     }
+  }
 };
 
 removeViolinButtons = function () {
@@ -96,13 +96,13 @@ removeHeatmapsAndViolins = function () {
 
 // Setting the cohort and gene list examples if the user clicks the use example button:
 function setExampleVars() {
-    // Select example values:
-    $(".cancerTypeMultipleSelection").val(["PAAD"]);
-    $(".geneOneMultipleSelection").val(["ethnicity", "KRAS", "EGFR", "TP53"]);
+  // Select example values:
+  $(".cancerTypeMultipleSelection").val(["PAAD"]);
+  $(".geneOneMultipleSelection").val(["ethnicity", "KRAS", "EGFR", "TP53"]);
 
-    // Trigger the change:
-    $(".cancerTypeMultipleSelection").trigger("change");
-    $(".geneOneMultipleSelection").trigger("change");
+  // Trigger the change:
+  $(".cancerTypeMultipleSelection").trigger("change");
+  $(".geneOneMultipleSelection").trigger("change");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,103 +123,116 @@ function setExampleVars() {
 // Wait for user input to build plots:
 
 let buildPlots = async function () {
-    // Reset page formatting:
-    if (document.getElementById("violinDiv0") != null) document.getElementById("violinDiv0").outerHTML = "";
+  
+  // Reset page formatting:
+  document.getElementById("heatmapDiv0").innerHTML = "";
+  if (document.getElementById("violinDiv0") != null) document.getElementById("violinDiv0").outerHTML = "";
+  
+  let heatDiv = addDivInside("heatmapDiv0", "heatmapRef");
+  var violinDiv = addDivInside("violinDiv0", "violinPlotRef");
+  violinDiv.setAttribute("align", "center");
 
-    let heatDiv = addDivInside("heatmapDiv0", "heatmapRef");
-    var violinDiv = addDivInside("violinDiv0", "violinPlotRef");
-    violinDiv.setAttribute("align", "center");
+  // Remove existing div and svg elements if they're there:
+  // removeDiv();
+  // removeSVGelements();
+  // removeTooltipElements();
+  // removeViolinButtons();
 
-    // Remove existing div and svg elements if they're there:
-    // removeDiv();
-    // removeSVGelements();
-    // removeTooltipElements();
-    // removeViolinButtons();
+  // Display loader:
+  document.getElementById("heatmapDiv0").className = "loader"; // Create the loader.
+  document.getElementById("svgViolinDiv0").className = "loader"; // Create the loader.
 
-    // Display loader:
-    document.getElementById("heatmapDiv0").className = "loader"; // Create the loader.
-    document.getElementById("violinDiv0").className = "loader"; // Create the loader.
+  let cohortQuery = $(".cancerTypeMultipleSelection")
+    .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  let mutationQuery = $(".geneOneMultipleSelection")
+    .select2("data").map((gene) => gene.text);
+  let clinicalQuery = $(".clinicalMultipleSelection")
+    .select2("data").map((el) => el.text);
+  let expressionQuery = $(".geneTwoMultipleSelection")
+    .select2("data").map((gene) => gene.text);
+  
+  // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
+  let expressionData_1 = await getExpressionDataJSONarray_cg(cohortQuery, mutationQuery);
 
-    let cohortQuery = $(".cancerTypeMultipleSelection")
-        .select2("data")
-        .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-    let mutationQuery = $(".geneOneMultipleSelection")
-        .select2("data")
-        .map((gene) => gene.text);
-    let clinicalQuery = $(".clinicalMultipleSelection")
-        .select2("data")
-        .map((el) => el.text);
-    let expressionQuery = $(".geneTwoMultipleSelection")
-        .select2("data")
-        .map((gene) => gene.text);
+  // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
+  let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
 
-    // Fetch RNA sequencing data for selected cancer cohort(s) and gene(s)
-    let expressionData_1 = await getExpressionDataJSONarray_cg(cohortQuery, mutationQuery);
+  // Extract expression data only at intersectedBarcodes
+  let expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
 
-    // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
-    let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
+  // Get clinical data for specified clinical fields
+  let clinicalData;
+  if (intersectedBarcodes && intersectedBarcodes.length) {
+    // query clinical data at selected barcodes
+    clinicalData = (await firebrowse.getClinical_FH_bf(intersectedBarcodes,clinicalQuery)).Clinical_FH;
+  } else {
+    // if no barcodes, query entire cohort for clinical data
+    clinicalData = await getClinicalDataJSONarray_cc(cohortQuery,clinicalQuery);
+  }
+  
+  //Store clinical data in localStorage
+  localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
+  //Store clinical data keys in localStorage
+  localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
-    // Extract expression data only at intersectedBarcodes
-    let expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, cohortQuery);
+  expressionData = expressionData.filter((el) => el.sample_type === "TP"); // quick fix. queried data includes normal samples ("NT"), this needs to be fixed in "getExpressionDataFromIntersectedBarcodes"
+  //Add expression data as a field in localStorage
+  localStorage.setItem("expressionData", JSON.stringify(expressionData));
 
-    // Get clinical data for specified clinical fields
-    let clinicalData;
-    if (intersectedBarcodes && intersectedBarcodes.length) {
-        // query clinical data at selected barcodes
-        clinicalData = (await firebrowse.getClinical_FH_bf(intersectedBarcodes, clinicalQuery)).Clinical_FH;
-    } else {
-        // if no barcodes, query entire cohort for clinical data
-        clinicalData = await getClinicalDataJSONarray_cc(cohortQuery, clinicalQuery);
+  let genesFromPathways = await getGenesByPathway();
+  if(genesFromPathways.length > 0) {
+    for(let i = 0; i < genesFromPathways.length; i++) {
+      expressionQuery = expressionQuery.concat(genesFromPathways[i].genes);
     }
-
-    localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
-
-    expressionData = expressionData.filter((el) => el.sample_type === "TP"); // quick fix. queried data includes normal samples ("NT"), this needs to be fixed in "getExpressionDataFromIntersectedBarcodes"
-    //Add expression data as a field in localStorage
-    localStorage.setItem("expressionData", JSON.stringify(expressionData));
-
-    //Remove the 'violinPlots' div should it exist
-    if (document.getElementById("violinPlots") != null) document.getElementById("violinPlots").outerHTML = "";
-    //Create checkbox to toggle between gene vs. cohort for violin plots
-    var toggleSwitch =
-        "<label class='switch'>" +
-        "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
-        "<input type='checkbox' id= 'toggleSwitch'>" +
-        "<span class='slider round'></span>" +
-        "</label>";
-    //Append toggle switch to the top of violin plots section
-    document.getElementById("violinDiv0").innerHTML = "";
-    document.getElementById("violinDiv0").innerHTML += toggleSwitch;
-    addDiv("violinPlots", "violinDiv0");
-
-    //Checkbox for toggling between gene vs. cohort for violin plots
-    toggleSwitch = document.getElementById("toggleSwitch");
-    toggleSwitch.addEventListener("change", function (e) {
-        var violinsDiv = document.getElementById("violinPlots");
-        violinsDiv.innerHTML = "";
-
-        //Call buildViolinPlot with a different parameter based on the status of the toggle switch
-        if (toggleSwitch.checked) {
-            buildViolinPlot(expressionQuery, expressionData, "gene");
-        } else {
-            buildViolinPlot(cohortQuery, expressionData, "cohort");
-        }
+    let removedDuplicates = [];
+    $.each(expressionQuery, function(i, element){
+      if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
     });
+    expressionQuery = removedDuplicates;
+  }
 
-    buildDownloadData(cohortQuery, expressionQuery, clinicalQuery, expressionData, clinicalData);
-    buildHeatmap(expressionData, clinicalData);
-    buildViolinPlot(cohortQuery, expressionData, "cohort");
+  //Remove the 'violinPlots' div should it exist
+  if (document.getElementById("violinPlots") != null) document.getElementById("violinPlots").outerHTML = "";
+  //Create checkbox to toggle between gene vs. cohort for violin plots
+  var toggleSwitch =
+      "<label class='switch'>" +
+      "<b>Toggle between: Expression vs. Gene OR Expression vs. Cohort</b>" +
+      "<input type='checkbox' id= 'toggleSwitch'>" +
+      "<span class='slider round'></span>" +
+      "</label>";
+  //Append toggle switch to the top of violin plots section
+  document.getElementById("violinDiv0").innerHTML = "";
+  document.getElementById("violinDiv0").innerHTML += toggleSwitch;
+  addDiv("violinPlots", "violinDiv0");
+
+  //Checkbox for toggling between gene vs. cohort for violin plots
+  toggleSwitch = document.getElementById("toggleSwitch");
+  toggleSwitch.addEventListener("change", function (e) {
+    var violinsDiv = document.getElementById("violinPlots");
+    violinsDiv.innerHTML = "";
+
+    //Call buildViolinPlot with a different parameter based on the status of the toggle switch
+    if (toggleSwitch.checked) {
+        buildViolinPlot(expressionQuery, expressionData, "gene");
+    } else {
+        buildViolinPlot(cohortQuery, expressionData, "cohort");
+    }
+  });
+
+  buildDownloadData(cohortQuery, expressionQuery, clinicalQuery, expressionData, clinicalData);
+  buildHeatmap(expressionData, clinicalData);
+  buildViolinPlot(cohortQuery, expressionData, "cohort");
 };
 
 buildHeatmap = async function (expData, clinData) {
-    // Remove the loader
-    document.getElementById("heatmapDiv0").classList.remove("loader");
+  // Remove the loader
+  document.getElementById("heatmapDiv0").classList.remove("loader");
 
-    // Create div object for heatmap and clear
-    let divHeatMap = d3.select("#heatmapDiv0").html("");
+  // Create div object for heatmap and clear
+  let divHeatMap = d3.select("#heatmapDiv0").html("");
 
-    // Create the heatmap
-    createHeatmap(expData, clinData, divHeatMap);
+  // Create the heatmap
+  createHeatmap(expData, clinData, divHeatMap);
 };
 
 buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) {
@@ -229,25 +242,29 @@ buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) {
     var violinsDiv = document.getElementById("violinPlots");
     violinsDiv.innerHTML = "";
 
+    //Create partition selector
+    var partitionDivId = "violinPartition";
+    addDivInside(partitionDivId, "violinPlots");
+    //Create partition selector
+    createViolinPartitionBox("violinPlots", cohortORGeneQuery);
     // Set up the figure dimensions:
+    /*
     let margin = { top: 80, right: 30, bottom: 30, left: 60 },
         width = 1250 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
+    */
 
     // Define the number of cohorts to create a plot for
     let numOfIndependantVars = cohortORGeneQuery.length;
 
     // Spacing between plots
-    let ySpacing = margin.top;
+    //let ySpacing = margin.top;
 
     // Append an svg object for each cohort to create a violin plot for
     for (var index = 0; index < numOfIndependantVars; index++) {
         // Define the current cohort to create the violin plot for and create a new div for each cohort
         let curCohort = cohortORGeneQuery[index];
         addDivInside(`violinPlot${index}`, "violinPlots");
-
-        //Create partition selector
-        createViolinPartitionBox(`violinPlot${index}`, curCohort);
 
         addDivInside(`svgViolin${index}`, `violinPlot${index}`);
 
@@ -265,14 +282,14 @@ buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) {
 
 // Downloading data functions
 saveFile = function (x, fileName) {
-    // x is the content of the file
-    var bb = new Blob([x]);
-    var url = URL.createObjectURL(bb);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    a.click(); // then download it automatically
-    return a;
+  // x is the content of the file
+  var bb = new Blob([x]);
+  var url = URL.createObjectURL(bb);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  a.click(); // then download it automatically
+  return a;
 };
 
 buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, clinicalData) {
@@ -385,3 +402,4 @@ buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, 
             saveFile(csv_string_clin, "WebGen_clinical.csv"); // use saveFile function
         });
 };
+
