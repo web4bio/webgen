@@ -202,19 +202,19 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     // function for mean expression of a branch of tree
     function branchMean(branch) {
         let leaf_ind = [].concat.apply([], branch.leaves().map(el => el.data.indexes)); 
-        return leaf_ind.reduce((a, b) => a + data_merge[b].exps.reduce((a,b) => a+b,0),0) / leaf_ind.length;
+        return leaf_ind.reduce((a, b) => a + data_merge[b].exps.reduce((a,b) => a+b, 0), 0) / leaf_ind.length;
     };
 
-    // sort groups based on doCluster flag (default=false, controlled by checkbox)
+    // 2. sort groups based on doCluster flag (controlled by sort options checkbox)
     // false: sort by mean expression (default)
     // true : sort by hierarchichal clustering
-    var doCluster = false, clusterReady = false, clust_results, sortOrder;
+    var doCluster = false, clusterReady = false, clust_results, sortOrder, root;
     function sortGroups() {
         if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
             // call clustering function from hclust library
             clust_results = clusterData({ data: data_merge, key: 'exps' });
             // re-sort clustering based on average expression within leaves
-            let root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
+            root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
             sortOrder =  [].concat.apply([], root.leaves().map(el => el.data.indexes));
 
             clust_results.order = sortOrder; // extract sort order from clust_results
@@ -373,36 +373,34 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         let sampTrackVars = getClinvarSelection();
         // make new structure with fields for variable varname, domain of unique values, vartype (default categorical)
         let sampTrack_obj = sampTrackVars.map(v => {
-            let domain = d3.map(clinicalData, d =>  d[v]).keys().sort().filter(el => el !== "NA")
+            let domain = clinicalData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
+                .map(d =>  d[v]).filter(el => el !== "NA").sort();
+            domain = [...new Set(domain)]; // get unique values only
             let temp = {varname: v, vartype: "categorical", domain: domain};
             var continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
             var percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
-            if(percentNull < 0.75 & (v != 'vital_status')) {temp.vartype = "continuous"};
+            if(percentNull < 0.95 & (v != 'vital_status')) {
+                temp.vartype = "continuous";
+                temp.domain = domain.map(el => Number(el)).filter(el => !Number.isNaN(el)).sort((a,b) => a-b); // map to numeric, filter and sort domain
+            };
             return temp
-        })
+        });
         
         // Build color scales for all selected variables
-        // let colorScale_all = sampTrackVars.reduce((acc, v) => {
-        //     let var_domain = d3.map(clinicalData, d => d[v]).keys().sort().filter(el => el !== "NA");
-        //     acc[v] = d3.scaleOrdinal()
-        //         .domain(var_domain)
-        //         .range(d3.schemeCategory10)
-        //         .unknown("lightgray"); return acc
-        // }, {});
         // adjust scales for categorical or continuous
         let colorScale_all = sampTrack_obj.reduce( (acc,el) => {
             if (el.vartype == "continuous") {
               acc[el.varname] = d3.scaleLinear()
-                .domain([0, el.domain.length - 1])
+                .domain([Math.min(...el.domain), Math.max(...el.domain)])
                 .range([ "lightblue", "red"]);
             } else {
               acc[el.varname] = d3.scaleOrdinal()
                 .domain(el.domain)
                 .range(d3.schemeCategory10)
-                .unknown("lightgray")
-            }
+                .unknown("lightgray");
+            };
             return acc
-        }, {})
+        }, {});
 
         // Recompute total sample tracks height and update svg_sampletrack height
         let sampTrackHeight_total = (sampTrackHeight + margin.space) * sampTrackVars.length;
@@ -415,10 +413,10 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
         // Build sample track for each variable
         svg_sampletrack.html(""); // have to clear to keep some spaces as white
-        sampTrack_obj.forEach(el => {
-            let v = el.varname
+        sampTrackVars.forEach(v => {
             svg_sampletrack.selectAll()
-                .data(clinicalData, d => (d.tcga_participant_barcode + ":" + v))
+                .data(clinicalData.filter(el => (barcodes.includes(el.tcga_participant_barcode))),
+                    d => (d.tcga_participant_barcode + ":" + v))
                 .enter()
                 .append("rect")
                 .attr("var", v)
@@ -426,12 +424,12 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .attr("y", y_samp(v))
                 .attr("width", x.bandwidth())
                 .attr("height", sampTrackHeight)
-                .style("fill", d => {if (el.vartype == "categorical") { return colorScale_all[v](d[v]) } else { return colorScale_all[v](el.domain.indexOf(d[v])) } })
-                .attr("fill0", d => {if (el.vartype == "categorical") { return colorScale_all[v](d[v]) } else { return colorScale_all[v](el.domain.indexOf(d[v])) } })
+                .style("fill", d => colorScale_all[v](d[v]) )
+                .attr("fill0", d => colorScale_all[v](d[v]) )
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove_samp)
                 .on("mouseleave", mouseleave_samp);
-        })
+        });
         // Append labels axis to the sample track:
         svg_sampletrack.select('#sampLabels').remove(); // first remove previous labels
         svg_sampletrack.append("g")
@@ -469,6 +467,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         // fill sample track legend
         svg_sampLegend.html("");
         var_summary.forEach(v => {
+            let var_data = sampTrack_obj.filter(el => el.varname == v.var)[0];
             svg_sampLegend
                 .append("text")
                 .attr("x", v.x)
@@ -476,6 +475,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .style("font-size", "15px")
                 .attr("text-decoration", "underline")
                 .text(v.var + ":");
+            if (var_data.vartype == "categorical" ) {
             svg_sampLegend.selectAll()
                 .data(v.labs, d => v.var + ":" + d.val + "_box")
                 .enter()
@@ -495,6 +495,34 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .attr("alignment-baseline", "central")
                 .style("font-size", "10px")
                 .text(d => "\xa0" + d.val);
+            } else { // continuous variable legend case
+                // Position scale for the legend
+                let minV = Math.min(...var_data.domain)
+                let maxV = Math.max(...var_data.domain)
+                let vScale = d3.scaleLinear().domain([minV, maxV]).range([heatHeight, 0]);
+  
+                // Create vArr array to build legend:
+                let vArr = [];
+                let step = (maxV - minV) / (1000 - 1);
+                for (var i = 0; i < 1000; i++) {
+                    vArr.push(minV + (step * i));
+                };
+                // Build the continuous Legend:   
+                svg_sampLegend.selectAll()
+                    .data(vArr)
+                    .enter()
+                    .append('rect')
+                    .attr('x', v.x)
+                    .attr('y', d => 20 + vScale(d))
+                    .attr("width", sampTrackHeight)
+                    .attr("height", 1 + (heatHeight / vArr.length))
+                    .style("fill", d => colorScale_all[v.var](d));
+                // Append the axis to the legend:
+                svg_sampLegend.append("g")
+                    .style("font-size", 10)
+                    .attr("transform", "translate(" + (v.x + sampTrackHeight) + ",20)")
+                    .call(d3.axisRight().scale(vScale).tickSize(5).ticks(5));
+            };
         });
         // adjust sampLegend size
         // height is max number of labels times entry height, plus space for title
