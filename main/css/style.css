@@ -166,22 +166,31 @@
     width: 15%;
     /* margin-right: 35%; */
     margin-left: 43%;
+    margin-bottom: 1%;
 }
 
 #downloadDataButtons {
-    margin-bottom: 1%;
+    margin: auto;
+    width: 60%;
+    padding: 5px;
+    padding-bottom: 30px;
     display: none;
 }
 
-#downloadAllButton{
-    font-size: 0.7vw;
-    display: inline-block;
-    margin-left: 23%;
+#buttonTable {
+    table-layout: fixed;
+    width: 100%;
 }
-#downloadExpressionZscoreButton, #downloadExpressionLog2Button, #downloadClinicalButton {
+
+#downloadAllButton,
+#downloadExpressionZscoreButton,
+#downloadExpressionLog2Button,
+#downloadClinicalButton {
     font-size: 0.7vw;
     display: inline-block;
     margin-left: 5px;
+    margin-right: 5px;
+    width: 100%;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
