@@ -400,17 +400,22 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
               domain = domain.map(el => Number(el)).filter(el => !Number.isNaN(el)).sort((a,b) => a-b);
             };
 
-            // estimate text sizes using getTextWidth() command
+            // estimate text sizes needed for each column using getTextWidth() command on variable name and labels
             let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
             let lab_width = Math.max(...domain.map(el => getTextWidth("\xa0" + el.val, 10))); // max text width of each unique label
-        
+            
+            // calculate width and height of legend column for this variable
+            let leg_wd = Math.ceil(Math.max(lab_width + sampTrackHeight, var_width));
+            let leg_ht = (sampTrackHeight + margin.space) * domain.length;
+            if (type == "continuous") {leg_ht = heatHeight + margin.space} // if continuous, make height equal to colorbar (heatHeight same as heatmap colorbar)
+
             // return summary of variable data
-            return { varname: v, vartype: type, domain: domain, nlab: domain.length, max_width: Math.ceil(Math.max(lab_width + sampTrackHeight, var_width)) };
+            return { varname: v, vartype: type, domain: domain, nlab: domain.length, leg_width: leg_wd, leg_height: leg_ht };
         });
         // calculate cumulative sum of column widths with spacing for x-positioning each variable (for legend)
         const cumulativeSum = (sum => value => sum += value)(0);
-        let x_spacing = sampTrack_obj.map(el => el.max_width + margin.space).map(cumulativeSum);
-        sampTrack_obj = sampTrack_obj.map(o => { o.x = x_spacing[sampTrack_obj.indexOf(o)] - o.max_width; return o });
+        let x_spacing = sampTrack_obj.map(el => el.leg_width + margin.space).map(cumulativeSum);
+        sampTrack_obj = sampTrack_obj.map(o => { o.x = x_spacing[sampTrack_obj.indexOf(o)] - o.leg_width; return o });
         
         // Build color scales for all selected variables
         // adjust scales for categorical or continuous
@@ -521,17 +526,15 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
                     .call(d3.axisRight().scale(vScale).tickSize(5).ticks(5));
             };
         });
-        // adjust sampLegend size
-        // height is max number of labels times entry height, plus space for title
-        // width is cumulative sum of max label width for each column plus the colored rectangle and spacing
-        let sampLegendHeight = 20 + ((sampTrackHeight + margin.space) * Math.max(...sampTrack_obj.map(el => el.nlab),0)) + margin.space;
-        // check if any categorical variables and if so then add max height
+
+        // adjust sampLegend size based on legend sizes for each variable: maximum height, sum of widths
+        let sampLegendHeight = 20 + (Math.max(...sampTrack_obj.map(el => el.leg_height),0)) + margin.space;
         div_sampLegend.select(".sampLegend")
-            .attr("height", sampLegendHeight + margin.space)
-            .attr("width", sampTrack_obj.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0));
+            .attr("height", sampLegendHeight)
+            .attr("width", sampTrack_obj.reduce((a, b) => a + b.leg_width + sampTrackHeight + margin.space, 0));
         if (sampLegendHeight < 200) {
             div_sampLegend.select('#legend')
-                .style('height', (sampLegendHeight + 2*margin.space) + 'px');
+                .style('height', (sampLegendHeight + margin.space) + 'px');
         } else {
             div_sampLegend.select('#legend')
                 .style('height', '200px');
