@@ -219,7 +219,7 @@ let buildPlots = async function () {
     }
   });
 
-  buildDownloadData(cohortQuery, expressionQuery, clinicalQuery, expressionData, clinicalData);
+  buildDownloadData(cohortQuery, expressionData, clinicalData);
   buildHeatmap(expressionData, clinicalData);
   buildViolinPlot(cohortQuery, expressionData, "cohort");
 };
@@ -292,8 +292,10 @@ saveFile = function (x, fileName) {
   return a;
 };
 
-buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, clinicalData) {
+buildDownloadData = async function (cohortID, expressionData, clinicalData) {
     let timestamp = new Date().toUTCString();
+    let genes = d3.map(expressionData, d => d.gene).keys();
+    let clin_vars = Object.keys(clinicalData[0]);
 
     let barcodes_exp = d3
         .map(expressionData, (d) => {
@@ -338,8 +340,8 @@ buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, 
         cohort: cohortID,
         barcodes: barcodes_all,
         //filter: "no filter", // put in what pie chart slices are selected
-        genes_query: genes,
         clinical_features: clin_vars,
+        genes_query: genes,
         firebrowse_expression_query_string: fb_str_exp,
         firebrowse_clinical_query_string: fb_str_clin,
         timestamp: timestamp,
