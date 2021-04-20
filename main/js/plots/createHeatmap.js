@@ -274,6 +274,18 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         const scale = dendHeight / root.data.height;
         return "M" + d.parent.x + "," + (dendHeight - d.parent.data.height * scale) + "H" + d.x + "V" + (dendHeight - d.data.height * scale);
     };
+    
+    // function to get width of bounding text box for a given string, font-size
+    let svg_temp = divObject.append("svg");
+    function getTextWidth(str, fs) {
+        let text_temp = svg_temp
+            .append('text')
+            .style('font-size', fs + "px")
+            .text(str);
+        var dim = text_temp.node().getBBox();
+        svg_temp.html("");
+        return dim.width
+    };
 
 
     ///// Build the Mouseover Tool Functions /////
@@ -372,19 +384,33 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         // Get sample track selected vars (only in observable)
         let sampTrackVars = getClinvarSelection();
         // make new structure with fields for variable varname, domain of unique values, vartype (default categorical)
+        // also for legend: max size of variable name and all unique variable labels (for column width), and number of variables (for legend height)
         let sampTrack_obj = sampTrackVars.map(v => {
+            // get all values for variable v
             let domain = clinicalData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
-                .map(d =>  d[v]).filter(el => el !== "NA").sort();
+            .map(d =>  d[v]).filter(el => el !== "NA").sort();
             domain = [...new Set(domain)]; // get unique values only
-            let temp = {varname: v, vartype: "categorical", domain: domain};
-            var continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
-            var percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
+            
+            // determine if variable categorical or continuous (numeric)
+            let continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
+            let percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
+            let type = "categorical"; // assume categorical by default
             if(percentNull < 0.95 & (v != 'vital_status')) {
-                temp.vartype = "continuous";
-                temp.domain = domain.map(el => Number(el)).filter(el => !Number.isNaN(el)).sort((a,b) => a-b); // map to numeric, filter and sort domain
+              type = "continuous";
+              domain = domain.map(el => Number(el)).filter(el => !Number.isNaN(el)).sort((a,b) => a-b);
             };
-            return temp
+
+            // estimate text sizes using getTextWidth() command
+            let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
+            let lab_width = Math.max(...domain.map(el => getTextWidth("\xa0" + el.val, 10))); // max text width of each unique label
+        
+            // return summary of variable data
+            return { varname: v, vartype: type, domain: domain, nlab: domain.length, max_width: Math.ceil(Math.max(lab_width + sampTrackHeight, var_width)) };
         });
+        // calculate cumulative sum of column widths with spacing for x-positioning each variable (for legend)
+        const cumulativeSum = (sum => value => sum += value)(0);
+        let x_spacing = sampTrack_obj.map(el => el.max_width + margin.space).map(cumulativeSum);
+        sampTrack_obj = sampTrack_obj.map(o => { o.x = x_spacing[sampTrack_obj.indexOf(o)] - o.max_width; return o });
         
         // Build color scales for all selected variables
         // adjust scales for categorical or continuous
@@ -439,76 +465,48 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             .select(".domain").remove();
 
         // Sample Track Legend:
-        // function to get width of bounding text box for a given string, font-size
-        let svg_temp = divObject.append("svg");
-        function getTextWidth(str, fs) {
-            let text_temp = svg_temp
-                .append('text')
-                .style('font-size', fs + "px")
-                .text(str);
-            var dim = text_temp.node().getBBox();
-            return dim.width
-        };
-
-        // get max sizes of variable name and all unique variable labels (for column width), and number of variables (for legend height)
-        let var_summary = sampTrackVars.map(v => {
-            let myLabs = d3.map(clinicalData, d => d[v]).keys().sort().filter(el => el !== "NA").map(el => ({ val: el }));
-            let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
-            let lab_width = Math.max(...myLabs.map(el => getTextWidth("\xa0" + el.val, 10))); // max text width of each unique label
-            return { var: v, labs: myLabs, nlab: myLabs.length, max_width: Math.ceil(Math.max(lab_width + sampTrackHeight, var_width)) }
-        });
-        svg_temp.html("");
-
-        // calculate cumulative sum of column widths with spacing for x-positioning each variable
-        const cumulativeSum = (sum => value => sum += value)(0);
-        let x_spacing = var_summary.map(el => el.max_width + margin.space).map(cumulativeSum);
-        var_summary = var_summary.map(o => { o.x = x_spacing[var_summary.indexOf(o)] - o.max_width; return o });
-
-        // fill sample track legend
+        // fill sample track legend based on info in sampTrack_obj
         svg_sampLegend.html("");
-        var_summary.forEach(v => {
-            let var_data = sampTrack_obj.filter(el => el.varname == v.var)[0];
-            svg_sampLegend
+        sampTrack_obj.forEach(v => {
+            svg_sampLegend // add variable title
                 .append("text")
                 .attr("x", v.x)
                 .attr("alignment-baseline", "hanging")
                 .style("font-size", "15px")
                 .attr("text-decoration", "underline")
-                .text(v.var + ":");
-            if (var_data.vartype == "categorical" ) {
-            svg_sampLegend.selectAll()
-                .data(v.labs, d => v.var + ":" + d.val + "_box")
+                .text(v.varname + ":");
+            if (v.vartype == "categorical" ) { // if categorical, then make boxes for categorical labels
+            svg_sampLegend.selectAll() // add box
+                .data(v.domain, d => v.varname + ":" + d + "_box")
                 .enter()
                 .append("rect")
                 .attr("x", v.x)
                 .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space))
                 .attr("width", sampTrackHeight)
                 .attr("height", sampTrackHeight)
-                .style("fill", d => colorScale_all[v.var](d.val))
+                .style("fill", d => colorScale_all[v.varname](d))
                 .style("stroke", "black");
-            svg_sampLegend.selectAll()
-                .data(v.labs, d => v.var + ":" + d.val + "_text")
+            svg_sampLegend.selectAll() // add label
+                .data(v.domain, d => v.varname + ":" + d + "_text")
                 .enter()
                 .append("text")
                 .attr("x", v.x + sampTrackHeight)
                 .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space) + sampTrackHeight / 2)
                 .attr("alignment-baseline", "central")
                 .style("font-size", "10px")
-                .text(d => "\xa0" + d.val);
-            } else { // continuous variable legend case
+                .text(d => "\xa0" + d);
+            } else { // if not categorical, then make legend colorbar for continuous variable
                 // Position scale for the legend
-                let minV = Math.min(...var_data.domain)
-                let maxV = Math.max(...var_data.domain)
+                let minV = Math.min(...v.domain)
+                let maxV = Math.max(...v.domain)
                 let vScale = d3.scaleLinear().domain([minV, maxV]).range([heatHeight, 0]);
   
-                // Create vArr array to build legend:
-                let vArr = [];
+                let vArr = []; // Create vArr array to build legend:
                 let step = (maxV - minV) / (1000 - 1);
                 for (var i = 0; i < 1000; i++) {
                     vArr.push(minV + (step * i));
                 };
-                // Build the continuous Legend:   
-                svg_sampLegend.selectAll()
+                svg_sampLegend.selectAll() // Build continuous Legend:
                     .data(vArr)
                     .enter()
                     .append('rect')
@@ -516,9 +514,8 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
                     .attr('y', d => 20 + vScale(d))
                     .attr("width", sampTrackHeight)
                     .attr("height", 1 + (heatHeight / vArr.length))
-                    .style("fill", d => colorScale_all[v.var](d));
-                // Append the axis to the legend:
-                svg_sampLegend.append("g")
+                    .style("fill", d => colorScale_all[v.varname](d));
+                svg_sampLegend.append("g") // Append axis to legend:
                     .style("font-size", 10)
                     .attr("transform", "translate(" + (v.x + sampTrackHeight) + ",20)")
                     .call(d3.axisRight().scale(vScale).tickSize(5).ticks(5));
@@ -527,10 +524,11 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         // adjust sampLegend size
         // height is max number of labels times entry height, plus space for title
         // width is cumulative sum of max label width for each column plus the colored rectangle and spacing
-        let sampLegendHeight = 20 + ((sampTrackHeight + margin.space) * Math.max(...var_summary.map(el => el.nlab),0)) + margin.space;
+        let sampLegendHeight = 20 + ((sampTrackHeight + margin.space) * Math.max(...sampTrack_obj.map(el => el.nlab),0)) + margin.space;
+        // check if any categorical variables and if so then add max height
         div_sampLegend.select(".sampLegend")
             .attr("height", sampLegendHeight + margin.space)
-            .attr("width", var_summary.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0));
+            .attr("width", sampTrack_obj.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0));
         if (sampLegendHeight < 200) {
             div_sampLegend.select('#legend')
                 .style('height', (sampLegendHeight + 2*margin.space) + 'px');
