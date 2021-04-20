@@ -1,10 +1,10 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
-// dataInput is the array os JSONs of gene expression data to visualize
+// expressionData is the array os JSONs of gene expression data to visualize
 // clinicalData is the array containing clinical data
 // divObject is the div object on the html page to build the plot
 
-createHeatmap = async function (dataInput, clinicalData, divObject) {
+createHeatmap = async function (expressionData, clinicalData, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
@@ -87,7 +87,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
     // Add title listing cohorts
     // Get unique cohort IDs (for title)
-    const cohortIDs = d3.map(dataInput, d => d.cohort).keys();
+    const cohortIDs = d3.map(expressionData, d => d.cohort).keys();
     svg_frame.append("text")
         .attr('id', 'heatmapTitle')
         .attr("x", margin.left)
@@ -191,13 +191,13 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'barcodes' and the rows to be the set of genes called 'geneID'
     // Get unique TCGA IDs
-    var unique_ids = d3.map(dataInput, d => d.tcga_participant_barcode).keys();
+    var unique_ids = d3.map(expressionData, d => d.tcga_participant_barcode).keys();
     let barcodes = unique_ids;
-    let geneID = d3.map(dataInput, d => d.gene).keys();
+    let geneID = d3.map(expressionData, d => d.gene).keys();
 
     // Cluster IDs by expression:
     // 1. Merge data into wide format (for hclust algorithm)
-    var data_merge = mergeExpression(dataInput);
+    var data_merge = mergeExpression(expressionData);
 
     // function for mean expression of a branch of tree
     function branchMean(branch) {
@@ -356,7 +356,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
         // Re/build the heatmap (selecting by custom key 'tcga_id:gene'):
         svg_heatmap.selectAll()
-            .data(dataInput, d => (d.tcga_participant_barcode + ':' + d.gene))
+            .data(expressionData, d => (d.tcga_participant_barcode + ':' + d.gene))
             .enter()
             .append("rect")
             .attr("x", d => x(d.tcga_participant_barcode))
