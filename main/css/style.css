@@ -171,16 +171,17 @@
 #downloadDataButtons {
     margin-bottom: 1%;
     margin: auto;
-    width: 60%;
+    padding-left: 25%;
+    width: 70%;
     padding: 5px;
     padding-bottom: 30px;
     display: none;
 }
 
-.centerButtons div{
+#centerButtons {
     display: inline-block;
-    margin-left:5px;
-    margin-right:5px;
+    margin-left: 20%;
+    margin-right: 5px;
 }
 
 #downloadAllButton,
