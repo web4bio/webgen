@@ -167,10 +167,10 @@
     width: 15%;
     /* margin-right: 35%; */
     margin-left: 43%;
+    margin-bottom: 1%;
 }
 
 #downloadDataButtons {
-    margin-bottom: 1%;
     margin: auto;
     width: 60%;
     padding: 5px;
@@ -178,10 +178,9 @@
     display: none;
 }
 
-.centerButtons div{
-    display: inline-block;
-    margin-left:5px;
-    margin-right:5px;
+#buttonTable {
+    table-layout: fixed;
+    width: 100%;
 }
 
 #downloadAllButton,
@@ -192,6 +191,7 @@
     display: inline-block;
     margin-left: 5px;
     margin-right: 5px;
+    width: 100%;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
