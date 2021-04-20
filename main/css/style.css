@@ -174,19 +174,23 @@
     width: 60%;
     padding: 5px;
     padding-bottom: 30px;
+    display: none;
 }
 
-#downloadAllButton {
-    font-size: 0.7vw;
+.centerButtons div{
     display: inline-block;
-    margin-left: 19%;
+    margin-left:5px;
+    margin-right:5px;
 }
+
+#downloadAllButton,
 #downloadExpressionZscoreButton,
 #downloadExpressionLog2Button,
 #downloadClinicalButton {
     font-size: 0.7vw;
     display: inline-block;
     margin-left: 5px;
+    margin-right: 5px;
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */

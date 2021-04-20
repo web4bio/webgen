@@ -160,14 +160,14 @@ let buildPlots = async function () {
   // Extract expression data only at intersectedBarcodes
   let expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
 
-  // Get clinical data for specified clinical fields
+  // Get clinical data for all clinical fields
   let clinicalData;
-  if (intersectedBarcodes && intersectedBarcodes.length) {
-    // query clinical data at selected barcodes
-    clinicalData = (await firebrowse.getClinical_FH_bf(intersectedBarcodes,clinicalQuery)).Clinical_FH;
-  } else {
-    // if no barcodes, query entire cohort for clinical data
-    clinicalData = await getClinicalDataJSONarray_cc(cohortQuery,clinicalQuery);
+  if (intersectedBarcodes && intersectedBarcodes.length) { // query clinical data at selected barcodes
+    //clinicalData = (await firebrowse.getClinical_FH_bf(intersectedBarcodes,clinicalQuery)).Clinical_FH;
+    clinicalData = await getClinicalDataJSONarray_b(intersectedBarcodes); // call function which pulls all clinical data for barcodes
+  } else { // if no barcodes, query entire cohort for clinical data
+    //clinicalData = await getClinicalDataJSONarray_cc(cohortQuery,clinicalQuery);
+    clinicalData = await getClinicalDataJSONarray_c(cohortQuery); // call function which pulls all clinical data for cohort
   }
   
   //Store clinical data in localStorage
