@@ -293,7 +293,7 @@ saveFile = function (x, fileName) {
 };
 
 buildDownloadData = async function (cohortID, expressionData, clinicalData) {
-    let timestamp = new Date().toUTCString();
+    let timestamp = new Date().toUTCString().replace(',','');
     let genes = d3.map(expressionData, d => d.gene).keys();
     let clin_vars = Object.keys(clinicalData[0]);
 
@@ -384,7 +384,7 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
     csv_string_clin += "Clinical Feature," + barcodes_clin.join(","); // first row is column names
     // for each clinical feature, add a row to csv, each comma-separated element is the feature value for that barcode
     clin_vars.sort().forEach((f) => {
-        csv_string_clin += "\n" + f; // add newline and name of feature f in first column
+        csv_string_clin += "\r" + f; // add newline and name of feature f in first column
         barcodes_clin.forEach((b) => {
             csv_string_clin += ",";
             // filter out barcode b, get field of feature f
@@ -392,7 +392,7 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
             if (!val.length) {
                 csv_string_clin += "NA";
             } else {
-                csv_string_clin += val;
+                csv_string_clin += val.toString().replace(/\n|\r|,/g,''); // replace catches any commas or newlines within the added value
             } // add to string
         });
     });
