@@ -237,7 +237,7 @@ buildHeatmap = async function (expData, clinData) {
 
 buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) {
     // Remove the loader
-    document.getElementById("violinDiv0").classList.remove("loader");
+    document.getElementById("svgViolinDiv0").classList.remove("loader");
     //Clear HTML content ov violinPlots div
     var violinsDiv = document.getElementById("violinPlots");
     violinsDiv.innerHTML = "";
