@@ -118,17 +118,18 @@
     width: 45%;
 }
 
-#clinicalPartitionSelection {
-    width: 90%;
-}
-
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
-#geneTwoQuerySelectBox,
+#geneTwoQuerySelectBox{
+    margin-bottom: 10px;
+    margin-top: 10px;
+    text-align: right;
+}
+
 #pathwaySelectBox {
     margin-bottom: 10px;
     margin-top: 10px;
-    text-align: center;
+    text-align: left;
 }
 
 #geneTwoMultipleSelection,
