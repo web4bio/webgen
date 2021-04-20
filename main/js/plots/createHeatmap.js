@@ -527,13 +527,13 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         // adjust sampLegend size
         // height is max number of labels times entry height, plus space for title
         // width is cumulative sum of max label width for each column plus the colored rectangle and spacing
-        let sampLegendHeight = 20 + (sampTrackHeight + margin.space) * Math.max(...var_summary.map(el => el.nlab));
+        let sampLegendHeight = 20 + ((sampTrackHeight + margin.space) * Math.max(...var_summary.map(el => el.nlab),0)) + margin.space;
         div_sampLegend.select(".sampLegend")
             .attr("height", sampLegendHeight + margin.space)
             .attr("width", var_summary.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0));
         if (sampLegendHeight < 200) {
             div_sampLegend.select('#legend')
-                .attr('height', sampLegendHeight + 'px');
+                .style('height', (sampLegendHeight + 2*margin.space) + 'px');
         } else {
             div_sampLegend.select('#legend')
                 .style('height', '200px');
