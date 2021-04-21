@@ -116,7 +116,7 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
     else
         myGroups.sort();
 
-    console.log(myGroups);
+    // console.log(myGroups);
 
     //Populate violinCurveColors
     var colorsArrIndex = 0;
@@ -172,7 +172,7 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
 
     // Get min and max expression values for y axis:
     var geneExpressionValues = d3.map(dataInput, function(d){return d.expression_log2}).keys();
-    console.log(geneExpressionValues);
+    // console.log(geneExpressionValues);
     let minExpressionLevel = Math.min(...geneExpressionValues);
     let maxExpressionLevel = Math.max(...geneExpressionValues);
     
