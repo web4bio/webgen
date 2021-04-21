@@ -321,7 +321,7 @@ let fillClinicalSelectBox = async function () {
       var nullCount = continuousMap.filter(x => x == null).length;
       var totalCount = continuousMap.length;
       var percentContinuous = nullCount / totalCount;
-      if(percentContinuous < 0.75 & (currentFeature != 'vital_status'))
+      if((percentContinuous < 0.75 && (currentFeature != 'vital_status')) || currentFeature === "days_to_death" || currentFeature === "cervix_suv_results")
         temp.type = "continuous";
       else
         temp.type = "categorical";
