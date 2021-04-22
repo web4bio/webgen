@@ -411,7 +411,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
 
             // estimate text sizes needed for each column using getTextWidth() command on variable name and labels
             let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
-            let lab_width = Math.max(...domain.map(el => getTextWidth("\xa0" + el.val, 10))); // max text width of each unique label
+            let lab_width = Math.max(...domain.map(el => getTextWidth("\xa0" + el, 10))); // max text width of each unique label
             
             // calculate width and height of legend column for this variable
             let leg_wd = Math.ceil(Math.max(lab_width + sampTrackHeight, var_width));
