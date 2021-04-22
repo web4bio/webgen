@@ -192,7 +192,7 @@ let buildPlots = async function () {
     expressionQuery = removedDuplicates;
   }
 
-  buildDownloadData(cohortQuery, expressionQuery, clinicalQuery, expressionData, clinicalData);
+  buildDownloadData(cohortQuery, expressionData, clinicalData);
   buildHeatmap(expressionData, clinicalData);
   addToggleSwitch(expressionQuery, cohortQuery, expressionData);
   buildViolinPlot(cohortQuery, expressionData, "cohort");
@@ -315,8 +315,10 @@ saveFile = function (x, fileName) {
   return a;
 };
 
-buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, clinicalData) {
-    let timestamp = new Date().toUTCString();
+buildDownloadData = async function (cohortID, expressionData, clinicalData) {
+    let timestamp = new Date().toUTCString().replace(',','');
+    let genes = d3.map(expressionData, d => d.gene).keys();
+    let clin_vars = Object.keys(clinicalData[0]);
 
     let barcodes_exp = d3
         .map(expressionData, (d) => {
@@ -361,8 +363,8 @@ buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, 
         cohort: cohortID,
         barcodes: barcodes_all,
         //filter: "no filter", // put in what pie chart slices are selected
-        genes_query: genes,
         clinical_features: clin_vars,
+        genes_query: genes,
         firebrowse_expression_query_string: fb_str_exp,
         firebrowse_clinical_query_string: fb_str_clin,
         timestamp: timestamp,
@@ -405,7 +407,7 @@ buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, 
     csv_string_clin += "Clinical Feature," + barcodes_clin.join(","); // first row is column names
     // for each clinical feature, add a row to csv, each comma-separated element is the feature value for that barcode
     clin_vars.sort().forEach((f) => {
-        csv_string_clin += "\n" + f; // add newline and name of feature f in first column
+        csv_string_clin += "\r" + f; // add newline and name of feature f in first column
         barcodes_clin.forEach((b) => {
             csv_string_clin += ",";
             // filter out barcode b, get field of feature f
@@ -413,7 +415,7 @@ buildDownloadData = async function (cohortID, genes, clin_vars, expressionData, 
             if (!val.length) {
                 csv_string_clin += "NA";
             } else {
-                csv_string_clin += val;
+                csv_string_clin += val.toString().replace(/\n|\r|,/g,''); // replace catches any commas or newlines within the added value
             } // add to string
         });
     });
