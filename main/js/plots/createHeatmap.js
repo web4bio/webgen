@@ -1,10 +1,10 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
-// dataInput is the array os JSONs of gene expression data to visualize
+// expressionData is the array os JSONs of gene expression data to visualize
 // clinicalData is the array containing clinical data
 // divObject is the div object on the html page to build the plot
 
-createHeatmap = async function (dataInput, clinicalData, divObject) {
+createHeatmap = async function (expressionData, clinicalData, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
@@ -87,7 +87,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
     // Add title listing cohorts
     // Get unique cohort IDs (for title)
-    const cohortIDs = d3.map(dataInput, d => d.cohort).keys();
+    const cohortIDs = d3.map(expressionData, d => d.cohort).keys();
     svg_frame.append("text")
         .attr('id', 'heatmapTitle')
         .attr("x", margin.left)
@@ -168,36 +168,55 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
     var sortCurrentText = sortOptionDiv
         .append('tspan')
         .text('mean expression (default)');
-    var sortOptionTable = sortOptionDiv.append('td'); // make a table for different sort options, only hclust for now
-    sortOptionTable
-        .append('tspan')
-        .text('hclust\xa0')
-        .append('input')
-        .attr('type', 'checkbox')
-        .style('opacity', 1) // have to include these two lines... for some reason defaults to 0 and 'none'
-        .style('pointer-events', 'auto') // ^ defaults to 'none', which makes checkbox non-responsive?
-        .on('change', function () {
-            // function to update state of sortCurrentText and doCluster
-            // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
-            sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
-            doCluster = (this.checked ? true : false);
-        });
+    // var sortOptionTable = sortOptionDiv.append('td'); // make a table for different sort options, only hclust for now
+    // sortOptionTable
+    //     .append('tspan')
+    //     .text('hclust\xa0')
+    //     .append('input')
+    //     .attr('type', 'checkbox')
+    //     .style('opacity', 1) // have to include these two lines... for some reason defaults to 0 and 'none'
+    //     .style('pointer-events', 'auto') // ^ defaults to 'none', which makes checkbox non-responsive?
+    //     .on('change', function () {
+    //         // function to update state of sortCurrentText and doCluster
+    //         // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
+    //         sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
+    //         doCluster = (this.checked ? true : false);
+    //     });
+    // use a toggle switch between sort by mean expression and sort by hierarchical clustering
+    var toggle_str =
+        "<label class='switch'>" +
+        "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0Mean Expression" +
+        "<input type='checkbox' id='toggleClust'>" +
+        "<span class='lever'></span>" +
+        "Hierarchical Clustering" +
+        "</label>";
+    sortToggleDiv = sortOptionDiv.append("div")
+        .attr("align", "center")
+        .attr("class", "switch")
+        .style("padding-bottom", "10px")
+        .attr("fill", "black")
+        .html(toggle_str);
+    toggleClust = sortToggleDiv.select("#toggleClust")
+    toggleClust.on('change', function () {
+        // function to update state of sortCurrentText and doCluster
+        sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
+        doCluster = (this.checked ? true : false);
+    });
     sortOptionDiv.append('button')
         .attr('type', 'button')
         .attr('class', 'updateHeatmapButton')
         .text('Update heatmap'); // button to update heatmap, define update function below
 
-
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'barcodes' and the rows to be the set of genes called 'geneID'
     // Get unique TCGA IDs
-    var unique_ids = d3.map(dataInput, d => d.tcga_participant_barcode).keys();
+    var unique_ids = d3.map(expressionData, d => d.tcga_participant_barcode).keys();
     let barcodes = unique_ids;
-    let geneID = d3.map(dataInput, d => d.gene).keys();
+    let geneID = d3.map(expressionData, d => d.gene).keys();
 
     // Cluster IDs by expression:
     // 1. Merge data into wide format (for hclust algorithm)
-    var data_merge = mergeExpression(dataInput);
+    var data_merge = mergeExpression(expressionData);
 
     // function for mean expression of a branch of tree
     function branchMean(branch) {
@@ -274,6 +293,27 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         const scale = dendHeight / root.data.height;
         return "M" + d.parent.x + "," + (dendHeight - d.parent.data.height * scale) + "H" + d.x + "V" + (dendHeight - d.data.height * scale);
     };
+    
+    // function to get width of bounding text box for a given string, font-size
+    let svg_temp = divObject.append("svg");
+    function getTextWidth(str, fs) {
+        let text_temp = svg_temp
+            .append('text')
+            .style('font-size', fs + "px")
+            .text(str);
+        var dim = text_temp.node().getBBox();
+        svg_temp.html("");
+        return dim.width
+    };
+    // function to get median of an array (for continuous variable color scale middle pivot)
+    let median = function (x) {
+        if (x.length % 2) {
+            return x[Math.floor(x.length / 2)]; // if odd length take middle
+        } else {
+            return (x[Math.floor(x.length / 2) - 1] + x[Math.floor(x.length / 2)])/2; // if even length average middle 2
+        };
+    }
+    
 
 
     ///// Build the Mouseover Tool Functions /////
@@ -356,7 +396,7 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
         // Re/build the heatmap (selecting by custom key 'tcga_id:gene'):
         svg_heatmap.selectAll()
-            .data(dataInput, d => (d.tcga_participant_barcode + ':' + d.gene))
+            .data(expressionData, d => (d.tcga_participant_barcode + ':' + d.gene))
             .enter()
             .append("rect")
             .attr("x", d => x(d.tcga_participant_barcode))
@@ -372,32 +412,51 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
         // Get sample track selected vars (only in observable)
         let sampTrackVars = getClinvarSelection();
         // make new structure with fields for variable varname, domain of unique values, vartype (default categorical)
+        // also for legend: max size of variable name and all unique variable labels (for column width), and number of variables (for legend height)
         let sampTrack_obj = sampTrackVars.map(v => {
+            // get all values for variable v
             let domain = clinicalData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
-                .map(d =>  d[v]).filter(el => el !== "NA").sort();
+            .map(d =>  d[v]).filter(el => el !== "NA").sort();
             domain = [...new Set(domain)]; // get unique values only
-            let temp = {varname: v, vartype: "categorical", domain: domain};
-            var continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
-            var percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
+            
+            // determine if variable categorical or continuous (numeric)
+            let continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
+            let percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
+            let type = "categorical"; // assume categorical by default
             if(percentNull < 0.95 & (v != 'vital_status')) {
-                temp.vartype = "continuous";
-                temp.domain = domain.map(el => Number(el)).filter(el => !Number.isNaN(el)).sort((a,b) => a-b); // map to numeric, filter and sort domain
+              type = "continuous";
+              domain = domain.map(el => Number(el)).filter(el => !Number.isNaN(el)).sort((a,b) => a-b);
             };
-            return temp
+
+            // estimate text sizes needed for each column using getTextWidth() command on variable name and labels
+            let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
+            let lab_width = Math.max(...domain.map(el => getTextWidth("\xa0" + el, 10))); // max text width of each unique label
+            
+            // calculate width and height of legend column for this variable
+            let leg_wd = Math.ceil(Math.max(lab_width + sampTrackHeight, var_width));
+            let leg_ht = (sampTrackHeight + margin.space) * domain.length;
+            if (type == "continuous") {leg_ht = heatHeight + margin.space} // if continuous, make height equal to colorbar (heatHeight same as heatmap colorbar)
+
+            // return summary of variable data
+            return { varname: v, vartype: type, domain: domain, nlab: domain.length, leg_width: leg_wd, leg_height: leg_ht };
         });
+        // calculate cumulative sum of column widths with spacing for x-positioning each variable (for legend)
+        const cumulativeSum = (sum => value => sum += value)(0);
+        let x_spacing = sampTrack_obj.map(el => el.leg_width + margin.space).map(cumulativeSum);
+        sampTrack_obj = sampTrack_obj.map(o => { o.x = x_spacing[sampTrack_obj.indexOf(o)] - o.leg_width; return o });
         
         // Build color scales for all selected variables
         // adjust scales for categorical or continuous
         let colorScale_all = sampTrack_obj.reduce( (acc,el) => {
             if (el.vartype == "continuous") {
-              acc[el.varname] = d3.scaleLinear()
-                .domain([Math.min(...el.domain), Math.max(...el.domain)])
-                .range([ "lightblue", "red"]);
+                acc[el.varname] = d3.scaleLinear()
+                    .domain([Math.min(...el.domain), median(el.domain), Math.max(...el.domain)]) // compute median for middle pivot in color scale
+                    .range([ "green", "white", "orange"]);
             } else {
-              acc[el.varname] = d3.scaleOrdinal()
-                .domain(el.domain)
-                .range(d3.schemeCategory10)
-                .unknown("lightgray");
+                acc[el.varname] = d3.scaleOrdinal()
+                    .domain(el.domain)
+                    .range(d3.schemeCategory10)
+                    .unknown("lightgray");
             };
             return acc
         }, {});
@@ -424,8 +483,8 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                 .attr("y", y_samp(v))
                 .attr("width", x.bandwidth())
                 .attr("height", sampTrackHeight)
-                .style("fill", d => colorScale_all[v](d[v]) )
-                .attr("fill0", d => colorScale_all[v](d[v]) )
+                .style("fill", d => {if (d[v]=="NA") {return "lightgray"} else {return colorScale_all[v](d[v])} }) // catch NA manually since d3.scaleLinear has no unknown option
+                .attr("fill0", d => {if (d[v]=="NA") {return "lightgray"} else {return colorScale_all[v](d[v])} })
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove_samp)
                 .on("mouseleave", mouseleave_samp);
@@ -439,76 +498,48 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
             .select(".domain").remove();
 
         // Sample Track Legend:
-        // function to get width of bounding text box for a given string, font-size
-        let svg_temp = divObject.append("svg");
-        function getTextWidth(str, fs) {
-            let text_temp = svg_temp
-                .append('text')
-                .style('font-size', fs + "px")
-                .text(str);
-            var dim = text_temp.node().getBBox();
-            return dim.width
-        };
-
-        // get max sizes of variable name and all unique variable labels (for column width), and number of variables (for legend height)
-        let var_summary = sampTrackVars.map(v => {
-            let myLabs = d3.map(clinicalData, d => d[v]).keys().sort().filter(el => el !== "NA").map(el => ({ val: el }));
-            let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
-            let lab_width = Math.max(...myLabs.map(el => getTextWidth("\xa0" + el.val, 10))); // max text width of each unique label
-            return { var: v, labs: myLabs, nlab: myLabs.length, max_width: Math.ceil(Math.max(lab_width + sampTrackHeight, var_width)) }
-        });
-        svg_temp.html("");
-
-        // calculate cumulative sum of column widths with spacing for x-positioning each variable
-        const cumulativeSum = (sum => value => sum += value)(0);
-        let x_spacing = var_summary.map(el => el.max_width + margin.space).map(cumulativeSum);
-        var_summary = var_summary.map(o => { o.x = x_spacing[var_summary.indexOf(o)] - o.max_width; return o });
-
-        // fill sample track legend
+        // fill sample track legend based on info in sampTrack_obj
         svg_sampLegend.html("");
-        var_summary.forEach(v => {
-            let var_data = sampTrack_obj.filter(el => el.varname == v.var)[0];
-            svg_sampLegend
+        sampTrack_obj.forEach(v => {
+            svg_sampLegend // add variable title
                 .append("text")
                 .attr("x", v.x)
                 .attr("alignment-baseline", "hanging")
                 .style("font-size", "15px")
                 .attr("text-decoration", "underline")
-                .text(v.var + ":");
-            if (var_data.vartype == "categorical" ) {
-            svg_sampLegend.selectAll()
-                .data(v.labs, d => v.var + ":" + d.val + "_box")
+                .text(v.varname + ":");
+            if (v.vartype == "categorical" ) { // if categorical, then make boxes for categorical labels
+            svg_sampLegend.selectAll() // add box
+                .data(v.domain, d => v.varname + ":" + d + "_box")
                 .enter()
                 .append("rect")
                 .attr("x", v.x)
                 .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space))
                 .attr("width", sampTrackHeight)
                 .attr("height", sampTrackHeight)
-                .style("fill", d => colorScale_all[v.var](d.val))
+                .style("fill", d => colorScale_all[v.varname](d))
                 .style("stroke", "black");
-            svg_sampLegend.selectAll()
-                .data(v.labs, d => v.var + ":" + d.val + "_text")
+            svg_sampLegend.selectAll() // add label
+                .data(v.domain, d => v.varname + ":" + d + "_text")
                 .enter()
                 .append("text")
                 .attr("x", v.x + sampTrackHeight)
                 .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space) + sampTrackHeight / 2)
                 .attr("alignment-baseline", "central")
                 .style("font-size", "10px")
-                .text(d => "\xa0" + d.val);
-            } else { // continuous variable legend case
+                .text(d => "\xa0" + d);
+            } else { // if not categorical, then make legend colorbar for continuous variable
                 // Position scale for the legend
-                let minV = Math.min(...var_data.domain)
-                let maxV = Math.max(...var_data.domain)
+                let minV = Math.min(...v.domain)
+                let maxV = Math.max(...v.domain)
                 let vScale = d3.scaleLinear().domain([minV, maxV]).range([heatHeight, 0]);
   
-                // Create vArr array to build legend:
-                let vArr = [];
+                let vArr = []; // Create vArr array to build legend:
                 let step = (maxV - minV) / (1000 - 1);
                 for (var i = 0; i < 1000; i++) {
                     vArr.push(minV + (step * i));
                 };
-                // Build the continuous Legend:   
-                svg_sampLegend.selectAll()
+                svg_sampLegend.selectAll() // Build continuous Legend:
                     .data(vArr)
                     .enter()
                     .append('rect')
@@ -516,24 +547,26 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
                     .attr('y', d => 20 + vScale(d))
                     .attr("width", sampTrackHeight)
                     .attr("height", 1 + (heatHeight / vArr.length))
-                    .style("fill", d => colorScale_all[v.var](d));
-                // Append the axis to the legend:
-                svg_sampLegend.append("g")
+                    .style("fill", d => colorScale_all[v.varname](d));
+                svg_sampLegend.append("g") // Append axis to legend:
                     .style("font-size", 10)
                     .attr("transform", "translate(" + (v.x + sampTrackHeight) + ",20)")
-                    .call(d3.axisRight().scale(vScale).tickSize(5).ticks(5));
+                    .call(d3.axisRight().scale(vScale).tickSize(5).ticks(5))
+                svg_sampLegend.append("text")
+                    .attr('transform', "translate(" + (v.x + 4) + "," + (vScale(median(v.domain)) + 20) + ")")
+                    .style("font-size", "5px")
+                    .text("median");
             };
         });
-        // adjust sampLegend size
-        // height is max number of labels times entry height, plus space for title
-        // width is cumulative sum of max label width for each column plus the colored rectangle and spacing
-        let sampLegendHeight = 20 + (sampTrackHeight + margin.space) * Math.max(...var_summary.map(el => el.nlab));
+
+        // adjust sampLegend size based on legend sizes for each variable: maximum height, sum of widths
+        let sampLegendHeight = 20 + (Math.max(...sampTrack_obj.map(el => el.leg_height),0)) + margin.space;
         div_sampLegend.select(".sampLegend")
-            .attr("height", sampLegendHeight + margin.space)
-            .attr("width", var_summary.reduce((a, b) => a + b.max_width + sampTrackHeight + margin.space, 0));
+            .attr("height", sampLegendHeight)
+            .attr("width", sampTrack_obj.reduce((a, b) => a + b.leg_width + sampTrackHeight + margin.space, 0));
         if (sampLegendHeight < 200) {
             div_sampLegend.select('#legend')
-                .attr('height', sampLegendHeight + 'px');
+                .style('height', (sampLegendHeight + margin.space) + 'px');
         } else {
             div_sampLegend.select('#legend')
                 .style('height', '200px');
@@ -592,9 +625,10 @@ createHeatmap = async function (dataInput, clinicalData, divObject) {
 
     // add updateHeatmap function to any buttons with updateHeatmapButton class
     divObject.selectAll('.updateHeatmapButton')
+        .attr("class", "col s3 btn waves-effect waves-light")
+        .style('font-size','0.9vw')
         .on('click', function () {
             sortGroups();
             updateHeatmap();
         });
 };
-
