@@ -168,25 +168,42 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
     var sortCurrentText = sortOptionDiv
         .append('tspan')
         .text('mean expression (default)');
-    var sortOptionTable = sortOptionDiv.append('td'); // make a table for different sort options, only hclust for now
-    sortOptionTable
-        .append('tspan')
-        .text('hclust\xa0')
-        .append('input')
-        .attr('type', 'checkbox')
-        .style('opacity', 1) // have to include these two lines... for some reason defaults to 0 and 'none'
-        .style('pointer-events', 'auto') // ^ defaults to 'none', which makes checkbox non-responsive?
-        .on('change', function () {
-            // function to update state of sortCurrentText and doCluster
-            // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
-            sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
-            doCluster = (this.checked ? true : false);
-        });
+    // var sortOptionTable = sortOptionDiv.append('td'); // make a table for different sort options, only hclust for now
+    // sortOptionTable
+    //     .append('tspan')
+    //     .text('hclust\xa0')
+    //     .append('input')
+    //     .attr('type', 'checkbox')
+    //     .style('opacity', 1) // have to include these two lines... for some reason defaults to 0 and 'none'
+    //     .style('pointer-events', 'auto') // ^ defaults to 'none', which makes checkbox non-responsive?
+    //     .on('change', function () {
+    //         // function to update state of sortCurrentText and doCluster
+    //         // can also check state anywhere with sortOptionDiv.select("#hclustcheck").property("checked")
+    //         sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
+    //         doCluster = (this.checked ? true : false);
+    //     });
+    // use a toggle switch between sort by mean expression and sort by hierarchical clustering
+    var toggle_str =
+        "<label class='switch'>" +
+        "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0Mean Expression" +
+        "<input type='checkbox' id='toggleClust'>" +
+        "<span class='lever'></span>" +
+        "Hierarchical Clustering" +
+        "</label>";
+    sortToggleDiv = sortOptionDiv.append("div")
+        .attr("align", "center")
+        .attr("class", "switch")
+        .html(toggle_str);
+    toggleClust = sortToggleDiv.select("#toggleClust")
+    toggleClust.on('change', function () {
+        // function to update state of sortCurrentText and doCluster
+        sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
+        doCluster = (this.checked ? true : false);
+    });
     sortOptionDiv.append('button')
         .attr('type', 'button')
         .attr('class', 'updateHeatmapButton')
         .text('Update heatmap'); // button to update heatmap, define update function below
-
 
     ///// DATA PROCESSING /////
     // Set the columns to be the set of TCGA participant barcodes 'barcodes' and the rows to be the set of genes called 'geneID'
@@ -606,6 +623,8 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
 
     // add updateHeatmap function to any buttons with updateHeatmapButton class
     divObject.selectAll('.updateHeatmapButton')
+        .attr("class", "col s3 btn waves-effect waves-light")
+        .style('font-size','0.9vw')
         .on('click', function () {
             sortGroups();
             updateHeatmap();
