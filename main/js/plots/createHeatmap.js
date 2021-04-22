@@ -193,6 +193,8 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
     sortToggleDiv = sortOptionDiv.append("div")
         .attr("align", "center")
         .attr("class", "switch")
+        .style("padding-bottom", "10px")
+        .attr("fill", "black")
         .html(toggle_str);
     toggleClust = sortToggleDiv.select("#toggleClust")
     toggleClust.on('change', function () {
