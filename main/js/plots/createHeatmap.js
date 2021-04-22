@@ -286,6 +286,15 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         svg_temp.html("");
         return dim.width
     };
+    // function to get median of an array (for continuous variable color scale middle pivot)
+    let median = function (x) {
+        if (x.length % 2) {
+            return x[Math.floor(x.length / 2)]; // if odd length take middle
+        } else {
+            return (x[Math.floor(x.length / 2) - 1] + x[Math.floor(x.length / 2)])/2; // if even length average middle 2
+        };
+    }
+    
 
 
     ///// Build the Mouseover Tool Functions /////
@@ -421,14 +430,8 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         // adjust scales for categorical or continuous
         let colorScale_all = sampTrack_obj.reduce( (acc,el) => {
             if (el.vartype == "continuous") {
-                let median; // compute median for middle pivot in color scale
-                if (el.domain.length % 2) {
-                    median = el.domain[Math.floor(el.domain.length / 2)];
-                } else {
-                    median = (el.domain[Math.floor(el.domain.length / 2) - 1] + el.domain[Math.floor(el.domain.length / 2) - 1])/2;
-                };
                 acc[el.varname] = d3.scaleLinear()
-                    .domain([Math.min(...el.domain), median, Math.max(...el.domain)])
+                    .domain([Math.min(...el.domain), median(el.domain), Math.max(...el.domain)]) // compute median for middle pivot in color scale
                     .range([ "green", "white", "orange"]);
             } else {
                 acc[el.varname] = d3.scaleOrdinal()
@@ -529,7 +532,11 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
                 svg_sampLegend.append("g") // Append axis to legend:
                     .style("font-size", 10)
                     .attr("transform", "translate(" + (v.x + sampTrackHeight) + ",20)")
-                    .call(d3.axisRight().scale(vScale).tickSize(5).ticks(5));
+                    .call(d3.axisRight().scale(vScale).tickSize(5).ticks(5))
+                svg_sampLegend.append("text")
+                    .attr('transform', "translate(" + (v.x + 4) + "," + (vScale(median(v.domain)) + 20) + ")")
+                    .style("font-size", "5px")
+                    .text("median");
             };
         });
 
@@ -604,4 +611,3 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             updateHeatmap();
         });
 };
-
