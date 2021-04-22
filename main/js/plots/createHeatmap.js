@@ -422,8 +422,8 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         let colorScale_all = sampTrack_obj.reduce( (acc,el) => {
             if (el.vartype == "continuous") {
               acc[el.varname] = d3.scaleLinear()
-                .domain([Math.min(...el.domain), Math.max(...el.domain)])
-                .range([ "lightblue", "red"]);
+                .domain([Math.min(...el.domain), (Math.max(...el.domain) + Math.min(...el.domain))/2, Math.max(...el.domain)])
+                .range([ "green", "white", "orange"]);
             } else {
               acc[el.varname] = d3.scaleOrdinal()
                 .domain(el.domain)
