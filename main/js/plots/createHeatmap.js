@@ -421,14 +421,20 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         // adjust scales for categorical or continuous
         let colorScale_all = sampTrack_obj.reduce( (acc,el) => {
             if (el.vartype == "continuous") {
-              acc[el.varname] = d3.scaleLinear()
-                .domain([Math.min(...el.domain), (Math.max(...el.domain) + Math.min(...el.domain))/2, Math.max(...el.domain)])
-                .range([ "green", "white", "orange"]);
+                let median; // compute median for middle pivot in color scale
+                if (el.domain.length % 2) {
+                    median = el.domain[Math.floor(el.domain.length / 2)];
+                } else {
+                    median = (el.domain[Math.floor(el.domain.length / 2) - 1] + el.domain[Math.floor(el.domain.length / 2) - 1])/2;
+                };
+                acc[el.varname] = d3.scaleLinear()
+                    .domain([Math.min(...el.domain), median, Math.max(...el.domain)])
+                    .range([ "green", "white", "orange"]);
             } else {
-              acc[el.varname] = d3.scaleOrdinal()
-                .domain(el.domain)
-                .range(d3.schemeCategory10)
-                .unknown("lightgray");
+                acc[el.varname] = d3.scaleOrdinal()
+                    .domain(el.domain)
+                    .range(d3.schemeCategory10)
+                    .unknown("lightgray");
             };
             return acc
         }, {});
@@ -455,8 +461,8 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
                 .attr("y", y_samp(v))
                 .attr("width", x.bandwidth())
                 .attr("height", sampTrackHeight)
-                .style("fill", d => colorScale_all[v](d[v]) )
-                .attr("fill0", d => colorScale_all[v](d[v]) )
+                .style("fill", d => {if (d[v]=="NA") {return "lightgray"} else {return colorScale_all[v](d[v])} }) // catch NA manually since d3.scaleLinear has no unknown option
+                .attr("fill0", d => {if (d[v]=="NA") {return "lightgray"} else {return colorScale_all[v](d[v])} })
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove_samp)
                 .on("mouseleave", mouseleave_samp);
