@@ -74,9 +74,9 @@
                             <ul id="nav-mobile" class="right hide-on-med-and-down">
                                 <li class="active"><a href="about.html">About</a></li>
                             </ul>
-                            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                            <!-- <ul id="nav-mobile" class="right hide-on-med-and-down">
                                 <li class="active"><a href="image.html">Image</a></li>
-                            </ul>
+                            </ul> -->
                         </div>
                     </nav>
                 </div>
@@ -99,7 +99,7 @@
 
                 <div>
                     <h5 style="text-align: center; color: lightcoral; font-family: Georgia, 'Times New Roman', Times, serif">
-                        <strong>Define Your Cohort:</strong>
+                        <strong>Customize Your Cohort:</strong>
                     </h5>
                     <br />
                 </div>
@@ -123,7 +123,7 @@
                         $(document).ready(function () {
                             // For Cancer Type Select2 Drop down:
                             $(".cancerTypeMultipleSelection").select2({
-                                placeholder: "Cancer Type(s)",
+                                placeholder: "Tumor Type(s)",
                             });
                             fillCancerTypeSelectBox();
 
@@ -176,7 +176,7 @@
                 </script>
 
                 <div>
-                    <p style="text-align: center"><b>1) Select cancer type(s)</b></p>
+                    <p style="text-align: center"><b>1) Select tumor type(s)</b></p>
                     <div id="cancerQuerySelectBox">
                         <select
                             style="width: 80%"
@@ -246,7 +246,7 @@
 
                 <div class="row">
                     <p style="text-align: center">
-                        <b>3) Select genes that you would like to visualize</b>
+                        <b>3) Select genes and/or pathways that you would like to visualize</b>
                     </p>
                     <div id="geneTwoQuerySelectBox" class="col s6">
                         <input
@@ -268,7 +268,6 @@
                                 name="pathways[]"
                                 multiple="multiple"
                                 id="pathwayMultipleSelection"
-                                onchange="getGenesByPathway()"
                             >
                                 <!-- Filled by fillSelectBoxes.js -->
                             </select>
@@ -290,13 +289,25 @@
       Space for download data buttons.
       -->
                 <div className="downloadDataButtons" id="downloadDataButtons">
-                    <button class="col s3 btn waves-effect waves-light" id="downloadAllButton">Download All Data (JSON)</button>
-                    <button class="col s3 btn waves-effect waves-light" id="downloadExpressionButton">
-                        Download Expression Data (CSV)
-                    </button>
-                    <button class="col s3 btn waves-effect waves-light" id="downloadClinicalButton">
-                        Download Clinical Data (CSV)
-                    </button>
+                    <h5 style="text-align: center; color: lightcoral; font-family: Georgia, 'Times New Roman', Times, serif">
+                        <strong>Download Data:</strong>
+                    </h5>
+                    <table id="buttonTable">
+                        <tr>
+                            <td><button class="col s3 btn waves-effect waves-light" id="downloadAllButton">
+                                All Data (JSON)
+                            </button></td>
+                            <td><button class="col s3 btn waves-effect waves-light" id="downloadExpressionZscoreButton">
+                                Expression Z-Score (CSV)
+                            </button></td>
+                            <td><button class="col s3 btn waves-effect waves-light" id="downloadExpressionLog2Button">
+                                Expression Log2 (CSV)
+                            </button></td>
+                            <td><button class="col s3 btn waves-effect waves-light" id="downloadClinicalButton">
+                                Clinical Data (CSV)
+                            </button></td>
+                        </tr>
+                    </table>
                 </div>
 
                 <!--
@@ -320,7 +331,7 @@
                             <div id="heatmapDiv0" style="margin-top: 25px" align="center"></div>
                         </div>
                         <div id="violinPlotRef" class="col s12">
-                            <div id="svgViolinDiv0" style="margin-top: 25px" align="center"></div>
+                            <div id="violinDiv0" style="margin-top: 25px" align="center"></div>
                         </div>
                     </div>
                 </div>
