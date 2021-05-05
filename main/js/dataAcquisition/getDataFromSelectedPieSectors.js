@@ -1,9 +1,7 @@
   
-  // ***** Get ALL barcodes from selected pie sectors (below) *****
+// ***** Get intersection of barcodes from selected pie sectors (below) *****
 
-getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
-
-  console.log(selectedData)
+getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
   // a "field" is either a gene name or a clinical feature
   let selectedFields = Object.keys(selectedData);
@@ -53,8 +51,6 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
               let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
               if(concatFilteredBarcodes['' + currentGene] == undefined)
                 concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
-              // else
-              //   concatFilteredBarcodes['' + currentGene] += onlyBarcodes;
 
             // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
             } else {
@@ -85,6 +81,7 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
       let uniqueBarcodes;
 
       let clickedClinicalValues = selectedData[currentClinicalFeature];
+
       for(let j = 0; j < clickedClinicalValues.length; j++) {
 
         let currentClinicalValue = clickedClinicalValues[j];
@@ -102,13 +99,37 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
           concatFilteredBarcodes['' + currentClinicalFeature] = uniqueBarcodes;
         else
           concatFilteredBarcodes['' + currentClinicalFeature] = concatFilteredBarcodes['' + currentClinicalFeature].concat(uniqueBarcodes);
-
       }
     }
   }
+  let continuousRangeData = selectedRange;
+  // loop through all range data
+  for(let i = 0; i < continuousRangeData.length; i++) {
+    let continuousFeature = continuousRangeData[i];
+    var div = document.getElementById(continuousFeature + 'Div');
+    let rangeValue = div.layout.xaxis.range;
+    console.log(continuousFeature);
+    console.log(rangeValue[0]);
+    console.log(rangeValue[1]);
+
+    filteredRangeData = allClinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
+
+    let onlyBarcodes = filteredRangeData.map(x => x.tcga_participant_barcode);
+
+    function onlyUnique(value, index, self) {
+      return self.indexOf(value) === index;
+    }
+    uniqueBarcodes = onlyBarcodes.filter(onlyUnique);
+
+    if(concatFilteredBarcodes['' + continuousFeature] == undefined)
+      concatFilteredBarcodes['' + continuousFeature] = uniqueBarcodes;
+    else
+      concatFilteredBarcodes['' + continuousFeature] = concatFilteredBarcodes['' + continuousFeature].concat(uniqueBarcodes);
+  }
+
   
   // Get intersection of barcodes from selected pie sectors
-  console.log(concatFilteredBarcodes)
+  // console.log(concatFilteredBarcodes)
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
   let intersectedBarcodes;
 
@@ -128,19 +149,35 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
     }  
   }
 
-  // if no pie sectors were selected, tell the user to select some
-  if(intersectedBarcodes === undefined) {
-    // Remove the loader
-    document.getElementById('heatmapDiv0').classList.remove('loader');
-    document.getElementById('svgViolinDiv0').classList.remove('loader');
+  return intersectedBarcodes
+}
 
-    let sorryDiv = document.getElementById("sorryDiv");
-    sorryDiv.innerHTML = "";
-    para = document.createElement("P");
-    para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
-    para.setAttribute('id', 'noIntersectPara');        
-    para.innerText = "To visualize data, please select at least one pie chart sector.";
-    sorryDiv.appendChild(para);
+
+getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery){
+
+  // allData is used when no pie slices are chosen
+  let allData = allClinicalData
+
+  // if no pie sectors were selected, return allData
+  if(intersectedBarcodes === undefined) {
+    let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
+
+    let genesFromPathways = await getGenesByPathway();
+    if(genesFromPathways.length > 0) {
+      for(let i = 0; i < genesFromPathways.length; i++) {
+        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
+      }
+      let removedDuplicates = [];
+      $.each(geneTwoQuery, function(i, element){
+        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
+      });
+      geneTwoQuery = removedDuplicates;
+    }
+
+    let allBarcodes = allData.map(x => x.tcga_participant_barcode);
+    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, allBarcodes)).mRNASeq
+    console.log(data);
+    return data;
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
@@ -160,25 +197,28 @@ getDataFromSelectedPieSectors = async function(expressionData, cohortQuery) {
   // if there IS/ARE barcode(s) at the intersection, build heatmap and violin plots
   } else {
     sorryDiv.innerHTML = "";
+
     // Filter expression data based on intersection of barcodes
     // The final data array may include a fewer number of barcodes than that contained in 
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
     
-    // console.log(intersectedBarcodes)
-
-    // let data = [];
-    // for(let i = 0; i < intersectedBarcodes.length; i++) 
-    //   for(let j = 0; j < expressionData.length; j++) 
-    //     if(expressionData[j].tcga_participant_barcode == intersectedBarcodes[i])
-    //       data.push(expressionData[j])
-    // data = data.filter(x => selectedFields.includes(x.gene))
-
     let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
 
-    let data = await getExpressionDataJSONarray_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)
+    let genesFromPathways = await getGenesByPathway();
+    if(genesFromPathways.length > 0) {
+      for(let i = 0; i < genesFromPathways.length; i++) {
+        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
+      }
+      let removedDuplicates = [];
+      $.each(geneTwoQuery, function(i, element){
+        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
+      });
+      geneTwoQuery = removedDuplicates;
+    }
 
+    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)).mRNASeq
+    console.log(data);
     return data;
   }
-
 }

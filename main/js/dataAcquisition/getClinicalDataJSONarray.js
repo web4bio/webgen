@@ -21,8 +21,8 @@
 // Function that calls fetchClinicalData and returns the useful format of the data:
 // Only queries by barcodes preselected from dropdown
 
-// getClinicalDataJSONarray_bf = async function (barcodeQuery, fhQuery) {
-//   var dataFetched = await fetchClinicalData_bf(barcodeQuery, fhQuery);
+// getClinicalDataJSONarray_bc = async function (barcodeQuery, clinicalQuery) {
+//   var dataFetched = await fetchClinicalData_bc(barcodeQuery, clinicalQuery);
 //   // Remove the uppermost level of the data (cleaning)
 //   var results = dataFetched.Clinical_FH;
 //   console.log(results)
@@ -31,6 +31,23 @@
 
 getClinicalDataJSONarray_cc = async function (cohortQuery, clinicalQuery) {
   var dataFetched = await fetchClinicalData_cc(cohortQuery, clinicalQuery);
+  // Remove the uppermost level of the data (cleaning)
+  var results = dataFetched.Clinical_FH;
+  console.log(results)
+  return await results;
+};
+
+// functions to just query all of clinical data (don't specify any clinical feature) for cohort or barcodes
+getClinicalDataJSONarray_b = async function (barcodeQuery) {
+  var dataFetched = await fetchClinicalData_b(barcodeQuery);
+  // Remove the uppermost level of the data (cleaning)
+  var results = dataFetched.Clinical_FH;
+  console.log(results)
+  return await results;
+};
+
+getClinicalDataJSONarray_c = async function (cohortQuery) {
+  var dataFetched = await fetchClinicalData_c(cohortQuery);
   // Remove the uppermost level of the data (cleaning)
   var results = dataFetched.Clinical_FH;
   console.log(results)
