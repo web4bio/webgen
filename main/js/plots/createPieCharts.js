@@ -325,7 +325,7 @@ let buildDataExplorePlots = async function() {
             var config = {responsive: true}
         
             let parentRowDiv = document.getElementById("dataexploration");        
-            //let newDiv = document.createElement("div");
+            let newDiv = document.createElement("div");
             if (window.innerWidth>850){
                 newDiv.setAttribute("class", "col s4");
             }
