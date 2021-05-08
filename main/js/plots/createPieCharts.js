@@ -350,7 +350,7 @@ let buildDataExplorePlots = async function() {
             }
             newDiv.setAttribute("id", currentFeature + "Div");
             parentRowDiv.appendChild(newDiv);
-            
+
             if(continuous){
                 Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true});
             }
@@ -359,9 +359,7 @@ let buildDataExplorePlots = async function() {
             }
             
             function updatePlots(){ //if window is resized, this function will be called to replot the pie charts and continuous data charts
-                console.log('Full inner window size:' + window.innerWidth);
-                console.log('DPR: '+ dpr);
-
+                
                 if (window.innerWidth>(threeColLower)){
                     newDiv.setAttribute("class", "col s4");
                 }
@@ -476,17 +474,21 @@ let buildDataExplorePlots = async function() {
                     }
                 };
                 let checkIfNumeric = function() {
+                    if((uniqueValuesForCurrentFeature.length==1)&&(uniqueValuesForCurrentFeature[0]=="Wild_Type")){
+                        continuous = false;
+                    }
+                    else{
                         var numbers = /^[0-9/.]+$/;
                         var firstElement = (uniqueValuesForCurrentFeature[0]).match(numbers);
                         var secondElement = (uniqueValuesForCurrentFeature[1]).match(numbers);
-                        // console.log(firstElement);
-                        // console.log(secondElement);
-                        if((firstElement != null || secondElement != null) & (currentFeature != 'vital_status'))
+                        if((firstElement != null || secondElement != null) & (currentFeature != 'vital_status')){
                             continuous = true;
+                        }
                     }
+                }
      
                 checkIfNumeric();
-                if(continuous){
+                if(continuous||uniqueValuesForCurrentFeature[0]=='Wild_Type'){
                     Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layoutNew, config, {scrollZoom: true});
                     }
                 if(continuous==false){
