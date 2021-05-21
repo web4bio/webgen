@@ -183,8 +183,8 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
   } else if(intersectedBarcodes.length == 0) {
 
     // Remove the loader
-    document.getElementById('heatmapDiv0').classList.remove('loader');
-    document.getElementById('svgViolinDiv0').classList.remove('loader');
+    document.getElementById('heatmapLoaderDiv').classList.remove('loader');
+    document.getElementById('violinLoaderDiv').classList.remove('loader');
 
     let sorryDiv = document.getElementById("sorryDiv");
     sorryDiv.innerHTML = "";
