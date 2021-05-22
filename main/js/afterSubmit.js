@@ -129,12 +129,12 @@ let buildPlots = async function () {
   // PAGE SETUP:
   
   // Reset page formatting:
-  document.getElementById("heatmapDiv0").innerHTML = "";
-  document.getElementById("violinDiv0").innerHTML = "";
+  document.getElementById("heatmapLoaderDiv").innerHTML = "";
+  document.getElementById("violinLoaderDiv").innerHTML = "";
   
   // Display loader:
-  document.getElementById("heatmapDiv0").className = "loader";
-  document.getElementById("violinDiv0").className = "loader";
+  document.getElementById("heatmapLoaderDiv").className = "loader";
+  document.getElementById("violinLoaderDiv").className = "loader";
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -201,10 +201,10 @@ let buildPlots = async function () {
 
 buildHeatmap = async function (expData, clinData) {
   // Remove the loader
-  document.getElementById("heatmapDiv0").classList.remove("loader");
+  document.getElementById("heatmapLoaderDiv").classList.remove("loader");
 
   // Create div object for heatmap and clear
-  let divHeatMap = d3.select("#heatmapDiv0").html("");
+  let divHeatMap = d3.select("#heatmapLoaderDiv").html("");
 
   // Create the heatmap
   createHeatmap(expData, clinData, divHeatMap);
@@ -213,10 +213,10 @@ buildHeatmap = async function (expData, clinData) {
 addToggleSwitch = async function(expressionQuery, cohortQuery, expressionData) {
 
   // Remove the loader
-  document.getElementById("violinDiv0").classList.remove("loader");
+  document.getElementById("violinLoaderDiv").classList.remove("loader");
 
   // Create div for toggle switch
-  var violinDiv = addDivInside("toggleSwitchDiv", "violinDiv0");
+  var violinDiv = addDivInside("toggleSwitchDiv", "violinLoaderDiv");
   violinDiv.setAttribute("align", "center");
   violinDiv.setAttribute("class", "switch");
 
