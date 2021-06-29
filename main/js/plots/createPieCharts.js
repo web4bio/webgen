@@ -205,7 +205,7 @@ let buildDataExplorePlots = async function() {
                     continuous = true;
                 else
                     continuous = false;
-                console.log(clinicalType);
+                //console.log(clinicalType);
 
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
                 xCounts.length = uniqueValuesForCurrentFeature.length;
