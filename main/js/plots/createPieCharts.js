@@ -538,7 +538,7 @@ let buildDataExplorePlots = async function() {
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
-                displayNumberBarcodesAtIntersection()
+                //displayNumberBarcodesAtIntersection()
             });
         }
     }
