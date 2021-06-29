@@ -182,7 +182,7 @@ let getGenesByPathway = async function () {
   //would only run if an option from pathway select box is selected
   if (pathwaySelectBoxLength > 0) {
     let validPathwaysList = await fetch(
-      "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
+      "https://raw.githubusercontent.com/web4bio/webgen/development/main/genePathwaysList.json"
     ).then((response) => response.json());
     
     //Get the pathway(s) selected
