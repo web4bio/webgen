@@ -358,8 +358,8 @@ let buildDataExplorePlots = async function() {
             }
             
             function updatePlots(){ //if window is resized, this function will be called to replot the pie charts and continuous data charts
-                console.log('Full inner window size:' + window.innerWidth);
-                console.log('DPR: '+ dpr);
+                //console.log('Full inner window size:' + window.innerWidth);
+                //console.log('DPR: '+ dpr);
 
                 if (window.innerWidth>(threeColLower)){
                     newDiv.setAttribute("class", "col s4");
@@ -502,8 +502,9 @@ let buildDataExplorePlots = async function() {
             document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
                 //checks if continuous data range has been added yet
                 if(selectedRange.findIndex(element => element == currentFeature) == -1){
-                    selectedRange.push(currentFeature);
-                    console.log(selectedRange);
+                    if(currentFeature != "pathologic_stage") {
+                        selectedRange.push(currentFeature);
+                    }
                 }
             });
           
