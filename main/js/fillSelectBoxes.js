@@ -167,7 +167,7 @@ let getValidPathwaysList = async function () {
   //Note the specification of the 'preselectedGenes' branch name.
   //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
   let validPathwaysList = await fetch(
-    "https://raw.githubusercontent.com/web4bio/webgen/preselectedGenes/main/genePathwaysList.json"
+    "https://raw.githubusercontent.com/web4bio/webgen/development/main/genePathwaysList.json"
   ).then((response) => response.json());
   validPathwaysList = Object.keys(validPathwaysList);
   localStorage.setItem("genePathways", validPathwaysList);
