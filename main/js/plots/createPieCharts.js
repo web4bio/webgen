@@ -205,7 +205,7 @@ let buildDataExplorePlots = async function() {
                     continuous = true;
                 else
                     continuous = false;
-                console.log(clinicalType);
+                //console.log(clinicalType);
 
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
                 xCounts.length = uniqueValuesForCurrentFeature.length;
@@ -216,7 +216,39 @@ let buildDataExplorePlots = async function() {
                         if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
                             xCounts[k]++;
             }
+            
+            var dpr=window.devicePixelRatio;
+            var threeColLower=850*dpr;
+            var twoColLower=675*dpr;
+            //if on mobile or tablet device, always 1 pie chart per row--> make pie chart larger
+            // if (dpr==1){
+            //     var scalingFactor=1;
+            // }
+            // else{
+            //     scalingFactor=1+2/dpr;
+            // }
 
+            //pie chart size
+            if (window.innerWidth>(1000)){
+                var chartHeight=800;
+                var chartWidth=400;
+            }
+            //sizing parameters for different number of columns
+            else if (window.innerWidth>(threeColLower)){
+                chartHeight=0.8*(window.innerWidth);
+                chartWidth=0.4*(window.innerWidth);
+            }else if (window.innerWidth>(twoColLower)){
+                chartHeight=0.9*(window.innerWidth);
+                chartWidth=0.5*(window.innerWidth);
+            }else{
+                chartHeight=800;
+                chartWidth=400;
+            }
+ 
+            //legend location
+                locationX=0;
+                locationY=1;
+            
             var data = [{
                 values: xCounts,
                 labels: uniqueValuesForCurrentFeature,
@@ -266,11 +298,13 @@ let buildDataExplorePlots = async function() {
             }
 
             var layout = {
-                height: 400,
-                width: 500,
+                height: chartHeight,
+                width: chartWidth,
                 title: currentFeature + "",
                 showlegend: true,
                 legend: {
+                    x:locationX,
+                    y:locationY,
                     font: {
                         size: 14
                     },
@@ -302,7 +336,17 @@ let buildDataExplorePlots = async function() {
         
             let parentRowDiv = document.getElementById("dataexploration");        
             let newDiv = document.createElement("div");
-            newDiv.setAttribute("class", "col s4");
+
+            // different number of columns depending on window width
+            if (window.innerWidth>threeColLower){
+                newDiv.setAttribute("class", "col s4");
+            }
+            else if (window.innerWidth>twoColLower){
+                newDiv.setAttribute("class", "col s5");
+            }
+            else{
+                newDiv.setAttribute("class", "col s7");
+            }
             newDiv.setAttribute("id", currentFeature + "Div");
             parentRowDiv.appendChild(newDiv);
             
@@ -312,7 +356,143 @@ let buildDataExplorePlots = async function() {
             else{
                 Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
             }
+            
+            function updatePlots(){ //if window is resized, this function will be called to replot the pie charts and continuous data charts
+                //console.log('Full inner window size:' + window.innerWidth);
+                //console.log('DPR: '+ dpr);
 
+                if (window.innerWidth>(threeColLower)){
+                    newDiv.setAttribute("class", "col s4");
+                }
+                else if (window.innerWidth>(twoColLower)){
+                    newDiv.setAttribute("class", "col s5");
+                }
+                else{
+                    newDiv.setAttribute("class", "col s7");
+                }
+                //pie chart size
+                if (window.innerWidth>1000){
+                    chartHeight=800;
+                    chartWidth=400;
+                }
+                // resizing parameters for different number of columns
+                else if (window.innerWidth>threeColLower){
+                    chartHeight=0.8*(window.innerWidth);
+                    chartWidth=0.4*(window.innerWidth);
+                }else if (window.innerWidth>twoColLower){
+                    chartHeight=0.9*(window.innerWidth);
+                    chartWidth=0.5*(window.innerWidth);
+                }
+                else{
+                    chartHeight=800;
+                    chartWidth=400;
+                }
+ 
+                //legend location
+                    locationX=0;
+                    locationY=1;
+                
+                var data = [{
+                    values: xCounts,
+                    labels: uniqueValuesForCurrentFeature,
+                    type: 'pie',
+                    textinfo: "none",
+                    marker: {
+                        colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                        '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
+                        line: {
+                            color: 'black', 
+                            width: 1
+                        }
+                    }
+                }];
+    
+                var histo_data = [{
+                    x: uniqueValuesForCurrentFeature,
+                    y: xCounts,
+                    hovertemplate: '<b>Number of samples:</b> %{y}<br>'+
+                                   '<extra></extra>',
+                    type: 'histogram'
+                }];
+                
+                if (!continuous) {
+                    colorOutOfSpace.buildColorCodeKeyGene(uniqueValuesForCurrentFeature)
+                    let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
+                    data[0] = {...data[0], marker: {
+                        colors: colorArray,
+                        line: {
+                            color: 'black', 
+                            width: 1
+                        }
+                    }}
+                    if (colorOutOfSpace.yellowAt[currentFeature]) {
+                        // if (Object.keys(colorOutOfSpace.yellowAt[currentFeature]['Key']).length !== uniqueValuesForCurrentFeature.length) {}
+                        colorOutOfSpace.updateGlobalColorDict(uniqueValuesForCurrentFeature, currentFeature)
+                        data[0] = {...data[0], marker: {
+                            colors: colorOutOfSpace.createColorArray(colorArray, currentFeature),
+                            line: {
+                              color: 'black', 
+                              width: 1
+                            }
+                        }}
+                    } else {
+                        colorOutOfSpace.createGlobalColorDict(currentFeature, uniqueValuesForCurrentFeature)
+                    }
+                }
+    
+                var layoutNew = {
+                    height: chartHeight,
+                    width: chartWidth,
+                    title: currentFeature + "",
+                    showlegend: true,
+                    legend: {
+                        x:locationX,
+                        y:locationY,
+                        font: {
+                            size: 14
+                        },
+                        itemwidth: 40,
+                        orientation: "v"
+                        // title: {
+                        //     text: "Mutations"
+                        // }
+                    },
+                    extendpiecolors: true,
+                };
+    
+                var histo_layoutNew = {
+                    bargap: 0.05,
+                    height: 400,
+                    width: 500,
+                    title: currentFeature + "",
+                    showlegend: false,
+                    xaxis: {
+                        rangeselector: {},
+                        rangeslider: {}
+                    },
+                    yaxis: {
+                        fixedrange: true
+                    }
+                };
+                let checkIfNumeric = function() {
+                        var numbers = /^[0-9/.]+$/;
+                        var firstElement = (uniqueValuesForCurrentFeature[0]).match(numbers);
+                        var secondElement = (uniqueValuesForCurrentFeature[1]).match(numbers);
+                        // console.log(firstElement);
+                        // console.log(secondElement);
+                        if((firstElement != null || secondElement != null) & (currentFeature != 'vital_status'))
+                            continuous = true;
+                    }
+     
+                checkIfNumeric();
+                if(continuous){
+                    Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layoutNew, config, {scrollZoom: true});
+                    }
+                if(continuous==false){
+                    Plotly.newPlot(currentFeature + 'Div', data, layoutNew, config, {scrollZoom: true});
+                    }
+            }
+            window.addEventListener("resize", updatePlots);
             ////////////////////////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////////////////////////
             //////////////////////// On-click event for pie charts below ///////////////////////////////////
@@ -322,8 +502,9 @@ let buildDataExplorePlots = async function() {
             document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
                 //checks if continuous data range has been added yet
                 if(selectedRange.findIndex(element => element == currentFeature) == -1){
-                    selectedRange.push(currentFeature);
-                    console.log(selectedRange);
+                    if(currentFeature != "pathologic_stage") {
+                        selectedRange.push(currentFeature);
+                    }
                 }
             });
           
@@ -357,7 +538,7 @@ let buildDataExplorePlots = async function() {
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
-                displayNumberBarcodesAtIntersection()
+                //displayNumberBarcodesAtIntersection()
             });
         }
     }
