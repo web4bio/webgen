@@ -45,6 +45,7 @@ This is a public, open-source project, as well as a project that students may re
 | [Chowdhury An-Noor](https://github.com/chowdhuryannoor) |[Fall 2020 Log, ](https://docs.google.com/document/d/1LGMLUeRYprQLJjIqrcAhkt0rZmliiRqFKP8AvuWq1z0/edit?usp=sharing)[Spring 2021 Log,](https://docs.google.com/document/d/1ulA40p_Nqh7AGBdE8e7HqRGJ7oboAYh47FGu6tK0Gpc/edit?usp=sharing) |[Sandbox](https://observablehq.com/@chowdhuryannoor/webgen-chowdhury) | |
 | [Amara Im](https://github.com/amaraim22) |[Spring 2021 Log](https://docs.google.com/document/d/1L9jJvpQX5DLRC43ajV3Sk4Cll0koJPJI6Uu3oediN1Y/edit?usp=sharing) | |
 | [Purva Shenoy](https://github.com/prvshenoy01) |[Spring 2021 Log](https://docs.google.com/document/d/1vo6JgeLybK2bQZVbIQKpvwXKHdMI1QGGGrPGXOzRIrA/edit?usp=sharing)| |
+| [Shiying Lin](https://github.com/20shiy) |[Fall 2021 Log](https://docs.google.com/document/d/1xkBotug4-K3Upo4yEUmWYy8Q_rqnIYvnKAIYZWFdnIE/edit?usp=sharing) |[Observable](https://observablehq.com/@20shiy/webgen-fall-2021) | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
