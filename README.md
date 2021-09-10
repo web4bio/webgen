@@ -47,6 +47,7 @@ This is a public, open-source project, as well as a project that students may re
 | [Purva Shenoy](https://github.com/prvshenoy01) |[Spring 2021 Log,](https://docs.google.com/document/d/1vo6JgeLybK2bQZVbIQKpvwXKHdMI1QGGGrPGXOzRIrA/edit?usp=sharing) [Fall 2021 Log](https://docs.google.com/document/d/1Ku6s_Y_XVSa5IFjgfgdrf_9WD64o_77Q7NmDrRIk_FA/edit?usp=sharing)| |
 | [Shiying Lin](https://github.com/20shiy) |[Fall 2021 Log](https://docs.google.com/document/d/1xkBotug4-K3Upo4yEUmWYy8Q_rqnIYvnKAIYZWFdnIE/edit?usp=sharing) |[Observable](https://observablehq.com/@20shiy/webgen-fall-2021) | |
 | [Will Li](https://github.com/liwll) | [Fall 2021 Log](https://docs.google.com/document/d/1aVD6soq5g_a9s8o1ztR4pKyPgkiOnK4EhEHu-d7oBe8/edit?usp=sharing) | [Sandbox](https://observablehq.com/@liwll/webgen) | |
+| [Joshua Mathew](https://github.com/jmath908) | [Fall 2021 Log](https://docs.google.com/document/d/1gBdkrxdAwOR24T8fhQzn2UaAR5ME5rdTozyNG81Amf8/edit?usp=sharing)  | |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
