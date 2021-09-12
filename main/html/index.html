@@ -1,64 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!--
-  Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
--->
-
-    <!--
-    Importing jobs:
-  -->
     <head>
-        <!-- Compiled and minified CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
-
-        <!-- Compiled and minified JavaScript -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
-        <!-- Load d3.js -->
-        <script src="https://d3js.org/d3.v4.js"></script>
-        <script src="https://d3js.org/d3.v4.min.js"></script>
-
-        <!-- Load jQuery -->
+        <!-- Critical resources are loaded early. Non-critical resources are deferred. -->
+        <!-- jquery -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-        <!-- Load Jonas's FireBrowse library -->
-        <script src="https://episphere.github.io/firebrowse/firebrowse.js"></script>
-
-        <!-- Load hclust library (for clustering) -->
-        <script src="../js/libraries/hclust.min.js"></script>
-
-        <!-- Load color palettes -->
-        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-
-        <!-- Select2 Library -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
+        <!-- materialize -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+        <!-- Jonas's FireBrowse library -->
+        <script src="https://episphere.github.io/firebrowse/firebrowse.js" defer></script>
+        <!-- hclust for clustering -->
+        <script src="../js/libraries/hclust.min.js" defer></script>
+        <!-- Select2 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js" defer></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" />
-
-        <!-- lodash Library for pagination -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
-
-        <!-- Plotly Library -->
-        <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-        <!-- Load hclust library (for clustering) -->
-        <script src="../js/libraries/hclust.min.js"></script>
-
-        <!-- Load in files -->
+        <!-- lodash for pagination -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js" defer></script>
+        <!-- d3 -->
+        <script src="https://d3js.org/d3.v4.min.js" defer></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js" defer></script>
+        <!-- plotly -->
+        <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js" defer></script>
+        <!-- webgen styles and javascript -->
         <link rel="stylesheet" type="text/css" href="../css/style.css" />
-
-        <script type="text/javascript" src="../js/dataAcquisition/fetchClinicalData.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/fetchExpressionData.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/getClinicalDataJSONarray.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/getDataFromSelectedPieSectors.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
-
-        <script type="text/javascript" src="../js/dataProcessing/mergeExpression.js"></script>
-
-        <script type="text/javascript" src="../js/plots/createHeatmap.js"></script>
-        <script type="text/javascript" src="../js/plots/createViolinPlot.js"></script>
-
-        <script type="text/javascript" src="../js/afterSubmit.js"></script>
-        <script type="text/javascript" src="../js/fillSelectBoxes.js"></script>
+        <script src="../js/fillSelectBoxes.js"></script>
+        <script src="../js/dataAcquisition/fetchClinicalData.js" defer></script>
+        <script src="../js/dataAcquisition/fetchExpressionData.js" defer></script>
+        <script src="../js/dataAcquisition/getClinicalDataJSONarray.js" defer></script>
+        <script src="../js/dataAcquisition/getDataFromSelectedPieSectors.js" defer></script>
+        <script src="../js/dataAcquisition/getExpressionDataJSONarray.js" defer></script>
+        <script src="../js/dataProcessing/mergeExpression.js" defer></script>
+        <script src="../js/plots/createHeatmap.js" defer></script>
+        <script src="../js/plots/createViolinPlot.js" defer></script>
+        <script src="../js/afterSubmit.js" defer></script>
     </head>
 
     <body>
@@ -224,11 +198,11 @@
 
                 <!-- <div>
         <p style="text-align: center;"><b>3) Click pie sectors to define gene types </b></p>
-        <p style="text-align: center; color: gray">Hint 1: Click items in legend to change view of plot</p> 
-        <p style="text-align: center; color: gray">Hint 2: In plot, click on wild-type or mutated genes that you would like to visualize. Selected data will be highlighted <b><span style="color: orange">yelllow</span></b>.</p> 
+        <p style="text-align: center; color: gray">Hint 1: Click items in legend to change view of plot</p>
+        <p style="text-align: center; color: gray">Hint 2: In plot, click on wild-type or mutated genes that you would like to visualize. Selected data will be highlighted <b><span style="color: orange">yelllow</span></b>.</p>
         </div> -->
 
-                <!-- 
+                <!--
           Data exploration div
         -->
                 <div class="row" id="dataexploration">
