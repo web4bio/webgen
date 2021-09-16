@@ -206,7 +206,7 @@ let buildDataExplorePlots = async function() {
                     continuous = true;
                 else
                     continuous = false;
-                console.log(clinicalType);
+                //console.log(clinicalType);
 
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
                 xCounts.length = uniqueValuesForCurrentFeature.length;
@@ -488,7 +488,7 @@ let buildDataExplorePlots = async function() {
                 }
      
                 checkIfNumeric();
-                if(continuous||uniqueValuesForCurrentFeature[0]=='Wild_Type'){
+                if(continuous){
                     Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layoutNew, config, {scrollZoom: true});
                     }
                 if(continuous==false){
@@ -505,8 +505,9 @@ let buildDataExplorePlots = async function() {
             document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
                 //checks if continuous data range has been added yet
                 if(selectedRange.findIndex(element => element == currentFeature) == -1){
-                    selectedRange.push(currentFeature);
-                    console.log(selectedRange);
+                    if(currentFeature != "pathologic_stage") {
+                        selectedRange.push(currentFeature);
+                    }
                 }
             });
           
@@ -540,7 +541,7 @@ let buildDataExplorePlots = async function() {
                 var update = {'marker': {colors: colore, 
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
-                displayNumberBarcodesAtIntersection()
+                //displayNumberBarcodesAtIntersection()
             });
         }
     }
