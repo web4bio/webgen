@@ -160,22 +160,10 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
 
   // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {
-    let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
-
-    let genesFromPathways = await getGenesByPathway();
-    if(genesFromPathways.length > 0) {
-      for(let i = 0; i < genesFromPathways.length; i++) {
-        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
-      }
-      let removedDuplicates = [];
-      $.each(geneTwoQuery, function(i, element){
-        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
-      });
-      geneTwoQuery = removedDuplicates;
-    }
+    let expressionQuery = await getExpressionQuery();
 
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
-    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, allBarcodes)).mRNASeq
+    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, expressionQuery, allBarcodes)).mRNASeq
     console.log(data);
     return data;
 
@@ -203,21 +191,9 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
     
-    let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
+    let expressionQuery = await getExpressionQuery();
 
-    let genesFromPathways = await getGenesByPathway();
-    if(genesFromPathways.length > 0) {
-      for(let i = 0; i < genesFromPathways.length; i++) {
-        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
-      }
-      let removedDuplicates = [];
-      $.each(geneTwoQuery, function(i, element){
-        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
-      });
-      geneTwoQuery = removedDuplicates;
-    }
-
-    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)).mRNASeq
+    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, expressionQuery, intersectedBarcodes)).mRNASeq
     console.log(data);
     return data;
   }
