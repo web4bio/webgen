@@ -146,6 +146,16 @@ let buildPlots = async function () {
     .select2("data").map((gene) => gene.text);
   let expressionQuery = await getExpressionQuery();
 
+  const isEmpty = (x) => {
+    return x === undefined || x === null || x.length == 0
+  }
+
+  if (isEmpty(cohortQuery) || isEmpty(mutationQuery) || isEmpty(expressionQuery)) {
+    console.log("user did not provide enough information for query")
+    // TODO: show a message to the user.
+    return
+  }
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // GET EXPRESSION DATA:
