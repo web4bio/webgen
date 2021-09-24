@@ -126,18 +126,6 @@ let buildPlots = async function () {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // PAGE SETUP:
-
-  // Reset page formatting:
-  document.getElementById("heatmapLoaderDiv").innerHTML = "";
-  document.getElementById("violinLoaderDiv").innerHTML = "";
-
-  // Display loader:
-  document.getElementById("heatmapLoaderDiv").className = "loader";
-  document.getElementById("violinLoaderDiv").className = "loader";
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   // GET DATA FROM SELECTIONS:
 
   let cohortQuery = $(".cancerTypeMultipleSelection")
@@ -155,6 +143,18 @@ let buildPlots = async function () {
     // TODO: show a message to the user.
     return
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // PAGE SETUP:
+
+  // Reset page formatting:
+  document.getElementById("heatmapLoaderDiv").innerHTML = "";
+  document.getElementById("violinLoaderDiv").innerHTML = "";
+
+  // Display loader:
+  document.getElementById("heatmapLoaderDiv").className = "loader";
+  document.getElementById("violinLoaderDiv").className = "loader";
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
