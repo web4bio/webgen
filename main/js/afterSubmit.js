@@ -138,9 +138,9 @@ let buildPlots = async function () {
     return x === undefined || x === null || x.length == 0
   }
 
-  if (isEmpty(cohortQuery) || isEmpty(mutationQuery) || isEmpty(expressionQuery)) {
+  if (isEmpty(cohortQuery) || isEmpty(expressionQuery) ) {
     console.log("user did not provide enough information for query")
-    // TODO: show a message to the user.
+    window.alert("Please select at least one tumor type and gene.")
     return
   }
 
