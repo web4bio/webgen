@@ -146,8 +146,7 @@ let buildPlots = async function () {
     .select2("data").map((gene) => gene.text);
   let clinicalQuery = $(".clinicalMultipleSelection")
     .select2("data").map((el) => el.text);
-  let expressionQuery = $(".geneTwoMultipleSelection")
-    .select2("data").map((gene) => gene.text);
+  let expressionQuery = await getExpressionQuery();
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -180,11 +179,26 @@ let buildPlots = async function () {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+  buildDownloadData(cohortQuery, expressionData, clinicalData);
+  buildHeatmap(expressionData, clinicalData);
+  addToggleSwitch(expressionQuery, cohortQuery, expressionData);
+  buildViolinPlot(cohortQuery, expressionData, "cohort");
+
+}
+
+getExpressionQuery = async function() {
+  let expressionQuery = $(".geneTwoMultipleSelection")
+    .select2("data").map((gene) => gene.text);  // get genes selected in geneTwoMultipleSelection
+
   let genesFromPathways = await getGenesByPathway();
   if(genesFromPathways.length > 0) {
+    // Combine genes from multiple pathways
     for(let i = 0; i < genesFromPathways.length; i++) {
       expressionQuery = expressionQuery.concat(genesFromPathways[i].genes);
     }
+
+    // Remove duplicates from the array
     let removedDuplicates = [];
     $.each(expressionQuery, function(i, element){
       if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
@@ -192,11 +206,7 @@ let buildPlots = async function () {
     expressionQuery = removedDuplicates;
   }
 
-  buildDownloadData(cohortQuery, expressionData, clinicalData);
-  buildHeatmap(expressionData, clinicalData);
-  addToggleSwitch(expressionQuery, cohortQuery, expressionData);
-  buildViolinPlot(cohortQuery, expressionData, "cohort");
-
+  return await expressionQuery;
 }
 
 buildHeatmap = async function (expData, clinData) {
