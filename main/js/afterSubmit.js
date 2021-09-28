@@ -126,6 +126,26 @@ let buildPlots = async function () {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  // GET DATA FROM SELECTIONS:
+
+  let cohortQuery = $(".cancerTypeMultipleSelection")
+    .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  let mutationQuery = $(".geneOneMultipleSelection")
+    .select2("data").map((gene) => gene.text);
+  let expressionQuery = await getExpressionQuery();
+
+  const isEmpty = (x) => {
+    return x === undefined || x === null || x.length == 0
+  }
+
+  if (isEmpty(cohortQuery) || isEmpty(expressionQuery) ) {
+    console.log("user did not provide enough information for query")
+    window.alert("Please select at least one tumor type and gene.")
+    return
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   // PAGE SETUP:
 
   // Reset page formatting:
@@ -135,18 +155,6 @@ let buildPlots = async function () {
   // Display loader:
   document.getElementById("heatmapLoaderDiv").className = "loader";
   document.getElementById("violinLoaderDiv").className = "loader";
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // GET DATA FROM SELECTIONS:
-
-  let cohortQuery = $(".cancerTypeMultipleSelection")
-    .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let mutationQuery = $(".geneOneMultipleSelection")
-    .select2("data").map((gene) => gene.text);
-  let clinicalQuery = $(".clinicalMultipleSelection")
-    .select2("data").map((el) => el.text);
-  let expressionQuery = await getExpressionQuery();
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
