@@ -126,32 +126,40 @@ let buildPlots = async function () {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // PAGE SETUP:
-  
-  // Reset page formatting:
-  document.getElementById("heatmapLoaderDiv").innerHTML = "";
-  document.getElementById("violinLoaderDiv").innerHTML = "";
-  
-  // Display loader:
-  document.getElementById("heatmapLoaderDiv").className = "loader";
-  document.getElementById("violinLoaderDiv").className = "loader";
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   // GET DATA FROM SELECTIONS:
 
   let cohortQuery = $(".cancerTypeMultipleSelection")
     .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let mutationQuery = $(".geneOneMultipleSelection")
     .select2("data").map((gene) => gene.text);
-  let clinicalQuery = $(".clinicalMultipleSelection")
-    .select2("data").map((el) => el.text);
   let expressionQuery = await getExpressionQuery();
+
+  const isEmpty = (x) => {
+    return x === undefined || x === null || x.length == 0
+  }
+
+  if (isEmpty(cohortQuery) || isEmpty(expressionQuery) ) {
+    console.log("user did not provide enough information for query")
+    window.alert("Please select at least one tumor type and gene.")
+    return
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // PAGE SETUP:
+
+  // Reset page formatting:
+  document.getElementById("heatmapLoaderDiv").innerHTML = "";
+  document.getElementById("violinLoaderDiv").innerHTML = "";
+
+  // Display loader:
+  document.getElementById("heatmapLoaderDiv").className = "loader";
+  document.getElementById("violinLoaderDiv").className = "loader";
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // GET EXPRESSION DATA:
-  
+
   // Fetch expression data for selected cancer cohort(s) and gene(s)
   let expressionData_1 = await getExpressionDataJSONarray_cg(cohortQuery, mutationQuery);
 
@@ -170,10 +178,10 @@ let buildPlots = async function () {
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
     clinicalData = (await firebrowse.getClinical_FH_b(intersectedBarcodes)).Clinical_FH;
-  } else { 
+  } else {
     clinicalData = await getClinicalDataJSONarray_c(cohortQuery);
   }
-  
+
   localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
@@ -219,7 +227,7 @@ buildHeatmap = async function (expData, clinData) {
   // Create the heatmap
   createHeatmap(expData, clinData, divHeatMap);
 };
- 
+
 addToggleSwitch = async function(expressionQuery, cohortQuery, expressionData) {
 
   // Remove the loader
@@ -269,7 +277,7 @@ addToggleSwitch = async function(expressionQuery, cohortQuery, expressionData) {
   });
 }
 
-  buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) { 
+  buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) {
 
     addDiv("violinPlots", "toggleSwitchDiv");
 
@@ -401,11 +409,11 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
             csv_string_expZscore += ",";
             csv_string_expLog2 += ",";
             // filter out one barcode/gene combination
-            let valZ = expressionData 
+            let valZ = expressionData
                 .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
                 .map((el) => el["z-score"]); // zscore value to add to zscore csv
             if (!valZ.length) { csv_string_expZscore += "NA"; } else { csv_string_expZscore += valZ; }; // add to string
-            let valL = expressionData 
+            let valL = expressionData
                 .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
                 .map((el) => el.expression_log2); // log2 value to add to log2 csv
             if (!valL.length) { csv_string_expLog2 += "NA"; } else { csv_string_expLog2 += valL; }; // add to string
@@ -462,4 +470,3 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
     $("#downloadDataButtons")
         .show()
 };
-
