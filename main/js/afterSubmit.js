@@ -181,10 +181,8 @@ buildViolinPlot = async function(cohortQuery, data){
       .attr("viewBox", `0 0 1250 500`)  // This line makes the svg responsive
       .attr("id", `svgViolinPlot${index}`)
       .append("g")
-      .attr("transform",
-          "translate(" + (margin.left-20) + "," + 
-                      (margin.top + ySpacing*index*0.25) + ")");
-
+      .attr("transform","translate(" + (margin.left-20) + "," +(margin.top + ySpacing*index*0.25) + ")")
+      .attr("transform","rotate(" + (-45) + ")");
     // Create the violin plot:
     createViolinPlot('cohort', cohortQuery, data, svgViolinPlot, curCohort);
   }

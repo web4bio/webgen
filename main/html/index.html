@@ -167,7 +167,9 @@
       -->
         <script>
           // Get the list of valid genes users can search for:
+          //does 100 fethes at a time
           validGeneListFetch = getValidGeneList();
+          //then method returns a Promise
           validGeneListFetch.then(function (validGeneList) {
             $(document).ready(function () {
               // For Cancer Type Select2 Drop down:

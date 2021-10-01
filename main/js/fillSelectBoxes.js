@@ -128,7 +128,7 @@ let displayNumberSamples = async function () {
       );
       para.setAttribute("id", "erikaPara");
       para.innerText = "Number of samples: " + string;
-      cancerQuerySelectBox.appendChild(para);
+      Box.appendChild(para);
     }
   }
 };
@@ -150,6 +150,7 @@ let getValidGeneList = async function () {
     "https://raw.githubusercontent.com/web4bio/webgen/master/main/validGeneList.json"
   ).then((response) => response.json());
   validGeneList = validGeneList.map((geneInfo) => geneInfo.hugoSymbol);
+  console.log(validGeneList);
   return await validGeneList;
 };
 
@@ -272,6 +273,7 @@ let fillClinicalSelectBox = async function () {
       currentOption.value = clinicalKeys[i];
       currentOption.text = clinicalKeys[i];
       currentOption.id = clinicalKeys[i];
+      
       selectBox.appendChild(currentOption);
     }
   }
