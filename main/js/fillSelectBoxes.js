@@ -101,31 +101,33 @@ let displayNumberSamples = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  var dataFetched = await fetchNumberSamples();
-  var countQuery = dataFetched.Counts;
-  let string = "";
-  let para;
-  for (let i = 0; i < countQuery.length; i++) {
-    if (string == "") {
-      string += myCohort[i] + ": " + countQuery[i].mrnaseq;
-      para = document.createElement("P");
-      para.setAttribute(
-        "style",
-        'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
-      );
-      para.setAttribute("id", "numSamplesText");
-      para.innerText = "Number of samples: " + string;
-      cancerQuerySelectBox.appendChild(para);
-    } else {
-      document.getElementById("numSamplesText").remove();
-      string += ", " + myCohort[i] + ": " + countQuery[i].mrnaseq;
-      para.setAttribute(
-        "style",
-        'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
-      );
-      para.setAttribute("id", "numSamplesText");
-      para.innerText = "Number of samples: " + string;
-      cancerQuerySelectBox.appendChild(para);
+  if (myCohort.length != 0) {
+    var dataFetched = await fetchNumberSamples();
+    var countQuery = dataFetched.Counts;
+    let string = "";
+    let para;
+    for (let i = 0; i < countQuery.length; i++) {
+      if (string == "") {
+        string += myCohort[i] + ": " + countQuery[i].mrnaseq;
+        para = document.createElement("P");
+        para.setAttribute(
+          "style",
+          'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
+        );
+        para.setAttribute("id", "numSamplesText");
+        para.innerText = "Number of samples: " + string;
+        cancerQuerySelectBox.appendChild(para);
+      } else {
+        document.getElementById("numSamplesText").remove();
+        string += ", " + myCohort[i] + ": " + countQuery[i].mrnaseq;
+        para.setAttribute(
+          "style",
+          'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
+        );
+        para.setAttribute("id", "numSamplesText");
+        para.innerText = "Number of samples: " + string;
+        cancerQuerySelectBox.appendChild(para);
+      }
     }
   }
 };
@@ -271,86 +273,90 @@ let fillClinicalSelectBox = async function () {
 
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
 
-  let dataFetched = await fetchClinicalData();
-  allClinicalData = dataFetched.Clinical_FH;
-
-  // ------------------------------------------------------------------------------------------------------------------------
-
-  // if more than one cancer type is selected, the intersection of available clinical features between the two cancer types
-  // is populated as options in the dropdown for clinical features
-
   let myCohort = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let clinicalKeys = [];
-  for(i = 0; i < myCohort.length; i++)
-    for(j = 0; j < allClinicalData.length; j++)
-      if(allClinicalData[j].cohort == myCohort[i]) {
-        clinicalKeys.push(Object.keys(allClinicalData[j]));
-        break;
-      }
-  let intersectedFeatures;
-  if(clinicalKeys.length > 1)
-    for(let i = 0; i < clinicalKeys.length - 1; i++) {
-      let currentFeatures = clinicalKeys[i];
-      let nextFeatures = clinicalKeys[i + 1];
-      intersectedFeatures = currentFeatures.filter(x => nextFeatures.includes(x));
-    } 
-  else
-    intersectedFeatures = clinicalKeys[0];
+  
+  if (myCohort.length != 0) {
 
-  $('#clinicalMultipleSelection').val(null).trigger('change'); // clear any preexisting selections
-  $('#clinicalMultipleSelection').empty(); // clear any preexisting options in dropdown
-  let selectBox = document.getElementById("clinicalMultipleSelection");
-  for (let i = 1; i < intersectedFeatures.length; i++) {
-    let currentOption = document.createElement("option");
-    currentOption.value = intersectedFeatures[i];
-    currentOption.text = intersectedFeatures[i];
-    currentOption.id = intersectedFeatures[i];
-    selectBox.appendChild(currentOption);
-  }
+    let dataFetched = await fetchClinicalData();
+    allClinicalData = dataFetched.Clinical_FH;
 
-  // ------------------------------------------------------------------------------------------------------------------------
-  // create data structure to determine if clinical features are continuous or categorical
-  clinicalType = [];
-  for(let i = 0; i < intersectedFeatures.length; i++){
-    let currentFeature = intersectedFeatures[i];
-    let temp = {name: currentFeature, type: "", isSelected: false};
+    // ------------------------------------------------------------------------------------------------------------------------
 
-    let checkIfClinicalFeatureArrayIsNumeric = async function() {
-      var numbers = /^[0-9/.]+$/;
-      var continuousMap = allClinicalData.map(x => x[currentFeature].match(numbers));
-      var nullCount = continuousMap.filter(x => x == null).length;
-      var totalCount = continuousMap.length;
-      var percentContinuous = nullCount / totalCount;
-      if((percentContinuous < 0.75 && (currentFeature != 'vital_status')) || currentFeature === "days_to_death" || currentFeature === "cervix_suv_results")
-        temp.type = "continuous";
-      else
-        temp.type = "categorical";
+    // if more than one cancer type is selected, the intersection of available clinical features between the two cancer types
+    // is populated as options in the dropdown for clinical features
+
+    let clinicalKeys = [];
+    for(i = 0; i < myCohort.length; i++)
+      for(j = 0; j < allClinicalData.length; j++)
+        if(allClinicalData[j].cohort == myCohort[i]) {
+          clinicalKeys.push(Object.keys(allClinicalData[j]));
+          break;
+        }
+    let intersectedFeatures;
+    if(clinicalKeys.length > 1)
+      for(let i = 0; i < clinicalKeys.length - 1; i++) {
+        let currentFeatures = clinicalKeys[i];
+        let nextFeatures = clinicalKeys[i + 1];
+        intersectedFeatures = currentFeatures.filter(x => nextFeatures.includes(x));
+      } 
+    else
+      intersectedFeatures = clinicalKeys[0];
+
+    $('#clinicalMultipleSelection').val(null).trigger('change'); // clear any preexisting selections
+    $('#clinicalMultipleSelection').empty(); // clear any preexisting options in dropdown
+    let selectBox = document.getElementById("clinicalMultipleSelection");
+    for (let i = 1; i < intersectedFeatures.length; i++) {
+      let currentOption = document.createElement("option");
+      currentOption.value = intersectedFeatures[i];
+      currentOption.text = intersectedFeatures[i];
+      currentOption.id = intersectedFeatures[i];
+      selectBox.appendChild(currentOption);
     }
-    await checkIfClinicalFeatureArrayIsNumeric();
-    clinicalType.push(temp);
-  }
 
-  // ------------------------------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------------------------------
+    // create data structure to determine if clinical features are continuous or categorical
+    clinicalType = [];
+    for(let i = 0; i < intersectedFeatures.length; i++){
+      let currentFeature = intersectedFeatures[i];
+      let temp = {name: currentFeature, type: "", isSelected: false};
 
-  let clinicalSelectedOptions = localStorage
-    .getItem("clinicalSelectedOptions")
-    .split(",");
-  if (clinicalSelectedOptions) {
-    $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
-  }
+      let checkIfClinicalFeatureArrayIsNumeric = async function() {
+        var numbers = /^[0-9/.]+$/;
+        var continuousMap = allClinicalData.map(x => x[currentFeature].match(numbers));
+        var nullCount = continuousMap.filter(x => x == null).length;
+        var totalCount = continuousMap.length;
+        var percentContinuous = nullCount / totalCount;
+        if((percentContinuous < 0.75 && (currentFeature != 'vital_status')) || currentFeature === "days_to_death" || currentFeature === "cervix_suv_results")
+          temp.type = "continuous";
+        else
+          temp.type = "categorical";
+      }
+      await checkIfClinicalFeatureArrayIsNumeric();
+      clinicalType.push(temp);
+    }
 
-  let mySelectedClinicalFeatures = $(".geneOneMultipleSelection")
-    .select2("data")
-    .map((clinicalInfo) => clinicalInfo.text);
-  let mySelectedClinicalFeatures2 = $(".clinicalMultipleSelection")
-    .select2("data")
-    .map((clinicalInfo) => clinicalInfo.text);
+    // ------------------------------------------------------------------------------------------------------------------------
 
-  if (
-    mySelectedClinicalFeatures.length >= 1 ||
-    mySelectedClinicalFeatures2 >= 1
-  ) {
-    buildDataExplorePlots(allClinicalData);
+    let clinicalSelectedOptions = localStorage
+      .getItem("clinicalSelectedOptions")
+      .split(",");
+    if (clinicalSelectedOptions) {
+      $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
+    }
+
+    let mySelectedClinicalFeatures = $(".geneOneMultipleSelection")
+      .select2("data")
+      .map((clinicalInfo) => clinicalInfo.text);
+    let mySelectedClinicalFeatures2 = $(".clinicalMultipleSelection")
+      .select2("data")
+      .map((clinicalInfo) => clinicalInfo.text);
+
+    if (
+      mySelectedClinicalFeatures.length >= 1 ||
+      mySelectedClinicalFeatures2 >= 1
+    ) {
+      buildDataExplorePlots(allClinicalData);
+    }
   }
 };
 
