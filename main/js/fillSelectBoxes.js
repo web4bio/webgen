@@ -258,10 +258,16 @@ let getBarcodesFromCohortForClinical = async function () {
 
 // fetch CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
 let fetchClinicalData = async function () {
+  let myCohort = $(".cancerTypeMultipleSelection")
+    .select2("data")
+    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let barcodes = await getBarcodesFromCohortForClinical();
   let clinicalData = await firebrowse.getClinical_FH_b(barcodes);
   if (clinicalData == "") return ["Error: Invalid Input Fields for Query.", 0];
   else {
+    clinicalData = clinicalData.Clinical_FH.filter(function (barcode) {
+      return myCohort.includes(barcode.cohort)
+    });
     return clinicalData;
   }
 };
@@ -278,7 +284,7 @@ let fillClinicalSelectBox = async function () {
   if (myCohort.length != 0) {
 
     let dataFetched = await fetchClinicalData();
-    allClinicalData = dataFetched.Clinical_FH;
+    allClinicalData = dataFetched;
 
     // ------------------------------------------------------------------------------------------------------------------------
 
