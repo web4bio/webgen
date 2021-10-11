@@ -16,6 +16,7 @@
       "monospaceLinks": true
   },
   "opts": {
-    "destination": "./docs/"
+    "destination": "./docs/",
+    "recurse": true
   }
 }
