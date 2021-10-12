@@ -185,6 +185,11 @@ let buildPlots = async function () {
   localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
+  console.log(mutationQuery);
+  let mutationData = await getAllVariantClassifications(mutationQuery);
+  let mutationClinicalData = await mergeClinicalAndMutationDate(mutationQuery, mutationData,
+                                                          clinicalData);
+  localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationClinicalData));
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -470,4 +475,39 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
     $("#downloadDataButtons").show()
     $("ul.tabs").show()
     instance.updateTabIndicator()
+};
+
+let mergeClinicalAndMutationDate = async function(mutationQuery, mutationData, clinicalData) {
+  let dataToReturn = clinicalData;
+  console.log(mutationData);
+  /*
+  let mutationDataBarcodes = [];
+  for(let index = 0; index < mutationData.length; index++) {
+    mutationDataBarcodes.push(mutationData[index]["Tumor_Sample_Barcode"]);
+  }
+  console.log(mutationDataBarcodes);
+  */
+  
+  for(let index = 0; index < dataToReturn.length; index++) {
+    let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
+    for(let geneIndex = 0; geneIndex < mutationQuery.length; geneIndex++) {
+        let curGeneMutation = mutationQuery[geneIndex] + "_Mutation";
+        let mutationValue = await getVariantClassification(mutationData, curParticipantBarcode, 
+                                                    mutationQuery[geneIndex]);
+        //Append feature to JSON object
+        dataToReturn[index][curGeneMutation] = mutationValue;
+    }  
+  }
+  return dataToReturn;
+};
+
+let getVariantClassification = async function (mutationData, curTumorSampleBarcode, 
+                                                curGene) {
+  for(let index = 0; index < mutationData.length; index++) {
+    if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 13) == curTumorSampleBarcode 
+        && mutationData[index].Hugo_Symbol === curGene) {
+          return(mutationData[index].Variant_Classification);
+    }
+  }
+  return "Wild_Type";
 };
