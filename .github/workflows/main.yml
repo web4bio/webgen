@@ -19,8 +19,8 @@ jobs:
           git status
       - name: Commit.
         run: |
-          git config --global user.name ""
-          git config --global user.email ""
+          git config --global user.name "enemeth19"
+          git config --global user.email "erika.nemeth@stonybrook.edu"
           git add docs/
           git commit -am 'Updated docs.'
           git push
