@@ -13,8 +13,11 @@
  * @property {string} tcga_participant_barcode
  * @property {number} z-score
  *
- * @returns {{mRNASeq: mRNASeqItem[]}|[]} Object with fetched data, or array with
+ * @returns {{mRNASeq: mRNASeqItem[]}} Object with fetched data, or array with
  *  error information.
+ *
+ * @throws {Error} if fetch response is not OK.
+ * @throws {Error} if fetched data is empty. We expect an mRNASeq key in this object.
  *
  * @example
  *   fetchExpressionData_cg("BLCA", "bcl2")
@@ -35,15 +38,15 @@ async function fetchExpressionData_cg(cohortQuery, geneQuery) {
         sort_by: "tcga_participant_barcode"
     });
 
-    // Fetch data from stitched api:
-    const fetchedExpressionData = await fetch(`${hosturl}?${endpointurl}?${params.toString()}`);
-
-    // Check if the fetch worked properly:
-    if (fetchedExpressionData === "") {
-        return ["Error: Invalid Input Fields for Query.", 0];
+    const response = await fetch(`${hosturl}?${endpointurl}?${params.toString()}`);
+    if (!response.ok) {
+        throw new Error("Fetching mRNASeq data was unsuccessful.");
     }
-    else {
-        return await fetchedExpressionData.json();
+    const json = await response.json();
+    // We expect at least an mRNASeq key, so if this json object is empty, there's
+    // a problem.
+    if (!json) {
+        throw new Error("mRNASeq data is empty.")
     }
-
+    return json
 }
