@@ -13,7 +13,7 @@
  * @property {string} tcga_participant_barcode
  * @property {number} z-score
  *
- * @returns {{mRNASeq: mRNASeqItem[]}} Object with fetched data, or array with
+ * @returns {Promise<{mRNASeq: mRNASeqItem[]}>} Object with fetched data, or array with
  *  error information.
  *
  * @throws {Error} if fetch response is not OK.
