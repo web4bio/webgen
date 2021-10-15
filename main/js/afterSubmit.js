@@ -186,15 +186,15 @@ let buildPlots = async function () {
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   let mutationData = await getAllVariantClassifications(mutationQuery);
-  let mutationClinicalData = await mergeClinicalAndMutationDate(mutationQuery, mutationData,
+  let mutationAndClinicalData = await mergeClinicalAndMutationDate(mutationQuery, mutationData,
                                                           clinicalData);
-  localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationClinicalData));
-  localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys(mutationClinicalData[0]));
+  localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
+  localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
   buildDownloadData(cohortQuery, expressionData, clinicalData);
-  buildHeatmap(expressionData, clinicalData);
+  buildHeatmap(expressionData, mutationAndClinicalData);
   addToggleSwitch(expressionQuery, cohortQuery, expressionData);
   buildViolinPlot(cohortQuery, expressionData, "cohort");
 
@@ -222,7 +222,7 @@ getExpressionQuery = async function() {
   return await expressionQuery;
 }
 
-buildHeatmap = async function (expData, clinData) {
+buildHeatmap = async function (expData, clinAndMutationData) {
   // Remove the loader
   document.getElementById("heatmapLoaderDiv").classList.remove("loader");
 
@@ -230,7 +230,7 @@ buildHeatmap = async function (expData, clinData) {
   let divHeatMap = d3.select("#heatmapLoaderDiv").html("");
 
   // Create the heatmap
-  createHeatmap(expData, clinData, divHeatMap);
+  createHeatmap(expData, clinAndMutationData, divHeatMap);
 };
 
 addToggleSwitch = async function(expressionQuery, cohortQuery, expressionData) {
