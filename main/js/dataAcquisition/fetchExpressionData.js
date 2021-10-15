@@ -16,7 +16,6 @@
  * @returns {Promise<{mRNASeq: mRNASeqItem[]}>} Object with fetched data.
  *
  * @throws {Error} if fetch response is not OK.
- * @throws {Error} if fetched data is empty. We expect an mRNASeq key in this object.
  *
  * @example
  *   fetchExpressionData_cg("BLCA", "bcl2")
@@ -38,14 +37,17 @@ async function fetchExpressionData_cg(cohortQuery, geneQuery) {
     });
 
     const response = await fetch(`${hosturl}?${endpointurl}?${params.toString()}`);
+    const minimal_json = { mRNASeq: [] };
     if (!response.ok) {
-        throw new Error("Fetching mRNASeq data was unsuccessful.");
+        console.log("Fetching mRNASeq data was unsuccessful.")
+        return minimal_json
     }
     const json = await response.json();
     // We expect at least an mRNASeq key, so if this json object is empty, there's
     // a problem.
     if (!json) {
-        throw new Error("mRNASeq data is empty.")
+        console.log("mRNASeq is empty, returning an object with empty mRNASeq")
+        return minimal_json
     }
     return json
 }
