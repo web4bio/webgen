@@ -190,6 +190,7 @@ let buildPlots = async function () {
   let mutationClinicalData = await mergeClinicalAndMutationDate(mutationQuery, mutationData,
                                                           clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationClinicalData));
+  localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys(mutationClinicalData[0]));
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -502,10 +503,10 @@ let mergeClinicalAndMutationDate = async function(mutationQuery, mutationData, c
 };
 
 let getVariantClassification = async function (mutationData, curTumorSampleBarcode, 
-                                                curGene) {
-  for(let index = 0; index < mutationData.length; index++) {
-    if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 13) == curTumorSampleBarcode 
-        && mutationData[index].Hugo_Symbol === curGene) {
+  curGene) {
+    for(let index = 0; index < mutationData.length; index++) {
+    if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 12) == curTumorSampleBarcode 
+        && mutationData[index].Hugo_Symbol == curGene) {
           return(mutationData[index].Variant_Classification);
     }
   }

@@ -11,9 +11,9 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
     //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
-    let clinicalData = "";
+    let clinicalAndMutationData = "";
     if(facetByFields.length > 0)
-        clinicalData = JSON.parse(localStorage.getItem("clinicalData"));
+        clinicalAndMutationData = JSON.parse(localStorage.getItem("mutationAndClinicalData"));
 
     //Set up violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
@@ -54,19 +54,18 @@ createViolinPlot = async function(indepVarType, dataInput, violinDiv, curPlot, f
     {        
         for(var i = 0; i < dataInput.length; i++)
         {
-            //Get matching index in clinicalData for current patient index in dataInput
-            var clinicalDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
+            //Get matching index in clinicalAndMutationData for current patient index in dataInput
+            var clinicalAndMutationDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalAndMutationData);
          
-            if(clinicalDataIndex >= 0)
+            if(clinicalAndMutationDataIndex >= 0)
             {
                 var keyToFacetBy = dataInput[i][opVar] + " (";
-                //Iterate over the clinical fields to facet by to create keyToFacetBy
+                //Iterate over the clinical and mutation fields to facet by to create keyToFacetBy
                 for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++)
                 {
                     //Append additional JSON field to data for the purpose of creating a key to facet by
-                    clinicalField = facetByFields[fieldIndex];
-                    //dataInput[i][clinicalField] = clinicalData[clinicalDataIndex][clinicalField];
-                    keyToFacetBy += clinicalData[clinicalDataIndex][clinicalField] 
+                    let field = facetByFields[fieldIndex];
+                    keyToFacetBy += clinicalAndMutationData[clinicalAndMutationDataIndex][field] 
                     if(fieldIndex < facetByFields.length-1)
                     {
                         keyToFacetBy += " ";
@@ -552,8 +551,8 @@ let createViolinPartitionBox = async function(violinsDivId, cohortORGeneQuery)
     }
     
     // data to input = clinical vars from query
-    let clinicalVars = localStorage.getItem("clinicalFeatureKeys").split(",");
-    let var_opts = clinicalVars;
+    let partitionVars = localStorage.getItem("mutationAndClinicalFeatureKeys").split(",");
+    let var_opts = partitionVars;
 
     // make a checkbox for each option
     var_opts.forEach(el => renderCB(div_body,el))
@@ -576,7 +575,7 @@ let createViolinPartitionBox = async function(violinsDivId, cohortORGeneQuery)
     return choices;
 };
 
-//Returns array of the selection clinical features in the partition box corresponding to violinDivId
+//Returns array of the selection clinical and mutation features in the partition box corresponding to violinDivId
 let getPartitionBoxSelections = function(violinsDivId)
 {
     var selectedOptions = [];
@@ -610,12 +609,12 @@ let rebuildViolinPlot = function(violinsDivId, cohortORGeneQuery) {
     }
 };
 
-//Helper function to acquire the index of a patient's clinical data based on their tcga_participant_barcode
-function findMatchByTCGABarcode(patient, clinicalData)
+//Helper function to acquire the index of a patient's clinical and mutation data based on their tcga_participant_barcode
+function findMatchByTCGABarcode(patient, clinicalAndMutationData)
 {
-    for(var index = 0; index < clinicalData.length; index++)
+    for(var index = 0; index < clinicalAndMutationData.length; index++)
     {
-        if(clinicalData[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
+        if(clinicalAndMutationData[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
             return index;
     }
 
