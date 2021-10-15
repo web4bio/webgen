@@ -229,23 +229,26 @@ buildHeatmap = async function (expData, clinData) {
   buildViolinPlot = async function (geneQuery, expressionData) {
     //Remove loader from violin plot container
     document.getElementById("violinLoaderDiv").classList.remove("loader");
-    addDivInside("violinPlots", "violinLoaderDiv");
+
     // Create partition selector
     var partitionDivId = "violinPartition";
     addDivInside(partitionDivId, "violinLoaderDiv");
     // Create partition selector
     createViolinPartitionBox("violinPlots", geneQuery);
+
+    //Create div for violin plots
+    addDivInside("violinPlots", "violinLoaderDiv");
+
     // Define the number of cohorts to create a plot for
     let numOfIndependantVars = geneQuery.length;
-
     // Append an svg object for each cohort to create a violin plot for
     for (var index = 0; index < numOfIndependantVars; index++) {
-        // Define the current cohort to create the violin plot for and create a new div for each cohort
-        let curGene = geneQuery[index];
-        addDivInside(`violinPlot${index}`, "violinPlots");
-        addDivInside(`svgViolin${index}`, `violinPlot${index}`);
-        var violinDiv = document.getElementById(`violinPlot${index}`);
-        createViolinPlot(expressionData, violinDiv, curGene, []);
+      // Define the current cohort to create the violin plot for and create a new div for each cohort
+      let curGene = geneQuery[index];
+      addDivInside(`violinPlot${index}`, "violinPlots");
+      addDivInside(`svgViolin${index}`, `violinPlot${index}`);
+      var violinDiv = document.getElementById(`violinPlot${index}`);
+      createViolinPlot(expressionData, violinDiv, curGene, []);
     }
 };
 
