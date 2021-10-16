@@ -65,7 +65,6 @@ let fetchNumberSamples = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   const hosturl = "https://firebrowse.herokuapp.com";
-  //
   const endpointurl = "http://firebrowse.org/api/v1/Metadata/Counts";
   const endpointurl_presets = {
     cohort: myCohort,
@@ -87,6 +86,14 @@ let fetchNumberSamples = async function () {
   ).then(function (response) {
     return response.json();
   });
+  fetchedCountData = fetchedCountData.Counts;
+  fetchedCountData = fetchedCountData.map(x => {
+    const container = {};
+    container.cohort = x.cohort.substring(0, fetchedCountData[0].cohort.indexOf('-'));
+    container.mrnaseq = x.mrnaseq;
+    return container;
+  });
+
   if (fetchedCountData == "")
     return ["Error: Invalid Input Fields for Query.", 0];
   else {
@@ -95,20 +102,36 @@ let fetchNumberSamples = async function () {
 };
 
 let displayNumberSamples = async function () {
+  // remove numSamplesText para element if it already exists:
   if (document.getElementById("numSamplesText")) {
     document.getElementById("numSamplesText").remove();
   }
+  // retrieve selected tumor types:
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
-    var dataFetched = await fetchNumberSamples();
-    var countQuery = dataFetched.Counts;
+    // get counts of samples for selected tumor types:
+    var countQuery = await fetchNumberSamples();
+    // order counts array based on order in which tumor types were selected:
+    function orderThings (array, order, key) {
+      array.sort(function (a, b) {
+        var A = a[key], B = b[key];
+        if (order.indexOf(A) > order.indexOf(B)) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+      return array;
+    };
+    orderedCountQuery = orderThings(countQuery, myCohort, 'cohort')
+    // build label:
     let string = "";
     let para;
-    for (let i = 0; i < countQuery.length; i++) {
+    for (let i = 0; i < orderedCountQuery.length; i++) {
       if (string == "") {
-        string += myCohort[i] + ": " + countQuery[i].mrnaseq;
+        string += myCohort[i] + ": " + orderedCountQuery[i].mrnaseq;
         para = document.createElement("P");
         para.setAttribute(
           "style",
@@ -119,7 +142,7 @@ let displayNumberSamples = async function () {
         cancerQuerySelectBox.appendChild(para);
       } else {
         document.getElementById("numSamplesText").remove();
-        string += ", " + myCohort[i] + ": " + countQuery[i].mrnaseq;
+        string += ", " + myCohort[i] + ": " + orderedCountQuery[i].mrnaseq;
         para.setAttribute(
           "style",
           'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
