@@ -1,0 +1,26 @@
+name: jsdoc
+on:
+  push:
+    branches: [development]
+jobs:
+  build-jsdoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: npm install -g jsdoc
+      - name: Run jsdoc.
+        run: |
+          jsdoc -v
+          jsdoc --readme README.md plco.js -c conf.json
+      - name: A quick check on what's new.
+        run: |
+          git branch -vv
+          git status
+      - name: Commit.
+        run: |
+          git config --global user.name "enemeth19"
+          git config --global user.email "erika.nemeth@stonybrook.edu"
+          git add docs/
+          git commit -am 'Updated docs.'
+          git push
