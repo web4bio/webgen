@@ -12,7 +12,7 @@ jobs:
       - name: Run jsdoc.
         run: |
           jsdoc -v
-          jsdoc --readme README.md plco.js -c conf.json
+          jsdoc --readme README.md -c conf.json
       - name: A quick check on what's new.
         run: |
           git branch -vv
