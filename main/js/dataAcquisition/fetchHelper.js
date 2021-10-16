@@ -26,6 +26,5 @@ async function fetchFromFireBrowse(endpoint, params) {
   endpoint = `http://firebrowse.org/api/v1/${endpoint}`;
   params = new URLSearchParams(params);
   const url = `${base}?${endpoint}?${params.toString()}`;
-  console.log(`Fetch ${url}`);
   return await fetch(url);
 }
