@@ -10,17 +10,11 @@ const fetchClinicalData_cc = async function(cohortQuery, clinicalQuery) {
   };
   // Monitor the performance of the fetch:
   const fetchStart = performance.now();
-  const fetchedClinicalData = await fetchFromFireBrowse(
-    "/Samples/Clinical_FH", params);
+  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
   // Monitor the performance of the fetch:
-  var fetchTime = performance.now() - fetchStart;
+  const fetchTime = performance.now() - fetchStart;
   console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
-  // Check if the fetch worked properly:
-  if (fetchedClinicalData == '') {
-    return ['Error: Invalid Input Fields for Query.', 0];
-  } else {
-    return fetchedClinicalData.json();
-  }
+  return data;
 }
 
 // Function to fetch expression data from firebrowse, no clinical features specified:
@@ -35,17 +29,12 @@ const fetchClinicalData_b = async function(barcodeQuery) {
   };
   // Monitor the performance of the fetch:
   const fetchStart = performance.now();
-  const fetchedClinicalData = await fetchFromFireBrowse(
-    "/Samples/Clinical_FH", params);
+  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
   // Monitor the performance of the fetch:
-  var fetchTime = performance.now() - fetchStart;
+  const fetchTime = performance.now() - fetchStart;
   console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
   // Check if the fetch worked properly:
-  if (fetchedClinicalData == '') {
-    return ['Error: Invalid Input Fields for Query.', 0];
-  } else {
-    return fetchedClinicalData.json();
-  }
+  return data;
 }
 
 // Function to fetch expression data from firebrowse, no clinical features specified:
@@ -60,15 +49,10 @@ const fetchClinicalData_c = async function(cohortQuery) {
   };
   // Monitor the performance of the fetch:
   const fetchStart = performance.now();
-  const fetchedClinicalData = await fetchFromFireBrowse(
-    "/Samples/Clinical_FH", params);
+  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
   // Monitor the performance of the fetch:
-  var fetchTime = performance.now() - fetchStart;
+  const fetchTime = performance.now() - fetchStart;
   console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
   // Check if the fetch worked properly:
-  if (fetchedClinicalData == '') {
-    return ['Error: Invalid Input Fields for Query.', 0];
-  } else {
-    return fetchedClinicalData.json();
-  }
+  return data;
 }

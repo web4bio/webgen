@@ -7,15 +7,9 @@
 // Returns an array of JSON objects, where each object has a key:value pair for
 // "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
 let fetchCohortData = async function() {
-  let fetchedCohortData = await fetchFromFireBrowse("/Metadata/Cohorts", {
-    format: "json"
-  }).then((response) => response.json());
-  if (fetchedCohortData == "") {
-    return ["Error: Invalid Input Fields for Query.", 0];
-  }
-  else {
-    return fetchedCohortData.Cohorts;
-  }
+  const params = { format: "json" };
+  let data = await fetchFromFireBrowse("/Metadata/Cohorts", params);
+  return data.Cohorts;
 };
 
 let fillCancerTypeSelectBox = async function () {
@@ -58,18 +52,13 @@ let fillCancerTypeSelectBox = async function () {
 let fetchNumberSamples = async function() {
   let myCohort = $(".cancerTypeMultipleSelection").select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const fetchedCountData = await fetchFromFireBrowse(
-    "/Metadata/Counts", {
-      cohort: myCohort,
-      sample_type: "TP",
-      data_type: "mrnaseq",
-      totals: "true",
-    }).then((response) => response.json());
-  if (fetchedCountData == "") {
-    return ["Error: Invalid Input Fields for Query.", 0];
-  } else {
-    return fetchedCountData;
-  }
+  const params = {
+    cohort: myCohort,
+    sample_type: "TP",
+    data_type: "mrnaseq",
+    totals: "true",
+  };
+  return await fetchFromFireBrowse("/Metadata/Counts", params);
 };
 
 let displayNumberSamples = async function () {
@@ -479,14 +468,8 @@ let getAllVariantClassifications = async function (geneQuery) {
     page_size: 250,
     sort_by: "cohort",
   };
-  let fetchedMutationData = await fetchFromFireBrowse(
-    "/Analyses/Mutation/MAF", params).then((response) => response.json());
-  let theMutationQuery = fetchedMutationData.MAF;
-  if (theMutationQuery == "") {
-    return ["Error: Invalid Input Fields for Query.", 0];
-  } else {
-    return theMutationQuery;
-  }
+  const data = await fetchFromFireBrowse("/Analyses/Mutation/MAF", params);
+  return data.MAF;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

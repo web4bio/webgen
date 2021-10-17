@@ -32,18 +32,5 @@ async function fetchExpressionData_cg(cohortQuery, geneQuery) {
     page_size: 2001,
     sort_by: "tcga_participant_barcode"
   };
-  const response = await fetchFromFireBrowse("/Samples/mRNASeq", params);
-  const minimal_json = { mRNASeq: [] };
-  if (!response.ok) {
-    console.error("Fetching mRNASeq data was unsuccessful.")
-    return minimal_json
-  }
-  const json = await response.json();
-  // We expect at least an mRNASeq key, so if this json object is empty, there's
-  // a problem.
-  if (!json) {
-    console.error("mRNASeq is empty, returning an object with empty mRNASeq")
-    return minimal_json
-  }
-  return json
+  return await fetchFromFireBrowse("/Samples/mRNASeq", params);
 }
