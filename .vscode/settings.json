@@ -1,3 +1,14 @@
 {
+    "eslint.format.enable": true,
+    "eslint.lintTask.enable": true,
+    "eslint.validate": [
+        "javascript"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.run": "onSave",
+    "editor.formatOnSave": true,
+    "editor.trimAutoWhitespace": true,
     "liveServer.settings.port": 5501
 }

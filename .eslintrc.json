@@ -1,0 +1,58 @@
+{
+    "extends": "eslint:recommended",
+    "env": {
+        "browser": true,
+        "es6": true,
+        "jquery": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2015
+    },
+    "rules": {
+        // Validate jsdoc comments.
+        "valid-jsdoc": "error",
+        // Can't use a variable before it is defined.
+        "no-use-before-define": "error",
+        // No unused vars.
+        "no-unused-vars": [
+            "error",
+            {
+                // Unused globals are ok (e.g., functions that are used elsewhere).
+                "vars": "local"
+            }
+        ],
+        // Async functions must include await.
+        "require-await": "error",
+        // Use === and !== instead of == and !=.
+        "eqeqeq": [
+            "error",
+            "smart"
+        ],
+        // Use let or const instead of var.
+        "no-var": "error",
+        // Prefer using const instead of let when possible.
+        "prefer-const": "error",
+        // Prefer template strings instead of string concatenation.
+        "prefer-template": "warn",
+        // Use double quotes when possible.
+        "quotes": [
+            "error",
+            "double"
+        ],
+        // Enforce a consistent use of semicolons.
+        "semi": [
+            "error",
+            "always"
+        ],
+        // Indent with this many spaces.
+        "indent": [
+            "error",
+            2
+        ],
+        // Max line length.
+        "max-len": [
+            "error",
+            100
+        ]
+    }
+}
