@@ -20,34 +20,17 @@
  * @example
  *   fetchExpressionData_cg("BLCA", "bcl2")
  *   fetchExpressionData_cg(["BLCA", "BRCA"], ["bcl2", "tp53"])
-**/
+ **/
 async function fetchExpressionData_cg(cohortQuery, geneQuery) {
-    // Set up host and endpoint urls
-    const hosturl = "https://firebrowse.herokuapp.com";
-    const endpointurl = "http://firebrowse.org/api/v1/Samples/mRNASeq";
-    const params = new URLSearchParams({
-        format: "json",
-        gene: geneQuery,
-        cohort: cohortQuery,
-        sample_type: "TP",
-        protocol: "RSEM",
-        page: "1",
-        page_size: 2001,
-        sort_by: "tcga_participant_barcode"
-    });
-
-    const response = await fetch(`${hosturl}?${endpointurl}?${params.toString()}`);
-    const minimal_json = { mRNASeq: [] };
-    if (!response.ok) {
-        console.log("Fetching mRNASeq data was unsuccessful.")
-        return minimal_json
-    }
-    const json = await response.json();
-    // We expect at least an mRNASeq key, so if this json object is empty, there's
-    // a problem.
-    if (!json) {
-        console.log("mRNASeq is empty, returning an object with empty mRNASeq")
-        return minimal_json
-    }
-    return json
+  const params = {
+    format: "json",
+    gene: geneQuery,
+    cohort: cohortQuery,
+    sample_type: "TP",
+    protocol: "RSEM",
+    page: "1",
+    page_size: 2001,
+    sort_by: "tcga_participant_barcode"
+  };
+  return await fetchFromFireBrowse("/Samples/mRNASeq", params);
 }
