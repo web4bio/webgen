@@ -48,12 +48,17 @@ const fetchFromFireBrowse = async function(endpoint, params) {
 
 /** Return cartesian product of arrays.
  *
- * @param  {...[]} a - Arrays for which to compute cartesian product.
+ * @param  {[]} a - Array
+ * @param {[]} b - Array
+ * @param {...[]} [c] - Optionally other arrays.
+ *
  * @returns {[][]} - Nested array with cartesian product of inputs.
  *
  * See https://stackoverflow.com/a/43053803/5666087.
  */
-const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+const cartesian = function(a, b, ...c) {
+  const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
+  return (b ? cartesian(f(a, b), ...c) : a);};
 
 /** Perform multiple fetches from the FireBrowse API.
  *
@@ -65,6 +70,10 @@ const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].
  */
 const multiFetchFromFireBrowse = async function(endpoint, params, groupBy = null) {
 
+  const allParams = [];
   const allCombinations = cartesian(groupBy);
+  for (let i=0; i<allCombinations.length; i++) {
+    allParams.push(allCombinations[i]);
+  }
   await fetchFromFireBrowse(endpoint, params);
 };
