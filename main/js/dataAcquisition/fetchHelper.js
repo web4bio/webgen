@@ -16,7 +16,7 @@
  *      sort_by: "tcga_participant_barcode",
  *    });
  */
-async function fetchFromFireBrowse(endpoint, params) {
+const fetchFromFireBrowse = async function(endpoint, params) {
   const base = "https://firebrowse.herokuapp.com";
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
@@ -44,4 +44,27 @@ async function fetchFromFireBrowse(endpoint, params) {
     return minimal_json;
   }
   return json;
-}
+};
+
+/** Return cartesian product of arrays.
+ *
+ * @param  {...[]} a - Arrays for which to compute cartesian product.
+ * @returns {[][]} - Nested array with cartesian product of inputs.
+ *
+ * See https://stackoverflow.com/a/43053803/5666087.
+ */
+const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+
+/** Perform multiple fetches from the FireBrowse API.
+ *
+ * @param {endpoint} endpoint - API endpoint to query.
+ * @param {params} params - Parameters of the query.
+ * @param {groupBy} [groupBy] - Use multiple concurrent fetches by this parameter.
+ *
+ * @returns {Promise<Object>} The fetched data.
+ */
+const multiFetchFromFireBrowse = async function(endpoint, params, groupBy = null) {
+
+  const allCombinations = cartesian(groupBy);
+  await fetchFromFireBrowse(endpoint, params);
+};
