@@ -54,7 +54,7 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
                 {
                     //Append additional JSON field to data for the purpose of creating a key to facet by
                     let clinicalField = facetByFields[fieldIndex];
-                    keyToFacetBy += clinicalData[clinicalDataIndex][clinicalField] 
+                    keyToFacetBy += clinicalAndMutationData[clinicalAndMutationDataIndex][clinicalField] 
                     if(fieldIndex < facetByFields.length-1)
                     {
                         keyToFacetBy += " ";
