@@ -487,7 +487,7 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
     function update() 
     {
         choices = [];
-        d3.selectAll(".myCheckbox").each(function(d)
+        d3.selectAll(".myViolinCheckbox").each(function(d)
         {
             let cb = d3.select(this);
             if(cb.property('checked')){ choices.push(cb.property('value')); };
@@ -505,10 +505,13 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         label.append("label")
            .attr("class", "switch")
            .append("input")
-           .attr("class", "myCheckbox")
+           .attr("class", "myViolinCheckbox")
            .attr("value", data)
            .attr("type", "checkbox")
-           .on('change',update)
+           .on('change', function () {
+                update();
+                rebuildViolinPlot(partitionDivId, geneQuery);
+            })
            .attr("style", 'opacity: 1; position: relative; pointer-events: all')
            .append("span")
            .attr("class", "slider round")
@@ -527,18 +530,20 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
     update();
 
     var choices = [];
-    d3.select('#'+partitionDivId).selectAll(".myCheckbox").each(function(d)
+    d3.select('#'+partitionDivId).selectAll(".myViolinCheckbox").each(function(d)
     {
         let cb = d3.select(this);
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
 
+    /*
     div_box.append("break");
     div_box.append('button')
         .text("Rebuild Violin Plot")
         .attr("class", "col s3 btn waves-effect waves-light")
         .attr("id", "submitButton")
         .attr("onclick", "rebuildViolinPlot('" + partitionDivId + "', '" + geneQuery + "')");
+    */
    
     return choices;
 };
@@ -547,7 +552,7 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
 let getPartitionBoxSelections = function(violinsDivId)
 {
     var selectedOptions = [];
-    d3.select('#'+violinsDivId).selectAll(".myCheckbox").each(function(d)
+    d3.select('#'+violinsDivId).selectAll(".myViolinCheckbox").each(function(d)
     {
         let cb = d3.select(this);
         if(cb.property('checked')){ selectedOptions.push(cb.property('value')); };
@@ -558,8 +563,8 @@ let getPartitionBoxSelections = function(violinsDivId)
 //Rebuilds the violin plot associated with violinDivId
 let rebuildViolinPlot = function(violinsDivId, geneQuery) {
     var selectedOptions = getPartitionBoxSelections(violinsDivId);
-        
-    geneQuery = geneQuery.split(",");
+
+    //geneQuery = geneQuery.split(",");
     for(var index = 0; index < geneQuery.length; index++) {
         var svgDivId = "svgViolin" + index;
         var svgDiv = document.getElementById(svgDivId);
