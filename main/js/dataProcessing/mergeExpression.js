@@ -4,7 +4,7 @@
  * The expression array order is specified by gene names.
  *
  * @param {mRNASeqItem[]} dataInput - The data to transform.
- * @returns {{id: string, exps: (number|null)[], genes: string[]}[]} - Transformed data.
+ * @returns {Array.<{id: string, exps: Array.<(number|null)>, genes: string[]}>} - Transformed data.
  */
 const mergeExpression = function(dataInput) {
   const unique_genes = d3.map(dataInput, d => d.gene).keys();
