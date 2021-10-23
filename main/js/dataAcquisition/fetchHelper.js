@@ -1,22 +1,4 @@
-/** Perform a fetch from the FireBrowse API.
- *
- * @param {string} endpoint - API endpoint to query.
- * @param {Object} params - Parameters of the query.
- *
- * @returns {Promise<Object>} The fetched data.
- *
- * @example
- *  await fetchFromFireBrowse("/Samples/mRNASeq", {
- *      format: "json",
- *      gene: geneQuery,
- *      cohort: cohortQuery,
- *      protocol: "RSEM",
- *      page: "1",
- *      page_size: 2001,
- *      sort_by: "tcga_participant_barcode",
- *    });
- */
-const fetchFromFireBrowse = async function(endpoint, params) {
+const _fetchFromFireBrowse = async function(endpoint, params) {
   const base = "https://firebrowse.herokuapp.com";
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
@@ -46,34 +28,126 @@ const fetchFromFireBrowse = async function(endpoint, params) {
   return json;
 };
 
-/** Return cartesian product of arrays.
- *
- * @param  {[]} a - Array
- * @param {[]} b - Array
- * @param {...[]} [c] - Optionally other arrays.
- *
- * @returns {[][]} - Nested array with cartesian product of inputs.
- *
- * See https://stackoverflow.com/a/43053803/5666087.
- */
-const cartesian = function(a, b, ...c) {
-  const f = (a, b) => [].concat(...a.map(d => b.map(e => [].concat(d, e))));
-  return (b ? cartesian(f(a, b), ...c) : a);};
 
-/** Perform multiple fetches from the FireBrowse API.
+/** Make a deep clone of an object.
  *
- * @param {endpoint} endpoint - API endpoint to query.
- * @param {params} params - Parameters of the query.
- * @param {groupBy} [groupBy] - Use multiple concurrent fetches by this parameter.
+ * @template T
+ * @param {T} obj - Object to clone.
+ * @returns {T} Deeply cloned object.
+ */
+const _deepClone = function(obj) {
+  return JSON.parse(JSON.stringify(obj));
+};
+
+
+/** Transform object of parameters to a list of grouped parameters.
+ *
+ * @template T
+ * @param {T} params - Parameters.
+ * @param {Array.<{key: string, length: number}>} groupBy - Groupby info.
+ *
+ * @returns {T[]} Array of parameters.
+ *
+ * @example
+ * const params = {
+ *  "foo": ["a", "b", "c", "d"],
+ *  "bar": ["w", "x", "y", "z"],
+ *  "cat": "dog",
+ * };
+ * const groupBy = [{key: "foo", length: 4}, {key: "bar", length: 3}];
+ * _paramsToParamsMatrix(params, groupBy);
+ * // [{
+ * //   bar: ["w", "x", "y"],
+ * //   cat: "dog",
+ * //   foo: ["a", "b", "c", "d"]
+ * //  }, {
+ * //   bar: ["z"],
+ * //   cat: "dog",
+ * //   foo: ["a", "b", "c", "d"]
+ * //  }]
+ */
+const _paramsToParamsMatrix = function(params, groupBy) {
+
+  const newParams = [];
+
+  const addSlices = (slices) => {
+    // Copy params so we can keep the data we are not grouping by, and then update
+    // with the sliced objects.
+    let paramsCopy = _deepClone(params);
+    paramsCopy = Object.assign(paramsCopy, slices);
+    newParams.push(paramsCopy);
+  };
+
+  if (groupBy.length === 1) {
+    const groupByA = groupBy[0];
+    for (let i=0; i<params[groupByA.key].length; i+=groupByA.length) {
+      const slicedObject = {
+        [groupByA.key]: params[groupByA.key].slice(i, i+groupByA.length),
+      };
+      addSlices(slicedObject);
+    }
+  } else if (groupBy.length === 2) {
+    const groupByA = groupBy[0], groupByB = groupBy[1];
+    for (let i=0; i<params[groupByA.key].length; i+=groupByA.length) {
+      for (let j=0; j<params[groupByB.key].length; j+=groupByB.length) {
+        const slicedObject = {
+          [groupByA.key]: params[groupByA.key].slice(i, i+groupByA.length),
+          [groupByB.key]: params[groupByB.key].slice(j, j+groupByB.length),
+        };
+        addSlices(slicedObject);
+      }
+    }
+  } else if (groupBy.length === 3) {
+    const groupByA = groupBy[0], groupByB = groupBy[1], groupByC = groupBy[2];
+    for (let i=0; i<params[groupByA.key].length; i+=groupByA.length) {
+      for (let j=0; j<params[groupByB.key].length; j+=groupByB.length) {
+        for (let k=0; k<params[groupByC.key].length; k+=groupByC.length) {
+          const slicedObject = {
+            [groupByA.key]: params[groupByA.key].slice(i, i+groupByA.length),
+            [groupByB.key]: params[groupByB.key].slice(j, j+groupByB.length),
+            [groupByC.key]: params[groupByC.key].slice(k, k+groupByC.length),
+          };
+          addSlices(slicedObject);
+        }
+      }
+    }
+  } else {
+    console.error("too many groupBy objects");
+  }
+  return newParams;
+};
+
+
+/** Perform a fetch from the FireBrowse API.
+ *
+ * @param {string} endpoint - API endpoint to query.
+ * @param {{}} params - Parameters of the query.
+ * @param {Array.<{key: string, length: number}>} [groupBy] - Groupby info.
  *
  * @returns {Promise<Object>} The fetched data.
+ *
+ * @example
+ *  await fetchFromFireBrowse("/Samples/mRNASeq", {
+ *      format: "json",
+ *      gene: geneQuery,
+ *      cohort: cohortQuery,
+ *      protocol: "RSEM",
+ *      page: "1",
+ *      page_size: 2001,
+ *      sort_by: "tcga_participant_barcode",
+ *    });
  */
-const multiFetchFromFireBrowse = async function(endpoint, params, groupBy = null) {
-
-  const allParams = [];
-  const allCombinations = cartesian(groupBy);
-  for (let i=0; i<allCombinations.length; i++) {
-    allParams.push(allCombinations[i]);
+const fetchFromFireBrowse = async function(endpoint, params, groupBy) {
+  if (groupBy == null) {
+    return await _fetchFromFireBrowse(endpoint, params);
+  } else {
+    const paramsMatrix = _paramsToParamsMatrix(params, groupBy);
+    const calls = [];
+    for (let i=0; i<paramsMatrix.length; i++) {
+      const call = _fetchFromFireBrowse(endpoint, paramsMatrix[i]);
+      calls.push(call);
+    }
+    const data = await Promise.all(calls);
+    // TODO: merge the data together.
   }
-  await fetchFromFireBrowse(endpoint, params);
 };
