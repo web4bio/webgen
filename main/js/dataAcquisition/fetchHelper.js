@@ -3,7 +3,7 @@
  * @param {string} endpoint - FireBrowse endpoint to use.
  * @param {object} params - Parameters to the query.
  * @param {string} expectedKey - The key that is expected in the returned object.
- * @returns {Promise<Object>} Fetched data.
+ * @returns {Promise<Object.<string, Array>>} Fetched data.
  */
 const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
   const base = "https://firebrowse.herokuapp.com";
@@ -45,11 +45,10 @@ const _deepClone = function(obj) {
 
 /** Transform object of parameters to a list of grouped parameters.
  *
- * @template T
- * @param {T} params - Parameters.
+ * @param {Object.<string, any>} params - Parameters.
  * @param {Array.<{key: string, length: number}>} groupBy - Groupby info.
  *
- * @returns {T[]} Array of parameters.
+ * @returns {Array.<Object.<string, any>>} Array of parameters.
  *
  * @example
  * const params = {
@@ -124,7 +123,7 @@ const _paramsToParamsMatrix = function(params, groupBy) {
 /** Perform a fetch from the FireBrowse API.
  *
  * @param {string} endpoint - API endpoint to query.
- * @param {{}} params - Parameters of the query.
+ * @param {Object.<string, any>} params - Parameters of the query.
  * @param {Array.<{key: string, length: number}>} [groupBy] - Groupby info.
  *
  * @returns {Promise<Object>} The fetched data.
@@ -151,14 +150,16 @@ const fetchFromFireBrowse = async function(endpoint, params, groupBy) {
   } else {
     const results = {[expectedKey]: []};
     const paramsMatrix = _paramsToParamsMatrix(params, groupBy);
-    /** @type {Promise<Object.<string, Array>>[]} */
+    /** @type {Array.<Promise<number>>} */
     const calls = [];
     for (let i=0; i<paramsMatrix.length; i++) {
-      const call = _fetchFromFireBrowse(endpoint, paramsMatrix[i], expectedKey)
-        // Collect data from this call into a single object.
+      const paramsForThisCall = paramsMatrix[i];
+      // Run a fetch and then collect the data into one common object.
+      const call = _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
         .then(x => results[expectedKey].push(...x[expectedKey]));
       calls.push(call);
     }
-    return await Promise.all(calls);
+    await Promise.all(calls);
+    return results;
   }
 };
