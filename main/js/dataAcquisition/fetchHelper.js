@@ -1,4 +1,5 @@
-/**
+/** Perform a petch on a firebrowse endpoint. This function is not meant to be used
+ * on its own. Please use `fetchFromFireBrowse`.
  *
  * @param {string} endpoint - FireBrowse endpoint to use.
  * @param {object} params - Parameters to the query.
@@ -126,7 +127,7 @@ const _paramsToParamsMatrix = function(params, groupBy) {
  * @param {Object.<string, any>} params - Parameters of the query.
  * @param {Array.<{key: string, length: number}>} [groupBy] - Groupby info.
  *
- * @returns {Promise<Object>} The fetched data.
+ * @returns {Promise<Object.<string, Array>>} Fetched data.
  *
  * @example
  *  await fetchFromFireBrowse("/Samples/mRNASeq", {
