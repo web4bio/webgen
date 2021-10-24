@@ -229,14 +229,11 @@ let fetchClinicalData = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.getClinical_FH_b(barcodes);
-  if (clinicalData == "") return ["Error: Invalid Input Fields for Query.", 0];
-  else {
-    clinicalData = clinicalData.Clinical_FH.filter(function (barcode) {
-      return myCohort.includes(barcode.cohort)
-    });
-    return clinicalData;
-  }
+  const params = {format: "json", tcga_participant_barcode: barcodes};
+  const groupBy = [{key: "tcga_participant_barcode", length: 50}];
+  let clinicalData = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
+  clinicalData = clinicalData.Clinical_FH.filter(barcode => myCohort.includes(barcode.cohort));
+  return clinicalData;
 };
 
 let allClinicalData;
