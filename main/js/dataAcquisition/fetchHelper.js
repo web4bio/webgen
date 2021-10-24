@@ -1,4 +1,11 @@
-const _fetchFromFireBrowse = async function(endpoint, params) {
+/**
+ *
+ * @param {string} endpoint - FireBrowse endpoint to use.
+ * @param {object} params - Parameters to the query.
+ * @param {string} expectedKey - The key that is expected in the returned object.
+ * @returns {Promise<Object>} Fetched data.
+ */
+const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
   const base = "https://firebrowse.herokuapp.com";
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
@@ -9,21 +16,17 @@ const _fetchFromFireBrowse = async function(endpoint, params) {
   params = new URLSearchParams(params);
   const url = `${base}?${endpoint}?${params.toString()}`;
 
-  // We could use Array.at(-1) to get the last item, but that does not have broad
-  // browser support at this time.
-  const splits = endpoint.split("/");
-  const expectedKey = splits[splits.length - 1];
-  const minimal_json = { [expectedKey]: [] };
+  const minimalJson = { [expectedKey]: [] };
 
   const response = await fetch(url);
   if (!response.ok) {
     console.error(`Fetching ${expectedKey} data was unsuccessful.`);
-    return minimal_json;
+    return minimalJson;
   }
   const json = await response.json();
   if (!json) {
     console.log(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
-    return minimal_json;
+    return minimalJson;
   }
   return json;
 };
@@ -138,16 +141,24 @@ const _paramsToParamsMatrix = function(params, groupBy) {
  *    });
  */
 const fetchFromFireBrowse = async function(endpoint, params, groupBy) {
+  // We could use Array.at(-1) to get the last item, but that does not have broad
+  // browser support at this time.
+  const splits = endpoint.split("/");
+  const expectedKey = splits[splits.length - 1];
+
   if (groupBy == null) {
-    return await _fetchFromFireBrowse(endpoint, params);
+    return await _fetchFromFireBrowse(endpoint, params, expectedKey);
   } else {
+    const results = {[expectedKey]: []};
     const paramsMatrix = _paramsToParamsMatrix(params, groupBy);
+    /** @type {Promise<Object.<string, Array>>[]} */
     const calls = [];
     for (let i=0; i<paramsMatrix.length; i++) {
-      const call = _fetchFromFireBrowse(endpoint, paramsMatrix[i]);
+      const call = _fetchFromFireBrowse(endpoint, paramsMatrix[i], expectedKey)
+        // Collect data from this call into a single object.
+        .then(x => results[expectedKey].push(...x[expectedKey]));
       calls.push(call);
     }
-    const data = await Promise.all(calls);
-    // TODO: merge the data together.
+    return await Promise.all(calls);
   }
 };
