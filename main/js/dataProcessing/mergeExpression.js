@@ -3,8 +3,17 @@
  * We loop through each unique TCGA_id and place expression_log2 values into one array.
  * The expression array order is specified by gene names.
  *
+ * @typedef {Object} mRNASeqItem
+ * @property {string} cohort
+ * @property {number} expression_log2
+ * @property {string} gene
+ * @property {number} geneID
+ * @property {string} protocol
+ * @property {string} sample_type
+ * @property {string} tcga_participant_barcode
+ * @property {number} z-score
  * @param {mRNASeqItem[]} dataInput - The data to transform.
- * @returns {Array.<{id: string, exps: Array.<(number|null)>, genes: string[]}>} - Transformed data.
+ * @returns {Array.<{id: string, exps: Array.<?number>, genes: string[]}>} - Transformed data.
  */
 const mergeExpression = function(dataInput) {
   const unique_genes = d3.map(dataInput, d => d.gene).keys();
