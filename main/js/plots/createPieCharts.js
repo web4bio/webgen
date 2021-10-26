@@ -236,10 +236,10 @@ let buildDataExplorePlots = async function() {
             }
             //sizing parameters for different number of columns
             else if (windowWidth>(threeColLower)){
-                chartHeight=0.8*(windowWidth);
+                chartHeight=0.8*(windowWidth)+80;
                 chartWidth=0.4*(windowWidth);
             }else if (windowWidth>(twoColLower)){
-                chartHeight=0.9*(windowWidth);
+                chartHeight=0.9*(windowWidth)+200;
                 chartWidth=0.5*(windowWidth);
             }else{
                 chartHeight=850;
@@ -396,17 +396,20 @@ let buildDataExplorePlots = async function() {
                 }
                 // resizing parameters for different number of columns
                 else if (windowWidth>threeColLower){
-                    chartHeight=0.8*(windowWidth);
+                    chartHeight=0.8*(windowWidth)+80;
                     chartWidth=0.4*(windowWidth);
+                    // if(uniqueValuesForCurrentFeature.length>7){
+                        chartHeight=chartHeight+80;
+                    // }
                 }else if (windowWidth>twoColLower){
-                    chartHeight=0.9*(windowWidth);
+                    chartHeight=0.9*(windowWidth)+200;
                     chartWidth=0.5*(windowWidth);
                 }
                 else{
                     chartHeight=850;
                     chartWidth=400;
                 }
- 
+                
                 //legend location
                 if(uniqueValuesForCurrentFeature.length>9){
                     chartWidth=chartWidth*1.2;
