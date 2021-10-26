@@ -12,31 +12,33 @@
  */
 
 
-/** Fetch mRNA expression data for a set of cohorts and genes.
+/** Fetch mRNA expression data.
  *
- * @param {string|string[]} cohorts - Cohort(s) to fetch.
- * @param {string|string[]} genes - Gene(s) to fetch.
- * @param {string|string[]} [barcodes] - TCGA participant barcodes to fetch. Optional.
+ * @param {object} obj - Object with named arguments.
+ * @param {string|string[]} obj.cohorts - Cohort(s) to fetch.
+ * @param {string|string[]} obj.genes - Gene(s) to fetch.
+ * @param {string|string[]} obj.barcodes - TCGA participant barcodes to fetch. Optional.
  *
  * @returns {Promise<{mRNASeq: mRNASeqItem[]}>} Object with fetched data.
- *
- * @throws {Error} if fetch response is not OK.
- *
- * @example
- *   fetchExpressionData_cg("BLCA", "bcl2")
- *   fetchExpressionData_cg(["BLCA", "BRCA"], ["bcl2", "tp53"])
  **/
-async function fetchmRNASeq(cohorts, genes, barcodes) {
+async function fetchmRNASeq({cohorts, genes, barcodes}) {
+  if (!cohorts && !genes && !barcodes) {
+    console.error("no arguments provided to function");
+  }
   const params = {
     format: "json",
-    gene: genes,
-    cohort: cohorts,
     sample_type: "TP",
     protocol: "RSEM",
     page: "1",
     page_size: 2001,
     sort_by: "tcga_participant_barcode"
   };
+  if (cohorts) {
+    params.cohort = cohorts;
+  }
+  if (genes) {
+    params.gene = genes;
+  }
   let groupBy = null;
   if (barcodes) {
     params.tcga_participant_barcode = barcodes;

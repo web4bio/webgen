@@ -161,7 +161,7 @@ let buildPlots = async function () {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-  let expressionData_1 = await fetchmRNASeq(cohortQuery, mutationQuery)
+  let expressionData_1 = await fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
