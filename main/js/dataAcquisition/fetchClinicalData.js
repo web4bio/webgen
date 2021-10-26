@@ -5,28 +5,41 @@
  * remove redundancy with that.
  */
 
-const fetchClinicalFHByBarcodes = async function(barcodes) {
+/** Fetch Clinical_FH data from FireBrowse.
+  *
+  * @param {object} obj - Object with named arguments.
+  * @param {string|string[]} obj.cohorts - Cohort(s) to fetch.
+  * @param {string|string[]} obj.genes - Gene(s) to fetch.
+  * @param {string|string[]} obj.barcodes - TCGA participant barcodes to fetch.
+  *
+  * @returns {Array} Returns clinical data.
+  */
+const fetchClinicalFH = async function({cohorts, genes, barcodes}) {
+  if (!cohorts && !genes && !barcodes) {
+    console.error("no arguments provided to function");
+  }
   const params = {
     format: "json",
-    tcga_participant_barcode: barcodes,
+    sort_by: "tcga_participant_barcode",
   };
-  const groupBy = [{key: "tcga_participant_barcode", length: 50}];
+  if (cohorts) {
+    params.cohort = cohorts;
+  }
+  if (genes) {
+    params.gene = genes;
+  }
+  let groupBy = null;
+  if (barcodes) {
+    params.tcga_participant_barcode = barcodes;
+    groupBy = [{key: "tcga_participant_barcode", length: 50}];
+    if (genes) {
+      groupBy.push({key: "gene", length: 20});
+    }
+  }
   const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
   return data.Clinical_FH;
 };
 
-const fetchClinicalFHByCohortsGenes = async function(cohorts, genes) {
-  const params = {
-    format: "json",
-    cohort: cohorts,
-    sort_by: "tcga_participant_barcode",
-  };
-  if (genes) {
-    params.gene = genes;
-  }
-  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
-  return data.Clinical_FH;
-};
 
 // Returns an array of JSON objects, where each object has a key:value pair for
 // "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
@@ -47,7 +60,7 @@ const fetchNumberSamples = async function(cohorts) {
   return data.Counts;
 };
 
-const fetchMutationMAF = async function (cohorts, genes) {
+const fetchMutationMAF = async function ({cohorts, genes}) {
   const params = {
     format: "json",
     cohort: cohorts,

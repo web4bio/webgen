@@ -193,11 +193,9 @@ let getBarcodesFromCohortForClinical = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  var results = await fetchClinicalFHByCohortsGenes(myCohort, "bcl2");
-  let tpBarcodes = [];
-  results.forEach((element) =>
-    tpBarcodes.push(element.tcga_participant_barcode)
-  );
+  const results = await fetchClinicalFH({cohorts: myCohort, genes: "bcl2"});
+  const tpBarcodes = [];
+  results.forEach((element) => tpBarcodes.push(element.tcga_participant_barcode));
   return tpBarcodes;
 };
 
@@ -206,8 +204,8 @@ let fetchClinicalData = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await fetchClinicalFHByBarcodes(barcodes);
+  const barcodes = await getBarcodesFromCohortForClinical();
+  let clinicalData = await fetchClinicalFH({barcodes: barcodes});
   clinicalData = clinicalData.filter(barcode => myCohort.includes(barcode.cohort));
   return clinicalData;
 };
@@ -430,9 +428,9 @@ let fillClinicalPartitionBox = async function(className)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let getAllVariantClassifications = async function (geneQuery) {
-  let myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
+  const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
     (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  return await fetchMutationMAF(myCohortQuery, geneQuery)
+  return await fetchMutationMAF({cohorts: myCohortQuery, genes: geneQuery});
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

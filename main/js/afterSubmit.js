@@ -177,9 +177,9 @@ let buildPlots = async function () {
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
-    clinicalData = await fetchClinicalFHByBarcodes(intersectedBarcodes);
+    clinicalData = await fetchClinicalFH({barcodes: intersectedBarcodes});
   } else {
-    clinicalData = await fetchClinicalFHByCohortsGenes(cohortQuery);
+    clinicalData = await fetchClinicalFH({cohorts: cohortQuery});
   }
 
   localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
