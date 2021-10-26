@@ -1,58 +1,19 @@
-// Function to fetch expression data from firebrowse:
-const fetchClinicalData_cc = async function(cohortQuery, clinicalQuery) {
+const fetchClinicalFHByBarcodes = async function(barcodes) {
   const params = {
-    format: 'json',
-    cohort: cohortQuery.join(","),
-    fh_cde_name: clinicalQuery.join(","),
-    page: '1',
-    page_size: 2000,
-    sort_by: 'tcga_participant_barcode'
+    format: "json",
+    tcga_participant_barcode: barcodes,
   };
-  // Monitor the performance of the fetch:
-  const fetchStart = performance.now();
-  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
-  // Monitor the performance of the fetch:
-  const fetchTime = performance.now() - fetchStart;
-  console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
-  return data;
+  const groupBy = [{key: "tcga_participant_barcode", length: 50}];
+  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
+  return data.Clinical_FH;
 }
 
-// Function to fetch expression data from firebrowse, no clinical features specified:
-const fetchClinicalData_b = async function(barcodeQuery) {
+const fetchClinicalFHByCohorts = async function(cohorts) {
   const params = {
     format: 'json',
-    tcga_participant_barcode: barcodeQuery.join(","),
-    //fh_cde_name: clinicalQuery.join(","),
-    page: '1',
-    page_size: 2000,
-    sort_by: 'tcga_participant_barcode'
+    cohort: cohorts,
+    sort_by: "tcga_participant_barcode",
   };
-  // Monitor the performance of the fetch:
-  const fetchStart = performance.now();
   const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
-  // Monitor the performance of the fetch:
-  const fetchTime = performance.now() - fetchStart;
-  console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
-  // Check if the fetch worked properly:
-  return data;
-}
-
-// Function to fetch expression data from firebrowse, no clinical features specified:
-const fetchClinicalData_c = async function(cohortQuery) {
-  const params = {
-    format: 'json',
-    cohort: cohortQuery.join(","),
-    //fh_cde_name: clinicalQuery.join(","),
-    page: '1',
-    page_size: 2000,
-    sort_by: 'tcga_participant_barcode'
-  };
-  // Monitor the performance of the fetch:
-  const fetchStart = performance.now();
-  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
-  // Monitor the performance of the fetch:
-  const fetchTime = performance.now() - fetchStart;
-  console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
-  // Check if the fetch worked properly:
-  return data;
+  return data.Clinical_FH;
 }

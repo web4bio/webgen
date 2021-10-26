@@ -177,15 +177,9 @@ let buildPlots = async function () {
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
-    const params = {
-      format: "json",
-      tcga_participant_barcode: intersectedBarcodes,
-    };
-    const groupBy = [{key: "tcga_participant_barcode", length: 50}];
-    clinicalData = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
-    clinicalData = clinicalData.Clinical_FH;
+    clinicalData = await fetchClinicalFHByBarcodes(intersectedBarcodes);
   } else {
-    clinicalData = await getClinicalDataJSONarray_c(cohortQuery);
+    clinicalData = await fetchClinicalFHByCohorts(cohortQuery);
   }
 
   localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
