@@ -49,8 +49,7 @@ let displayNumberSamples = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
-    var dataFetched = await fetchNumberSamples(myCohort);
-    var countQuery = dataFetched.Counts;
+    const countQuery = await fetchNumberSamples(myCohort);
     let string = "";
     let para;
     for (let i = 0; i < countQuery.length; i++) {
@@ -194,8 +193,7 @@ let getBarcodesFromCohortForClinical = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  var dataFetched = await fetchExpressionData_cg(myCohort, "bcl2");
-  var results = dataFetched.mRNASeq;
+  var results = await fetchClinicalFHByCohortsGenes(myCohort, "bcl2");
   let tpBarcodes = [];
   results.forEach((element) =>
     tpBarcodes.push(element.tcga_participant_barcode)

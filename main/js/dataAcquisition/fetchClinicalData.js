@@ -8,12 +8,15 @@ const fetchClinicalFHByBarcodes = async function(barcodes) {
   return data.Clinical_FH;
 };
 
-const fetchClinicalFHByCohorts = async function(cohorts) {
+const fetchClinicalFHByCohortsGenes = async function(cohorts, genes) {
   const params = {
     format: "json",
     cohort: cohorts,
     sort_by: "tcga_participant_barcode",
   };
+  if (genes) {
+    params.gene = genes;
+  }
   const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
   return data.Clinical_FH;
 };
