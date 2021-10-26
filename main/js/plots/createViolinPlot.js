@@ -80,6 +80,18 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
         myGroups = d3.map(dataInput, function(d){return d['cohort'];}).keys();
     }
 
+    //Compute counts for each violin curve group that will be generated
+    let myGroupCounts = {};
+    for(let index = 0; index < myGroups.length; index++) {
+        let group = myGroups[index];
+        let dataFilteredByGroup;
+        if(facetByFields.length>0)
+            dataFilteredByGroup = dataInput.filter(d => d[facetByFieldKey]==group);
+        else
+            dataFilteredByGroup = dataInput.filter(d => d['cohort']==group);
+        myGroupCounts[group] = dataFilteredByGroup.length;
+    }
+
     // Helper function to sort groups by median expression:
     function compareGeneExpressionMedian(a,b) {
         var aArray = d3.map(dataInput.filter(x => x.cohort == a), function(d){return d.expression_log2;}).keys();
@@ -256,6 +268,7 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
             currentExpressionArray));
         sumstat[i].min = Number(currentExpressionArray[0]);
         sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length-1]);
+        //sumstat[i].nSamples = Number(currentExpressionArray.length);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +321,8 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
                                 "Standard Deviation: " + String(d.standardDeviation.toFixed(4)) 
                                 + spacing + 
                                 "Q3: " + String(d.Qthree.toFixed(4)) + spacing +
-                                "Max: " + String(d.max.toFixed(4))
+                                "Max: " + String(d.max.toFixed(4)) + spacing //+
+                                //"Number of Samples: " + String(d.nSamples)
                                 ;
             return tooltip.style("visibility", "visible").html(tooltipstring);
                                                             
