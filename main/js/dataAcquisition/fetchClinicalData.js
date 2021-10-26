@@ -1,3 +1,10 @@
+/**
+ * TODO: use named arguments via destructuring. this will allow us to handle different
+ * combinations of parameters. some functions are defined expecting some params, while
+ * other functions are very similar but construct slightly different params. we can
+ * remove redundancy with that.
+ */
+
 const fetchClinicalFHByBarcodes = async function(barcodes) {
   const params = {
     format: "json",
