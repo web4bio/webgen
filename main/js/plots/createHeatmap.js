@@ -1,10 +1,10 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
 // expressionData is the array os JSONs of gene expression data to visualize
-// clinicalData is the array containing clinical data
+// clinicalAndMutationData is the array containing clinical data
 // divObject is the div object on the html page to build the plot
 
-createHeatmap = async function (expressionData, clinicalData, divObject) {
+createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
@@ -64,7 +64,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
     };
     // populate clinical feature sample track variable selector
     // get unique clinical features
-    var clin_vars = Object.keys(clinicalData[0]);
+    var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
     // automatically check off selected boxes from clinical query box
@@ -409,12 +409,12 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         // also for legend: max size of variable name and all unique variable labels (for column width), and number of variables (for legend height)
         let sampTrack_obj = sampTrackVars.map(v => {
             // get all values for variable v
-            let domain = clinicalData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
+            let domain = clinicalAndMutationData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
             .map(d =>  d[v]).filter(el => el !== "NA").sort();
             domain = [...new Set(domain)]; // get unique values only
             
             // determine if variable categorical or continuous (numeric)
-            let continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
+            let continuousMap = clinicalAndMutationData.map(x => x[v].match(/^[0-9/.]+$/));
             let percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
             let type = "categorical"; // assume categorical by default
             if(percentNull < 0.95 & (v != 'vital_status')) {
@@ -468,7 +468,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         svg_sampletrack.html(""); // have to clear to keep some spaces as white
         sampTrackVars.forEach(v => {
             svg_sampletrack.selectAll()
-                .data(clinicalData.filter(el => (barcodes.includes(el.tcga_participant_barcode))),
+                .data(clinicalAndMutationData.filter(el => (barcodes.includes(el.tcga_participant_barcode))),
                     d => (d.tcga_participant_barcode + ":" + v))
                 .enter()
                 .append("rect")
