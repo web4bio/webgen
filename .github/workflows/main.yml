@@ -14,8 +14,8 @@ jobs:
       - run: npm install -g jsdoc
       - name: Echoing ENV vars.
         run: |
-          echo 'Currently on branch: #${{ github.ref }}'
-          echo 'Event that ran this: #${{ github.event_name }}'
+          echo 'Currently on branch: ${{ github.ref }}'
+          echo 'Event that ran this: ${{ github.event_name }}'
       - name: Run jsdoc.
         run: |
           jsdoc -v
