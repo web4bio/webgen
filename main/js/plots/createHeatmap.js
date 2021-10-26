@@ -53,7 +53,11 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             .attr('type', 'checkbox')
             .attr('class', 'myCheckbox')
             .attr('value', id)
-            .on('change',updateSelectedText)
+            .on('change', function () {
+                updateSelectedText();
+                sortGroups();
+                updateHeatmap();
+            })
             .attr('style', 'opacity: 1; position: relative; pointer-events: all');
         label.append('text')
             .text(id);
@@ -94,11 +98,15 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         // function to update state of sortCurrentText and doCluster
         sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
         doCluster = (this.checked ? true : false);
+        sortGroups();
+        updateHeatmap();
     });
+    /*
     sortOptionDiv.append('button')
         .attr('type', 'button')
         .attr('class', 'updateHeatmapButton')
         .text('Update heatmap'); // button to update heatmap, define update function below
+    */
 
     // Set up dimensions for heatmap:
     var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 100 },
@@ -610,6 +618,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
     updateHeatmap();
 
     // add updateHeatmap function to any buttons with updateHeatmapButton class
+    /*
     divObject.selectAll('.updateHeatmapButton')
         .attr("class", "col s3 btn waves-effect waves-light")
         .style('font-size','0.9vw')
@@ -617,4 +626,5 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             sortGroups();
             updateHeatmap();
         });
+    */
 };

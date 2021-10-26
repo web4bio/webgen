@@ -1,0 +1,34 @@
+name: jsdoc
+on:
+  push:
+    branches: [development]
+  pull_request:
+    branches: [development]
+    types: [opened, synchronize, reopened]
+jobs:
+  build-jsdoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: npm install -g jsdoc
+      - name: Echoing ENV vars.
+        run: |
+          echo 'Currently on branch: ${{ github.ref }}'
+          echo 'Event that ran this: ${{ github.event_name }}'
+      - name: Run jsdoc.
+        run: |
+          jsdoc -v
+          jsdoc --readme README.md -c conf.json
+      - name: A quick check on what's new.
+        run: |
+          git branch -vv
+          git status
+      - name: Commit.
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
+        run: |
+          git config --global user.name 'enemeth19'
+          git config --global user.email 'erika.nemeth@stonybrook.edu'
+          git add docs/
+          git commit -am 'Updated docs.'
+          git push

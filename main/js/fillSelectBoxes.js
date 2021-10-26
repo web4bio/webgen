@@ -6,21 +6,10 @@
 
 // Returns an array of JSON objects, where each object has a key:value pair for
 // "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
-let fetchCohortData = async function () {
-  const hosturl = "https://firebrowse.herokuapp.com";
-  const endpointurl = "http://firebrowse.org/api/v1/Metadata/Cohorts";
-  const endpointurl_presets = { format: "json" };
-  const endpointurl_fieldsWithValues = "format=" + endpointurl_presets.format;
-  let fetchedCohortData = await fetch(
-    hosturl + "?" + endpointurl + "?" + endpointurl_fieldsWithValues
-  ).then(function (response) {
-    return response.json();
-  });
-  if (fetchedCohortData == "")
-    return ["Error: Invalid Input Fields for Query.", 0];
-  else {
-    return fetchedCohortData["Cohorts"];
-  }
+let fetchCohortData = async function() {
+  const params = { format: "json" };
+  let data = await fetchFromFireBrowse("/Metadata/Cohorts", params);
+  return data.Cohorts;
 };
 
 let fillCancerTypeSelectBox = async function () {
@@ -60,38 +49,16 @@ let fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let fetchNumberSamples = async function () {
-  let myCohort = $(".cancerTypeMultipleSelection")
-    .select2("data")
+let fetchNumberSamples = async function() {
+  let myCohort = $(".cancerTypeMultipleSelection").select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const hosturl = "https://firebrowse.herokuapp.com";
-  //
-  const endpointurl = "http://firebrowse.org/api/v1/Metadata/Counts";
-  const endpointurl_presets = {
+  const params = {
     cohort: myCohort,
     sample_type: "TP",
     data_type: "mrnaseq",
     totals: "true",
   };
-  const endpointurl_fieldsWithValues =
-    "&cohort=" +
-    endpointurl_presets.cohort.toString() +
-    "&sample_type=" +
-    endpointurl_presets.sample_type +
-    "&data_type=" +
-    endpointurl_presets.data_type +
-    "&totals=" +
-    endpointurl_presets.totals;
-  var fetchedCountData = await fetch(
-    hosturl + "?" + endpointurl + "?" + endpointurl_fieldsWithValues
-  ).then(function (response) {
-    return response.json();
-  });
-  if (fetchedCountData == "")
-    return ["Error: Invalid Input Fields for Query.", 0];
-  else {
-    return fetchedCountData;
-  }
+  return await fetchFromFireBrowse("/Metadata/Counts", params);
 };
 
 let displayNumberSamples = async function () {
@@ -186,12 +153,12 @@ let getGenesByPathway = async function () {
     let validPathwaysList = await fetch(
       "https://raw.githubusercontent.com/web4bio/webgen/development/main/genePathwaysList.json"
     ).then((response) => response.json());
-    
+
     //Get the pathway(s) selected
     let myPathway = $(".pathwayMultipleSelection")
       .select2("data")
       .map((curPathway) => curPathway.id);
-    
+
     //Map all the genes from pathway(s) into an array
     allGenesByPathways = _.map(
       _.range(0, myPathway.length),
@@ -262,14 +229,11 @@ let fetchClinicalData = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.getClinical_FH_b(barcodes);
-  if (clinicalData == "") return ["Error: Invalid Input Fields for Query.", 0];
-  else {
-    clinicalData = clinicalData.Clinical_FH.filter(function (barcode) {
-      return myCohort.includes(barcode.cohort)
-    });
-    return clinicalData;
-  }
+  const params = {format: "json", tcga_participant_barcode: barcodes};
+  const groupBy = [{key: "tcga_participant_barcode", length: 50}];
+  let clinicalData = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
+  clinicalData = clinicalData.Clinical_FH.filter(barcode => myCohort.includes(barcode.cohort));
+  return clinicalData;
 };
 
 let allClinicalData;
@@ -280,7 +244,7 @@ let fillClinicalSelectBox = async function () {
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
 
   let myCohort = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  
+
   if (myCohort.length != 0) {
 
     let dataFetched = await fetchClinicalData();
@@ -304,7 +268,7 @@ let fillClinicalSelectBox = async function () {
         let currentFeatures = clinicalKeys[i];
         let nextFeatures = clinicalKeys[i + 1];
         intersectedFeatures = currentFeatures.filter(x => nextFeatures.includes(x));
-      } 
+      }
     else
       intersectedFeatures = clinicalKeys[0];
 
@@ -381,12 +345,12 @@ let fillViolinPartitionBox = async function(id)
         .style('width', '500px')
         .append('div')
         .attr('class','body');
-        
+
     var selectedText = div_box.append('text');
     let div_body = div_box.select('.body');
-    
+
     var choices;
-    function update() 
+    function update()
     {
         choices = [];
         d3.selectAll(".myCheckbox").each(function(d)
@@ -394,13 +358,13 @@ let fillViolinPartitionBox = async function(id)
             let cb = d3.select(this);
             if(cb.property('checked')){ choices.push(cb.property('value')); };
         });
-    
+
         if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
         else { selectedText.text('None selected'); };
     }
-  
+
   // function to create a pair of checkbox and text
-    function renderCB(div_obj, data) 
+    function renderCB(div_obj, data)
     {
         /*
         const label = div_obj.append('div').attr('id', data.id);
@@ -431,7 +395,7 @@ let fillViolinPartitionBox = async function(id)
         label.append('text')
            .text(data);
     }
-    
+
     // data to input = clinical vars from query
     //let var_opts = clin_vars.split(/[\s,]+/).map(el => ({id: el}));
     let clinicalVars = JSON.parse(localStorage.getItem("clinicalFeatureKeys"));
@@ -448,7 +412,7 @@ let fillViolinPartitionBox = async function(id)
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
     return choices;
-    
+
     /*
     console.log("fillViolinPartitionBox() Called!");
     console.log(id + ", " + className);
@@ -490,12 +454,9 @@ let fillClinicalPartitionBox = async function(className)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let getAllVariantClassifications = async function (geneQuery) {
-  let myCohortQuery = $(".cancerTypeMultipleSelection")
-    .select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const hosturl = "https://firebrowse.herokuapp.com";
-  const endpointurl = "http://firebrowse.org/api/v1/Analyses/Mutation/MAF";
-  const endpointurl_presets = {
+  let myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
+    (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  const params = {
     format: "json",
     cohort: myCohortQuery,
     tool: "MutSig2CV",
@@ -504,32 +465,8 @@ let getAllVariantClassifications = async function (geneQuery) {
     page_size: 250,
     sort_by: "cohort",
   };
-  const endpointurl_fieldsWithValues =
-    "format=" +
-    endpointurl_presets.format +
-    "&cohort=" +
-    endpointurl_presets.cohort.toString() +
-    "&tool=" +
-    endpointurl_presets.tool +
-    "&gene=" +
-    endpointurl_presets.gene +
-    "&page=" +
-    endpointurl_presets.page +
-    "&page_size=" +
-    endpointurl_presets.page_size.toString() +
-    "&sort_by=" +
-    endpointurl_presets.sort_by;
-  let fetchedMutationData = await fetch(
-    hosturl + "?" + endpointurl + "?" + endpointurl_fieldsWithValues
-  ).then(function (response) {
-    return response.json();
-  });
-  let theMutationQuery = fetchedMutationData.MAF;
-  if (theMutationQuery == "")
-    return ["Error: Invalid Input Fields for Query.", 0];
-  else {
-    return theMutationQuery;
-  }
+  const data = await fetchFromFireBrowse("/Analyses/Mutation/MAF", params);
+  return data.MAF;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
