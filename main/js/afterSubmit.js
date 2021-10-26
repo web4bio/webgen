@@ -177,7 +177,13 @@ let buildPlots = async function () {
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
-    clinicalData = (await firebrowse.getClinical_FH_b(intersectedBarcodes)).Clinical_FH;
+    const params = {
+      format: "json",
+      tcga_participant_barcode: intersectedBarcodes,
+    };
+    const groupBy = [{key: "tcga_participant_barcode", length: 50}];
+    clinicalData = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
+    clinicalData = clinicalData.Clinical_FH;
   } else {
     clinicalData = await getClinicalDataJSONarray_c(cohortQuery);
   }
