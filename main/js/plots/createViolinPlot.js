@@ -86,7 +86,7 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
         let group = myGroups[index];
         let dataFilteredByGroup;
         if(facetByFields.length>0)
-            dataFilteredByGroup = dataInput.filter(d => d[facetByFieldKey]==group);
+            dataFilteredByGroup = dataInput.filter(d => d.facetByFieldKey==group);
         else
             dataFilteredByGroup = dataInput.filter(d => d['cohort']==group);
         myGroupCounts[group] = dataFilteredByGroup.length;
@@ -268,7 +268,7 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
             currentExpressionArray));
         sumstat[i].min = Number(currentExpressionArray[0]);
         sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length-1]);
-        //sumstat[i].nSamples = Number(currentExpressionArray.length);
+        sumstat[i].nSamples = Number(myGroupCounts[sumstat[i].key]);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,8 +321,8 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
                                 "Standard Deviation: " + String(d.standardDeviation.toFixed(4)) 
                                 + spacing + 
                                 "Q3: " + String(d.Qthree.toFixed(4)) + spacing +
-                                "Max: " + String(d.max.toFixed(4)) + spacing //+
-                                //"Number of Samples: " + String(d.nSamples)
+                                "Max: " + String(d.max.toFixed(4)) + spacing +
+                                "Number of Samples: " + String(d.nSamples)
                                 ;
             return tooltip.style("visibility", "visible").html(tooltipstring);
                                                             
