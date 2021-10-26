@@ -169,21 +169,7 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
       return
     }
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
-
-    const params = {
-      format: "json",
-      sample_type: "TP",
-      protocol: "RSEM",
-      page: 1,
-      page_size: 2001,
-      sort_by: "tcga_participant_barcode",
-      cohort: cohortQuery,
-      gene: expressionQuery,
-      tcga_participant_barcode: allBarcodes,
-    };
-    const groupBy = [{key: "tcga_participant_barcode", length: 50}, {key: "gene", length: 20}]
-    const data = await fetchFromFireBrowse("/Samples/mRNASeq", params, groupBy)
-    return data.mRNASeq;
+    return await fetchmRNASeq(cohortQuery, expressionQuery, allBarcodes);
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
@@ -208,21 +194,7 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     // The final data array may include a fewer number of barcodes than that contained in
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
-
     let expressionQuery = await getExpressionQuery();
-    const params = {
-      format: "json",
-      sample_type: "TP",
-      protocol: "RSEM",
-      page: 1,
-      page_size: 2001,
-      sort_by: "tcga_participant_barcode",
-      cohort: cohortQuery,
-      gene: expressionQuery,
-      tcga_participant_barcode: intersectedBarcodes,
-    };
-    const groupBy = [{key: "tcga_participant_barcode", length: 50}, {key: "gene", length: 20}]
-    const data = await fetchFromFireBrowse("/Samples/mRNASeq", params, groupBy)
-    return data.mRNASeq;
+    return await fetchmRNASeq(cohortQuery, expressionQuery, intersectedBarcodes);
   }
 }
