@@ -119,8 +119,10 @@ let buildDataExplorePlots = async function() {
         document.getElementById('dataexploration').innerHTML = "";
 
         // get total number of barcodes for selected cancer type(s)
-        let dataFetched = await fetchNumberSamples();
-        let countQuery = dataFetched.Counts;
+        let myCohort = $(".cancerTypeMultipleSelection")
+            .select2("data")
+            .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+        let countQuery = await fetchNumberSamples(myCohort);
         let totalNumberBarcodes = 0;
         for(let i = 0; i < countQuery.length; i++) {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);

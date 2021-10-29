@@ -161,7 +161,7 @@ let buildPlots = async function () {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-  let expressionData_1 = (await fetchExpressionData_cg(cohortQuery, mutationQuery)).mRNASeq;
+  let expressionData_1 = await fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
@@ -177,15 +177,9 @@ let buildPlots = async function () {
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
-    const params = {
-      format: "json",
-      tcga_participant_barcode: intersectedBarcodes,
-    };
-    const groupBy = [{key: "tcga_participant_barcode", length: 50}];
-    clinicalData = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
-    clinicalData = clinicalData.Clinical_FH;
+    clinicalData = await fetchClinicalFH({barcodes: intersectedBarcodes});
   } else {
-    clinicalData = await getClinicalDataJSONarray_c(cohortQuery);
+    clinicalData = await fetchClinicalFH({cohorts: cohortQuery});
   }
 
   localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
