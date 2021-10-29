@@ -4,14 +4,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Returns an array of JSON objects, where each object has a key:value pair for
-// "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
-let fetchCohortData = async function() {
-  const params = { format: "json" };
-  let data = await fetchFromFireBrowse("/Metadata/Cohorts", params);
-  return data.Cohorts;
-};
-
 let fillCancerTypeSelectBox = async function () {
   let cancerTypesQuery = await fetchCohortData();
   cancerTypesQuery.sort();
@@ -49,18 +41,6 @@ let fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let fetchNumberSamples = async function() {
-  let myCohort = $(".cancerTypeMultipleSelection").select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const params = {
-    cohort: myCohort,
-    sample_type: "TP",
-    data_type: "mrnaseq",
-    totals: "true",
-  };
-  return await fetchFromFireBrowse("/Metadata/Counts", params);
-};
-
 let displayNumberSamples = async function () {
   if (document.getElementById("numSamplesText")) {
     document.getElementById("numSamplesText").remove();
@@ -69,8 +49,7 @@ let displayNumberSamples = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
-    var dataFetched = await fetchNumberSamples();
-    var countQuery = dataFetched.Counts;
+    const countQuery = await fetchNumberSamples(myCohort);
     let string = "";
     let para;
     for (let i = 0; i < countQuery.length; i++) {
@@ -214,12 +193,9 @@ let getBarcodesFromCohortForClinical = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  var dataFetched = await fetchExpressionData_cg(myCohort, "bcl2");
-  var results = dataFetched.mRNASeq;
-  let tpBarcodes = [];
-  results.forEach((element) =>
-    tpBarcodes.push(element.tcga_participant_barcode)
-  );
+  const results = await fetchClinicalFH({cohorts: myCohort, genes: "bcl2"});
+  const tpBarcodes = [];
+  results.forEach((element) => tpBarcodes.push(element.tcga_participant_barcode));
   return tpBarcodes;
 };
 
@@ -228,11 +204,9 @@ let fetchClinicalData = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  let barcodes = await getBarcodesFromCohortForClinical();
-  const params = {format: "json", tcga_participant_barcode: barcodes};
-  const groupBy = [{key: "tcga_participant_barcode", length: 50}];
-  let clinicalData = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
-  clinicalData = clinicalData.Clinical_FH.filter(barcode => myCohort.includes(barcode.cohort));
+  const barcodes = await getBarcodesFromCohortForClinical();
+  let clinicalData = await fetchClinicalFH({barcodes: barcodes});
+  clinicalData = clinicalData.filter(barcode => myCohort.includes(barcode.cohort));
   return clinicalData;
 };
 
@@ -454,19 +428,9 @@ let fillClinicalPartitionBox = async function(className)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let getAllVariantClassifications = async function (geneQuery) {
-  let myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
+  const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
     (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const params = {
-    format: "json",
-    cohort: myCohortQuery,
-    tool: "MutSig2CV",
-    gene: geneQuery,
-    page: "1",
-    page_size: 250,
-    sort_by: "cohort",
-  };
-  const data = await fetchFromFireBrowse("/Analyses/Mutation/MAF", params);
-  return data.MAF;
+  return await fetchMutationMAF({cohorts: myCohortQuery, genes: geneQuery});
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

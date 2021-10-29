@@ -1,58 +1,75 @@
-// Function to fetch expression data from firebrowse:
-const fetchClinicalData_cc = async function(cohortQuery, clinicalQuery) {
-  const params = {
-    format: 'json',
-    cohort: cohortQuery.join(","),
-    fh_cde_name: clinicalQuery.join(","),
-    page: '1',
-    page_size: 2000,
-    sort_by: 'tcga_participant_barcode'
-  };
-  // Monitor the performance of the fetch:
-  const fetchStart = performance.now();
-  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
-  // Monitor the performance of the fetch:
-  const fetchTime = performance.now() - fetchStart;
-  console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
-  return data;
-}
+/**
+ * TODO: use named arguments via destructuring. this will allow us to handle different
+ * combinations of parameters. some functions are defined expecting some params, while
+ * other functions are very similar but construct slightly different params. we can
+ * remove redundancy with that.
+ */
 
-// Function to fetch expression data from firebrowse, no clinical features specified:
-const fetchClinicalData_b = async function(barcodeQuery) {
+/** Fetch Clinical_FH data from FireBrowse.
+  *
+  * @param {object} obj - Object with named arguments.
+  * @param {string|string[]} obj.cohorts - Cohort(s) to fetch.
+  * @param {string|string[]} obj.genes - Gene(s) to fetch.
+  * @param {string|string[]} obj.barcodes - TCGA participant barcodes to fetch.
+  *
+  * @returns {Array} Returns clinical data.
+  */
+const fetchClinicalFH = async function({cohorts, genes, barcodes}) {
+  if (!cohorts && !genes && !barcodes) {
+    console.error("no arguments provided to function");
+  }
   const params = {
-    format: 'json',
-    tcga_participant_barcode: barcodeQuery.join(","),
-    //fh_cde_name: clinicalQuery.join(","),
-    page: '1',
-    page_size: 2000,
-    sort_by: 'tcga_participant_barcode'
+    format: "json",
+    sort_by: "tcga_participant_barcode",
   };
-  // Monitor the performance of the fetch:
-  const fetchStart = performance.now();
-  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
-  // Monitor the performance of the fetch:
-  const fetchTime = performance.now() - fetchStart;
-  console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
-  // Check if the fetch worked properly:
-  return data;
-}
+  if (cohorts) {
+    params.cohort = cohorts;
+  }
+  if (genes) {
+    params.gene = genes;
+  }
+  let groupBy = null;
+  if (barcodes) {
+    params.tcga_participant_barcode = barcodes;
+    groupBy = [{key: "tcga_participant_barcode", length: 50}];
+    if (genes) {
+      groupBy.push({key: "gene", length: 20});
+    }
+  }
+  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
+  return data.Clinical_FH;
+};
 
-// Function to fetch expression data from firebrowse, no clinical features specified:
-const fetchClinicalData_c = async function(cohortQuery) {
+
+// Returns an array of JSON objects, where each object has a key:value pair for
+// "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
+const fetchCohortData = async function() {
+  const params = { format: "json" };
+  const data = await fetchFromFireBrowse("/Metadata/Cohorts", params);
+  return data.Cohorts;
+};
+
+const fetchNumberSamples = async function(cohorts) {
   const params = {
-    format: 'json',
-    cohort: cohortQuery.join(","),
-    //fh_cde_name: clinicalQuery.join(","),
-    page: '1',
-    page_size: 2000,
-    sort_by: 'tcga_participant_barcode'
+    cohort: cohorts,
+    sample_type: "TP",
+    data_type: "mrnaseq",
+    totals: "true",
   };
-  // Monitor the performance of the fetch:
-  const fetchStart = performance.now();
-  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params);
-  // Monitor the performance of the fetch:
-  const fetchTime = performance.now() - fetchStart;
-  console.info(`Performance of clinical data fetch: ${fetchTime} ms`);
-  // Check if the fetch worked properly:
-  return data;
-}
+  const data = await fetchFromFireBrowse("/Metadata/Counts", params);
+  return data.Counts;
+};
+
+const fetchMutationMAF = async function ({cohorts, genes}) {
+  const params = {
+    format: "json",
+    cohort: cohorts,
+    tool: "MutSig2CV",
+    gene: genes,
+    page: "1",
+    page_size: 250,
+    sort_by: "cohort",
+  };
+  const data = await fetchFromFireBrowse("/Analyses/Mutation/MAF", params);
+  return data.MAF;
+};
