@@ -1,10 +1,3 @@
-/**
- * TODO: use named arguments via destructuring. this will allow us to handle different
- * combinations of parameters. some functions are defined expecting some params, while
- * other functions are very similar but construct slightly different params. we can
- * remove redundancy with that.
- */
-
 /** Fetch Clinical_FH data from FireBrowse.
   *
   * @param {object} obj - Object with named arguments.
@@ -72,4 +65,52 @@ const fetchMutationMAF = async function ({cohorts, genes}) {
   };
   const data = await fetchFromFireBrowse("/Analyses/Mutation/MAF", params);
   return data.MAF;
+};
+
+
+/** Fetch mRNA expression data.
+ *
+ * @param {object} obj - Object with named arguments.
+ * @param {string|string[]} obj.cohorts - Cohort(s) to fetch.
+ * @param {string|string[]} obj.genes - Gene(s) to fetch.
+ * @param {string|string[]} obj.barcodes - TCGA participant barcodes to fetch. Optional.
+ *
+ * @typedef {Object} mRNASeqItem
+ * @property {string} cohort
+ * @property {number} expression_log2
+ * @property {string} gene
+ * @property {number} geneID
+ * @property {string} protocol
+ * @property {string} sample_type
+ * @property {string} tcga_participant_barcode
+ * @property {number} z-score
+ *
+ * @returns {Promise<{mRNASeq: mRNASeqItem[]}>} Object with fetched data.
+ **/
+const fetchmRNASeq = async function({cohorts, genes, barcodes}) {
+  if (!cohorts && !genes && !barcodes) {
+    console.error("no arguments provided to function");
+  }
+  const groupBy = [];
+  const params = {
+    format: "json",
+    sample_type: "TP",
+    protocol: "RSEM",
+    page: "1",
+    page_size: 2001,
+    sort_by: "tcga_participant_barcode"
+  };
+  if (cohorts) {
+    params.cohort = cohorts;
+  }
+  if (genes) {
+    params.gene = genes;
+    groupBy.push({key: "gene", length: 20});
+  }
+  if (barcodes) {
+    params.tcga_participant_barcode = barcodes;
+    groupBy.push({key: "tcga_participant_barcode", length: 50});
+  }
+  const data = await fetchFromFireBrowse("/Samples/mRNASeq", params, groupBy);
+  return data.mRNASeq;
 };
