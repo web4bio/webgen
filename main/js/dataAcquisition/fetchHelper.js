@@ -146,7 +146,7 @@ const fetchFromFireBrowse = async function(endpoint, params, groupBy) {
   const splits = endpoint.split("/");
   const expectedKey = splits[splits.length - 1];
 
-  if (groupBy == null) {
+  if (groupBy == null || groupBy.length === 0) {
     return await _fetchFromFireBrowse(endpoint, params, expectedKey);
   } else {
     const results = {[expectedKey]: []};
