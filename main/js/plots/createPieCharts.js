@@ -18,7 +18,7 @@ let colorOutOfSpace = {
         arrayOfPieSlices.forEach((ele) => {
             if (colorOutOfSpace.colorCodeKey[ele] === undefined) {
                 colorOutOfSpace.colorCodeKey[ele] = sliceColors[colorOutOfSpace.dictLength % 10]
-                colorOutOfSpace.dictLength = colorOutOfSpace.dictLength + 1  
+                colorOutOfSpace.dictLength = colorOutOfSpace.dictLength + 1
             }
         })
     },
@@ -37,7 +37,7 @@ let colorOutOfSpace = {
             if (yellowArray.includes(index))
                 return '#FFF34B'
             else
-                return color 
+                return color
         })
     },
     createSliceKey: (listOfSlices) => {
@@ -48,7 +48,7 @@ let colorOutOfSpace = {
     },
     createGlobalColorDict: (keyName, listOfSlices) => {
       colorOutOfSpace.yellowAt = {
-          ...colorOutOfSpace.yellowAt, 
+          ...colorOutOfSpace.yellowAt,
           [keyName]: {
               'YellowAt': [],
               'Key': colorOutOfSpace.createSliceKey(listOfSlices),
@@ -62,15 +62,15 @@ let colorOutOfSpace = {
         const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
         // console.log({...newDict})
         const newKeys = Object.keys(newDict)
-        
+
         // scenario occurs when newKeys has less keys than oldKeys
         const oldKeys = Object.keys(oldDict)
         if (newKeys.length < oldKeys.length) {
             for (let i = 0; i < oldKeys.length; i++) {
                 if (newDict[oldKeys[i]] === undefined) { // oldKey does not exist in the new Dict
                     oldArrayCopy[oldArray.indexOf(oldDict[oldKeys[i]])] = 'X'
-                    // replace it with a placeholder val, do not want to change the position of the elements                    
-                } 
+                    // replace it with a placeholder val, do not want to change the position of the elements
+                }
             }
         }
 
@@ -119,8 +119,10 @@ let buildDataExplorePlots = async function() {
         document.getElementById('dataexploration').innerHTML = "";
 
         // get total number of barcodes for selected cancer type(s)
-        let dataFetched = await fetchNumberSamples();
-        let countQuery = dataFetched.Counts;
+        let myCohort = $(".cancerTypeMultipleSelection")
+            .select2("data")
+            .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+        let countQuery = await fetchNumberSamples(myCohort);
         let totalNumberBarcodes = 0;
         for(let i = 0; i < countQuery.length; i++) {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
@@ -138,7 +140,7 @@ let buildDataExplorePlots = async function() {
 
             let continuous = false;
             let currentFeature = mySelectedClinicalFeatures[i];
-            let allValuesForCurrentFeature = []; 
+            let allValuesForCurrentFeature = [];
             let mutationsForThisGene;
             let uniqueValuesForCurrentFeature = [];
             let xCounts = [];
@@ -150,11 +152,11 @@ let buildDataExplorePlots = async function() {
                 let allVariantClassifications = [];
                 let allBarcodes = []; // barcodes that correspond to a mutation
                 await getAllVariantClassifications(currentGeneSelected).then(function(result) { // get all mutations that exist for this gene and cancer type
-                    
+
                     mutationsForThisGene = result;
 
                     // if mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
-                    if(mutationsForThisGene != undefined) { 
+                    if(mutationsForThisGene != undefined) {
                         for(let i = 0; i < mutationsForThisGene.length; i++) {
 
                             // add all variant classifications (i.e., mutation types) (WITH DUPLICATES) for the given gene to the array
@@ -165,9 +167,9 @@ let buildDataExplorePlots = async function() {
                         }
 
                         // create an array of unique variant classifications (i.e., mutation types) for each gene selected
-                        // these will become the labels for the legend items 
+                        // these will become the labels for the legend items
                         uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
-                        
+
                         // count how many occurrences there are for each mutation type for the given gene
                         // xCounts is an array that will be used to label number of occurrences of each mutation for the given gene
                         xCounts.length = uniqueValuesForCurrentFeature.length;
@@ -188,7 +190,7 @@ let buildDataExplorePlots = async function() {
 
                     // if mutations do NOT exist for this gene (i.e., if the gene is wild-type)
                     } else {
-                        uniqueValuesForCurrentFeature.push("Wild_Type");  
+                        uniqueValuesForCurrentFeature.push("Wild_Type");
                         xCounts.push(totalNumberBarcodes);
                     }
                 });
@@ -196,8 +198,9 @@ let buildDataExplorePlots = async function() {
             // if current feature is clinical (i.e., not a gene)
             // get values and labels for this feature
             } else {
-                for(let i = 0; i < allClinicalData.length; i++) 
+                for(let i = 0; i < allClinicalData.length; i++)
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
+
 
                 var index = clinicalType.findIndex(p => p.name == currentFeature);
                 clinicalType[index].isSelected = true;
@@ -211,12 +214,12 @@ let buildDataExplorePlots = async function() {
                 xCounts.length = uniqueValuesForCurrentFeature.length;
                 for(let i = 0; i < xCounts.length; i++)
                     xCounts[i] = 0;
-                for(let i = 0; i < allClinicalData.length; i++) 
-                    for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++) 
-                        if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k]) 
+                for(let i = 0; i < allClinicalData.length; i++)
+                    for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++)
+                        if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k])
                             xCounts[k]++;
             }
-            
+
             var dpr=window.devicePixelRatio;
             var threeColLower=850*dpr;
             var twoColLower=675*dpr;
@@ -244,11 +247,11 @@ let buildDataExplorePlots = async function() {
                 chartHeight=800;
                 chartWidth=400;
             }
- 
+
             //legend location
                 locationX=0;
                 locationY=1;
-            
+
             var data = [{
                 values: xCounts,
                 labels: uniqueValuesForCurrentFeature,
@@ -258,7 +261,7 @@ let buildDataExplorePlots = async function() {
                     colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
                     '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
                     line: {
-                        color: 'black', 
+                        color: 'black',
                         width: 1
                     }
                 }
@@ -271,14 +274,14 @@ let buildDataExplorePlots = async function() {
                                '<extra></extra>',
                 type: 'histogram'
             }];
-            
+
             if (!continuous) {
                 colorOutOfSpace.buildColorCodeKeyGene(uniqueValuesForCurrentFeature)
                 let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
                 data[0] = {...data[0], marker: {
                     colors: colorArray,
                     line: {
-                        color: 'black', 
+                        color: 'black',
                         width: 1
                     }
                 }}
@@ -288,7 +291,7 @@ let buildDataExplorePlots = async function() {
                     data[0] = {...data[0], marker: {
                         colors: colorOutOfSpace.createColorArray(colorArray, currentFeature),
                         line: {
-                          color: 'black', 
+                          color: 'black',
                           width: 1
                         }
                     }}
@@ -333,8 +336,8 @@ let buildDataExplorePlots = async function() {
             };
 
             var config = {responsive: true}
-        
-            let parentRowDiv = document.getElementById("dataexploration");        
+
+            let parentRowDiv = document.getElementById("dataexploration");
             let newDiv = document.createElement("div");
 
             // different number of columns depending on window width
@@ -349,17 +352,15 @@ let buildDataExplorePlots = async function() {
             }
             newDiv.setAttribute("id", currentFeature + "Div");
             parentRowDiv.appendChild(newDiv);
-            
+
             if(continuous){
                 Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true});
             }
             else{
                 Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
             }
-            
+
             function updatePlots(){ //if window is resized, this function will be called to replot the pie charts and continuous data charts
-                //console.log('Full inner window size:' + window.innerWidth);
-                //console.log('DPR: '+ dpr);
 
                 if (window.innerWidth>(threeColLower)){
                     newDiv.setAttribute("class", "col s4");
@@ -387,11 +388,11 @@ let buildDataExplorePlots = async function() {
                     chartHeight=800;
                     chartWidth=400;
                 }
- 
+
                 //legend location
                     locationX=0;
                     locationY=1;
-                
+
                 var data = [{
                     values: xCounts,
                     labels: uniqueValuesForCurrentFeature,
@@ -401,12 +402,12 @@ let buildDataExplorePlots = async function() {
                         colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
                         '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
                         line: {
-                            color: 'black', 
+                            color: 'black',
                             width: 1
                         }
                     }
                 }];
-    
+
                 var histo_data = [{
                     x: uniqueValuesForCurrentFeature,
                     y: xCounts,
@@ -414,14 +415,14 @@ let buildDataExplorePlots = async function() {
                                    '<extra></extra>',
                     type: 'histogram'
                 }];
-                
+
                 if (!continuous) {
                     colorOutOfSpace.buildColorCodeKeyGene(uniqueValuesForCurrentFeature)
                     let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
                     data[0] = {...data[0], marker: {
                         colors: colorArray,
                         line: {
-                            color: 'black', 
+                            color: 'black',
                             width: 1
                         }
                     }}
@@ -431,7 +432,7 @@ let buildDataExplorePlots = async function() {
                         data[0] = {...data[0], marker: {
                             colors: colorOutOfSpace.createColorArray(colorArray, currentFeature),
                             line: {
-                              color: 'black', 
+                              color: 'black',
                               width: 1
                             }
                         }}
@@ -439,7 +440,7 @@ let buildDataExplorePlots = async function() {
                         colorOutOfSpace.createGlobalColorDict(currentFeature, uniqueValuesForCurrentFeature)
                     }
                 }
-    
+
                 var layoutNew = {
                     height: chartHeight,
                     width: chartWidth,
@@ -459,7 +460,7 @@ let buildDataExplorePlots = async function() {
                     },
                     extendpiecolors: true,
                 };
-    
+
                 var histo_layoutNew = {
                     bargap: 0.05,
                     height: 400,
@@ -475,15 +476,19 @@ let buildDataExplorePlots = async function() {
                     }
                 };
                 let checkIfNumeric = function() {
+                    if((uniqueValuesForCurrentFeature.length==1)&&(uniqueValuesForCurrentFeature[0]=="Wild_Type")){
+                        continuous = false;
+                    }
+                    else{
                         var numbers = /^[0-9/.]+$/;
                         var firstElement = (uniqueValuesForCurrentFeature[0]).match(numbers);
                         var secondElement = (uniqueValuesForCurrentFeature[1]).match(numbers);
-                        // console.log(firstElement);
-                        // console.log(secondElement);
-                        if((firstElement != null || secondElement != null) & (currentFeature != 'vital_status'))
+                        if((firstElement != null || secondElement != null) & (currentFeature != 'vital_status')){
                             continuous = true;
+                        }
                     }
-     
+                }
+
                 checkIfNumeric();
                 if(continuous){
                     Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layoutNew, config, {scrollZoom: true});
@@ -497,8 +502,8 @@ let buildDataExplorePlots = async function() {
             ////////////////////////////////////////////////////////////////////////////////////////////////
             //////////////////////// On-click event for pie charts below ///////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////////////////////////////////  
-                    
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+
             document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
                 //checks if continuous data range has been added yet
                 if(selectedRange.findIndex(element => element == currentFeature) == -1){
@@ -507,7 +512,7 @@ let buildDataExplorePlots = async function() {
                     }
                 }
             });
-          
+
             document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
                 var pts = '';
                 var colore;
@@ -535,7 +540,7 @@ let buildDataExplorePlots = async function() {
                     colore[pts] = '#FFF34B';
                 }
                 colorOutOfSpace.updateYellowAt(currentFeature, slice)
-                var update = {'marker': {colors: colore, 
+                var update = {'marker': {colors: colore,
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
                 //displayNumberBarcodesAtIntersection()
@@ -543,7 +548,7 @@ let buildDataExplorePlots = async function() {
         }
     }
 }}
-                                                                   
+
 let displayNumberBarcodesAtIntersection = async function () {
 
     let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
@@ -553,7 +558,7 @@ let displayNumberBarcodesAtIntersection = async function () {
         gene => gene.text);
 
     // Fetch RNA sequence data for selected cancer type(s) and gene(s)
-    let expressionData = await getExpressionDataJSONarray_cg(cohortQuery, geneQuery);
+    let expressionData = (await fetchExpressionData_cg(cohortQuery, geneQuery)).mRNASeq;
 
     let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData);
 

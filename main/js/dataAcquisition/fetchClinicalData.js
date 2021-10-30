@@ -1,157 +1,75 @@
-// Executes a fetch for the following Clinical-associated data from Firebrowse as a 1-D array, where each element of the array 
-// is associated with a particular cohort-clinicalData pair. Selections of cohort and measurement/characteristic are made by the user.
-// cohort
-// date
-// fh_cde_name
-// tcga_participant_barcode
+/**
+ * TODO: use named arguments via destructuring. this will allow us to handle different
+ * combinations of parameters. some functions are defined expecting some params, while
+ * other functions are very similar but construct slightly different params. we can
+ * remove redundancy with that.
+ */
 
-// Function to fetch expression data from firebrowse:
-// fetchClinicalData_bc = async function (barcodeQuery, clinicalQuery) {
-
-//     // Set up host and endpoint urls
-//     const hosturl = 'https://firebrowse.herokuapp.com';
-//     const endpointurl = 'http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
-
-//     console.log(barcodeQuery)
-//     console.log(barcodeQuery.join(","))
-//     console.log(clinicalQuery)
-//     console.log(clinicalQuery.join(","))
-
-//     // Set up endpoint url fields (except barcodes and clinical query) with preset values
-//     const endpointurl_presets = {
-//         format: 'json',
-//         tcga_participant_barcode: barcodeQuery.join(","),
-//         fh_cde_name: clinicalQuery.join(","),
-//         page: '1',
-//         page_size: 2000,
-//         sort_by: 'tcga_participant_barcode'
-//     };
-
-//     // Monitor the performance of the fetch:
-//     const fetchStart = performance.now();
-
-//     // Fetch data from stitched api:
-//     var fetchedClinicalData = await fetch(hosturl + '?' + endpointurl + '?' + jQuery.param(endpointurl_presets));
-
-//     // Monitor the performance of the fetch:
-//     var fetchTime = performance.now() - fetchStart;
-//     console.info("Performance of clinical data fetch: ");
-//     console.info(fetchTime);
-
-//     // Check if the fetch worked properly:
-//     if (fetchedClinicalData == '')
-//         return ['Error: Invalid Input Fields for Query.', 0];
-//     else {
-//         return fetchedClinicalData.json();
-//     }
-
-// }
-
-// Function to fetch expression data from firebrowse:
-fetchClinicalData_cc = async function (cohortQuery, clinicalQuery) {
-
-    // Set up host and endpoint urls
-    const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl = 'http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
-
-    // Set up endpoint url fields (except cohort and clinical query) with preset values
-    const endpointurl_presets = {
-        format: 'json',
-        cohort: cohortQuery.join(","),
-        fh_cde_name: clinicalQuery.join(","),
-        page: '1',
-        page_size: 2000,
-        sort_by: 'tcga_participant_barcode'
-    };
-
-    // Monitor the performance of the fetch:
-    const fetchStart = performance.now();
-
-    // Fetch data from stitched api:
-    var fetchedClinicalData = await fetch(hosturl + '?' + endpointurl + '?' + jQuery.param(endpointurl_presets));
-
-    // Monitor the performance of the fetch:
-    var fetchTime = performance.now() - fetchStart;
-    console.info("Performance of clinical data fetch: ");
-    console.info(fetchTime);
-
-    // Check if the fetch worked properly:
-    if (fetchedClinicalData == '')
-        return ['Error: Invalid Input Fields for Query.', 0];
-    else {
-        return fetchedClinicalData.json();
+/** Fetch Clinical_FH data from FireBrowse.
+  *
+  * @param {object} obj - Object with named arguments.
+  * @param {string|string[]} obj.cohorts - Cohort(s) to fetch.
+  * @param {string|string[]} obj.genes - Gene(s) to fetch.
+  * @param {string|string[]} obj.barcodes - TCGA participant barcodes to fetch.
+  *
+  * @returns {Array} Returns clinical data.
+  */
+const fetchClinicalFH = async function({cohorts, genes, barcodes}) {
+  if (!cohorts && !genes && !barcodes) {
+    console.error("no arguments provided to function");
+  }
+  const params = {
+    format: "json",
+    sort_by: "tcga_participant_barcode",
+  };
+  if (cohorts) {
+    params.cohort = cohorts;
+  }
+  if (genes) {
+    params.gene = genes;
+  }
+  let groupBy = null;
+  if (barcodes) {
+    params.tcga_participant_barcode = barcodes;
+    groupBy = [{key: "tcga_participant_barcode", length: 50}];
+    if (genes) {
+      groupBy.push({key: "gene", length: 20});
     }
+  }
+  const data = await fetchFromFireBrowse("/Samples/Clinical_FH", params, groupBy);
+  return data.Clinical_FH;
+};
 
-}
 
-// Function to fetch expression data from firebrowse, no clinical features specified:
-fetchClinicalData_b = async function (barcodeQuery) {
+// Returns an array of JSON objects, where each object has a key:value pair for
+// "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
+const fetchCohortData = async function() {
+  const params = { format: "json" };
+  const data = await fetchFromFireBrowse("/Metadata/Cohorts", params);
+  return data.Cohorts;
+};
 
-    // Set up host and endpoint urls
-    const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl = 'http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
+const fetchNumberSamples = async function(cohorts) {
+  const params = {
+    cohort: cohorts,
+    sample_type: "TP",
+    data_type: "mrnaseq",
+    totals: "true",
+  };
+  const data = await fetchFromFireBrowse("/Metadata/Counts", params);
+  return data.Counts;
+};
 
-    // Set up endpoint url fields (except barcodes and clinical query) with preset values
-    const endpointurl_presets = {
-        format: 'json',
-        tcga_participant_barcode: barcodeQuery.join(","),
-        //fh_cde_name: clinicalQuery.join(","),
-        page: '1',
-        page_size: 2000,
-        sort_by: 'tcga_participant_barcode'
-    };
-
-    // Monitor the performance of the fetch:
-    const fetchStart = performance.now();
-
-    // Fetch data from stitched api:
-    var fetchedClinicalData = await fetch(hosturl + '?' + endpointurl + '?' + jQuery.param(endpointurl_presets));
-
-    // Monitor the performance of the fetch:
-    var fetchTime = performance.now() - fetchStart;
-    console.info("Performance of clinical data fetch: ");
-    console.info(fetchTime);
-
-    // Check if the fetch worked properly:
-    if (fetchedClinicalData == '')
-        return ['Error: Invalid Input Fields for Query.', 0];
-    else {
-        return fetchedClinicalData.json();
-    }
-}
-
-// Function to fetch expression data from firebrowse, no clinical features specified:
-fetchClinicalData_c = async function (cohortQuery) {
-
-    // Set up host and endpoint urls
-    const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl = 'http://firebrowse.org/api/v1/Samples/Clinical_FH'; //sample remainder of URL is: ?format=json&cohort=PRAD&fh_cde_name=psa_value&page=1&page_size=250&sort_by=cohort
-
-    // Set up endpoint url fields (except barcodes and clinical query) with preset values
-    const endpointurl_presets = {
-        format: 'json',
-        cohort: cohortQuery.join(","),
-        //fh_cde_name: clinicalQuery.join(","),
-        page: '1',
-        page_size: 2000,
-        sort_by: 'tcga_participant_barcode'
-    };
-
-    // Monitor the performance of the fetch:
-    const fetchStart = performance.now();
-
-    // Fetch data from stitched api:
-    var fetchedClinicalData = await fetch(hosturl + '?' + endpointurl + '?' + jQuery.param(endpointurl_presets));
-
-    // Monitor the performance of the fetch:
-    var fetchTime = performance.now() - fetchStart;
-    console.info("Performance of clinical data fetch: ");
-    console.info(fetchTime);
-
-    // Check if the fetch worked properly:
-    if (fetchedClinicalData == '')
-        return ['Error: Invalid Input Fields for Query.', 0];
-    else {
-        return fetchedClinicalData.json();
-    }
-}
+const fetchMutationMAF = async function ({cohorts, genes}) {
+  const params = {
+    format: "json",
+    cohort: cohorts,
+    tool: "MutSig2CV",
+    gene: genes,
+    page: "1",
+    page_size: 250,
+    sort_by: "cohort",
+  };
+  const data = await fetchFromFireBrowse("/Analyses/Mutation/MAF", params);
+  return data.MAF;
+};

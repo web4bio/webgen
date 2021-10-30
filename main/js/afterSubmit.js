@@ -126,35 +126,42 @@ let buildPlots = async function () {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // PAGE SETUP:
-  
-  // Reset page formatting:
-  document.getElementById("heatmapLoaderDiv").innerHTML = "";
-  document.getElementById("violinLoaderDiv").innerHTML = "";
-  
-  // Display loader:
-  document.getElementById("heatmapLoaderDiv").className = "loader";
-  document.getElementById("violinLoaderDiv").className = "loader";
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   // GET DATA FROM SELECTIONS:
 
   let cohortQuery = $(".cancerTypeMultipleSelection")
     .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let mutationQuery = $(".geneOneMultipleSelection")
     .select2("data").map((gene) => gene.text);
-  let clinicalQuery = $(".clinicalMultipleSelection")
-    .select2("data").map((el) => el.text);
-  let expressionQuery = $(".geneTwoMultipleSelection")
-    .select2("data").map((gene) => gene.text);
+  let expressionQuery = await getExpressionQuery();
+
+  const isEmpty = (x) => {
+    return x === undefined || x === null || x.length == 0
+  }
+
+  if (isEmpty(cohortQuery) || isEmpty(expressionQuery) ) {
+    console.log("user did not provide enough information for query")
+    window.alert("Please select at least one tumor type and gene.")
+    return
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // PAGE SETUP:
+
+  // Reset page formatting:
+  document.getElementById("heatmapLoaderDiv").innerHTML = "";
+  document.getElementById("violinLoaderDiv").innerHTML = "";
+
+  // Display loader:
+  document.getElementById("heatmapLoaderDiv").className = "loader";
+  document.getElementById("violinLoaderDiv").className = "loader";
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // GET EXPRESSION DATA:
-  
+
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-  let expressionData_1 = await getExpressionDataJSONarray_cg(cohortQuery, mutationQuery);
+  let expressionData_1 = await fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
@@ -170,21 +177,34 @@ let buildPlots = async function () {
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
-    clinicalData = (await firebrowse.getClinical_FH_b(intersectedBarcodes)).Clinical_FH;
-  } else { 
-    clinicalData = await getClinicalDataJSONarray_c(cohortQuery);
+    clinicalData = await fetchClinicalFH({barcodes: intersectedBarcodes});
+  } else {
+    clinicalData = await fetchClinicalFH({cohorts: cohortQuery});
   }
-  
+
   localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+  buildDownloadData(cohortQuery, expressionData, clinicalData);
+  buildHeatmap(expressionData, clinicalData);
+  buildViolinPlot(expressionQuery, expressionData);
+}
+
+getExpressionQuery = async function() {
+  let expressionQuery = $(".geneTwoMultipleSelection")
+    .select2("data").map((gene) => gene.text);  // get genes selected in geneTwoMultipleSelection
+
   let genesFromPathways = await getGenesByPathway();
   if(genesFromPathways.length > 0) {
+    // Combine genes from multiple pathways
     for(let i = 0; i < genesFromPathways.length; i++) {
       expressionQuery = expressionQuery.concat(genesFromPathways[i].genes);
     }
+
+    // Remove duplicates from the array
     let removedDuplicates = [];
     $.each(expressionQuery, function(i, element){
       if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
@@ -192,11 +212,7 @@ let buildPlots = async function () {
     expressionQuery = removedDuplicates;
   }
 
-  buildDownloadData(cohortQuery, expressionData, clinicalData);
-  buildHeatmap(expressionData, clinicalData);
-  addToggleSwitch(expressionQuery, cohortQuery, expressionData);
-  buildViolinPlot(cohortQuery, expressionData, "cohort");
-
+  return await expressionQuery;
 }
 
 buildHeatmap = async function (expData, clinData) {
@@ -209,91 +225,30 @@ buildHeatmap = async function (expData, clinData) {
   // Create the heatmap
   createHeatmap(expData, clinData, divHeatMap);
 };
- 
-addToggleSwitch = async function(expressionQuery, cohortQuery, expressionData) {
 
-  // Remove the loader
-  document.getElementById("violinLoaderDiv").classList.remove("loader");
-
-  // Create div for toggle switch
-  var violinDiv = addDivInside("toggleSwitchDiv", "violinLoaderDiv");
-  violinDiv.setAttribute("align", "center");
-  violinDiv.setAttribute("class", "switch");
-
-  // Create switch instructions
-  if(!document.getElementById("toggleSwitchInstructions")) {
-    let toggleInstructions = document.createElement("P");
-    toggleInstructions.setAttribute(
-      "style",
-      'text-align: center; color: black; font-weight: bold'
-    );
-    toggleInstructions.setAttribute("id", "toggleSwitchInstructions");
-    toggleInstructions.innerHTML = "Set x-axis:" + "<br>";
-    violinDiv.appendChild(toggleInstructions)
-  }
-
-  // Create switch to toggle between gene vs. cohort for violin plots
-  if(!document.getElementById("toggleSwitch")) {
-    var toggleSwitch =
-      "<label class='switch'>" +
-        "Gene" +
-        "<input type='checkbox' id= 'toggleSwitch'>" +
-        "<span class='lever'></span>" +
-        "Cohort" +
-      "</label>";
-    violinDiv.innerHTML += (toggleSwitch);
-  }
-
-  toggleSwitch = document.getElementById("toggleSwitch")
-
-  // Toggle switch event listener:
-  // Call buildViolinPlot with a different parameter based on the status of the toggle switch
-  toggleSwitch.addEventListener("change", function() {
-    if (toggleSwitch.checked) {
-      if(document.getElementById("violinPlots")) document.getElementById("violinPlots").innerHTML = "";
-      buildViolinPlot(expressionQuery, expressionData, "gene");
-    } else {
-      if(document.getElementById("violinPlots")) document.getElementById("violinPlots").innerHTML = "";
-      buildViolinPlot(cohortQuery, expressionData, "cohort");
-    }
-  });
-}
-
-  buildViolinPlot = async function (cohortORGeneQuery, data, independantVarType) { 
-
-    addDiv("violinPlots", "toggleSwitchDiv");
+  buildViolinPlot = async function (geneQuery, expressionData) {
+    //Remove loader from violin plot container
+    document.getElementById("violinLoaderDiv").classList.remove("loader");
 
     // Create partition selector
     var partitionDivId = "violinPartition";
-    addDivInside(partitionDivId, "violinPlots");
-
+    addDivInside(partitionDivId, "violinLoaderDiv");
     // Create partition selector
-    createViolinPartitionBox("violinPlots", cohortORGeneQuery);
+    createViolinPartitionBox("violinPlots", geneQuery);
 
-    // Set up the figure dimensions:
-    /*
-    let margin = { top: 80, right: 30, bottom: 30, left: 60 },
-        width = 1250 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-    */
+    //Create div for violin plots
+    addDivInside("violinPlots", "violinLoaderDiv");
 
     // Define the number of cohorts to create a plot for
-    let numOfIndependantVars = cohortORGeneQuery.length;
-
-    // Spacing between plots
-    //let ySpacing = margin.top;
-
+    let numOfIndependantVars = geneQuery.length;
     // Append an svg object for each cohort to create a violin plot for
     for (var index = 0; index < numOfIndependantVars; index++) {
-        // Define the current cohort to create the violin plot for and create a new div for each cohort
-        let curCohort = cohortORGeneQuery[index];
-        addDivInside(`violinPlot${index}`, "violinPlots");
-
-        addDivInside(`svgViolin${index}`, `violinPlot${index}`);
-
-        var violinDiv = document.getElementById(`violinPlot${index}`);
-
-        createViolinPlot(independantVarType, data, violinDiv, curCohort, []);
+      // Define the current cohort to create the violin plot for and create a new div for each cohort
+      let curGene = geneQuery[index];
+      addDivInside(`violinPlot${index}`, "violinPlots");
+      addDivInside(`svgViolin${index}`, `violinPlot${index}`);
+      var violinDiv = document.getElementById(`violinPlot${index}`);
+      createViolinPlot(expressionData, violinDiv, curGene, []);
     }
 };
 
@@ -391,11 +346,11 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
             csv_string_expZscore += ",";
             csv_string_expLog2 += ",";
             // filter out one barcode/gene combination
-            let valZ = expressionData 
+            let valZ = expressionData
                 .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
                 .map((el) => el["z-score"]); // zscore value to add to zscore csv
             if (!valZ.length) { csv_string_expZscore += "NA"; } else { csv_string_expZscore += valZ; }; // add to string
-            let valL = expressionData 
+            let valL = expressionData
                 .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
                 .map((el) => el.expression_log2); // log2 value to add to log2 csv
             if (!valL.length) { csv_string_expLog2 += "NA"; } else { csv_string_expLog2 += valL; }; // add to string
@@ -449,7 +404,7 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
         $("#downloadClinicalButton")
             .on("click", function () {alert("Clinical data is empty. Please select clinical features to save.")});
     };
-    $("#downloadDataButtons")
-        .show()
+    $("#downloadDataButtons").show()
+    $("ul.tabs").show()
+    instance.updateTabIndicator()
 };
-

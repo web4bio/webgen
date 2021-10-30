@@ -1,4 +1,4 @@
-  
+
 // ***** Get intersection of barcodes from selected pie sectors (below) *****
 
 getBarcodesFromSelectedPieSectors = async function(expressionData) {
@@ -41,7 +41,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
               concatFilteredBarcodes['' + currentGene] = uniqueTrimmedOnlyBarcodes;
             else
               concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(uniqueTrimmedOnlyBarcodes);
-          
+
           // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
           } else {
 
@@ -54,7 +54,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
             // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
             } else {
-              
+
               let allData_1 = mutationData.filter(person => person.Hugo_Symbol == currentGene);
               let onlyBarcodes_1 = allData_1.map(x => x.Tumor_Sample_Barcode);
               let trimmedOnlyBarcodes_1 = onlyBarcodes_1.map(x => x.slice(0,12));
@@ -67,7 +67,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
                 if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
                   barcodesForWildType.push(onlyBarcodes_2[i]);
               if(concatFilteredBarcodes['' + currentGene] == undefined)
-                concatFilteredBarcodes['' + currentGene] = barcodesForWildType;  
+                concatFilteredBarcodes['' + currentGene] = barcodesForWildType;
               else
                 concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(barcodesForWildType);
             }
@@ -127,7 +127,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
       concatFilteredBarcodes['' + continuousFeature] = concatFilteredBarcodes['' + continuousFeature].concat(uniqueBarcodes);
   }
 
-  
+
   // Get intersection of barcodes from selected pie sectors
   // console.log(concatFilteredBarcodes)
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
@@ -146,7 +146,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
       let barcodesForCurrentGene = concatFilteredBarcodes[currentGene]; // barcode(s) for selected gene mutation combo in given cancer type
       let barcodesForNextGene = concatFilteredBarcodes[nextGene];
       intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
-    }  
+    }
   }
 
   return intersectedBarcodes
@@ -160,24 +160,16 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
 
   // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {
-    let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
+    let expressionQuery = await getExpressionQuery();
 
-    let genesFromPathways = await getGenesByPathway();
-    if(genesFromPathways.length > 0) {
-      for(let i = 0; i < genesFromPathways.length; i++) {
-        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
-      }
-      let removedDuplicates = [];
-      $.each(geneTwoQuery, function(i, element){
-        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
-      });
-      geneTwoQuery = removedDuplicates;
+    // Validation of user inputs should prevent allData from being undefined, but we
+    // should not depend on state outside of the function to check our values here.
+    if (allData === undefined) {
+      console.log("allData is undefined, returning early.")
+      return
     }
-
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
-    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, allBarcodes)).mRNASeq
-    console.log(data);
-    return data;
+    return await fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
@@ -190,8 +182,8 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     sorryDiv.innerHTML = "";
     para = document.createElement("P");
     para.setAttribute('style', 'text-align: center; color: black; font-family: Georgia, "Times New Roman", Times, serif');
-    para.setAttribute('id', 'noIntersectPara');        
-    para.innerText = "No patient barcodes exist for the combination of pie sectors selected.";  
+    para.setAttribute('id', 'noIntersectPara');
+    para.innerText = "No patient barcodes exist for the combination of pie sectors selected.";
     sorryDiv.appendChild(para);
 
   // if there IS/ARE barcode(s) at the intersection, build heatmap and violin plots
@@ -199,26 +191,10 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     sorryDiv.innerHTML = "";
 
     // Filter expression data based on intersection of barcodes
-    // The final data array may include a fewer number of barcodes than that contained in 
+    // The final data array may include a fewer number of barcodes than that contained in
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
-    
-    let geneTwoQuery = $('.geneTwoMultipleSelection').select2('data').map(gene => gene.text);
-
-    let genesFromPathways = await getGenesByPathway();
-    if(genesFromPathways.length > 0) {
-      for(let i = 0; i < genesFromPathways.length; i++) {
-        geneTwoQuery = geneTwoQuery.concat(genesFromPathways[i].genes);
-      }
-      let removedDuplicates = [];
-      $.each(geneTwoQuery, function(i, element){
-        if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
-      });
-      geneTwoQuery = removedDuplicates;
-    }
-
-    let data = (await firebrowse.getmRNASeq_cgb(cohortQuery, geneTwoQuery, intersectedBarcodes)).mRNASeq
-    console.log(data);
-    return data;
+    let expressionQuery = await getExpressionQuery();
+    return await fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: intersectedBarcodes});
   }
 }
