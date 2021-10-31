@@ -1,0 +1,14 @@
+{
+  "name": "@fil/hello-umap-js",
+  "main": "072e079739784e80@421.js",
+  "version": "421.0.0",
+  "homepage": "https://observablehq.com/@fil/hello-umap-js",
+  "author": {
+    "name": "Fil",
+    "url": "https://observablehq.com/@fil"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}

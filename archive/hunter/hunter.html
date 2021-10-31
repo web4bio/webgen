@@ -1,0 +1,60 @@
+</body>
+</html>
+<script type="text/javascript">
+  function subimages(id, level, x, y) {
+    return (
+      'https://api.gdc.cancer.gov/tile/' +
+      id +
+      '?level=' +
+      level +
+      '&x=' +
+      x +
+      '&y=' +
+      y
+    );
+  }
+function getImage(){
+var number=document.getElementById("number").value;
+var number1=document.getElementById("number1").value;
+var number2=document.getElementById("number2").value;
+slide1 = new Promise((resolve, reject) => {
+      let image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.crossOrigin = "anonymous";
+      image.src =
+        subimages('65fa0750-e967-489b-a4e3-870acdae25dd', number2, number1, number);
+      image.width = 300;
+      image.height = 300;
+      document.body.appendChild(image);
+    });
+
+}
+function getWholeImage()
+{
+  var number2=document.getElementById("number2").value;
+  let arr = [];
+    for (let j = 0; j <= 9; j++) {
+      for (let i = 0; i <= 9; i++) {
+        arr.push(slide1 = new Promise((resolve, reject) => {
+        let image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.crossOrigin = "anonymous";
+        image.src =
+          subimages('65fa0750-e967-489b-a4e3-870acdae25dd', number2, i, j);
+        image.width = 300;
+        image.height = 300;
+        document.body.appendChild(image);
+      }));
+      }
+    }
+}
+</script>
+<form>
+X:<input type="text" id="number" name="number"/><br/>
+Y:<input type="text" id="number1" name="number1"/><br/>
+Zoom:<input type="text" id="number2" name="number2"/><br/>
+<input type="button" value="New Image" onclick="getImage()"/>
+<input type="button" value="Whole Image" onclick="getWholeImage()"/>
+</form>

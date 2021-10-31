@@ -1,0 +1,14 @@
+{
+  "name": "@mbostock/lets-try-t-sne",
+  "main": "ac641190f6658a52@1195.js",
+  "version": "1195.0.0",
+  "homepage": "https://observablehq.com/@mbostock/lets-try-t-sne",
+  "author": {
+    "name": "Mike Bostock",
+    "url": "https://observablehq.com/@mbostock"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}
