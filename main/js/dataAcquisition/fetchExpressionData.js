@@ -1,113 +1,49 @@
-// Executes a fetch for the following mRNASeq-associated data from Firebrowse as a 1-D array, where each element of the array 
-// is associated with a particular cohort-gene pair. Selections of cohort and gene are made by the user.
-    // cohort
-    // expression_log2
-    // gene
-    // geneID
-    // protocol
-    // sample_type
-    // tcga_participant_barcode
-    // z-score
-
-// Function to fetch expression data from firebrowse:
-fetchExpressionData_cg = async function(cohortQuery, geneQuery) {
-
-    // Set up host and endpoint urls
-    const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl='http://firebrowse.org/api/v1/Samples/mRNASeq';
-
-    // Set up endpoint url fields (except cohort and gene) with preset values
-    const endpointurl_presets = {
-        format: 'json',
-        gene: geneQuery,
-        cohort: cohortQuery, 
-        sample_type: 'TP', 
-        protocol: 'RSEM',
-        page: '1',
-        page_size: 2001,
-        sort_by: 'tcga_participant_barcode' 
-    };
-
-    // Assemble a string by concatenating all fields and field values for endpoint url
-    const endpointurl_fieldsWithValues = 
-        'format=' + endpointurl_presets.format + 
-        '&gene=' + geneQuery + 
-        '&cohort=' + cohortQuery + 
-        '&sample_type=' + endpointurl_presets.sample_type +
-        '&protocol=' + endpointurl_presets.protocol +
-        '&page=' + endpointurl_presets.page + 
-        '&page_size=' + endpointurl_presets.page_size.toString() + 
-        '&sort_by=' + endpointurl_presets.sort_by;
-
-        
-    // Monitor the performance of the fetch:
-    const fetchStart = performance.now();
-
-    // Fetch data from stitched api:
-    var fetchedExpressionData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues);
-
-    // Monitor the performance of the fetch:
-    var fetchTime = performance.now() - fetchStart;
-    console.info("Performance of fetch: ");
-    console.info(fetchTime);
-
-    // Check if the fetch worked properly:
-    if (fetchedExpressionData == '')
-        return ['Error: Invalid Input Fields for Query.', 0];
-    else {
-        return fetchedExpressionData.json();
-    }
-
-}
-
-fetchExpressionData_cgb = async function(cohortQuery, geneQuery, barcodes) {
-
-    // Set up host and endpoint urls
-    const hosturl = 'https://firebrowse.herokuapp.com';
-    const endpointurl='http://firebrowse.org/api/v1/Samples/mRNASeq';
-
-    // Set up endpoint url fields (except cohort and gene) with preset values
-    const endpointurl_presets = {
-        format: 'json',
-        gene: geneQuery,
-        cohort: cohortQuery,
-        sample_type: 'TP',   
-        tcga_participant_barcode: barcodes,   
-        protocol: 'RSEM',
-        page: '1',
-        page_size: 2001,
-        sort_by: 'tcga_participant_barcode' 
-    };
-
-    // Assemble a string by concatenating all fields and field values for endpoint url
-    const endpointurl_fieldsWithValues = 
-        'format=' + endpointurl_presets.format + 
-        '&gene=' + geneQuery + 
-        '&tcga_participant_barcode=' + barcodes +
-        '&cohort=' + cohortQuery + 
-        '&sample_type=' + endpointurl_presets.sample_type +
-        '&protocol=' + endpointurl_presets.protocol +
-        '&page=' + endpointurl_presets.page + 
-        '&page_size=' + endpointurl_presets.page_size.toString() + 
-        '&sort_by=' + endpointurl_presets.sort_by;
+/** One item describing mRNASeq data.
+ *
+ * @typedef {Object} mRNASeqItem
+ * @property {string} cohort
+ * @property {number} expression_log2
+ * @property {string} gene
+ * @property {number} geneID
+ * @property {string} protocol
+ * @property {string} sample_type
+ * @property {string} tcga_participant_barcode
+ * @property {number} z-score
+ */
 
 
-    // Monitor the performance of the fetch:
-    const fetchStart = performance.now();
-
-    // Fetch data from stitched api:
-    var fetchedExpressionData = await fetch(hosturl + '?' + endpointurl + '?' + endpointurl_fieldsWithValues);
-
-    // Monitor the performance of the fetch:
-    var fetchTime = performance.now() - fetchStart;
-    console.info("Performance of fetch: ");
-    console.info(fetchTime);
-
-    // Check if the fetch worked properly:
-    if (fetchedExpressionData == '')
-        return ['Error: Invalid Input Fields for Query.', 0];
-    else {
-        return fetchedExpressionData.json();
-    }
-
+/** Fetch mRNA expression data.
+ *
+ * @param {object} obj - Object with named arguments.
+ * @param {string|string[]} obj.cohorts - Cohort(s) to fetch.
+ * @param {string|string[]} obj.genes - Gene(s) to fetch.
+ * @param {string|string[]} obj.barcodes - TCGA participant barcodes to fetch. Optional.
+ *
+ * @returns {Promise<{mRNASeq: mRNASeqItem[]}>} Object with fetched data.
+ **/
+async function fetchmRNASeq({cohorts, genes, barcodes}) {
+  if (!cohorts && !genes && !barcodes) {
+    console.error("no arguments provided to function");
+  }
+  const params = {
+    format: "json",
+    sample_type: "TP",
+    protocol: "RSEM",
+    page: "1",
+    page_size: 2001,
+    sort_by: "tcga_participant_barcode"
+  };
+  if (cohorts) {
+    params.cohort = cohorts;
+  }
+  if (genes) {
+    params.gene = genes;
+  }
+  let groupBy = null;
+  if (barcodes) {
+    params.tcga_participant_barcode = barcodes;
+    groupBy = [{key: "tcga_participant_barcode", length: 50}, {key: "gene", length: 20}];
+  }
+  const data = await fetchFromFireBrowse("/Samples/mRNASeq", params, groupBy);
+  return data.mRNASeq;
 }
