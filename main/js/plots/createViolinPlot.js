@@ -191,6 +191,7 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
         .selectAll(".tick text")
+        .attr("transform", "rotate(-45), translate(-10, 5)")
         .call(wrap, x.bandwidth());
 
     svgObject.append("text")             
