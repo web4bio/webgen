@@ -1,5 +1,5 @@
 /** Perform a petch on a firebrowse endpoint. This function is not meant to be used
- * on its own. Please use `fetchFromFireBrowse`.
+ * on its own. Please use `firebrowse.fetch`.
  *
  * @param {string} endpoint - FireBrowse endpoint to use.
  * @param {object} params - Parameters to the query.
@@ -176,7 +176,7 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   * @param {string|string[]} obj.genes - Gene(s) to fetch.
   * @param {string|string[]} obj.barcodes - TCGA participant barcodes to fetch.
   *
-  * @returns {Array} Returns clinical data.
+  * @returns {Array} Clinical data.
   */
 firebrowse.clinicalFH = async function({cohorts, genes, barcodes}) {
   if (!cohorts && !genes && !barcodes) {
@@ -189,31 +189,48 @@ firebrowse.clinicalFH = async function({cohorts, genes, barcodes}) {
   if (cohorts) {
     params.cohort = cohorts;
   }
+  /** @type Array.<{key: string, length: number}> */
+  const groupBy = [];
   if (genes) {
     params.gene = genes;
+    groupBy.push({key: "gene", length: 20});
   }
-  let groupBy = null;
   if (barcodes) {
     params.tcga_participant_barcode = barcodes;
-    groupBy = [{key: "tcga_participant_barcode", length: 50}];
-    if (genes) {
-      groupBy.push({key: "gene", length: 20});
-    }
+    groupBy.push({key: "tcga_participant_barcode", length: 50});
   }
   const data = await firebrowse.fetch("/Samples/Clinical_FH", params, groupBy);
   return data.Clinical_FH;
 };
 
 
-// Returns an array of JSON objects, where each object has a key:value pair for
-// "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
+/** Returns an array of objects, where each object has keys cohort and description.
+ *
+ * @returns {Array.<{cohort: string, description: string}>} Array of cohort information.
+ *
+ * @example
+ * await firebrowse.cohorts()
+ * // [{cohort: "ACC", description: "Adrenocortical carcinoma"}, ...]
+ */
 firebrowse.cohorts = async function() {
   const params = { format: "json" };
   const data = await firebrowse.fetch("/Metadata/Cohorts", params);
   return data.Cohorts;
 };
 
-firebrowse.numberSamples = async function(cohorts) {
+/** Get the number of mRNASeq samples per cohort.
+ *
+ * @param {string[]} cohorts - TCGA cohorts to query.
+ * @returns {Array.<{cohort: string, mrnaseq: string}>} mRNASeq counts per cohort.
+ *
+ * @example
+ * await firebrowse.counts(["ACC", "BRCA"])
+ * // [{cohort: "ACC-TP", mrnaseq: "79"}, {cohort: "BRCA-TP", mrnaseq: "1093"}]
+ */
+firebrowse.counts = async function(cohorts) {
+  if (!cohorts) {
+    console.error("no cohorts given");
+  }
   const params = {
     cohort: cohorts,
     sample_type: ["TP", "TB"],
@@ -262,7 +279,6 @@ firebrowse.mRNASeq = async function({cohorts, genes, barcodes}) {
   if (!cohorts && !genes && !barcodes) {
     console.error("no arguments provided to function");
   }
-  const groupBy = [];
   const params = {
     format: "json",
     sample_type: ["TP", "TB"],
@@ -274,6 +290,8 @@ firebrowse.mRNASeq = async function({cohorts, genes, barcodes}) {
   if (cohorts) {
     params.cohort = cohorts;
   }
+  /** @type Array.<{key: string, length: number}> */
+  const groupBy = [];
   if (genes) {
     params.gene = genes;
     groupBy.push({key: "gene", length: 20});
