@@ -301,7 +301,7 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
         page: 1,
         page_size: 2000,
         sort_by: "tcga_participant_barcode",
-        sample_type: "TP",
+        sample_type: ["TP", "TB"],
     });
     let fb_str_clin = jQuery.param({
         format: "json",
