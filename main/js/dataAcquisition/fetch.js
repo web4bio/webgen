@@ -45,7 +45,7 @@ const fetchCohortData = async function() {
 const fetchNumberSamples = async function(cohorts) {
   const params = {
     cohort: cohorts,
-    sample_type: "TP",
+    sample_type: ["TP", "TB"],
     data_type: "mrnaseq",
     totals: "true",
   };
@@ -94,7 +94,7 @@ const fetchmRNASeq = async function({cohorts, genes, barcodes}) {
   const groupBy = [];
   const params = {
     format: "json",
-    sample_type: "TP",
+    sample_type: ["TP", "TB"],
     protocol: "RSEM",
     page: "1",
     page_size: 2001,
