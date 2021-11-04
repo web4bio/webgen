@@ -18,16 +18,14 @@ const addDivInside = function (newDivID, parentDivID) {
 };
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////// Build Plots on Page (below) /////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// The JS code for building the plots to display:
-// Wait for user input to build plots:
-
-let buildPlots = async function () {
+/** Build and display plots.
+ *
+ * This function fetches the necessary data, builds the data download buttons, builds
+ * the heatmaps, and builds the violin plots.
+ *
+ * @returns {Promise<null>} This function does not return anything.
+ */
+const buildPlots = async function() {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,13 +38,13 @@ let buildPlots = async function () {
   let expressionQuery = await getExpressionQuery();
 
   const isEmpty = (x) => {
-    return x === undefined || x === null || x.length == 0
-  }
+    return x === undefined || x === null || x.length === 0;
+  };
 
   if (isEmpty(cohortQuery) || isEmpty(expressionQuery) ) {
     console.log("user did not provide enough information for query")
     window.alert("Please select at least one tumor type and gene.")
-    return
+    return null;
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,6 +94,8 @@ let buildPlots = async function () {
   buildDownloadData(cohortQuery, expressionData, clinicalData);
   buildHeatmap(expressionData, clinicalData);
   buildViolinPlot(expressionQuery, expressionData);
+
+  return null;
 }
 
 getExpressionQuery = async function() {
