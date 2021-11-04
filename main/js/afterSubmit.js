@@ -228,7 +228,16 @@ const saveFile = function(x, fileName) {
   return a;
 };
 
-buildDownloadData = async function (cohortID, expressionData, clinicalData) {
+
+/** Build data for download.
+ *
+ * @param {string[]} cohortID - Names of the cohorts.
+ * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {clinicalData[]} clinicalData - Array of clinical data objects.
+ *
+ * @returns {undefined}
+ */
+const buildDownloadData = function(cohortID, expressionData, clinicalData) {
     let timestamp = new Date().toUTCString().replace(',','');
     let genes = d3.map(expressionData, d => d.gene).keys();
     let clin_vars = Object.keys(clinicalData[0]);
