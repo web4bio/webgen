@@ -98,7 +98,12 @@ const buildPlots = async function() {
   return null;
 }
 
-getExpressionQuery = async function() {
+/** Get the genes that the user has selected in the second gene selector and the genes
+ * related to the pathway(s) the user has selected.
+ *
+ * @returns {Promise<string[]>} Promise that return array of gene names.
+ */
+const getExpressionQuery = async function() {
   let expressionQuery = $(".geneTwoMultipleSelection")
     .select2("data").map((gene) => gene.text);  // get genes selected in geneTwoMultipleSelection
 
@@ -117,7 +122,7 @@ getExpressionQuery = async function() {
     expressionQuery = removedDuplicates;
   }
 
-  return await expressionQuery;
+  return expressionQuery;
 }
 
 buildHeatmap = async function (expData, clinData) {
