@@ -125,12 +125,53 @@ const getExpressionQuery = async function() {
   return expressionQuery;
 }
 
-buildHeatmap = async function (expData, clinData) {
+/** Build the heatmap given expression data and clinical data.
+ *
+ * @typedef {Object} ExpressionData
+ * @property {string} cohort
+ * @property {number} expression_log2
+ * @property {string} gene
+ * @property {number} geneID
+ * @property {string} protocol
+ * @property {string|string[]} sample_type
+ * @property {string} tcga_participant_barcode
+ * @property {number} z-score
+ *
+ * @typedef {Object} ClinicalData
+ * @property {string} cohort
+ * @property {string} date
+ * @property {string} date_to_initial_pathologic_diagnosis
+ * @property {string} days_to_death
+ * @property {string} days_to_last_followup
+ * @property {string} ethnicity
+ * @property {string} gender
+ * @property {string} histological_type
+ * @property {string} karnofsky_performance_score
+ * @property {string} number_of_lymph_nodes
+ * @property {string} number_pack_years_smoked
+ * @property {string} pathologic_stage
+ * @property {string} pathology_M_stage
+ * @property {string} pathology_N_stage
+ * @property {string} pathology_T_stage
+ * @property {string} race
+ * @property {string} radiation_therapy
+ * @property {string} tcga_participant_barcode
+ * @property {string} tool
+ * @property {string} tumor_tissue_site
+ * @property {string} vital_status
+ * @property {string} years_to_birth
+ *
+ * @param {ExpressionData[]} expData - Array of expression data.
+ * @param {ClinicalData[]} clinData - Array of clinical data.
+ *
+ * @returns {undefined}
+ */
+const buildHeatmap = function(expData, clinData) {
   // Remove the loader
   document.getElementById("heatmapLoaderDiv").classList.remove("loader");
 
   // Create div object for heatmap and clear
-  let divHeatMap = d3.select("#heatmapLoaderDiv").html("");
+  const divHeatMap = d3.select("#heatmapLoaderDiv").html("");
 
   // Create the heatmap
   createHeatmap(expData, clinData, divHeatMap);
