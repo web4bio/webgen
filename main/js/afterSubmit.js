@@ -4,17 +4,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Function to append div elemnts to an HTML document with an existing div element with id='oldDivID'.
-// Useful for when you have a variable amount of plots to display on the page:
-addDiv = function (newDivID, oldDivID) {
-  // create a new div element
-  let newDiv = document.createElement("div");
-  newDiv.setAttribute("id", newDivID);
-  newDiv.setAttribute("style", "margin-top:25px");
-  // add the newly created element and its content into the DOM
-  document.getElementById(oldDivID).after(newDiv);
-};
-
 //Useful or adding div inside a div.
 //Currently being used for violins
 addDivInside = function (newDivID, parentDivID) {
