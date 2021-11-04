@@ -177,30 +177,37 @@ const buildHeatmap = function(expData, clinData) {
   createHeatmap(expData, clinData, divHeatMap);
 };
 
-  buildViolinPlot = async function (geneQuery, expressionData) {
-    //Remove loader from violin plot container
-    document.getElementById("violinLoaderDiv").classList.remove("loader");
+/** Build violin plots.
+ *
+ * @param {string[]} geneQuery - Array of gene names.
+ * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ *
+ * @returns {undefined}
+ */
+const buildViolinPlot = function(geneQuery, expressionData) {
+  //Remove loader from violin plot container
+  document.getElementById("violinLoaderDiv").classList.remove("loader");
 
-    // Create partition selector
-    var partitionDivId = "violinPartition";
-    addDivInside(partitionDivId, "violinLoaderDiv");
-    // Create partition selector
-    createViolinPartitionBox("violinPlots", geneQuery);
+  // Create partition selector
+  const partitionDivId = "violinPartition";
+  addDivInside(partitionDivId, "violinLoaderDiv");
+  // Create partition selector
+  createViolinPartitionBox("violinPlots", geneQuery);
 
-    //Create div for violin plots
-    addDivInside("violinPlots", "violinLoaderDiv");
+  // Create div for violin plots
+  addDivInside("violinPlots", "violinLoaderDiv");
 
-    // Define the number of cohorts to create a plot for
-    let numOfIndependantVars = geneQuery.length;
-    // Append an svg object for each cohort to create a violin plot for
-    for (var index = 0; index < numOfIndependantVars; index++) {
-      // Define the current cohort to create the violin plot for and create a new div for each cohort
-      let curGene = geneQuery[index];
-      addDivInside(`violinPlot${index}`, "violinPlots");
-      addDivInside(`svgViolin${index}`, `violinPlot${index}`);
-      var violinDiv = document.getElementById(`violinPlot${index}`);
-      createViolinPlot(expressionData, violinDiv, curGene, []);
-    }
+  // Define the number of cohorts to create a plot for
+  const numOfIndependantVars = geneQuery.length;
+  // Append an svg object for each cohort to create a violin plot for
+  for (let index = 0; index < numOfIndependantVars; index++) {
+    // Define the current cohort to create the violin plot for and create a new div for each cohort
+    const curGene = geneQuery[index];
+    addDivInside(`violinPlot${index}`, "violinPlots");
+    addDivInside(`svgViolin${index}`, `violinPlot${index}`);
+    const violinDiv = document.getElementById(`violinPlot${index}`);
+    createViolinPlot(expressionData, violinDiv, curGene, []);
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
