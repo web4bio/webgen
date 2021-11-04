@@ -23,24 +23,6 @@ const addDivInside = function (newDivID, parentDivID) {
     return newDiv;
 };
 
-// Function to remove the current svg elements if they exist:
-removeSVGelements = function () {
-  svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
-  for (let i = 0; i < svgElementsArray.length; i++) {
-    svgToRemove = document.getElementById(svgElementsArray[i]);
-
-    if (svgToRemove) $(svgToRemove).remove();
-    else {
-      let ctr = 0;
-      for (; ;) {
-        svgToRemove = document.getElementById(svgElementsArray[i] + ctr++);
-        if (svgToRemove) $(svgToRemove).remove();
-        else break;
-      }
-    }
-  }
-};
-
 removeViolinButtons = function () {
     var BTNElementArray = document.getElementsByClassName("BTNViolinPlots");
     for (let i = 0, len = BTNElementArray.length || 0; i < len; i = i + 1) {
