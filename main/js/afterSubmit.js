@@ -24,14 +24,6 @@ const addDivInside = function (newDivID, parentDivID) {
 };
 
 
-// Function to remove the tooltip div elements if they exist:
-removeTooltipElements = function () {
-    let collection = document.getElementsByClassName("tooltip");
-    for (let i = 0, len = collection.length || 0; i < len; i = i + 1) {
-        collection[0].remove();
-    }
-};
-
 removeHeatmapsAndViolins = function () {
     let heatmapDiv = document.getElementById("heatmapRef");
     heatmapDiv.innerHTML = "";
