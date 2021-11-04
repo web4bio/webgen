@@ -4,13 +4,22 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Useful or adding div inside a div.
-//Currently being used for violins
-addDivInside = function (newDivID, parentDivID) {
+/** Add a div element inside another div.
+ *
+ * @param {string} newDivID - ID for new div element.
+ * @param {string} parentDivID - ID of the parent div element.
+ * @returns {?HTMLDivElement} New inner div element or null if parent does not exist.
+ */
+const addDivInside = function (newDivID, parentDivID) {
     let newDiv = document.createElement("div");
     newDiv.setAttribute("id", newDivID);
     newDiv.setAttribute("style", "margin-top:25px");
-    document.getElementById(parentDivID).appendChild(newDiv);
+    const parent = document.getElementById(parentDivID);
+    if (parent == null) {
+      console.error(`parent div ${parentDivID} does not exist`);
+      return null;
+    }
+    parent.appendChild(newDiv);
     return newDiv;
 };
 
