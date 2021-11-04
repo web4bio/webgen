@@ -23,21 +23,6 @@ const addDivInside = function (newDivID, parentDivID) {
     return newDiv;
 };
 
-// Function to remove the current div elements if they exist:
-removeDiv = function () {
-  let i = 1;
-  let continueBool = true;
-  while (continueBool == true) {
-    divToRemove = document.getElementById("div" + i);
-    if (divToRemove) {
-      $(divToRemove).remove();
-      i++;
-    } else {
-      continueBool = false;
-    }
-  }
-};
-
 // Function to remove the current svg elements if they exist:
 removeSVGelements = function () {
   svgElementsArray = ["svgHeatMap", "svgViolinPlot"];
