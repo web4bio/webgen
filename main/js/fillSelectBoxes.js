@@ -210,8 +210,6 @@ let fetchClinicalData = async function () {
   return clinicalData;
 };
 
-let allClinicalData;
-let clinicalType = [];
 
 let fillClinicalSelectBox = async function () {
 
@@ -221,8 +219,7 @@ let fillClinicalSelectBox = async function () {
 
   if (myCohort.length != 0) {
 
-    let dataFetched = await fetchClinicalData();
-    allClinicalData = dataFetched;
+    state.allClinicalData = await fetchClinicalData();
 
     // ------------------------------------------------------------------------------------------------------------------------
 
@@ -231,9 +228,9 @@ let fillClinicalSelectBox = async function () {
 
     let clinicalKeys = [];
     for(i = 0; i < myCohort.length; i++)
-      for(j = 0; j < allClinicalData.length; j++)
-        if(allClinicalData[j].cohort == myCohort[i]) {
-          clinicalKeys.push(Object.keys(allClinicalData[j]));
+      for(j = 0; j < state.allClinicalData.length; j++)
+        if(state.allClinicalData[j].cohort == myCohort[i]) {
+          clinicalKeys.push(Object.keys(state.allClinicalData[j]));
           break;
         }
     let intersectedFeatures;
@@ -259,14 +256,14 @@ let fillClinicalSelectBox = async function () {
 
     // ------------------------------------------------------------------------------------------------------------------------
     // create data structure to determine if clinical features are continuous or categorical
-    clinicalType = [];
+    state.clinicalType = [];
     for(let i = 0; i < intersectedFeatures.length; i++){
       let currentFeature = intersectedFeatures[i];
       let temp = {name: currentFeature, type: "", isSelected: false};
 
       let checkIfClinicalFeatureArrayIsNumeric = async function() {
         var numbers = /^[0-9/.]+$/;
-        var continuousMap = allClinicalData.map(x => x[currentFeature].match(numbers));
+        var continuousMap = state.allClinicalData.map(x => x[currentFeature].match(numbers));
         var nullCount = continuousMap.filter(x => x == null).length;
         var totalCount = continuousMap.length;
         var percentContinuous = nullCount / totalCount;
@@ -276,7 +273,7 @@ let fillClinicalSelectBox = async function () {
           temp.type = "categorical";
       }
       await checkIfClinicalFeatureArrayIsNumeric();
-      clinicalType.push(temp);
+      state.clinicalType.push(temp);
     }
 
     // ------------------------------------------------------------------------------------------------------------------------
@@ -299,7 +296,7 @@ let fillClinicalSelectBox = async function () {
       mySelectedClinicalFeatures.length >= 1 ||
       mySelectedClinicalFeatures2 >= 1
     ) {
-      buildDataExplorePlots(allClinicalData);
+      buildDataExplorePlots(state.allClinicalData);
     }
   }
 };

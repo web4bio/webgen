@@ -86,7 +86,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
         let currentClinicalValue = clickedClinicalValues[j];
 
-        filteredClinicalData = allClinicalData.filter(person => (person[currentClinicalFeature] == currentClinicalValue))
+        filteredClinicalData = state.allClinicalData.filter(person => (person[currentClinicalFeature] == currentClinicalValue))
 
         let onlyBarcodes = filteredClinicalData.map(x => x.tcga_participant_barcode);
 
@@ -112,7 +112,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
     console.log(rangeValue[0]);
     console.log(rangeValue[1]);
 
-    filteredRangeData = allClinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
+    filteredRangeData = state.allClinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
 
     let onlyBarcodes = filteredRangeData.map(x => x.tcga_participant_barcode);
 
@@ -156,7 +156,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery){
 
   // allData is used when no pie slices are chosen
-  let allData = allClinicalData
+  let allData = state.allClinicalData
 
   // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {

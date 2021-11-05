@@ -131,9 +131,9 @@ let buildDataExplorePlots = async function() {
             return self.indexOf(value) === index;
         }
 
-        // reset isSelected, so when a plot is deleted the clinicalType arr is updated
-        for(let j = 0; j < clinicalType.length; j++){
-            clinicalType[j].isSelected = false;
+        // reset isSelected, so when a plot is deleted the state.clinicalType arr is updated
+        for(let j = 0; j < state.clinicalType.length; j++){
+            state.clinicalType[j].isSelected = false;
         }
         // loop through each selected clinical feature
         for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
@@ -198,25 +198,25 @@ let buildDataExplorePlots = async function() {
             // if current feature is clinical (i.e., not a gene)
             // get values and labels for this feature
             } else {
-                for(let i = 0; i < allClinicalData.length; i++)
-                    allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
+                for(let i = 0; i < state.allClinicalData.length; i++)
+                    allValuesForCurrentFeature.push(state.allClinicalData[i][currentFeature]);
 
 
-                var index = clinicalType.findIndex(p => p.name == currentFeature);
-                clinicalType[index].isSelected = true;
-                if(clinicalType[index].type === "continuous")
+                var index = state.clinicalType.findIndex(p => p.name == currentFeature);
+                state.clinicalType[index].isSelected = true;
+                if(state.clinicalType[index].type === "continuous")
                     continuous = true;
                 else
                     continuous = false;
-                //console.log(clinicalType);
+                //console.log(state.clinicalType);
 
                 uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
                 xCounts.length = uniqueValuesForCurrentFeature.length;
                 for(let i = 0; i < xCounts.length; i++)
                     xCounts[i] = 0;
-                for(let i = 0; i < allClinicalData.length; i++)
+                for(let i = 0; i < state.allClinicalData.length; i++)
                     for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++)
-                        if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k])
+                        if(state.allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k])
                             xCounts[k]++;
             }
 
