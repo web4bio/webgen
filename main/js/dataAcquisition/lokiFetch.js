@@ -15,9 +15,9 @@ databaseInitialize = () => {
         if (!queries) {
             db.addCollection('queries')
         }
-        let pathways = db.getCollection('pathways')
-        if (!pathways) {
-            db.addCollection('pathways', { unique: '_id' })
+        let rnaSeq = db.getCollection('rnaSeq')
+        if (!rnaSeq) {
+            db.addCollection('rnaSeq', { unique: '_id' })
         }
     } else {
         throw 'Loki library is not loaded in properly.'
@@ -101,7 +101,7 @@ lokiTest = () => {
 }
 
 lokiSet = async (key = 'expressionData', data) => {
-    let users = db.getCollection('pathways')
+    let users = db.getCollection('rnaSeq')
     let res = await users.findOne({ _id: key })
     if (res) {
         users.update({
@@ -124,7 +124,7 @@ lokiSet = async (key = 'expressionData', data) => {
 }
 
 lokiGet = async (key = 'expressionData') => {
-    let users = db.getCollection('pathways')
+    let users = db.getCollection('rnaSeq')
     let res = await users.findOne({ key })
     return typeof res === 'string' ? JSON.parse(res) : res
 }
