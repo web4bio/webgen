@@ -434,8 +434,8 @@ let getVariantClassification = async function (mutationData, curTumorSampleBarco
     for(let index = 0; index < mutationData.length; index++) {
     if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 12) == curTumorSampleBarcode 
         && mutationData[index].Hugo_Symbol == curGene) {
-          return(mutationData[index].Variant_Classification);
+          return(curGene + " " + mutationData[index].Variant_Classification);
     }
   }
-  return "Wild_Type";
+  return curGene + " Wild_Type";
 };
