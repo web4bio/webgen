@@ -168,7 +168,7 @@ let buildPlots = async function () {
 
   // Extract expression data only at intersectedBarcodes
   let expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
-  localStorage.setItem("expressionData", JSON.stringify(expressionData));
+  lokiSet('expressionData', JSON.stringify(expressionData))
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -182,7 +182,7 @@ let buildPlots = async function () {
     clinicalData = await firebrowse.fetchClinicalFH({cohorts: cohortQuery});
   }
 
-  localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
+  lokiSet('clinicalData', JSON.stringify(clinicalData))
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
