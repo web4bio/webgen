@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const fillCancerTypeSelectBox = async function () {
-  const cancerTypesQuery = await firebrowse.cohorts();
+  const cancerTypesQuery = await firebrowse.fetchCohorts();
   cancerTypesQuery.sort();
   let selectBox = document.getElementById("cancerTypeMultipleSelection");
   for (let i = 0; i < cancerTypesQuery.length; i++) {
@@ -49,7 +49,7 @@ let displayNumberSamples = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
-    const countQuery = await firebrowse.counts(myCohort);
+    const countQuery = await firebrowse.fetchCounts(myCohort);
     let string = "";
     let para;
     for (let i = 0; i < countQuery.length; i++) {
@@ -193,7 +193,7 @@ let getBarcodesFromCohortForClinical = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const results = await firebrowse.clinicalFH({cohorts: myCohort, genes: "bcl2"});
+  const results = await firebrowse.fetchClinicalFH({cohorts: myCohort, genes: "bcl2"});
   const tpBarcodes = [];
   results.forEach((element) => tpBarcodes.push(element.tcga_participant_barcode));
   return tpBarcodes;
@@ -205,7 +205,7 @@ let fetchClinicalData = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   const barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.clinicalFH({barcodes: barcodes});
+  let clinicalData = await firebrowse.fetchClinicalFH({barcodes: barcodes});
   clinicalData = clinicalData.filter(barcode => myCohort.includes(barcode.cohort));
   return clinicalData;
 };
@@ -430,7 +430,7 @@ let fillClinicalPartitionBox = async function(className)
 let getAllVariantClassifications = async function (geneQuery) {
   const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
     (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  return await firebrowse.mutationMAF({cohorts: myCohortQuery, genes: geneQuery});
+  return await firebrowse.fetchMutationMAF({cohorts: myCohortQuery, genes: geneQuery});
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

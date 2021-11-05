@@ -178,7 +178,7 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   *
   * @returns {Array} Clinical data.
   */
-firebrowse.clinicalFH = async function({cohorts, genes, barcodes}) {
+firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes}) {
   if (!cohorts && !genes && !barcodes) {
     console.error("no arguments provided to function");
   }
@@ -212,7 +212,7 @@ firebrowse.clinicalFH = async function({cohorts, genes, barcodes}) {
  * await firebrowse.cohorts()
  * // [{cohort: "ACC", description: "Adrenocortical carcinoma"}, ...]
  */
-firebrowse.cohorts = async function() {
+firebrowse.fetchCohorts = async function() {
   const params = { format: "json" };
   const data = await firebrowse.fetch("/Metadata/Cohorts", params);
   return data.Cohorts;
@@ -227,7 +227,7 @@ firebrowse.cohorts = async function() {
  * await firebrowse.counts(["ACC", "BRCA"])
  * // [{cohort: "ACC-TP", mrnaseq: "79"}, {cohort: "BRCA-TP", mrnaseq: "1093"}]
  */
-firebrowse.counts = async function(cohorts) {
+firebrowse.fetchCounts = async function(cohorts) {
   if (!cohorts) {
     console.error("no cohorts given");
   }
@@ -241,7 +241,7 @@ firebrowse.counts = async function(cohorts) {
   return data.Counts;
 };
 
-firebrowse.mutationMAF = async function ({cohorts, genes}) {
+firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
   const params = {
     format: "json",
     cohort: cohorts,
@@ -275,7 +275,7 @@ firebrowse.mutationMAF = async function ({cohorts, genes}) {
  *
  * @returns {Promise<{mRNASeq: mRNASeqItem[]}>} Object with fetched data.
  **/
-firebrowse.mRNASeq = async function({cohorts, genes, barcodes}) {
+firebrowse.fetchmRNASeq = async function({cohorts, genes, barcodes}) {
   if (!cohorts && !genes && !barcodes) {
     console.error("no arguments provided to function");
   }
