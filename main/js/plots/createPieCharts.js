@@ -122,7 +122,7 @@ let buildDataExplorePlots = async function() {
         let myCohort = $(".cancerTypeMultipleSelection")
             .select2("data")
             .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-        let countQuery = await fetchNumberSamples(myCohort);
+        let countQuery = await firebrowse.fetchCounts(myCohort);
         let totalNumberBarcodes = 0;
         for(let i = 0; i < countQuery.length; i++) {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
