@@ -4,8 +4,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Returns an array of JSON objects, where each object has a key:value pair for
-// "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
+/** Fetches the cohort data as an array.
+ * 
+ * @returns {Array} An array of JSON objects, where each object has a 
+ * key:value pair for "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
+ */
 let fetchCohortData = async function () {
   const hosturl = "https://firebrowse.herokuapp.com";
   const endpointurl = "http://firebrowse.org/api/v1/Metadata/Cohorts";
@@ -23,6 +26,13 @@ let fetchCohortData = async function () {
   }
 };
 
+/** Fills the cancer type selectBox.
+ * 
+ * This function populates the cancer type selection box HTML element
+ * with the cancer types retrieved from the cohort data.
+ * 
+ * @returns {undefined}
+ */
 let fillCancerTypeSelectBox = async function () {
   let cancerTypesQuery = await fetchCohortData();
   cancerTypesQuery.sort();
@@ -97,6 +107,9 @@ let fetchNumberSamples = async function () {
   }
 };
 
+/** Creates and displays the "Number of samples" element
+ * 
+ */
 let displayNumberSamples = async function () {
   if (document.getElementById("erikaPara")) {
     document.getElementById("erikaPara").remove();
@@ -104,8 +117,8 @@ let displayNumberSamples = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  var dataFetched = await fetchNumberSamples();
-  var countQuery = dataFetched.Counts;
+  let dataFetched = await fetchNumberSamples();
+  let countQuery = dataFetched.Counts;
   let string = "";
   let para;
   for (let i = 0; i < countQuery.length; i++) {
