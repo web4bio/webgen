@@ -49,25 +49,8 @@ const state = {
 Object.seal(state);
 
 /**
- * validPathwaysList
- *
- * results
- * i, j
- * locationX
- * locationY
- *
  * sampTrackVars
  * sortToggleDiv
  *
  * toggleClust
- *
- * input
- * density
- * allBins
- * lengths
- * longest
- *
- * TAB STUFF
- * options
- * instance
  */
