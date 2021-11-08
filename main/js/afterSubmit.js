@@ -405,6 +405,5 @@ buildDownloadData = async function (cohortID, expressionData, clinicalData) {
             .on("click", function () {alert("Clinical data is empty. Please select clinical features to save.")});
     };
     $("#downloadDataButtons").show()
-    $("ul.tabs").show()
-    instance.updateTabIndicator()
+    state.tabs.show();
 };

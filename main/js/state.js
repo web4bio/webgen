@@ -12,12 +12,41 @@ const state = {
   /** @type {string[]} */
   validPathways: null,
 
-  /** heatmap / violin plots */
+  /** tabs for heatmap / violin plots */
   tabs: {
-    options: {},
     instance: null,
+    /** @type {?HTMLElement} Element containing the tabs. */
+    element: null,
+
+    /**
+     * Initialize the tabs with materialize.
+     * @returns {undefined}
+     */
+    initialize() {
+      this.element = document.querySelector(".tabs");
+      // M comes from materialize.
+      if (!M) {
+        console.error("materialize not loaded, cannot configure tabs");
+      } else{
+        this.instance = M.Tabs.init(this.element, {});
+      }
+    },
+
+    /**
+     * Make the tabs visible.
+     * @returns {undefined}
+     */
+    show() {
+      if (this.instance == null) {
+        console.error("tabs not initialized, call state.tabs.initialize()");
+      } else {
+        this.instance.updateTabIndicator();
+        $(this.element).show();}
+    },
   },
 };
+
+Object.seal(state);
 
 /**
  * tooltipNum (NOT USED)
