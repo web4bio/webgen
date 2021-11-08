@@ -101,7 +101,7 @@
                             fillCancerTypeSelectBox();
 
                             // Map the array of geneList with attributes of id, text, and value
-                            var geneListArray = _.map(_.range(0, validGeneList.length), function (i) {
+                            let geneListArray = _.map(_.range(0, validGeneList.length), function (i) {
                                 return {
                                     id: validGeneList[i],
                                     text: validGeneList[i],
@@ -110,18 +110,18 @@
                             });
 
                             // For Gene Select2 Dropdown:
-                            var fillGeneSelectBoxes = (geneSelectionBox) => {
+                            let fillGeneSelectBoxes = (geneSelectionBox) => {
                                 $(geneSelectionBox).select2({
                                     data: geneListArray,
                                     multiple: true,
                                     placeholder: "Gene(s)",
                                     // creating query with pagination functionality.
                                     query: function (data) {
-                                        var pageSize,
+                                        let pageSize,
                                             dataset,
                                             thatQuery = this;
                                         pageSize = 5; // Number of the option loads at a time
-                                        results = [];
+                                        let results = [];
                                         if (data.term && data.term !== "") {
                                             // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
                                             results = _.filter(thatQuery.data, function (e) {
