@@ -160,7 +160,7 @@ let getGenesByPathway = async function () {
 
 //Populates the pathway select box
 let fillPathwaySelectBox = async function () {
-  validPathwaysList = await getValidPathwaysList();
+  let validPathwaysList = await getValidPathwaysList();
   let selectBox = document.getElementById("pathwayMultipleSelection");
 
   $("#geneOneMultipleSelection").val(null).trigger("change");
