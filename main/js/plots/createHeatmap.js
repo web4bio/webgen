@@ -4,7 +4,15 @@
 // clinicalData is the array containing clinical data
 // divObject is the div object on the html page to build the plot
 
-createHeatmap = async function (expressionData, clinicalData, divObject) {
+/** Create the heatmap.
+ *
+ * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {ClinicalData[]} clinicalData - Array of clinical data objects.
+ * @param {HTMLDivElement} divObject - An HTML div element in which to put heatmap.
+ *
+ * @returns {undefined}
+*/
+const createHeatmap = function(expressionData, clinicalData, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
@@ -214,7 +222,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
 
     // function for mean expression of a branch of tree
     function branchMean(branch) {
-        let leaf_ind = [].concat.apply([], branch.leaves().map(el => el.data.indexes)); 
+        let leaf_ind = [].concat.apply([], branch.leaves().map(el => el.data.indexes));
         return leaf_ind.reduce((a, b) => a + data_merge[b].exps.reduce((a,b) => a+b, 0), 0) / leaf_ind.length;
     };
 
@@ -287,7 +295,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         const scale = dendHeight / root.data.height;
         return "M" + d.parent.x + "," + (dendHeight - d.parent.data.height * scale) + "H" + d.x + "V" + (dendHeight - d.data.height * scale);
     };
-    
+
     // function to get width of bounding text box for a given string, font-size
     let svg_temp = divObject.append("svg");
     function getTextWidth(str, fs) {
@@ -307,7 +315,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             return (x[Math.floor(x.length / 2) - 1] + x[Math.floor(x.length / 2)])/2; // if even length average middle 2
         };
     }
-    
+
 
 
     ///// Build the Mouseover Tool Functions /////
@@ -367,7 +375,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         .style("font-size", 9.5)
         .call(d3.axisLeft(y).tickSize(0))
         .select(".domain").remove();
-    // Build the Legend:   
+    // Build the Legend:
     svg_heatmap.selectAll()
         .data(zArr)
         .enter()
@@ -412,7 +420,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             let domain = clinicalData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
             .map(d =>  d[v]).filter(el => el !== "NA").sort();
             domain = [...new Set(domain)]; // get unique values only
-            
+
             // determine if variable categorical or continuous (numeric)
             let continuousMap = clinicalData.map(x => x[v].match(/^[0-9/.]+$/));
             let percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
@@ -425,7 +433,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             // estimate text sizes needed for each column using getTextWidth() command on variable name and labels
             let var_width = getTextWidth(v + ":\xa0", 15); // text width of variable name
             let lab_width = Math.max(...domain.map(el => getTextWidth("\xa0" + el, 10))); // max text width of each unique label
-            
+
             // calculate width and height of legend column for this variable
             let leg_wd = Math.ceil(Math.max(lab_width + sampTrackHeight, var_width));
             let leg_ht = (sampTrackHeight + margin.space) * domain.length;
@@ -438,7 +446,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         const cumulativeSum = (sum => value => sum += value)(0);
         let x_spacing = sampTrack_obj.map(el => el.leg_width + margin.space).map(cumulativeSum);
         sampTrack_obj = sampTrack_obj.map(o => { o.x = x_spacing[sampTrack_obj.indexOf(o)] - o.leg_width; return o });
-        
+
         // Build color scales for all selected variables
         // adjust scales for categorical or continuous
         let colorScale_all = sampTrack_obj.reduce( (acc,el) => {
@@ -527,7 +535,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
                 let minV = Math.min(...v.domain)
                 let maxV = Math.max(...v.domain)
                 let vScale = d3.scaleLinear().domain([minV, maxV]).range([heatHeight, 0]);
-  
+
                 let vArr = []; // Create vArr array to build legend:
                 let step = (maxV - minV) / (1000 - 1);
                 for (var i = 0; i < 1000; i++) {
@@ -603,7 +611,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
             svg_frame.select(".heatmap")
                 .attr("y", margin.top + dendHeight + sampTrackHeight_total);
             frameHeight = margin.top + dendHeight + margin.space + heatHeight + sampTrackHeight_total + margin.bottom;
-        
+
         } else { // otherwise remove the dendrogam and shift the heatmap up
             svg_dendrogram.attr("height", 0);
             svg_frame.select(".sampletrack")
