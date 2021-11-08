@@ -227,8 +227,8 @@ let fillClinicalSelectBox = async function () {
     // is populated as options in the dropdown for clinical features
 
     let clinicalKeys = [];
-    for(i = 0; i < myCohort.length; i++)
-      for(j = 0; j < state.allClinicalData.length; j++)
+    for(let i = 0; i < myCohort.length; i++)
+      for(let j = 0; j < state.allClinicalData.length; j++)
         if(state.allClinicalData[j].cohort == myCohort[i]) {
           clinicalKeys.push(Object.keys(state.allClinicalData[j]));
           break;
