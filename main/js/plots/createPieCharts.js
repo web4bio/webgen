@@ -248,9 +248,9 @@ let buildDataExplorePlots = async function() {
                 chartWidth=400;
             }
 
-            //legend location
-                locationX=0;
-                locationY=1;
+            // legend location
+            let locationX=0;
+            let locationY=1;
 
             var data = [{
                 values: xCounts,
@@ -389,9 +389,9 @@ let buildDataExplorePlots = async function() {
                     chartWidth=400;
                 }
 
-                //legend location
-                    locationX=0;
-                    locationY=1;
+                // legend location
+                let locationX=0;
+                let locationY=1;
 
                 var data = [{
                     values: xCounts,
