@@ -5,7 +5,18 @@
 // curPlot is the name of the Expression vs. indeptVarType plot we are generating
 // facetByFields are the clinical fields selected in the partition selection box
 
-createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
+let tooltipNum = 0;
+
+/** Create violin plots;
+ *
+ * @param {ExpressionData[]} dataInput - Array of expression data objects.
+ * @param {HTMLDivElement} violinDiv - Div element in which to put violin plot.
+ * @param {string} curPlot - Gene for this plot.
+ * @param {string[]} facetByFields - Variables to partition violin curves by.
+ *
+ * @returns {undefined}
+*/
+const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) {
     //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
