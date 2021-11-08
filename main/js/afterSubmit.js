@@ -64,7 +64,7 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-  const expressionData_1 = await fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
+  let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
@@ -80,9 +80,9 @@ const buildPlots = async function() {
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
-    clinicalData = await fetchClinicalFH({barcodes: intersectedBarcodes});
+    clinicalData = await firebrowse.fetchClinicalFH({barcodes: intersectedBarcodes});
   } else {
-    clinicalData = await fetchClinicalFH({cohorts: cohortQuery});
+    clinicalData = await firebrowse.fetchClinicalFH({cohorts: cohortQuery});
   }
 
   localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
