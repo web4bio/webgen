@@ -49,7 +49,6 @@ const state = {
 Object.seal(state);
 
 /**
- * tooltipNum (NOT USED)
  * validPathwaysList
  *
  * results
