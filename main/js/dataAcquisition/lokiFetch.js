@@ -55,7 +55,7 @@ cache = {
             console.error('Specified collection is not found.')
             return null
         }
-        let res = await users.findOne({ key })
+        let res = await users.findOne({ _id: key })
         return typeof res === 'string' ? JSON.parse(res) : res
     },
     init: function () {
