@@ -230,27 +230,53 @@ let buildDataExplorePlots = async function() {
             // else{
             //     scalingFactor=1+2/dpr;
             // }
-
+            var windowWidth=window.innerWidth;
             //pie chart size
             if (window.innerWidth>(1000)){
-                var chartHeight=800;
+                var chartHeight=850;
                 var chartWidth=400;
             }
             //sizing parameters for different number of columns
-            else if (window.innerWidth>(threeColLower)){
-                chartHeight=0.8*(window.innerWidth);
-                chartWidth=0.4*(window.innerWidth);
-            }else if (window.innerWidth>(twoColLower)){
-                chartHeight=0.9*(window.innerWidth);
-                chartWidth=0.5*(window.innerWidth);
+            else if (windowWidth>(threeColLower)){
+                chartHeight=0.8*(windowWidth)+80;
+                chartWidth=0.4*(windowWidth);
+            }else if (windowWidth>(twoColLower)){
+                chartHeight=0.9*(windowWidth)+200;
+                chartWidth=0.5*(windowWidth);
             }else{
-                chartHeight=800;
+                chartHeight=850;
                 chartWidth=400;
             }
 
+<<<<<<< HEAD
             // legend location
             let locationX=0;
             let locationY=1;
+=======
+            //legend location
+            if(uniqueValuesForCurrentFeature.length>9){ //puts legend to the right if there are more than 9 labels in legend 
+                chartWidth=chartWidth*1.2;
+                locationX=1.2;
+                locationY=1;
+                for(let i=0; i<uniqueValuesForCurrentFeature.length; i++){
+                    if(uniqueValuesForCurrentFeature[i].length>10){
+                        var shorten=".."; //ellipses for shortening labels in the string
+                        var stringLength=uniqueValuesForCurrentFeature[i].length;
+                        //replaces the label with its shortened version
+                        uniqueValuesForCurrentFeature[i]=shorten.concat(uniqueValuesForCurrentFeature[i].substring(stringLength-7,stringLength));
+                    }
+                }
+                if (windowWidth>threeColLower){
+                    windowWidth=849*dpr;
+                }
+                else if(windowWidth>twoColLower){
+                    windowWidth=674*dpr;
+                }
+            }else{
+                locationX=0;
+                locationY=1;
+            }
+>>>>>>> upstream/development
 
             var data = [{
                 values: xCounts,
@@ -306,6 +332,7 @@ let buildDataExplorePlots = async function() {
                 title: currentFeature + "",
                 showlegend: true,
                 legend: {
+                    // maxWidth: 5,
                     x:locationX,
                     y:locationY,
                     font: {
@@ -336,15 +363,14 @@ let buildDataExplorePlots = async function() {
             };
 
             var config = {responsive: true}
-
-            let parentRowDiv = document.getElementById("dataexploration");
+            let parentRowDiv = document.getElementById("dataexploration");        
             let newDiv = document.createElement("div");
 
             // different number of columns depending on window width
-            if (window.innerWidth>threeColLower){
+            if (windowWidth>threeColLower){
                 newDiv.setAttribute("class", "col s4");
             }
-            else if (window.innerWidth>twoColLower){
+            else if (windowWidth>twoColLower){
                 newDiv.setAttribute("class", "col s5");
             }
             else{
@@ -361,38 +387,66 @@ let buildDataExplorePlots = async function() {
             }
 
             function updatePlots(){ //if window is resized, this function will be called to replot the pie charts and continuous data charts
-
-                if (window.innerWidth>(threeColLower)){
+                windowWidth=window.innerWidth;
+                if (windowWidth>(threeColLower)){
                     newDiv.setAttribute("class", "col s4");
                 }
-                else if (window.innerWidth>(twoColLower)){
+                else if (windowWidth>(twoColLower)){
                     newDiv.setAttribute("class", "col s5");
                 }
                 else{
                     newDiv.setAttribute("class", "col s7");
                 }
                 //pie chart size
-                if (window.innerWidth>1000){
-                    chartHeight=800;
+                if (windowWidth>1000){
+                    chartHeight=850;
                     chartWidth=400;
                 }
                 // resizing parameters for different number of columns
-                else if (window.innerWidth>threeColLower){
-                    chartHeight=0.8*(window.innerWidth);
-                    chartWidth=0.4*(window.innerWidth);
-                }else if (window.innerWidth>twoColLower){
-                    chartHeight=0.9*(window.innerWidth);
-                    chartWidth=0.5*(window.innerWidth);
+                else if (windowWidth>threeColLower){
+                    chartHeight=0.8*(windowWidth)+80;
+                    chartWidth=0.4*(windowWidth);
+                }else if (windowWidth>twoColLower){
+                    chartHeight=0.9*(windowWidth)+200;
+                    chartWidth=0.5*(windowWidth);
                 }
                 else{
-                    chartHeight=800;
+                    chartHeight=850;
                     chartWidth=400;
                 }
+<<<<<<< HEAD
 
                 // legend location
                 let locationX=0;
                 let locationY=1;
 
+=======
+                
+                //legend location
+                if(uniqueValuesForCurrentFeature.length>9){
+                    chartWidth=chartWidth*1.2;
+                    locationX=1.2;
+                    locationY=1;
+                    for(let i=0; i<uniqueValuesForCurrentFeature.length; i++){
+                        if(uniqueValuesForCurrentFeature[i].length>10){
+                            var shorten=".."; //ellipses for shortening labels in the string
+                            var stringLength=uniqueValuesForCurrentFeature[i].length;
+                            //replaces the label with its shortened version
+                            uniqueValuesForCurrentFeature[i]=shorten.concat(uniqueValuesForCurrentFeature[i].substring(stringLength-7,stringLength));
+                        }
+                    }
+                    if (windowWidth>threeColLower){
+                        windowWidth=849*dpr;
+                    }
+                    else if(windowWidth>twoColLower){
+                        windowWidth=674*dpr;
+                    }
+                }else{
+                    locationX=0;
+                    locationY=1;
+                }
+                
+>>>>>>> upstream/development
                 var data = [{
                     values: xCounts,
                     labels: uniqueValuesForCurrentFeature,
