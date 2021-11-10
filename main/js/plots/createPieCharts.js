@@ -108,6 +108,8 @@ let buildDataExplorePlots = async function() {
     let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     mySelectedClinicalFeatures = mySelectedClinicalFeatures.concat(mySelectedClinicalFeatures2)
 
+    let locationX, locationY;
+
     // if no clinical features are selected, do not display any pie charts
     if(mySelectedClinicalFeatures.length == 0) {
         document.getElementById('dataexploration').innerHTML = ""
@@ -248,13 +250,8 @@ let buildDataExplorePlots = async function() {
                 chartWidth=400;
             }
 
-<<<<<<< HEAD
-            // legend location
-            let locationX=0;
-            let locationY=1;
-=======
             //legend location
-            if(uniqueValuesForCurrentFeature.length>9){ //puts legend to the right if there are more than 9 labels in legend 
+            if(uniqueValuesForCurrentFeature.length>9){ //puts legend to the right if there are more than 9 labels in legend
                 chartWidth=chartWidth*1.2;
                 locationX=1.2;
                 locationY=1;
@@ -276,7 +273,6 @@ let buildDataExplorePlots = async function() {
                 locationX=0;
                 locationY=1;
             }
->>>>>>> upstream/development
 
             var data = [{
                 values: xCounts,
@@ -363,7 +359,7 @@ let buildDataExplorePlots = async function() {
             };
 
             var config = {responsive: true}
-            let parentRowDiv = document.getElementById("dataexploration");        
+            let parentRowDiv = document.getElementById("dataexploration");
             let newDiv = document.createElement("div");
 
             // different number of columns depending on window width
@@ -414,14 +410,7 @@ let buildDataExplorePlots = async function() {
                     chartHeight=850;
                     chartWidth=400;
                 }
-<<<<<<< HEAD
 
-                // legend location
-                let locationX=0;
-                let locationY=1;
-
-=======
-                
                 //legend location
                 if(uniqueValuesForCurrentFeature.length>9){
                     chartWidth=chartWidth*1.2;
@@ -445,8 +434,7 @@ let buildDataExplorePlots = async function() {
                     locationX=0;
                     locationY=1;
                 }
-                
->>>>>>> upstream/development
+
                 var data = [{
                     values: xCounts,
                     labels: uniqueValuesForCurrentFeature,
