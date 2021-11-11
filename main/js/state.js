@@ -87,6 +87,7 @@ const state = {
 
 };
 
+Object.seal(state.tabs);
 Object.seal(state);
 
 /**
