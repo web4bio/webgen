@@ -58,7 +58,7 @@ const state = {
      * Get array of selected cohorts.
      * @returns {string[]} Array of selected cohorts.
      * @example
-     * state.cohortQuery
+     * state.query.cohort
      * // Expected result if one selected BRCA and PAAD: ["BRCA", "PAAD"]
      */
     get cohorts() {
@@ -69,11 +69,21 @@ const state = {
      * Get array of genes queried for mutations.
      * @returns {string[]} Array of selected genes.
      * @example
-     * state.mutationQuery
+     * state.query.mutation
      * // Expected result if one selected TP53: ["TP53"]
      */
     get mutations() {
       return $(".geneOneMultipleSelection").select2("data").map(gene => gene.text);
+    },
+
+    /**
+     * Get array of selected clinical features.
+     * @returns {string[]} Array of selected clinical features.
+     * state.query.clinicalFeatures
+     * // ["days_to_lst_followup"]
+     */
+    get clinicalFeatures() {
+      return $(".clinicalMultipleSelection").select2("data").map(el => el.text);
     },
 
     /**
