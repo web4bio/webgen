@@ -11,13 +11,18 @@ const state = {
   /** @type {?Array.<{isSelected: boolean, name: string, type: string}>} */
   clinicalType: null,
 
-  /** @type {string[]} */
+  /** Array of valid pathways.
+   * @type {string[]}
+   */
   validPathways: null,
 
   /** tabs for heatmap / violin plots */
   tabs: {
     instance: null,
-    /** @type {?HTMLElement} Element containing the tabs. */
+
+    /** Element containing the tabs.
+     * @type {?HTMLElement}
+     */
     element: null,
 
     /**
