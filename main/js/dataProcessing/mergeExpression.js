@@ -16,8 +16,14 @@
  * @returns {Array.<{id: string, exps: Array.<?number>, genes: string[]}>} - Transformed data.
  */
 const mergeExpression = function(dataInput) {
-  const unique_genes = d3.map(dataInput, d => d.gene).keys();
-  const unique_ids = d3.map(dataInput, d => d.tcga_participant_barcode ).keys();
+
+  const getUniqueValues = function(arr, key) {
+    const arrOfVals = arr.map(a => a[key]);
+    return [... new Set(arrOfVals)];
+  };
+
+  const unique_genes = getUniqueValues(dataInput, "gene");
+  const unique_ids = getUniqueValues(dataInput, "tcga_participant_barcode");
 
   const data_raw = dataInput.map(({tcga_participant_barcode,expression_log2, gene}) => ({id:tcga_participant_barcode, exp:expression_log2, gene, geneInd:unique_genes.indexOf(gene)}));
 
