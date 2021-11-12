@@ -22,7 +22,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
 
     let clinicalData = "";
     if(facetByFields.length > 0)
-        clinicalData = JSON.parse(localStorage.getItem("clinicalData"));
+        clinicalData = cache.get('rnaSeq', 'clinicalData');
 
     //Set up violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
@@ -581,7 +581,7 @@ let rebuildViolinPlot = function(violinsDivId, geneQuery) {
         var svgDiv = document.getElementById(svgDivId);
         svgDiv.innerHTML = "";
         var violinDivId = "violinPlot" + index;
-        createViolinPlot(JSON.parse(localStorage.getItem("expressionData")),
+        createViolinPlot(cache.get('rnaSeq', 'expressionData'),
                         document.getElementById(violinDivId), geneQuery[index], selectedOptions);
     }
 };
