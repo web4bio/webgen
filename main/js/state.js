@@ -29,7 +29,7 @@ const state = {
      * Initialize the tabs with materialize.
      * @returns {undefined}
      */
-    initialize() {
+    init() {
       this.element = document.querySelector(".tabs");
       // M comes from materialize.
       if (!M) {
