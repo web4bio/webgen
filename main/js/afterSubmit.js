@@ -70,8 +70,9 @@ const buildPlots = async function() {
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
 
   // Extract expression data only at intersectedBarcodes
+
   const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
-  localStorage.setItem("expressionData", JSON.stringify(expressionData));
+  cache.set('rnaSeq', 'expressionData', expressionData)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +86,7 @@ const buildPlots = async function() {
     clinicalData = await firebrowse.fetchClinicalFH({cohorts: cohortQuery});
   }
 
-  localStorage.setItem("clinicalData", JSON.stringify(clinicalData));
+  cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
