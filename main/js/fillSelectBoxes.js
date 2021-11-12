@@ -4,9 +4,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Fetches the cohort data as an array.
+/** Fetches and returns the cohort data as an array.
  * 
- * @returns {Array} An array of JSON objects, where each object has a 
+ * @returns {Promise<Array.<JSON>>} An array of JSON objects, where each object has a 
  * key:value pair for "cohort" (e.g., "BRCA") and "description" (e.g., "Breast invasive carcioma")
  */
 let fetchCohortData = async function () {
@@ -73,6 +73,11 @@ let fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Fetches the number of samples for the cohorts selected
+ * 
+ * @returns {Promise<JSON.<Array>>} a JSON object containing a single array
+ * which contains JSON objects with key:value pair for "cohort" and "mrnaseq", the number of samples.
+ */
 let fetchNumberSamples = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
@@ -107,8 +112,9 @@ let fetchNumberSamples = async function () {
   }
 };
 
-/** Creates and displays the "Number of samples" element
+/** Creates and displays the "Number of samples" element that appears when a cohort is selected.
  * 
+ * @returns {undefined}
  */
 let displayNumberSamples = async function () {
   if (document.getElementById("erikaPara")) {
@@ -158,6 +164,10 @@ let displayNumberSamples = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Fetches an array of the valid genes and returns them
+ * 
+ * @returns {Promise<Array>} validGeneList - the array of genes
+ */
 let getValidGeneList = async function () {
   let validGeneList = await fetch(
     "https://raw.githubusercontent.com/web4bio/webgen/master/main/validGeneList.json"
@@ -178,7 +188,10 @@ let getValidGeneList = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// get barcodes for which expression data exists for those cancer types that were selected
+/** Gets barcodes for which expression data exists for the cancer types that were selected.
+ * 
+ * @returns {Promise<Array.<string>>} An array of strings, the barcodes from the selected cohorts.
+ */
 let getBarcodesFromCohortForClinical = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
@@ -192,17 +205,29 @@ let getBarcodesFromCohortForClinical = async function () {
   return tpBarcodes;
 };
 
-// fetch CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
+/** Fetches CLINICAL data for those barcodes for which expression data exists 
+ * for those cancer types that were selected.
+ * 
+ * @returns {Promise<JSON.<Array>>} Returns a promise for a JSON containing an array of JSONS
+ * which contain clinical data for the cohort.
+ */
 let fetchClinicalData = async function () {
   let barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.getClinical_FH(barcodes);
+  let clinicalData = await firebrowse.getClinical_FH_b(barcodes);
   if (clinicalData == "") return ["Error: Invalid Input Fields for Query.", 0];
   else {
     return clinicalData;
   }
 };
 
+/** Fetches genes from list and 
+ * creates and populates the gene selection box.
+ * Uses local storage if possible.
+ * 
+ * @returns {undefined}
+ */
 let fillFirstGeneSelectBox = async function () {
+  console.log('1')
   let selectBox = document.getElementById("geneOneMultipleSelection");
 
   $("#geneOneMultipleSelection").val(null).trigger("change");
@@ -233,6 +258,12 @@ let fillFirstGeneSelectBox = async function () {
   }
 };
 
+/** Fetches genes from list and 
+ * creates and populates the second gene selection box.
+ * Uses local storage if possible.
+ * 
+ * @returns {undefined}
+ */
 let fillSecondGeneSelectBox = async function () {
   let selectBox2 = document.getElementById("geneTwoMultipleSelection");
 
@@ -267,7 +298,11 @@ let fillSecondGeneSelectBox = async function () {
 };
 
 let allClinicalData;
-
+/** Creates and fills the box to select clinical features.
+ * Uses local storage if possible.
+ * 
+ * @returns {undefined}
+ */
 let fillClinicalSelectBox = async function () {
   let dataFetched = await fetchClinicalData();
   allClinicalData = dataFetched.Clinical_FH;
@@ -309,6 +344,11 @@ let fillClinicalSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Gets all variant classifications based on the cohort and provided genes
+ * 
+ * @param {Array.<String>} geneQuery The selected genes the function gets the mutations for
+ * @returns {Promise<Array.<JSON>>} An array of JSON objects specifying the mutations
+ */
 let getAllVariantClassifications = async function (geneQuery) {
   let myCohortQuery = $(".cancerTypeMultipleSelection")
     .select2("data")
@@ -358,6 +398,10 @@ let getAllVariantClassifications = async function (geneQuery) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Saves the cohort, genes, and clinical features in local storage
+ * 
+ * @returns {undefined}
+ */
 let saveInLocalStorage = async function () {
   let cancerTypeSelectedOptions = $(".cancerTypeMultipleSelection")
     .select2("data")
