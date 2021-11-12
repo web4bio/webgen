@@ -227,7 +227,6 @@ let fetchClinicalData = async function () {
  * @returns {undefined}
  */
 let fillFirstGeneSelectBox = async function () {
-  console.log('1')
   let selectBox = document.getElementById("geneOneMultipleSelection");
 
   $("#geneOneMultipleSelection").val(null).trigger("change");
