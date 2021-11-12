@@ -8,16 +8,23 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
 
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
-    var div_optionsPanels = divObject.append('div');
-    var div_clinSelect = div_optionsPanels.append('div')
+    var gridRow = divObject.append("div");
+    gridRow.attr("id", "heatmapGridRow").attr("class", "row");
+    var div_optionsPanels = gridRow.append('div');
+    div_optionsPanels.attr("id", "optionsPanels");
+    div_optionsPanels.attr("class", "col s3");
+    div_optionsPanels.style("margin-top", "80px");
+    div_optionsPanels.style("margin-left", "20px");
+    var div_clinSelect = div_optionsPanels.append('div');
+    div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')
         .style('font-size', '20px')
-        .text('Select clinical variables to display sample tracks:');
+        .text('Select clinical variables\nto display sample tracks:');
     div_clinSelect.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
         .style('height', '100px')
-        .style('width', '500px')
+        .style('width', '300px')
       .append('div')
         .attr('class','clin_selector');
     let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
@@ -109,8 +116,8 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
     */
 
     // Set up dimensions for heatmap:
-    var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 100 },
-        frameWidth = 1250,
+    var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
+        frameWidth = 1000,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
@@ -119,8 +126,11 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
 
     // Create svg object frame for the plots
-    var svg_frame = divObject.append('svg')
+    //var svg_frame = divObject.append('svg')
         //.attr("viewBox", '0 0 '+frameWidth+' '+frameHeight)
+    var heatmapCol = gridRow.append('div');
+    heatmapCol.attr("class", "col s8");
+    var svg_frame = heatmapCol.append('svg')
         .attr('width', frameWidth)
         .attr('height', frameHeight);
 
@@ -164,7 +174,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
         .attr("transform", "translate(" + margin.left + "," + margin.space + ")");
 
     // Create div for tooltip
-    var div_tooltip = divObject
+    var div_tooltip = heatmapCol
         .append("div")
         .style("opacity", 1)
         .style("border", "solid")
@@ -175,7 +185,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
     div_tooltip.html("\xa0\xa0Hover over an element to use tooltip.");
 
     // Add div for sample track legend
-    var div_sampLegend = divObject
+    var div_sampLegend = heatmapCol
         .append("div")
         .attr("class", "legend")
         .style("border", "solid")
@@ -289,7 +299,7 @@ createHeatmap = async function (expressionData, clinicalData, divObject) {
     };
     
     // function to get width of bounding text box for a given string, font-size
-    let svg_temp = divObject.append("svg");
+    let svg_temp = heatmapCol.append("svg");
     function getTextWidth(str, fs) {
         let text_temp = svg_temp
             .append('text')
