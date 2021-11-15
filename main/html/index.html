@@ -395,10 +395,10 @@
             window.history.replaceState(null, null, url);
         }
         $("#cancerTypeMultipleSelection").on('change.select2', e => updateParamsInURL("cohorts", e.val));
-        $("#geneOneQuerySelectBox").on('change.select2', e => updateParamsInURL("genesMutation", e.val));
-        $("#clinicalQuerySelectBox").on('change.select2', e => updateParamsInURL("clinical", e.val));
+        $("#geneOneMultipleSelection").on('change.select2', e => updateParamsInURL("genesMutation", e.val));
+        $("#clinicalMultipleSelection").on('change.select2', e => updateParamsInURL("clinical", e.val));
         $("#geneTwoMultipleSelection").on('change.select2', e => updateParamsInURL("genesExpression", e.val));
-        $("#pathwaySelectBox").on('change.select2', e => updateParamsInURL("pathways", e.val));
+        $("#pathwayMultipleSelection").on('change.select2', e => updateParamsInURL("pathways", e.val));
     </script>
 
 </body>
