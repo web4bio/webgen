@@ -343,10 +343,10 @@ let fillClinicalSelectBox = async function () {
   }
 };
 
-/**
+/** Creates and populates the Violin Partion Box HTML element.
  * 
  * @param {string} id - the ID of the div box to be filled
- * @returns {Array} 
+ * @returns {Array} choices - An array of the values checked by the user in the checkboxes.
  */
 let fillViolinPartitionBox = async function(id)
 {
@@ -451,6 +451,13 @@ let fillViolinPartitionBox = async function(id)
     //    $('.' + className).val(clinicalFeatureOptions)
     //}
 };
+
+/*
+let fillClinicalPartitionBox = async function(className)
+{
+    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
+};
+*/
 
 /*
 let fillClinicalPartitionBox = async function(className)
