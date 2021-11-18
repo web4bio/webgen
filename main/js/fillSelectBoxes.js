@@ -125,7 +125,12 @@ let getValidGeneList = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//NOTE: The URL in the fetch command needs to be updated to use the github.io link instead of the current method
+/** Fetches list of valid pathways and returns an array of them.
+ * 
+ * NOTE: The URL in the fetch command needs to be updated to use the github.io link instead of the current method
+ * 
+ * @returns {Promise<Array.<String>>} The array of valid pathways
+ */
 let getValidPathwaysList = async function () {
   //Note the specification of the 'preselectedGenes' branch name.
   //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
@@ -137,7 +142,10 @@ let getValidPathwaysList = async function () {
   return await validPathwaysList;
 };
 
-//Returns array of genes associated with pathway
+/** Gets and returns the genes from pathways selected.
+ * 
+ * @returns {Promise<Array.<JSON>>} Array of JSONs, the genes associated with pathways.
+ */
 let getGenesByPathway = async function () {
   var pathwaySelectBoxLength = $(".pathwayMultipleSelection").select2("data").length;
   var allGenesByPathways = {};
@@ -173,7 +181,10 @@ let getGenesByPathway = async function () {
   return await allGenesByPathways;
 };
 
-//Populates the pathway select box
+/** Populates the pathway select box.
+ * 
+ * @returns {undefined}
+ */
 let fillPathwaySelectBox = async function () {
   validPathwaysList = await getValidPathwaysList();
   let selectBox = document.getElementById("pathwayMultipleSelection");
@@ -332,6 +343,11 @@ let fillClinicalSelectBox = async function () {
   }
 };
 
+/**
+ * 
+ * @param {string} id - the ID of the div box to be filled
+ * @returns {Array} 
+ */
 let fillViolinPartitionBox = async function(id)
 {
     var div_box = d3.select('#'+id);
