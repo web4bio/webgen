@@ -4,6 +4,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Fills the cancer type selectBox.
+ * 
+ * This function populates the cancer type selection box HTML element
+ * with the cancer types retrieved from the cohort data.
+ * 
+ * @returns {undefined}
+ */
 const fillCancerTypeSelectBox = async function () {
   const cancerTypesQuery = await firebrowse.fetchCohorts();
   cancerTypesQuery.sort();
@@ -41,6 +48,10 @@ const fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Creates and displays the "Number of samples" element that appears when a cohort is selected.
+ * 
+ * @returns {undefined}
+ */
 let displayNumberSamples = async function () {
   if (document.getElementById("numSamplesText")) {
     document.getElementById("numSamplesText").remove();
@@ -90,6 +101,10 @@ let displayNumberSamples = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Fetches an array of the valid genes and returns them
+ * 
+ * @returns {Promise<Array>} validGeneList - the array of genes
+ */
 let getValidGeneList = async function () {
   let validGeneList = await fetch(
     "https://raw.githubusercontent.com/web4bio/webgen/master/main/validGeneList.json"
@@ -110,7 +125,12 @@ let getValidGeneList = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//NOTE: The URL in the fetch command needs to be updated to use the github.io link instead of the current method
+/** Fetches list of valid pathways and returns an array of them.
+ * 
+ * NOTE: The URL in the fetch command needs to be updated to use the github.io link instead of the current method
+ * 
+ * @returns {Promise<Array.<String>>} The array of valid pathways
+ */
 let getValidPathwaysList = async function () {
   //Note the specification of the 'preselectedGenes' branch name.
   //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
@@ -122,7 +142,10 @@ let getValidPathwaysList = async function () {
   return await validPathwaysList;
 };
 
-//Returns array of genes associated with pathway
+/** Gets and returns the genes from pathways selected.
+ * 
+ * @returns {Promise<Array.<JSON>>} Array of JSONs, the genes associated with pathways.
+ */
 let getGenesByPathway = async function () {
   var pathwaySelectBoxLength = $(".pathwayMultipleSelection").select2("data").length;
   var allGenesByPathways = {};
@@ -158,7 +181,10 @@ let getGenesByPathway = async function () {
   return await allGenesByPathways;
 };
 
-//Populates the pathway select box
+/** Populates the pathway select box.
+ * 
+ * @returns {undefined}
+ */
 let fillPathwaySelectBox = async function () {
   validPathwaysList = await getValidPathwaysList();
   let selectBox = document.getElementById("pathwayMultipleSelection");
@@ -188,7 +214,10 @@ let fillPathwaySelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// get barcodes for which expression data exists for those cancer types that were selected
+/** Gets barcodes for which expression data exists for the cancer types that were selected.
+ * 
+ * @returns {Promise<Array.<string>>} An array of strings, the barcodes from the selected cohorts.
+ */
 let getBarcodesFromCohortForClinical = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
@@ -199,7 +228,12 @@ let getBarcodesFromCohortForClinical = async function () {
   return tpBarcodes;
 };
 
-// fetch CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
+/** Fetches CLINICAL data for those barcodes for which expression data exists 
+ * for those cancer types that were selected.
+ * 
+ * @returns {Promise<JSON.<Array>>} Returns a promise for a JSON containing an array of JSONS
+ * which contain clinical data for the cohort.
+ */
 let fetchClinicalData = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
@@ -213,6 +247,11 @@ let fetchClinicalData = async function () {
 let allClinicalData;
 let clinicalType = [];
 
+/** Creates and fills the box to select clinical features.
+ * Uses local storage if possible.
+ * 
+ * @returns {undefined}
+ */
 let fillClinicalSelectBox = async function () {
 
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
@@ -304,6 +343,11 @@ let fillClinicalSelectBox = async function () {
   }
 };
 
+/** Creates and populates the Violin Partion Box HTML element.
+ * 
+ * @param {string} id - the ID of the div box to be filled
+ * @returns {Array} choices - An array of the values checked by the user in the checkboxes.
+ */
 let fillViolinPartitionBox = async function(id)
 {
     var div_box = d3.select('#'+id);
@@ -415,6 +459,12 @@ let fillClinicalPartitionBox = async function(className)
 };
 */
 
+/*
+let fillClinicalPartitionBox = async function(className)
+{
+    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
+};
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// Fill Clinical Select Box (above) //////////////////////////////////////////////////////////
@@ -427,6 +477,11 @@ let fillClinicalPartitionBox = async function(className)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Gets all variant classifications based on the cohort and provided genes
+ * 
+ * @param {Array.<String>} geneQuery The selected genes the function gets the mutations for
+ * @returns {Promise<Array.<JSON>>} An array of JSON objects specifying the mutations
+ */
 let getAllVariantClassifications = async function (geneQuery) {
   const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
     (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
@@ -439,6 +494,10 @@ let getAllVariantClassifications = async function (geneQuery) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** Saves the cohort, genes, and clinical features in local storage
+ * 
+ * @returns {undefined}
+ */
 let saveInLocalStorage = async function () {
   let cancerTypeSelectedOptions = $(".cancerTypeMultipleSelection")
     .select2("data")
