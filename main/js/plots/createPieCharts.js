@@ -102,6 +102,13 @@ let colorOutOfSpace = {
     }
 }
 
+/** Build and display data explore plots i.e. pie charts and histograms
+ *
+ * This function fetches the necessary data, builds the pie charts to display discrete data
+ * and builds histograms to display continunous data.
+ * 
+ * @returns {undefined}
+ */
 let buildDataExplorePlots = async function() {
 
     let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
@@ -589,6 +596,10 @@ let buildDataExplorePlots = async function() {
     }
 }}
 
+/** unused function
+ * 
+ * @returns {undefined} 
+ */
 let displayNumberBarcodesAtIntersection = async function () {
 
     let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
