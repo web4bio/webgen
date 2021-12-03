@@ -16,14 +16,15 @@ let tooltipNum = 0;
  *
  * @returns {undefined}
 */
-const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) {
+const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
     //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
     let clinicalData = "";
-    if(facetByFields.length > 0)
-        clinicalData = cache.get('rnaSeq', 'clinicalData');
-
+    if(facetByFields.length > 0) {
+        clinicalData = await cache.get('rnaSeq', 'clinicalData');
+        clinicalData = clinicalData.clinicalData;
+    }
     //Set up violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                     "#ffff33","#a65628","#f781bf","#999999"];
@@ -138,7 +139,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
     //let svgObject = d3.select(violinDiv).append("svg")
     let svgObject = d3.select("#" + svgDivId).append("svg")
       //.attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
-      .attr("viewBox", `0 -35 1250 475`)  // This line makes the svg responsive
+      .attr("viewBox", `0 -35 600 475`)  // This line makes the svg responsive
       .attr("id", svgID)
       .attr("indepVarType", "gene") //The attributes added on this line and the lines below are used when rebuilding the plot
       .attr("cohort", curPlot)
@@ -476,9 +477,8 @@ function standardDeviation(mean, values)
 }
 
 //Creates the partition selector for the violin plots
-let createViolinPartitionBox = async function(violinsDivId, geneQuery)
+let createViolinPartitionBox = async function(partitionDivId, geneQuery)
 {
-    var partitionDivId = "violinPartition";
     var div_box = d3.select('#'+partitionDivId);
     div_box.append('text')
         .style("font-size", "20px")
@@ -487,8 +487,8 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         .attr('class','viewport')
         .attr("id", "partitionSelectViolinPlot")
         .style('overflow-y', 'scroll')
-        .style('height', '90px')
-        .style('width', '500px')
+        .style('height', '120px')
+        .style('width', '300px')
         .append('div')
         .attr('class','body');
     var selectedText = div_box.append('text');
@@ -546,16 +546,6 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         let cb = d3.select(this);
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
-
-    /*
-    div_box.append("break");
-    div_box.append('button')
-        .text("Rebuild Violin Plot")
-        .attr("class", "col s3 btn waves-effect waves-light")
-        .attr("id", "submitButton")
-        .attr("onclick", "rebuildViolinPlot('" + partitionDivId + "', '" + geneQuery + "')");
-    */
-
     return choices;
 };
 
@@ -572,8 +562,8 @@ let getPartitionBoxSelections = function(violinsDivId)
 }
 
 //Rebuilds the violin plot associated with violinDivId
-let rebuildViolinPlot = function(violinsDivId, geneQuery) {
-    var selectedOptions = getPartitionBoxSelections(violinsDivId);
+let rebuildViolinPlot = async function(partitionBoxId, geneQuery) {
+    var selectedOptions = getPartitionBoxSelections(partitionBoxId);
 
     //geneQuery = geneQuery.split(",");
     for(var index = 0; index < geneQuery.length; index++) {
@@ -581,7 +571,8 @@ let rebuildViolinPlot = function(violinsDivId, geneQuery) {
         var svgDiv = document.getElementById(svgDivId);
         svgDiv.innerHTML = "";
         var violinDivId = "violinPlot" + index;
-        createViolinPlot(cache.get('rnaSeq', 'expressionData'),
+        let expressionData = await cache.get('rnaSeq', 'expressionData');
+        createViolinPlot(expressionData.expressionData,
                         document.getElementById(violinDivId), geneQuery[index], selectedOptions);
     }
 };

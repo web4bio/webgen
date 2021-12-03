@@ -31,7 +31,7 @@ const createHeatmap = function(expressionData, clinicalData, divObject) {
     div_clinSelect.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
-        .style('height', '100px')
+        .style('height', '120px')
         .style('width', '300px')
       .append('div')
         .attr('class','clin_selector');
@@ -125,7 +125,7 @@ const createHeatmap = function(expressionData, clinicalData, divObject) {
 
     // Set up dimensions for heatmap:
     var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
-        frameWidth = 1000,
+        frameWidth = 1050,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
@@ -216,7 +216,7 @@ const createHeatmap = function(expressionData, clinicalData, divObject) {
         .attr("width", frameWidth)
         .attr("height", sampTrackHeight + 2 * margin.space)
         .append("g")
-        .attr("transform", "translate(" + margin.space + "," + margin.space + ")");
+        .attr("transform", "translate(" + margin.space + "," + margin.space*3 + ")");
 
 
     ///// DATA PROCESSING /////
