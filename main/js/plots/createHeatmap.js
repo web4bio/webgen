@@ -14,10 +14,11 @@
 */
 const createHeatmap = function(expressionData, clinicalData, divObject) {
 
-    ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
+    // Note that we are using the Grid system for Materialize
     var gridRow = divObject.append("div");
     gridRow.attr("id", "heatmapGridRow").attr("class", "row");
+    //Append column for div options panel
     var div_optionsPanels = gridRow.append('div');
     div_optionsPanels.attr("id", "optionsPanels");
     div_optionsPanels.attr("class", "col s3");
@@ -116,13 +117,8 @@ const createHeatmap = function(expressionData, clinicalData, divObject) {
         sortGroups();
         updateHeatmap();
     });
-    /*
-    sortOptionDiv.append('button')
-        .attr('type', 'button')
-        .attr('class', 'updateHeatmapButton')
-        .text('Update heatmap'); // button to update heatmap, define update function below
-    */
 
+    ///// BUILD SVG OBJECTS /////
     // Set up dimensions for heatmap:
     var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
         frameWidth = 1050,
@@ -134,10 +130,9 @@ const createHeatmap = function(expressionData, clinicalData, divObject) {
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
 
     // Create svg object frame for the plots
-    //var svg_frame = divObject.append('svg')
-        //.attr("viewBox", '0 0 '+frameWidth+' '+frameHeight)
     var heatmapCol = gridRow.append('div');
     heatmapCol.attr("class", "col s8");
+    //Place heatmap in right-hand column
     var svg_frame = heatmapCol.append('svg')
         .attr('width', frameWidth)
         .attr('height', frameHeight);
@@ -634,15 +629,4 @@ const createHeatmap = function(expressionData, clinicalData, divObject) {
         svg_frame.attr('height', frameHeight);
     };
     updateHeatmap();
-
-    // add updateHeatmap function to any buttons with updateHeatmapButton class
-    /*
-    divObject.selectAll('.updateHeatmapButton')
-        .attr("class", "col s3 btn waves-effect waves-light")
-        .style('font-size','0.9vw')
-        .on('click', function () {
-            sortGroups();
-            updateHeatmap();
-        });
-    */
 };

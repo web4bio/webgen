@@ -565,7 +565,6 @@ let getPartitionBoxSelections = function(violinsDivId)
 let rebuildViolinPlot = async function(partitionBoxId, geneQuery) {
     var selectedOptions = getPartitionBoxSelections(partitionBoxId);
 
-    //geneQuery = geneQuery.split(",");
     for(var index = 0; index < geneQuery.length; index++) {
         var svgDivId = "svgViolin" + index;
         var svgDiv = document.getElementById(svgDivId);

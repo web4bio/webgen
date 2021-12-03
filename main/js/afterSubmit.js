@@ -193,9 +193,7 @@ const buildViolinPlot = function(geneQuery, expressionData) {
   //Setup Materialize Grid
   addDivInside("violinGridRow", violinLoaderDiv.id);
   var gridRow = document.getElementById("violinGridRow");
-  //let rowCount = 0;
-  console.log(gridRow)
-  gridRow.classList.add("row");/*.attr("id", "violinGridRow" + rowCount)*/
+  gridRow.classList.add("row");
 
   // Create partition selector div and add it inside Materialize Grid
   const partitionDivId = "violinPartition";
