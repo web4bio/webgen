@@ -456,7 +456,7 @@ function average(values) {
  * 
  * @param {number} kernel - value passed from kernelEpanechnikov(k)
  * @param {number|number[]} X - passed from d3.scaleLinear.ticks() that generates an array of numbers inside an interval
- * @returns 
+ * @returns {function} kernel density estimation
  */
 function kernelDensityEstimator(kernel, X) {
     return function(V) {
