@@ -144,7 +144,12 @@ let getValidPathwaysList = async function () {
 
 /** Gets and returns the genes from pathways selected.
  * 
- * @returns {Promise<Array.<JSON>>} Array of JSONs, the genes associated with pathways.
+ * @typedef {Object} GenesByPathway
+ * @property {Array<string>} genes
+ * @property {number} id
+ * @property {string} pathway
+ * 
+ * @returns {Promise<Array.<GenesByPathway>>} Array of JSONs, the genes associated with pathways.
  */
 let getGenesByPathway = async function () {
   var pathwaySelectBoxLength = $(".pathwayMultipleSelection").select2("data").length;
@@ -231,7 +236,30 @@ let getBarcodesFromCohortForClinical = async function () {
 /** Fetches CLINICAL data for those barcodes for which expression data exists 
  * for those cancer types that were selected.
  * 
- * @returns {Promise<JSON.<Array>>} Returns a promise for a JSON containing an array of JSONS
+ * @typedef {Object} CohortClinicalData
+ * @property {string} cohort
+ * @property {string} date
+ * @property {string} date_to_initial_pathologic_diagnosis
+ * @property {string} days_to_death
+ * @property {string} days_to_last_followup
+ * @property {string} days_to_last_known_alive
+ * @property {string} ethnicity
+ * @property {string} gender
+ * @property {string} histological_type
+ * @property {string} number_of_lymph_nodes
+ * @property {string} pathologic_stage
+ * @property {string} pathology_M_stage
+ * @property {string} pathology_N_stage
+ * @property {string} pathology_T_stage
+ * @property {string} race
+ * @property {string} radiation_therapy
+ * @property {string} tcga_participant_barcode
+ * @property {string} tool
+ * @property {string} tumor_tissue_site
+ * @property {string} vital_status
+ * @property {string} years_to_birth
+ * 
+ * @returns {Promise<Array.<CohortClinicalData>>} Returns a promise for an array of JSONS
  * which contain clinical data for the cohort.
  */
 let fetchClinicalData = async function () {
@@ -479,8 +507,18 @@ let fillClinicalPartitionBox = async function(className)
 
 /** Gets all variant classifications based on the cohort and provided genes
  * 
+ * @typedef {Object} MutationMAF
+ * @property {string} Hugo_Symbol
+ * @property {string} Protein_Change
+ * @property {string} SwissProt_entry_Id
+ * @property {string} Tumor_Sample_Barcode
+ * @property {string} Variant_Classification
+ * @property {string} Variant_Type
+ * @property {string} cohort
+ * @property {string} tool
+ * 
  * @param {Array.<String>} geneQuery The selected genes the function gets the mutations for
- * @returns {Promise<Array.<JSON>>} An array of JSON objects specifying the mutations
+ * @returns {Promise<Array.<MutationMAF>>} An array of JSON objects specifying the mutations
  */
 let getAllVariantClassifications = async function (geneQuery) {
   const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
