@@ -487,7 +487,7 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
         .attr('class','viewport')
         .attr("id", "partitionSelectViolinPlot")
         .style('overflow-y', 'scroll')
-        .style('height', '120px')
+        .style('height', '300px')
         .style('width', '300px')
         .append('div')
         .attr('class','body');

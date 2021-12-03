@@ -31,7 +31,7 @@ const createHeatmap = function(expressionData, clinicalData, divObject) {
     div_clinSelect.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
-        .style('height', '120px')
+        .style('height', '300px')
         .style('width', '300px')
       .append('div')
         .attr('class','clin_selector');
