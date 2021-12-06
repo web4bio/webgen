@@ -230,8 +230,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
         })
         .rollup(function(d) {                                              // For each key..
             input = d.map(function(g) { return g.expression_log2;});
-            density = kde(input);   
-            console.log(density);                                        // Implement kernel density estimation
+            density = kde(input);                                          // Implement kernel density estimation
             return(density);
         })
         .entries(dataInput)
