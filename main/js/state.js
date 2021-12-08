@@ -42,7 +42,7 @@ const state = {
     init() {
       this.element = document.querySelector(".tabs");
       // M comes from materialize.
-      if (!M) {
+      if (M === undefined || M === null) {
         console.error("materialize not loaded, cannot configure tabs");
       } else{
         this.instance = M.Tabs.init(this.element, {});
@@ -59,6 +59,67 @@ const state = {
       } else {
         this.instance.updateTabIndicator();
         $(this.element).show();}
+    },
+  },
+
+  /**
+   * Object to allow us to interact with the select boxes on the page.
+   */
+  selectBoxes: {
+
+    /**
+     * Object for setting the options in the select boxes. In other words, this is
+     * where we add the options to each select box.
+     */
+    options: {
+      /**
+       * Fill in options for cohorts.
+       * @returns {undefined}
+       */
+      async setCohorts() {
+        const cohorts = await firebrowse.fetchCohorts();
+        cohorts.sort();
+        const selectBox = document.getElementById("cancerTypeMultipleSelection");
+        for (const cohort of cohorts) {
+          const newOption = document.createElement("option");
+          newOption.id = cohort["cohort"];
+          newOption.value = cohort["cohort"];
+          newOption.text = `(${cohort["cohort"]}) ${cohort["description"]}`;
+          selectBox.appendChild(newOption);
+        }
+      },
+
+      /**
+       * Fill in options for gene mutations.
+       * @returns {undefined}
+       */
+      setGeneMutations() {
+        console.warn("not implemented");
+      },
+
+      /**
+       * Fill in options for clinical features.
+       * @returns {undefined}
+       */
+      setClinicalFeatures() {
+        console.warn("not implemented");
+      },
+
+      /**
+       * Fill in options for gene expressions.
+       * @returns {undefined}
+       */
+      setGeneExpressions() {
+        console.warn("not implemented");
+      },
+
+      /**
+       * Fill in options for pathways.
+       * @returns {undefined}
+       */
+      setPathways() {
+        console.warn("not implemented");
+      },
     },
   },
 
@@ -136,5 +197,7 @@ const state = {
 };
 
 Object.seal(state.tabs);
+Object.seal(state.selectBoxes);
+Object.seal(state.selectBoxes.options);
 Object.seal(state.query);
 Object.seal(state);
