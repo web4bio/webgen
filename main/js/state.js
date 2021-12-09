@@ -74,12 +74,14 @@ const state = {
     options: {
       /**
        * Fill in options for cohorts.
+       * @param {Array<{cohort: string, description: string}>} cohorts Cohort info.
        * @returns {undefined}
        */
-      async setCohorts() {
-        const cohorts = await firebrowse.fetchCohorts();
-        cohorts.sort();
+      setCohorts(cohorts) {
         const selectBox = document.getElementById("cancerTypeMultipleSelection");
+        // Clear the original options.
+        selectBox.options.forEach(option => option.remove());
+        // Add the new options.
         for (const cohort of cohorts) {
           const newOption = document.createElement("option");
           newOption.id = cohort["cohort"];
