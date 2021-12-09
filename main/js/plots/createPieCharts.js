@@ -102,6 +102,13 @@ let colorOutOfSpace = {
     }
 }
 
+/** Build and display data explore plots i.e. pie charts and histograms
+ *
+ * This function fetches the necessary data, builds the pie charts to display discrete data
+ * and builds histograms to display continunous data.
+ * 
+ * @returns {undefined}
+ */
 let buildDataExplorePlots = async function() {
 
     let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
@@ -588,38 +595,3 @@ let buildDataExplorePlots = async function() {
         }
     }
 }}
-
-let displayNumberBarcodesAtIntersection = async function () {
-
-    let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
-        cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-
-    let geneQuery = $('.geneOneMultipleSelection').select2('data').map(
-        gene => gene.text);
-
-    // Fetch RNA sequence data for selected cancer type(s) and gene(s)
-    let expressionData = (await fetchExpressionData_cg(cohortQuery, geneQuery)).mRNASeq;
-
-    let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData);
-
-    if (document.getElementById("numAtIntersectionText")) {
-      document.getElementById("numAtIntersectionText").remove();
-    }
-
-    let para = document.createElement("P");
-    para.setAttribute(
-      "style",
-      'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
-    );
-
-    if(intersectedBarcodes) {
-        let string = intersectedBarcodes.length + ""
-
-        para.setAttribute("id", "numAtIntersectionText");
-        para.innerText = "Number of samples with expression data in defined cohort: " + string;
-
-        let blah = document.getElementById("numIntersectedBarcodesDiv")
-        blah.appendChild(para);
-    }
-
-};
