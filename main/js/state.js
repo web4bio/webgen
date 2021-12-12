@@ -69,7 +69,7 @@ const state = {
 
     /**
      * Object for setting the options in the select boxes. In other words, this is
-     * where we add the options to each select box.
+     * where we set the options of each select box.
      */
     options: {
       /**
@@ -123,9 +123,6 @@ const state = {
         console.warn("not implemented");
       },
     },
-  },
-
-  query: {
 
     /**
      * Get array of selected cohorts.
@@ -134,7 +131,7 @@ const state = {
      * state.query.cohort
      * // Expected result if one selected BRCA and PAAD: ["BRCA", "PAAD"]
      */
-    get cohorts() {
+    getCohorts() {
       return $(".cancerTypeMultipleSelection").select2("data").map(cohort => cohort.id);
     },
 
@@ -145,7 +142,7 @@ const state = {
      * state.query.mutation
      * // Expected result if one selected TP53: ["TP53"]
      */
-    get mutations() {
+    getMutations() {
       return $(".geneOneMultipleSelection").select2("data").map(gene => gene.text);
     },
 
@@ -155,7 +152,7 @@ const state = {
      * state.query.clinicalFeatures
      * // ["days_to_lst_followup"]
      */
-    get clinicalFeatures() {
+    getClinicalFeatures() {
       return $(".clinicalMultipleSelection").select2("data").map(el => el.text);
     },
 
@@ -163,7 +160,7 @@ const state = {
      * Get array of genes queried for expression.
      * @returns {string[]} Array of selected genes.
      */
-    get expressions() {
+    getExpressions() {
       return $(".geneTwoMultipleSelection").select2("data").map(gene => gene.text);
     },
 
@@ -171,7 +168,7 @@ const state = {
      * Get array of pathways queried for expression.
      * @returns {string[]} Array of selected pathways.
      */
-    get pathways() {
+    getPathways() {
       return $(".pathwayMultipleSelection").select2("data").map(pathway => pathway.id);
     },
 
@@ -182,7 +179,7 @@ const state = {
      * @property {string} pathway
      * @returns {Promise<GenesByPathway[]>} Array of JSONs, the genes associated with pathways.
      */
-    get genesForPathways() {
+    getGenesForPathways() {
       if (state.validPathways === null) {
         console.warn("validPathways is null. Did you forget to initialize state?");
         return [];
