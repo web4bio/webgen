@@ -136,6 +136,15 @@ const state = {
     },
 
     /**
+     * Set the selected cohorts.
+     * @param {string[]} cohorts Array of cohort names
+     * @returns {undefined}
+     */
+    setCohorts(cohorts) {
+      $(".cancerTypeMultipleSelection").select2("val", cohorts).trigger("change");
+    },
+
+    /**
      * Get array of genes queried for mutations.
      * @returns {string[]} Array of selected genes.
      * @example
