@@ -48,6 +48,7 @@ This is a public, open-source project, as well as a project that students may re
 | [Shiying Lin](https://github.com/20shiy) |[Fall 2021 Log](https://docs.google.com/document/d/1xkBotug4-K3Upo4yEUmWYy8Q_rqnIYvnKAIYZWFdnIE/edit?usp=sharing) |[Observable](https://observablehq.com/@20shiy/webgen-fall-2021) | |
 | [Will Li](https://github.com/liwll) | [Fall 2021 Log](https://docs.google.com/document/d/1aVD6soq5g_a9s8o1ztR4pKyPgkiOnK4EhEHu-d7oBe8/edit?usp=sharing) | [Sandbox](https://observablehq.com/@liwll/webgen) | |
 | [Joshua Mathew](https://github.com/jmath908) | [Fall 2021 Log](https://docs.google.com/document/d/1gBdkrxdAwOR24T8fhQzn2UaAR5ME5rdTozyNG81Amf8/edit?usp=sharing)  | |
+| [Jie Xi Li](https://github.com/jli0980) | [Spring 2022 Log](https://docs.google.com/document/d/1NPfO22X5CkfYnU697NwupE9xVAoyIRRuVZ5tCBRg3BI/edit?usp=sharing)  |[Observable](https://observablehq.com/@39a49c172bedfa3c/webgen-spring-2022)| |
 
 #### Alumni
   * [Ethan Earlie](https://github.com/Ethan-Earlie): [Sandbox](https://observablehq.com/@ethan-earlie/webgen), [Web App](https://web4bio.github.io/webgen/main/) 
