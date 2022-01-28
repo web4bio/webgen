@@ -1,64 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!--
-  Uses a user input for the cohort list and gene list. These input lists should be comma separated values.
--->
-
-    <!--
-    Importing jobs:
-  -->
     <head>
-        <!-- Compiled and minified CSS -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>WebGen | explore cancer data from The Cancer Genome Atlas</title>
 
-        <!-- Compiled and minified JavaScript -->
+        <!-- Critical resources are loaded early. Non-critical resources are deferred. -->
+        <!-- jquery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- Load in loki -->
+        <script src="../js/libraries/lokijs.min.js"></script>
+        <script src="../js/libraries/loki-indexed-adapter.min.js"></script>
+        <script type="text/javascript" src="../js/dataAcquisition/lokiFetch.js"></script>
+        <!-- materialize -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
-        <!-- Load d3.js -->
-        <script src="https://d3js.org/d3.v4.js"></script>
-        <script src="https://d3js.org/d3.v4.min.js"></script>
-
-        <!-- Load jQuery -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-        <!-- Load Jonas's FireBrowse library -->
-        <script src="https://episphere.github.io/firebrowse/firebrowse.js"></script>
-
-        <!-- Load hclust library (for clustering) -->
-        <script src="../js/libraries/hclust.min.js"></script>
-
-        <!-- Load color palettes -->
-        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-
-        <!-- Select2 Library -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+        <!-- hclust for clustering -->
+        <script src="../js/libraries/hclust.min.js" defer></script>
+        <!-- Select2 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js" defer></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" />
-
-        <!-- lodash Library for pagination -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
-
-        <!-- Plotly Library -->
-        <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-        <!-- Load hclust library (for clustering) -->
-        <script src="../js/libraries/hclust.min.js"></script>
-
-        <!-- Load in files -->
+        <!-- lodash for pagination -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" defer></script>
+        <!-- d3 -->
+        <script src="https://d3js.org/d3.v4.min.js" defer></script>
+        <!-- plotly -->
+        <script src="https://cdn.plot.ly/plotly-2.5.0.min.js" defer></script>
+        <!-- webgen styles and javascript -->
         <link rel="stylesheet" type="text/css" href="../css/style.css" />
-
-        <script type="text/javascript" src="../js/dataAcquisition/fetchClinicalData.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/fetchExpressionData.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/getClinicalDataJSONarray.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/getDataFromSelectedPieSectors.js"></script>
-        <script type="text/javascript" src="../js/dataAcquisition/getExpressionDataJSONarray.js"></script>
-
-        <script type="text/javascript" src="../js/dataProcessing/mergeExpression.js"></script>
-
-        <script type="text/javascript" src="../js/plots/createHeatmap.js"></script>
-        <script type="text/javascript" src="../js/plots/createViolinPlot.js"></script>
-
-        <script type="text/javascript" src="../js/afterSubmit.js"></script>
-        <script type="text/javascript" src="../js/fillSelectBoxes.js"></script>
+        <script src="../js/fillSelectBoxes.js"></script>
+        <script src="../js/dataAcquisition/fetch.js"></script>
+        <script src="../js/dataAcquisition/getDataFromSelectedPieSectors.js" defer></script>
+        <script src="../js/dataProcessing/mergeExpression.js" defer></script>
+        <script src="../js/plots/createHeatmap.js" defer></script>
+        <script src="../js/plots/createViolinPlot.js" defer></script>
+        <script src="../js/afterSubmit.js" defer></script>
     </head>
 
     <body>
@@ -224,11 +200,11 @@
 
                 <!-- <div>
         <p style="text-align: center;"><b>3) Click pie sectors to define gene types </b></p>
-        <p style="text-align: center; color: gray">Hint 1: Click items in legend to change view of plot</p> 
-        <p style="text-align: center; color: gray">Hint 2: In plot, click on wild-type or mutated genes that you would like to visualize. Selected data will be highlighted <b><span style="color: orange">yelllow</span></b>.</p> 
+        <p style="text-align: center; color: gray">Hint 1: Click items in legend to change view of plot</p>
+        <p style="text-align: center; color: gray">Hint 2: In plot, click on wild-type or mutated genes that you would like to visualize. Selected data will be highlighted <b><span style="color: orange">yelllow</span></b>.</p>
         </div> -->
 
-                <!-- 
+                <!--
           Data exploration div
         -->
                 <div class="row" id="dataexploration">
@@ -281,7 +257,6 @@
       Setting up the buttons.
       -->
                 <div className="mainWindowButtons" id="mainWindowButtons">
-                    <!-- <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button> -->
                     <button class="col s3 btn waves-effect waves-light" onclick="buildPlots()" id="submitButton">Submit</button>
                 </div>
 
@@ -313,13 +288,12 @@
                 <!--
         Setting up the tabs.
       -->
-                <div class="tabs_container">
+                <div>
                     <div class="col s36">
-                        <ul class="tabs tabs-fixed-width tab-demo z-depth-1">
+                        <ul class="tabs tabs-fixed-width tab-demo z-depth-1" style="display: none;">
                             <li class="tab col s12">
                                 <a class="active" href="#heatmapRef">Heatmap</a>
                             </li>
-                            <!-- <li class="tab col s12"><a href="#boxWhiskRef">Box and Whisker Plot</a></li> -->
                             <li class="tab col s12">
                                 <a href="#violinPlotRef">Violin Plot</a>
                             </li>
@@ -363,23 +337,24 @@
                             <h7 class="white-text">LINKS</h7>
                             <ul>
                                 <li>
-                                    <a target="_blank" class="grey-text text-lighten-3" href="https://github.com/web4bio/webgen"
+                                    <a target="_blank" rel="noopener" class="grey-text text-lighten-3" href="https://github.com/web4bio/webgen"
                                         >GitHub</a
                                     >
                                 </li>
                                 <li>
-                                    <a target="_blank" class="grey-text text-lighten-3" href="http://firebrowse.org/api-docs/"
+                                    <a target="_blank" rel="noopener" class="grey-text text-lighten-3" href="http://firebrowse.org/api-docs/"
                                         >Firebrowse API</a
                                     >
                                 </li>
                                 <li>
-                                    <a target="_blank" class="grey-text text-lighten-3" href="https://gdc.cancer.gov/"
+                                    <a target="_blank" rel="noopener" class="grey-text text-lighten-3" href="https://gdc.cancer.gov/"
                                         >NCI Genomic Data Commons</a
                                     >
                                 </li>
                                 <li>
                                     <a
                                         target="_blank"
+                                        rel="noopener"
                                         class="grey-text text-lighten-3"
                                         href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)"
                                         >Stony Brook University VIP</a
