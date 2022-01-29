@@ -229,7 +229,6 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
     // The value passed to kernelEpanechnikov determines smoothness:
     var kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50))
 
-
     // Compute the binning for each group of the dataset
     var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
         .key(function(d)
@@ -245,7 +244,7 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
         })
         .rollup(function(d) {                                              // For each key..
             input = d.map(function(g) { return g.expression_log2;});
-            density = kde(input);                                           // Implement kernel density estimation
+            density = kde(input);                                          // Implement kernel density estimation
             return(density);
         })
         .entries(dataInput)
@@ -453,7 +452,11 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Helper function for average
+/** Helper function for average
+ * 
+ * @param {number|number[]} values - average of expression_log2 for the gene of current plot
+ * @returns {Number} sum of expression_log2 divided by length of values array
+ */
 function average(values) {
     var sum = 0;
 
@@ -464,7 +467,12 @@ function average(values) {
 };
 
 
-// Helper functions for kernel density estimation from (https://gist.github.com/mbostock/4341954):
+/** Helper functions for kernel density estimation from (https://gist.github.com/mbostock/4341954):
+ * 
+ * @param {number} kernel - value passed from kernelEpanechnikov(k)
+ * @param {number|number[]} X - passed from d3.scaleLinear.ticks() that generates an array of numbers inside an interval
+ * @returns {function} kernel density estimation
+ */
 function kernelDensityEstimator(kernel, X) {
     return function(V) {
       return X.map(function(x) {
@@ -473,13 +481,23 @@ function kernelDensityEstimator(kernel, X) {
     };
 };
 
+/** Helper functions for kernel density estimation to determine smoothness
+ * 
+ * @param {number} k - decimal value passed 
+ * @returns {number} smoothness value
+ */
 function kernelEpanechnikov(k) {
     return function(v) {
       return Math.abs(v /= k) <= 1 ? 0.75 * (1 - v * v) / k : 0;
     };
 };
 
-//Helper function for standard deviation
+/** Helper function for standard deviation
+ * 
+ * @param {number} mean - the average value from sumstat (stats summary)
+ * @param {number} values - current expression array
+ * @returns {number} the standard deviation result
+ */
 function standardDeviation(mean, values)
 {
     var sum = 0;
@@ -491,8 +509,14 @@ function standardDeviation(mean, values)
     return (Number)(Math.pow(sum/(values.length-1), 0.5));
 }
 
-//Creates the partition selector for the violin plots
-let createViolinPartitionBox = async function(partitionDivId, geneQuery) {
+/** Creates the partition selector for the violin plots
+ * 
+ * @param {?HTMLDivElement} violinsDivId - the html id passed over for the violinsDiv
+ * @param {string[]} geneQuery - Array of gene names
+ * @returns {string[]} list of choices for the partition box
+ */
+let createViolinPartitionBox = async function(violinsDivId, geneQuery)
+{
     var partitionDivId = "violinPartition";
     var div_box = d3.select('#'+partitionDivId);
     div_box.append('text')
@@ -574,7 +598,11 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery) {
     return choices;
 }
 
-//Returns array of the selection clinical and mutation features in the partition box corresponding to violinDivId
+/** Returns array of the selection clinical features in the partition box corresponding to violinDivId
+ * 
+ * @param {?HTMLDivElement} violinsDivId - the html id passed over for the violinsDiv 
+ * @returns {string[]} list of choices for the partition box that was selected by user
+ */
 let getPartitionBoxSelections = function(violinsDivId)
 {
     var selectedOptions = [];
@@ -586,7 +614,12 @@ let getPartitionBoxSelections = function(violinsDivId)
     return selectedOptions;
 }
 
-//Rebuilds the violin plot associated with violinDivId
+/** Rebuilds the violin plot associated with violinDivId
+ * 
+ * @param {?HTMLDivElement} violinsDivId - the html id passed over for the violinsDiv 
+ * @param {string[]} geneQuery - Array of gene names
+ * @returns {undefined} 
+ */
 let rebuildViolinPlot = function(violinsDivId, geneQuery) {
     var selectedOptions = getPartitionBoxSelections(violinsDivId);
 
@@ -602,8 +635,13 @@ let rebuildViolinPlot = function(violinsDivId, geneQuery) {
     }
 };
 
-//Helper function to acquire the index of a patient's clinical and mutation data based on their tcga_participant_barcode
-function findMatchByTCGABarcode(patient, clinicalAndMutationData)
+/** Helper function to acquire the index of a patient's clinical data based on their tcga_participant_barcode
+ * 
+ * @param {ExpressionData[]} patient - expression data objects.
+ * @param {clinicalData[]} clinicalData - Array of clinical data objects.
+ * @returns {number} index of tcga_participant_barcode of patient in the clinical data 
+ */
+function findMatchByTCGABarcode(patient, clinicalData)
 {
     for(var index = 0; index < clinicalAndMutationData.length; index++)
     {
@@ -613,38 +651,6 @@ function findMatchByTCGABarcode(patient, clinicalAndMutationData)
 
     return -1;
 }
-
-//Helper function to create multi-line x-axis labels
-function wrap(text, width)
-{
-    text.each(function()
-    {
-      var text = d3.select(this),
-          words = text.text().split(/\s+/).reverse(),
-          word,
-          line = [],
-          lineNumber = 0,
-          lineHeight = 1.1, // ems
-          y = text.attr("y"),
-          dy = parseFloat(text.attr("dy")),
-          tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-      while (word = words.pop())
-      {
-        line.push(word);
-        tspan.text(line.join(" "));
-        if (tspan.node().getComputedTextLength() > width)
-        {
-          line.pop();
-          tspan.text(line.join(" "));
-          line = [word];
-          tspan = text.append("tspan").attr("x", 0)
-                                        .attr("y", y)
-                                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                                        .text(word);
-        }
-      }
-    });
-  }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
