@@ -16,16 +16,15 @@ let tooltipNum = 0;
  *
  * @returns {undefined}
 */
-createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
+const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
     //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
-    let clinicalAndMutationData = "";
+    let clinicalData = "";
     if(facetByFields.length > 0) {
-        clinicalAndMutationData = await cache.get('rnaSeq', 'clinicalData');
-        clinicalAndMutationData = clinicalAndMutationData.clinicalData;
+        clinicalData = await cache.get('rnaSeq', 'clinicalData');
+        clinicalData = clinicalData.clinicalData;
     }
-
     //Set up violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                     "#ffff33","#a65628","#f781bf","#999999"];
@@ -159,7 +158,7 @@ createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) 
       .append("g")
       .attr("id", (svgID + 'Position'))
       .attr("transform",
-          "translate(" + (margin.left) + "," + 
+          "translate(" + (margin.left) + "," +
                       (margin.top + ySpacing*0.25) + ")");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -586,15 +585,6 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
 
-    /*
-    div_box.append("break");
-    div_box.append('button')
-        .text("Rebuild Violin Plot")
-        .attr("class", "col s3 btn waves-effect waves-light")
-        .attr("id", "submitButton")
-        .attr("onclick", "rebuildViolinPlot('" + partitionDivId + "', '" + geneQuery + "')");
-    */
-
     return choices;
 }
 
@@ -620,7 +610,7 @@ let getPartitionBoxSelections = function(violinsDivId)
  * @param {string[]} geneQuery - Array of gene names
  * @returns {undefined} 
  */
-let rebuildViolinPlot = function(violinsDivId, geneQuery) {
+let rebuildViolinPlot = async function(violinsDivId, geneQuery) {
     var selectedOptions = getPartitionBoxSelections(violinsDivId);
 
     //geneQuery = geneQuery.split(",");
@@ -630,7 +620,7 @@ let rebuildViolinPlot = function(violinsDivId, geneQuery) {
         svgDiv.innerHTML = "";
         var violinDivId = "violinPlot" + index;
         let expressionData = await cache.get('rnaSeq', 'expressionData');
-        createViolinPlot(cache.get(expressionData.expressionData),
+        createViolinPlot(expressionData.expressionData,
                         document.getElementById(violinDivId), geneQuery[index], selectedOptions);
     }
 };
@@ -652,6 +642,36 @@ function findMatchByTCGABarcode(patient, clinicalData)
     return -1;
 }
 
+function wrap(text, width)
+{
+    text.each(function()
+    {
+      var text = d3.select(this),
+          words = text.text().split(/\s+/).reverse(),
+          word,
+          line = [],
+          lineNumber = 0,
+          lineHeight = 1.1, // ems
+          y = text.attr("y"),
+          dy = parseFloat(text.attr("dy")),
+          tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+      while (word = words.pop())
+      {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width)
+        {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = text.append("tspan").attr("x", 0)
+                                        .attr("y", y)
+                                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                        .text(word);
+        }
+      }
+    });
+  }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////// End Of Program ///////////////////////////////////////////////////////////////
