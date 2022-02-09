@@ -199,8 +199,7 @@ const buildViolinPlot = function(geneQuery, expressionData) {
   const partitionDivId = "violinPartition";
   addDivInside(partitionDivId, gridRow.id);
   var partitionCol = document.getElementById(partitionDivId);
-  partitionCol.classList.add("col");
-  partitionCol.classList.add("s3");
+  partitionCol.classList.add("col", "s3");
   //Generate the partition selector
   createViolinPartitionBox(partitionDivId, geneQuery);
 
