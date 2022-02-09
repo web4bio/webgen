@@ -172,11 +172,13 @@ const buildHeatmap = function(expData, clinData) {
   document.getElementById("heatmapLoaderDiv").classList.remove("loader");
 
   // Create div object for heatmap and clear
+
   const divHeatMap = d3.select("#heatmapLoaderDiv").html("");
 
   // Create the heatmap
   createHeatmap(expData, clinData, divHeatMap);
 };
+
 
 /** Build violin plots.
  *
@@ -219,6 +221,7 @@ const buildViolinPlot = function(geneQuery, expressionData) {
     addDivInside(`svgViolin${index}`, `violinPlot${index}`);
     const violinDiv = document.getElementById(`violinPlot${index}`);
     createViolinPlot(expressionData, violinDiv, curGene, []);
+
   }
 };
 

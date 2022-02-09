@@ -102,6 +102,13 @@ let colorOutOfSpace = {
     }
 }
 
+/** Build and display data explore plots i.e. pie charts and histograms
+ *
+ * This function fetches the necessary data, builds the pie charts to display discrete data
+ * and builds histograms to display continunous data.
+ * 
+ * @returns {undefined}
+ */
 let buildDataExplorePlots = async function() {
 
     let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
@@ -220,6 +227,7 @@ let buildDataExplorePlots = async function() {
                             xCounts[k]++;
             }
 
+  
             var dpr=window.devicePixelRatio;
             var threeColLower=850*dpr;
             var twoColLower=675*dpr;
@@ -230,6 +238,7 @@ let buildDataExplorePlots = async function() {
             // else{
             //     scalingFactor=1+2/dpr;
             // }
+          
             var windowWidth=window.innerWidth;
             //pie chart size
             if (window.innerWidth>(1000)){
@@ -271,6 +280,7 @@ let buildDataExplorePlots = async function() {
                 locationX=0;
                 locationY=1;
             }
+
 
             var data = [{
                 values: xCounts,
@@ -326,7 +336,9 @@ let buildDataExplorePlots = async function() {
                 title: currentFeature + "",
                 showlegend: true,
                 legend: {
+
                     // maxWidth: 5,
+
                     x:locationX,
                     y:locationY,
                     font: {
@@ -361,10 +373,12 @@ let buildDataExplorePlots = async function() {
             let newDiv = document.createElement("div");
 
             // different number of columns depending on window width
+
             if (windowWidth>threeColLower){
                 newDiv.setAttribute("class", "col s4");
             }
             else if (windowWidth>twoColLower){
+
                 newDiv.setAttribute("class", "col s5");
             }
             else{
@@ -379,19 +393,25 @@ let buildDataExplorePlots = async function() {
             else{
                 Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
             }
-
+            
             function updatePlots(){ //if window is resized, this function will be called to replot the pie charts and continuous data charts
+                //console.log('Full inner window size:' + window.innerWidth);
+                //console.log('DPR: '+ dpr);
+
+
                 windowWidth=window.innerWidth;
                 if (windowWidth>(threeColLower)){
                     newDiv.setAttribute("class", "col s4");
                 }
                 else if (windowWidth>(twoColLower)){
+
                     newDiv.setAttribute("class", "col s5");
                 }
                 else{
                     newDiv.setAttribute("class", "col s7");
                 }
                 //pie chart size
+
                 if (windowWidth>1000){
                     chartHeight=850;
                     chartWidth=400;
@@ -442,7 +462,9 @@ let buildDataExplorePlots = async function() {
                         colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
                         '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
                         line: {
+
                             color: 'black',
+
                             width: 1
                         }
                     }
@@ -462,7 +484,9 @@ let buildDataExplorePlots = async function() {
                     data[0] = {...data[0], marker: {
                         colors: colorArray,
                         line: {
+
                             color: 'black',
+
                             width: 1
                         }
                     }}
@@ -472,7 +496,9 @@ let buildDataExplorePlots = async function() {
                         data[0] = {...data[0], marker: {
                             colors: colorOutOfSpace.createColorArray(colorArray, currentFeature),
                             line: {
+
                               color: 'black',
+
                               width: 1
                             }
                         }}
@@ -516,6 +542,7 @@ let buildDataExplorePlots = async function() {
                     }
                 };
                 let checkIfNumeric = function() {
+
                     if((uniqueValuesForCurrentFeature.length==1)&&(uniqueValuesForCurrentFeature[0]=="Wild_Type")){
                         continuous = false;
                     }
@@ -528,6 +555,7 @@ let buildDataExplorePlots = async function() {
                         }
                     }
                 }
+
 
                 checkIfNumeric();
                 if(continuous){
@@ -588,38 +616,3 @@ let buildDataExplorePlots = async function() {
         }
     }
 }}
-
-let displayNumberBarcodesAtIntersection = async function () {
-
-    let cohortQuery = $('.cancerTypeMultipleSelection').select2('data').map(
-        cohortInfo => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-
-    let geneQuery = $('.geneOneMultipleSelection').select2('data').map(
-        gene => gene.text);
-
-    // Fetch RNA sequence data for selected cancer type(s) and gene(s)
-    let expressionData = (await fetchExpressionData_cg(cohortQuery, geneQuery)).mRNASeq;
-
-    let intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData);
-
-    if (document.getElementById("numAtIntersectionText")) {
-      document.getElementById("numAtIntersectionText").remove();
-    }
-
-    let para = document.createElement("P");
-    para.setAttribute(
-      "style",
-      'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
-    );
-
-    if(intersectedBarcodes) {
-        let string = intersectedBarcodes.length + ""
-
-        para.setAttribute("id", "numAtIntersectionText");
-        para.innerText = "Number of samples with expression data in defined cohort: " + string;
-
-        let blah = document.getElementById("numIntersectedBarcodesDiv")
-        blah.appendChild(para);
-    }
-
-};
