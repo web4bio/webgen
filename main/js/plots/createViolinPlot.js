@@ -37,8 +37,8 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     // Set up the figure dimensions:
     //var margin = {top: 10, right: 30, bottom: 30, left: 40},
     var margin = {top: 10, right: 30, bottom: 10, left: 40},
-        width = 600 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+        width = 505 - margin.left - margin.right,
+        height = 225 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -139,7 +139,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     //let svgObject = d3.select(violinDiv).append("svg")
     let svgObject = d3.select("#" + svgDivId).append("svg")
       //.attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
-      .attr("viewBox", `0 -35 600 475`)  // This line makes the svg responsive
+      .attr("viewBox", `0 -35 505 300`)  // This line makes the svg responsive
       .attr("id", svgID)
       .attr("indepVarType", "gene") //The attributes added on this line and the lines below are used when rebuilding the plot
       .attr("cohort", curPlot)
@@ -424,7 +424,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("x", 0)
         .attr("y", -25)
         .attr("text-anchor", "left")
-        .style("font-size", "26px")
+        .style("font-size", "22px")
         .text("Gene Expression Violin Plot for "+ curPlot);
 };
 
