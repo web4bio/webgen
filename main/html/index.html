@@ -8,11 +8,13 @@
         <!-- Critical resources are loaded early. Non-critical resources are deferred. -->
         <!-- jquery -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <!-- Load in loki -->
+        <script src="../js/libraries/lokijs.min.js"></script>
+        <script src="../js/libraries/loki-indexed-adapter.min.js"></script>
+        <script type="text/javascript" src="../js/dataAcquisition/lokiFetch.js"></script>
         <!-- materialize -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
-        <!-- Jonas's FireBrowse library -->
-        <script src="https://episphere.github.io/firebrowse/firebrowse.js" defer></script>
         <!-- hclust for clustering -->
         <script src="../js/libraries/hclust.min.js" defer></script>
         <!-- Select2 -->
@@ -27,11 +29,8 @@
         <!-- webgen styles and javascript -->
         <link rel="stylesheet" type="text/css" href="../css/style.css" />
         <script src="../js/fillSelectBoxes.js"></script>
-        <script src="../js/dataAcquisition/fetchClinicalData.js" defer></script>
-        <script src="../js/dataAcquisition/fetchExpressionData.js" defer></script>
-        <script src="../js/dataAcquisition/getClinicalDataJSONarray.js" defer></script>
+        <script src="../js/dataAcquisition/fetch.js"></script>
         <script src="../js/dataAcquisition/getDataFromSelectedPieSectors.js" defer></script>
-        <script src="../js/dataAcquisition/getExpressionDataJSONarray.js" defer></script>
         <script src="../js/dataProcessing/mergeExpression.js" defer></script>
         <script src="../js/plots/createHeatmap.js" defer></script>
         <script src="../js/plots/createViolinPlot.js" defer></script>
@@ -258,7 +257,6 @@
       Setting up the buttons.
       -->
                 <div className="mainWindowButtons" id="mainWindowButtons">
-                    <!-- <button class="col s3 btn waves-effect waves-light" onclick="setExampleVars()" id='exampleButton'>Use Example</button> -->
                     <button class="col s3 btn waves-effect waves-light" onclick="buildPlots()" id="submitButton">Submit</button>
                 </div>
 
