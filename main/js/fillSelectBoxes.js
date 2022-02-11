@@ -124,7 +124,7 @@ let displayNumberSamples = async function () {
     let para;
     for (let i = 0; i < orderedCountQuery.length; i++) {
       if (string == "") {
-        string += myCohort[i] + ": " + orderedCountQuery[i].mrnaseq;
+        string += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
         para = document.createElement("P");
         para.setAttribute(
           "style",
@@ -135,7 +135,8 @@ let displayNumberSamples = async function () {
         cancerQuerySelectBox.appendChild(para);
       } else {
         document.getElementById("numSamplesText").remove();
-        string += ", " + myCohort[i] + ": " + orderedCountQuery[i].mrnaseq;
+        string += ", " + orderedCountQuery[i].cohort +
+                 ": " + orderedCountQuery[i].mrnaseq;
         para.setAttribute(
           "style",
           'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
@@ -517,41 +518,9 @@ let fillViolinPartitionBox = async function(id)
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
     return choices;
-
-    /*
-    console.log("fillViolinPartitionBox() Called!");
-    console.log(id + ", " + className);
-    let selectBox = document.getElementById(id);
-    let clinicalKeys = Object.keys(clinicalQuery[0]);
-    for(let index = 0; index < clinicalKeys.length; index++)
-    {
-        let currentOption = document.createElement("option");
-        currentOption.value = clinicalKeys[index];
-        currentOption.text = clinicalKeys[index];
-        currentOption.id = clinicalKeys[index];
-        selectBox.appendChild(currentOption);
-    }
-    */
-
-    //let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
-    //if(clinicalFeatureOptions){
-    //    $('.' + className).val(clinicalFeatureOptions)
-    //}
 };
 
-/*
-let fillClinicalPartitionBox = async function(className)
-{
-    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
-};
-*/
 
-/*
-let fillClinicalPartitionBox = async function(className)
-{
-    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
-};
-*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// Fill Clinical Select Box (above) //////////////////////////////////////////////////////////
