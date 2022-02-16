@@ -48,24 +48,83 @@ const fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+let fetchNumberSamples = async function () {
+  let myCohort = $(".cancerTypeMultipleSelection")
+    .select2("data")
+    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  const hosturl = "https://firebrowse.herokuapp.com";
+  const endpointurl = "http://firebrowse.org/api/v1/Metadata/Counts";
+  const endpointurl_presets = {
+    cohort: myCohort,
+    sample_type: "TP",
+    data_type: "mrnaseq",
+    totals: "true",
+  };
+  const endpointurl_fieldsWithValues =
+    "&cohort=" +
+    endpointurl_presets.cohort.toString() +
+    "&sample_type=" +
+    endpointurl_presets.sample_type +
+    "&data_type=" +
+    endpointurl_presets.data_type +
+    "&totals=" +
+    endpointurl_presets.totals;
+  var fetchedCountData = await fetch(
+    hosturl + "?" + endpointurl + "?" + endpointurl_fieldsWithValues
+  ).then(function (response) {
+    return response.json();
+  });
+  fetchedCountData = fetchedCountData.Counts;
+  fetchedCountData = fetchedCountData.map(x => {
+    const container = {};
+    container.cohort = x.cohort.substring(0, fetchedCountData[0].cohort.indexOf('-'));
+    container.mrnaseq = x.mrnaseq;
+    return container;
+  });
+
+  if (fetchedCountData == "")
+    return ["Error: Invalid Input Fields for Query.", 0];
+  else {
+    return fetchedCountData;
+  }
+};
+
+
 /** Creates and displays the "Number of samples" element that appears when a cohort is selected.
  * 
  * @returns {undefined}
  */
 let displayNumberSamples = async function () {
+  // remove numSamplesText para element if it already exists:
   if (document.getElementById("numSamplesText")) {
     document.getElementById("numSamplesText").remove();
   }
+  // retrieve selected tumor types:
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
-    const countQuery = await firebrowse.fetchCounts(myCohort);
+    // get counts of samples for selected tumor types:
+    var countQuery = await fetchNumberSamples();
+    // order counts array based on order in which tumor types were selected:
+    function orderThings (array, order, key) {
+      array.sort(function (a, b) {
+        var A = a[key], B = b[key];
+        if (order.indexOf(A) > order.indexOf(B)) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+      return array;
+    };
+    orderedCountQuery = orderThings(countQuery, myCohort, 'cohort')
+    // build label:
     let string = "";
     let para;
-    for (let i = 0; i < countQuery.length; i++) {
+    for (let i = 0; i < orderedCountQuery.length; i++) {
       if (string == "") {
-        string += myCohort[i] + ": " + countQuery[i].mrnaseq;
+        string += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
         para = document.createElement("P");
         para.setAttribute(
           "style",
@@ -76,7 +135,8 @@ let displayNumberSamples = async function () {
         cancerQuerySelectBox.appendChild(para);
       } else {
         document.getElementById("numSamplesText").remove();
-        string += ", " + myCohort[i] + ": " + countQuery[i].mrnaseq;
+        string += ", " + orderedCountQuery[i].cohort +
+                 ": " + orderedCountQuery[i].mrnaseq;
         para.setAttribute(
           "style",
           'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
@@ -458,41 +518,9 @@ let fillViolinPartitionBox = async function(id)
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
     return choices;
-
-    /*
-    console.log("fillViolinPartitionBox() Called!");
-    console.log(id + ", " + className);
-    let selectBox = document.getElementById(id);
-    let clinicalKeys = Object.keys(clinicalQuery[0]);
-    for(let index = 0; index < clinicalKeys.length; index++)
-    {
-        let currentOption = document.createElement("option");
-        currentOption.value = clinicalKeys[index];
-        currentOption.text = clinicalKeys[index];
-        currentOption.id = clinicalKeys[index];
-        selectBox.appendChild(currentOption);
-    }
-    */
-
-    //let clinicalFeatureOptions = localStorage.getItem("clinicalFeatureOptions").split(',');
-    //if(clinicalFeatureOptions){
-    //    $('.' + className).val(clinicalFeatureOptions)
-    //}
 };
 
-/*
-let fillClinicalPartitionBox = async function(className)
-{
-    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
-};
-*/
 
-/*
-let fillClinicalPartitionBox = async function(className)
-{
-    $('.'+className).select2('data').map(clinicalFeature => clinicalFeature.text);
-};
-*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// Fill Clinical Select Box (above) //////////////////////////////////////////////////////////
