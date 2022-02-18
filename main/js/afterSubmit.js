@@ -90,7 +90,7 @@ const buildPlots = async function() {
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   let mutationData = await getAllVariantClassifications(mutationQuery);
-  let mutationAndClinicalData = await mergeClinicalAndMutationDate(mutationQuery, mutationData,
+  let mutationAndClinicalData = await mergeClinicalAndMutationData(mutationQuery, mutationData,
                                                           clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
@@ -379,7 +379,7 @@ const buildDownloadData = function(cohortID, expressionData, clinicalData) {
   instance.updateTabIndicator();
 };
 
-let mergeClinicalAndMutationDate = async function(mutationQuery, mutationData, clinicalData) {
+let mergeClinicalAndMutationData = async function(mutationQuery, mutationData, clinicalData) {
   let dataToReturn = clinicalData;  
   for(let index = 0; index < dataToReturn.length; index++) {
     let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;

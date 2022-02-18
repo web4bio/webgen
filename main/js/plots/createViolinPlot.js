@@ -49,25 +49,20 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     var myGroups;
 
     //Add new field to data for purpose of creating keys and populating myGroups
-    if(facetByFields.length > 0)
-    {
-        for(var i = 0; i < dataInput.length; i++)
-        {
-            //Get matching index in clinicalAndMutationData for current patient index in dataInput
-            var clinicalAndMutationDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalAndMutationData);
+    if(facetByFields.length > 0) {
+        for(var i = 0; i < dataInput.length; i++) {
+            //Get matching index in clinicalData for current patient index in dataInput
+            var patientIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
          
-            if(clinicalAndMutationDataIndex >= 0)
-            {
+            if(patientIndex >= 0) {
                 //Add parentheses for formatting purposes
                 var keyToFacetBy = dataInput[i]['cohort'] + " (";
                 //Iterate over the clinical fields to facet by to create keyToFacetBy
-                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++)
-                {
+                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++) {
                     //Append additional JSON field to data for the purpose of creating a key to facet by
                     let clinicalField = facetByFields[fieldIndex];
-                    keyToFacetBy += clinicalAndMutationData[clinicalAndMutationDataIndex][clinicalField] 
-                    if(fieldIndex < facetByFields.length-1)
-                    {
+                    keyToFacetBy += clinicalData[patientIndex][clinicalField] 
+                    if(fieldIndex < facetByFields.length-1) {
                         keyToFacetBy += " ";
                     }
                 }
@@ -76,18 +71,15 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
                 dataInput[i]["facetByFieldKey"] = keyToFacetBy;
             }
 
-            else
-            {
+            else {
                 //Handle edge case for 'NA'
                 dataInput[i]["facetByFieldKey"] = dataInput[i]['cohort'] + " (NA)";
             }
-
         }
 
         myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
     }
-    else
-    {
+    else {
         myGroups = d3.map(dataInput, function(d){return d['cohort'];}).keys();
     }
 
@@ -633,9 +625,9 @@ let rebuildViolinPlot = async function(violinsDivId, geneQuery) {
  */
 function findMatchByTCGABarcode(patient, clinicalData)
 {
-    for(var index = 0; index < clinicalAndMutationData.length; index++)
+    for(var index = 0; index < clinicalData.length; index++)
     {
-        if(clinicalAndMutationData[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
+        if(clinicalData[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
             return index;
     }
 
