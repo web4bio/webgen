@@ -89,11 +89,16 @@ const buildPlots = async function() {
   cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
+  let mutationData = await getAllVariantClassifications(mutationQuery);
+  let mutationAndClinicalData = await mergeClinicalAndMutationData(mutationQuery, mutationData,
+                                                          clinicalData);
+  localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
+  localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  buildDownloadData(cohortQuery, expressionData, clinicalData);
-  buildHeatmap(expressionData, clinicalData);
+  buildDownloadData(cohortQuery, expressionData, mutationAndClinicalData);
+  buildHeatmap(expressionData, mutationAndClinicalData);
   buildViolinPlot(expressionQuery, expressionData);
 
   return null;
@@ -167,7 +172,7 @@ const getExpressionQuery = async function() {
  *
  * @returns {undefined}
  */
-const buildHeatmap = function(expData, clinData) {
+const buildHeatmap = function(expData, clinAndMutationData) {
   // Remove the loader
   document.getElementById("heatmapLoaderDiv").classList.remove("loader");
 
@@ -176,7 +181,7 @@ const buildHeatmap = function(expData, clinData) {
   const divHeatMap = d3.select("#heatmapLoaderDiv").html("");
 
   // Create the heatmap
-  createHeatmap(expData, clinData, divHeatMap);
+  createHeatmap(expData, clinAndMutationData, divHeatMap);
 };
 
 
@@ -372,4 +377,30 @@ const buildDownloadData = function(cohortID, expressionData, clinicalData) {
   $("#downloadDataButtons").show();
   $("ul.tabs").show();
   instance.updateTabIndicator();
+};
+
+let mergeClinicalAndMutationData = async function(mutationQuery, mutationData, clinicalData) {
+  let dataToReturn = clinicalData;  
+  for(let index = 0; index < dataToReturn.length; index++) {
+    let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
+    for(let geneIndex = 0; geneIndex < mutationQuery.length; geneIndex++) {
+        let curGeneMutation = mutationQuery[geneIndex] + "_Mutation";
+        let mutationValue = await getVariantClassification(mutationData, curParticipantBarcode, 
+                                                    mutationQuery[geneIndex]);
+        //Append feature to JSON object
+        dataToReturn[index][curGeneMutation] = mutationValue;
+    }  
+  }
+  return dataToReturn;
+};
+
+let getVariantClassification = async function (mutationData, curTumorSampleBarcode, 
+  curGene) {
+    for(let index = 0; index < mutationData.length; index++) {
+    if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 12) == curTumorSampleBarcode 
+        && mutationData[index].Hugo_Symbol == curGene) {
+          return(curGene + " " + mutationData[index].Variant_Classification);
+    }
+  }
+  return curGene + " Wild_Type";
 };
