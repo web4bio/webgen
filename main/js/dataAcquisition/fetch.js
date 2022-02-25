@@ -251,7 +251,8 @@ firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
     page_size: 250,
     sort_by: "cohort",
   };
-  const data = await firebrowse.fetch("/Analyses/Mutation/MAF", params);
+  const groupBy = genes ? [{key: "gene", length: 20}] : [];
+  const data = await firebrowse.fetch("/Analyses/Mutation/MAF", params, groupBy);
   return data.MAF;
 };
 
