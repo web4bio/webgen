@@ -49,25 +49,20 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     var myGroups;
 
     //Add new field to data for purpose of creating keys and populating myGroups
-    if(facetByFields.length > 0)
-    {
-        for(var i = 0; i < dataInput.length; i++)
-        {
+    if(facetByFields.length > 0) {
+        for(var i = 0; i < dataInput.length; i++) {
             //Get matching index in clinicalData for current patient index in dataInput
-            var clinicalDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
-
-            if(clinicalDataIndex >= 0)
-            {
+            var patientIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
+         
+            if(patientIndex >= 0) {
                 //Add parentheses for formatting purposes
                 var keyToFacetBy = dataInput[i]['cohort'] + " (";
                 //Iterate over the clinical fields to facet by to create keyToFacetBy
-                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++)
-                {
+                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++) {
                     //Append additional JSON field to data for the purpose of creating a key to facet by
-                    clinicalField = facetByFields[fieldIndex];
-                    keyToFacetBy += clinicalData[clinicalDataIndex][clinicalField]
-                    if(fieldIndex < facetByFields.length-1)
-                    {
+                    let clinicalField = facetByFields[fieldIndex];
+                    keyToFacetBy += clinicalData[patientIndex][clinicalField] 
+                    if(fieldIndex < facetByFields.length-1) {
                         keyToFacetBy += " ";
                     }
                 }
@@ -76,19 +71,28 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
                 dataInput[i]["facetByFieldKey"] = keyToFacetBy;
             }
 
-            else
-            {
+            else {
                 //Handle edge case for 'NA'
                 dataInput[i]["facetByFieldKey"] = dataInput[i]['cohort'] + " (NA)";
             }
-
         }
 
         myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
     }
-    else
-    {
+    else {
         myGroups = d3.map(dataInput, function(d){return d['cohort'];}).keys();
+    }
+
+    //Compute counts for each violin curve group that will be generated
+    let myGroupCounts = {};
+    for(let index = 0; index < myGroups.length; index++) {
+        let group = myGroups[index];
+        let dataFilteredByGroup;
+        if(facetByFields.length>0)
+            dataFilteredByGroup = dataInput.filter(d => d.facetByFieldKey==group);
+        else
+            dataFilteredByGroup = dataInput.filter(d => d['cohort']==group);
+        myGroupCounts[group] = dataFilteredByGroup.length;
     }
 
     // Helper function to sort groups by median expression:
@@ -267,6 +271,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             currentExpressionArray));
         sumstat[i].min = Number(currentExpressionArray[0]);
         sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length-1]);
+        sumstat[i].nSamples = Number(myGroupCounts[sumstat[i].key]);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -319,7 +324,8 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
                                 "Standard Deviation: " + String(d.standardDeviation.toFixed(4))
                                 + spacing +
                                 "Q3: " + String(d.Qthree.toFixed(4)) + spacing +
-                                "Max: " + String(d.max.toFixed(4))
+                                "Max: " + String(d.max.toFixed(4)) + spacing +
+                                "Number of Samples: " + String(d.nSamples)
                                 ;
             return tooltip.style("visibility", "visible").html(tooltipstring);
 
@@ -557,8 +563,8 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
     }
 
     // data to input = clinical vars from query
-    let clinicalVars = localStorage.getItem("clinicalFeatureKeys").split(",");
-    let var_opts = clinicalVars;
+    let partitionVars = localStorage.getItem("mutationAndClinicalFeatureKeys").split(",");
+    let var_opts = partitionVars;
 
     // make a checkbox for each option
     var_opts.forEach(el => renderCB(div_body,el))
@@ -571,7 +577,7 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
     return choices;
-};
+}
 
 /** Returns array of the selection clinical features in the partition box corresponding to violinDivId
  * 
