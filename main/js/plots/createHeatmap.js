@@ -501,7 +501,8 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         svg_sampletrack.append("g")
             .attr('id', 'sampLabels')
             .style('font-size', 9.5)
-            .call(d3.axisLeft(y_samp).tickSize(0))
+            .call(d3.axisRight(y_samp).tickSize(0))
+            .attr("transform", "translate(" + (heatWidth-legendWidth) + ",0)")
             .select(".domain").remove();
 
         // Sample Track Legend:
@@ -629,4 +630,30 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         svg_frame.attr('height', frameHeight);
     };
     updateHeatmap();
+    function wrap(text, width) {
+        text.each(function() {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0)
+                                        .attr("y", y)
+                                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                        .text(word);
+            }
+        }
+    });
+  } 
 };
