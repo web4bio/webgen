@@ -12,19 +12,28 @@
  *
  * @returns {undefined}
 */
-createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
+const createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
     ///// BUILD SVG OBJECTS /////
     // Create div for clinical feature sample track variable selector as scrolling check box list
-    var div_optionsPanels = divObject.append('div');
-    var div_clinSelect = div_optionsPanels.append('div')
+    // Note that we are using the Grid system for Materialize
+    var gridRow = divObject.append("div");
+    gridRow.attr("id", "heatmapGridRow").attr("class", "row");
+    //Append column for div options panel
+    var div_optionsPanels = gridRow.append('div');
+    div_optionsPanels.attr("id", "optionsPanels");
+    div_optionsPanels.attr("class", "col s3");
+    div_optionsPanels.style("margin-top", "80px");
+    div_optionsPanels.style("margin-left", "20px");
+    var div_clinSelect = div_optionsPanels.append('div');
+    div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')
         .style('font-size', '20px')
-        .text('Select clinical variables to display sample tracks:');
+        .text('Select clinical variables\nto display sample tracks:');
     div_clinSelect.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
-        .style('height', '100px')
-        .style('width', '500px')
+        .style('height', '300px')
+        .style('width', '300px')
       .append('div')
         .attr('class','clin_selector');
     let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
@@ -108,16 +117,11 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
         sortGroups();
         updateHeatmap();
     });
-    /*
-    sortOptionDiv.append('button')
-        .attr('type', 'button')
-        .attr('class', 'updateHeatmapButton')
-        .text('Update heatmap'); // button to update heatmap, define update function below
-    */
 
+    ///// BUILD SVG OBJECTS /////
     // Set up dimensions for heatmap:
-    var margin = { top: 80, right: 30, space: 5, bottom: 30, left: 100 },
-        frameWidth = 1250,
+    var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
+        frameWidth = 1050,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
@@ -126,8 +130,10 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
 
     // Create svg object frame for the plots
-    var svg_frame = divObject.append('svg')
-        //.attr("viewBox", '0 0 '+frameWidth+' '+frameHeight)
+    var heatmapCol = gridRow.append('div');
+    heatmapCol.attr("class", "col s8");
+    //Place heatmap in right-hand column
+    var svg_frame = heatmapCol.append('svg')
         .attr('width', frameWidth)
         .attr('height', frameHeight);
 
@@ -171,7 +177,7 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
         .attr("transform", "translate(" + margin.left + "," + margin.space + ")");
 
     // Create div for tooltip
-    var div_tooltip = divObject
+    var div_tooltip = heatmapCol
         .append("div")
         .style("opacity", 1)
         .style("border", "solid")
@@ -182,7 +188,7 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
     div_tooltip.html("\xa0\xa0Hover over an element to use tooltip.");
 
     // Add div for sample track legend
-    var div_sampLegend = divObject
+    var div_sampLegend = heatmapCol
         .append("div")
         .attr("class", "legend")
         .style("border", "solid")
@@ -205,7 +211,7 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
         .attr("width", frameWidth)
         .attr("height", sampTrackHeight + 2 * margin.space)
         .append("g")
-        .attr("transform", "translate(" + margin.space + "," + margin.space + ")");
+        .attr("transform", "translate(" + margin.space + "," + margin.space*3 + ")");
 
 
     ///// DATA PROCESSING /////
@@ -296,7 +302,7 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
     };
 
     // function to get width of bounding text box for a given string, font-size
-    let svg_temp = divObject.append("svg");
+    let svg_temp = heatmapCol.append("svg");
     function getTextWidth(str, fs) {
         let text_temp = svg_temp
             .append('text')
@@ -495,7 +501,8 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
         svg_sampletrack.append("g")
             .attr('id', 'sampLabels')
             .style('font-size', 9.5)
-            .call(d3.axisLeft(y_samp).tickSize(0))
+            .call(d3.axisRight(y_samp).tickSize(0))
+            .attr("transform", "translate(" + (heatWidth-legendWidth) + ",0)")
             .select(".domain").remove();
 
         // Sample Track Legend:
@@ -623,15 +630,4 @@ createHeatmap = async function (expressionData, clinicalAndMutationData, divObje
         svg_frame.attr('height', frameHeight);
     };
     updateHeatmap();
-
-    // add updateHeatmap function to any buttons with updateHeatmapButton class
-    /*
-    divObject.selectAll('.updateHeatmapButton')
-        .attr("class", "col s3 btn waves-effect waves-light")
-        .style('font-size','0.9vw')
-        .on('click', function () {
-            sortGroups();
-            updateHeatmap();
-        });
-    */
 };

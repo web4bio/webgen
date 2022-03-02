@@ -194,16 +194,27 @@ const buildHeatmap = function(expData, clinAndMutationData) {
  */
 const buildViolinPlot = function(geneQuery, expressionData) {
   //Remove loader from violin plot container
-  document.getElementById("violinLoaderDiv").classList.remove("loader");
+  var violinLoaderDiv = document.getElementById("violinLoaderDiv");
+  violinLoaderDiv.classList.remove("loader");
 
-  // Create partition selector
+  //Setup Materialize Grid
+  addDivInside("violinGridRow", violinLoaderDiv.id);
+  var gridRow = document.getElementById("violinGridRow");
+  gridRow.classList.add("row");
+
+  // Create partition selector div and add it inside Materialize Grid
   const partitionDivId = "violinPartition";
-  addDivInside(partitionDivId, "violinLoaderDiv");
-  // Create partition selector
-  createViolinPartitionBox("violinPlots", geneQuery);
+  addDivInside(partitionDivId, gridRow.id);
+  var partitionCol = document.getElementById(partitionDivId);
+  partitionCol.classList.add("col", "s3");
+  //Generate the partition selector
+  createViolinPartitionBox(partitionDivId, geneQuery);
 
-  // Create div for violin plots
-  addDivInside("violinPlots", "violinLoaderDiv");
+  // Create div for violin plots and add it inside Materialize Grid
+  addDivInside("violinPlots", gridRow.id);
+  var violinPlotsCol = document.getElementById("violinPlots");
+  violinPlotsCol.classList.add("col")
+  violinPlotsCol.classList.add("s8");
 
   // Define the number of cohorts to create a plot for
   const numOfIndependantVars = geneQuery.length;
