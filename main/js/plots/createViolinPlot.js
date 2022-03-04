@@ -37,8 +37,8 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     // Set up the figure dimensions:
     //var margin = {top: 10, right: 30, bottom: 30, left: 40},
     var margin = {top: 10, right: 30, bottom: 10, left: 40},
-        width = 600 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+        width = 505 - margin.left - margin.right,
+        height = 225 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -143,7 +143,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     //let svgObject = d3.select(violinDiv).append("svg")
     let svgObject = d3.select("#" + svgDivId).append("svg")
       //.attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
-      .attr("viewBox", `0 -35 1250 475`)  // This line makes the svg responsive
+      .attr("viewBox", `0 -35 505 300`)  // This line makes the svg responsive
       .attr("id", svgID)
       .attr("indepVarType", "gene") //The attributes added on this line and the lines below are used when rebuilding the plot
       .attr("cohort", curPlot)
@@ -179,7 +179,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     svgObject.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 0 - margin.left)
-      .attr("x",0 - (height / 2))
+      .attr("x",0 - (height / 1.6))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Expression Level");
@@ -194,7 +194,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
         .selectAll(".tick text")
-        .attr("transform", "rotate(-45), translate(-10, 5)")
+        .attr("transform", "rotate(-20), translate(-10, 5)")
         .call(wrap, x.bandwidth());
 
     svgObject.append("text")
@@ -430,7 +430,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("x", 0)
         .attr("y", -25)
         .attr("text-anchor", "left")
-        .style("font-size", "26px")
+        .style("font-size", "22px")
         .text("Gene Expression Violin Plot for "+ curPlot);
 };
 
@@ -500,15 +500,15 @@ function standardDeviation(mean, values)
     return (Number)(Math.pow(sum/(values.length-1), 0.5));
 }
 
+
 /** Creates the partition selector for the violin plots
  * 
- * @param {?HTMLDivElement} violinsDivId - the html id passed over for the violinsDiv
+ * @param {?HTMLDivElement} partitionDivId - the html id passed over for the violinsDiv
  * @param {string[]} geneQuery - Array of gene names
  * @returns {string[]} list of choices for the partition box
  */
-let createViolinPartitionBox = async function(violinsDivId, geneQuery)
+let createViolinPartitionBox = async function(partitionDivId, geneQuery)
 {
-    var partitionDivId = "violinPartition";
     var div_box = d3.select('#'+partitionDivId);
     div_box.append('text')
         .style("font-size", "20px")
@@ -517,8 +517,8 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         .attr('class','viewport')
         .attr("id", "partitionSelectViolinPlot")
         .style('overflow-y', 'scroll')
-        .style('height', '90px')
-        .style('width', '500px')
+        .style('height', '300px')
+        .style('width', '300px')
         .append('div')
         .attr('class','body');
     var selectedText = div_box.append('text');
@@ -576,7 +576,6 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         let cb = d3.select(this);
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
-
     return choices;
 }
 
@@ -596,16 +595,16 @@ let getPartitionBoxSelections = function(violinsDivId)
     return selectedOptions;
 }
 
+
 /** Rebuilds the violin plot associated with violinDivId
  * 
- * @param {?HTMLDivElement} violinsDivId - the html id passed over for the violinsDiv 
+ * @param {?HTMLDivElement} partitionBoxId - the html id passed over for the violinsDiv 
  * @param {string[]} geneQuery - Array of gene names
  * @returns {undefined} 
  */
-let rebuildViolinPlot = async function(violinsDivId, geneQuery) {
-    var selectedOptions = getPartitionBoxSelections(violinsDivId);
+let rebuildViolinPlot = async function(partitionBoxId, geneQuery) {
+    var selectedOptions = getPartitionBoxSelections(partitionBoxId);
 
-    //geneQuery = geneQuery.split(",");
     for(var index = 0; index < geneQuery.length; index++) {
         var svgDivId = "svgViolin" + index;
         var svgDiv = document.getElementById(svgDivId);
@@ -634,36 +633,33 @@ function findMatchByTCGABarcode(patient, clinicalData)
     return -1;
 }
 
-function wrap(text, width)
-{
-    text.each(function()
-    {
-      var text = d3.select(this),
-          words = text.text().split(/\s+/).reverse(),
-          word,
-          line = [],
-          lineNumber = 0,
-          lineHeight = 1.1, // ems
-          y = text.attr("y"),
-          dy = parseFloat(text.attr("dy")),
-          tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-      while (word = words.pop())
-      {
-        line.push(word);
-        tspan.text(line.join(" "));
-        if (tspan.node().getComputedTextLength() > width)
-        {
-          line.pop();
-          tspan.text(line.join(" "));
-          line = [word];
-          tspan = text.append("tspan").attr("x", 0)
-                                        .attr("y", y)
-                                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                                        .text(word);
+function wrap(text, width) {
+    console.log(text);
+    text.each(function() {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                            .text(word);
+            }
         }
-      }
     });
-  }
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////// End Of Program ///////////////////////////////////////////////////////////////
