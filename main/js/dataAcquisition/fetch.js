@@ -248,11 +248,28 @@ firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
     tool: "MutSig2CV",
     gene: genes,
     page: "1",
-    page_size: 250,
+    page_size: 2000,
     sort_by: "cohort",
   };
-  const groupBy = genes ? [{key: "gene", length: 20}] : [];
-  const data = await firebrowse.fetch("/Analyses/Mutation/MAF", params, groupBy);
+  //Initialize groupBy to an empty array and add the proper parameters if we specify genes or cohorts
+  const groupBy = [];
+  if (typeof(genes) == "object") {
+    params.gene = genes;
+    groupBy.push({key: "gene", length: 1});
+  }
+  if (typeof(cohorts) == "object") {
+    params.cohort = cohorts;
+    groupBy.push({key: "cohort", length: 1});
+  }
+  //Initialize data as an empty array and populate it with firebrowse.fetch data
+  let data = [];
+  //if-else statement accounts for whether there are sections of the firebrowse query to group by
+  if(groupBy.length == 0) {
+    data = await firebrowse.fetch("/Analyses/Mutation/MAF", params);
+  }
+  else {
+    data = await firebrowse.fetch("/Analyses/Mutation/MAF", params, groupBy);
+  }
   return data.MAF;
 };
 
