@@ -16,14 +16,15 @@ let tooltipNum = 0;
  *
  * @returns {undefined}
 */
-const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) {
+const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
     //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
     let clinicalData = "";
-    if(facetByFields.length > 0)
-        clinicalData = cache.get('rnaSeq', 'clinicalData');
-
+    if(facetByFields.length > 0) {
+        clinicalData = await cache.get('rnaSeq', 'clinicalData');
+        clinicalData = clinicalData.clinicalData;
+    }
     //Set up violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                     "#ffff33","#a65628","#f781bf","#999999"];
@@ -36,8 +37,8 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
     // Set up the figure dimensions:
     //var margin = {top: 10, right: 30, bottom: 30, left: 40},
     var margin = {top: 10, right: 30, bottom: 10, left: 40},
-        width = 600 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+        width = 505 - margin.left - margin.right,
+        height = 225 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -48,25 +49,20 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
     var myGroups;
 
     //Add new field to data for purpose of creating keys and populating myGroups
-    if(facetByFields.length > 0)
-    {
-        for(var i = 0; i < dataInput.length; i++)
-        {
+    if(facetByFields.length > 0) {
+        for(var i = 0; i < dataInput.length; i++) {
             //Get matching index in clinicalData for current patient index in dataInput
-            var clinicalDataIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
-
-            if(clinicalDataIndex >= 0)
-            {
+            var patientIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
+         
+            if(patientIndex >= 0) {
                 //Add parentheses for formatting purposes
                 var keyToFacetBy = dataInput[i]['cohort'] + " (";
                 //Iterate over the clinical fields to facet by to create keyToFacetBy
-                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++)
-                {
+                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++) {
                     //Append additional JSON field to data for the purpose of creating a key to facet by
-                    clinicalField = facetByFields[fieldIndex];
-                    keyToFacetBy += clinicalData[clinicalDataIndex][clinicalField]
-                    if(fieldIndex < facetByFields.length-1)
-                    {
+                    let clinicalField = facetByFields[fieldIndex];
+                    keyToFacetBy += clinicalData[patientIndex][clinicalField] 
+                    if(fieldIndex < facetByFields.length-1) {
                         keyToFacetBy += " ";
                     }
                 }
@@ -75,19 +71,28 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
                 dataInput[i]["facetByFieldKey"] = keyToFacetBy;
             }
 
-            else
-            {
+            else {
                 //Handle edge case for 'NA'
                 dataInput[i]["facetByFieldKey"] = dataInput[i]['cohort'] + " (NA)";
             }
-
         }
 
         myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
     }
-    else
-    {
+    else {
         myGroups = d3.map(dataInput, function(d){return d['cohort'];}).keys();
+    }
+
+    //Compute counts for each violin curve group that will be generated
+    let myGroupCounts = {};
+    for(let index = 0; index < myGroups.length; index++) {
+        let group = myGroups[index];
+        let dataFilteredByGroup;
+        if(facetByFields.length>0)
+            dataFilteredByGroup = dataInput.filter(d => d.facetByFieldKey==group);
+        else
+            dataFilteredByGroup = dataInput.filter(d => d['cohort']==group);
+        myGroupCounts[group] = dataFilteredByGroup.length;
     }
 
     // Helper function to sort groups by median expression:
@@ -138,7 +143,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
     //let svgObject = d3.select(violinDiv).append("svg")
     let svgObject = d3.select("#" + svgDivId).append("svg")
       //.attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
-      .attr("viewBox", `0 -35 1250 475`)  // This line makes the svg responsive
+      .attr("viewBox", `0 -35 505 300`)  // This line makes the svg responsive
       .attr("id", svgID)
       .attr("indepVarType", "gene") //The attributes added on this line and the lines below are used when rebuilding the plot
       .attr("cohort", curPlot)
@@ -146,7 +151,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
       .attr("id", (svgID + 'Position'))
       .attr("transform",
           "translate(" + (margin.left) + "," +
-                      (margin.top + ySpacing*divNum*0.25) + ")");
+                      (margin.top + ySpacing*0.25) + ")");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +179,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
     svgObject.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 0 - margin.left)
-      .attr("x",0 - (height / 2))
+      .attr("x",0 - (height / 1.6))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Expression Level");
@@ -189,7 +194,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
         .selectAll(".tick text")
-        .attr("transform", "rotate(-45), translate(-10, 5)")
+        .attr("transform", "rotate(-20), translate(-10, 5)")
         .call(wrap, x.bandwidth());
 
     svgObject.append("text")
@@ -266,6 +271,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
             currentExpressionArray));
         sumstat[i].min = Number(currentExpressionArray[0]);
         sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length-1]);
+        sumstat[i].nSamples = Number(myGroupCounts[sumstat[i].key]);
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +324,8 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
                                 "Standard Deviation: " + String(d.standardDeviation.toFixed(4))
                                 + spacing +
                                 "Q3: " + String(d.Qthree.toFixed(4)) + spacing +
-                                "Max: " + String(d.max.toFixed(4))
+                                "Max: " + String(d.max.toFixed(4)) + spacing +
+                                "Number of Samples: " + String(d.nSamples)
                                 ;
             return tooltip.style("visibility", "visible").html(tooltipstring);
 
@@ -423,7 +430,7 @@ const createViolinPlot = function(dataInput, violinDiv, curPlot, facetByFields) 
         .attr("x", 0)
         .attr("y", -25)
         .attr("text-anchor", "left")
-        .style("font-size", "26px")
+        .style("font-size", "22px")
         .text("Gene Expression Violin Plot for "+ curPlot);
 };
 
@@ -493,15 +500,15 @@ function standardDeviation(mean, values)
     return (Number)(Math.pow(sum/(values.length-1), 0.5));
 }
 
+
 /** Creates the partition selector for the violin plots
  * 
- * @param {?HTMLDivElement} violinsDivId - the html id passed over for the violinsDiv
+ * @param {?HTMLDivElement} partitionDivId - the html id passed over for the violinsDiv
  * @param {string[]} geneQuery - Array of gene names
  * @returns {string[]} list of choices for the partition box
  */
-let createViolinPartitionBox = async function(violinsDivId, geneQuery)
+let createViolinPartitionBox = async function(partitionDivId, geneQuery)
 {
-    var partitionDivId = "violinPartition";
     var div_box = d3.select('#'+partitionDivId);
     div_box.append('text')
         .style("font-size", "20px")
@@ -510,8 +517,8 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         .attr('class','viewport')
         .attr("id", "partitionSelectViolinPlot")
         .style('overflow-y', 'scroll')
-        .style('height', '90px')
-        .style('width', '500px')
+        .style('height', '300px')
+        .style('width', '300px')
         .append('div')
         .attr('class','body');
     var selectedText = div_box.append('text');
@@ -556,8 +563,8 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
     }
 
     // data to input = clinical vars from query
-    let clinicalVars = localStorage.getItem("clinicalFeatureKeys").split(",");
-    let var_opts = clinicalVars;
+    let partitionVars = localStorage.getItem("mutationAndClinicalFeatureKeys").split(",");
+    let var_opts = partitionVars;
 
     // make a checkbox for each option
     var_opts.forEach(el => renderCB(div_body,el))
@@ -569,18 +576,8 @@ let createViolinPartitionBox = async function(violinsDivId, geneQuery)
         let cb = d3.select(this);
         if(cb.property('checked')){ choices.push(cb.property('value')); };
     });
-
-    /*
-    div_box.append("break");
-    div_box.append('button')
-        .text("Rebuild Violin Plot")
-        .attr("class", "col s3 btn waves-effect waves-light")
-        .attr("id", "submitButton")
-        .attr("onclick", "rebuildViolinPlot('" + partitionDivId + "', '" + geneQuery + "')");
-    */
-
     return choices;
-};
+}
 
 /** Returns array of the selection clinical features in the partition box corresponding to violinDivId
  * 
@@ -598,22 +595,23 @@ let getPartitionBoxSelections = function(violinsDivId)
     return selectedOptions;
 }
 
+
 /** Rebuilds the violin plot associated with violinDivId
  * 
- * @param {?HTMLDivElement} violinsDivId - the html id passed over for the violinsDiv 
+ * @param {?HTMLDivElement} partitionBoxId - the html id passed over for the violinsDiv 
  * @param {string[]} geneQuery - Array of gene names
  * @returns {undefined} 
  */
-let rebuildViolinPlot = function(violinsDivId, geneQuery) {
-    var selectedOptions = getPartitionBoxSelections(violinsDivId);
+let rebuildViolinPlot = async function(partitionBoxId, geneQuery) {
+    var selectedOptions = getPartitionBoxSelections(partitionBoxId);
 
-    //geneQuery = geneQuery.split(",");
     for(var index = 0; index < geneQuery.length; index++) {
         var svgDivId = "svgViolin" + index;
         var svgDiv = document.getElementById(svgDivId);
         svgDiv.innerHTML = "";
         var violinDivId = "violinPlot" + index;
-        createViolinPlot(cache.get('rnaSeq', 'expressionData'),
+        let expressionData = await cache.get('rnaSeq', 'expressionData');
+        createViolinPlot(expressionData.expressionData,
                         document.getElementById(violinDivId), geneQuery[index], selectedOptions);
     }
 };
@@ -635,6 +633,33 @@ function findMatchByTCGABarcode(patient, clinicalData)
     return -1;
 }
 
+function wrap(text, width) {
+    console.log(text);
+    text.each(function() {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                            .text(word);
+            }
+        }
+    });
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////// End Of Program ///////////////////////////////////////////////////////////////

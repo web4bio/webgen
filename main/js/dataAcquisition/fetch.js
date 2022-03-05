@@ -7,7 +7,7 @@
  * @returns {Promise<Object.<string, Array>>} Fetched data.
  */
 const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
-  const base = "https://firebrowse.herokuapp.com";
+  const base = "https://firebrowse.jonasalmeida.repl.co";
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
   if (endpoint.startsWith("/")) {
@@ -248,10 +248,28 @@ firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
     tool: "MutSig2CV",
     gene: genes,
     page: "1",
-    page_size: 250,
+    page_size: 2000,
     sort_by: "cohort",
   };
-  const data = await firebrowse.fetch("/Analyses/Mutation/MAF", params);
+  //Initialize groupBy to an empty array and add the proper parameters if we specify genes or cohorts
+  const groupBy = [];
+  if (typeof(genes) == "object") {
+    params.gene = genes;
+    groupBy.push({key: "gene", length: 1});
+  }
+  if (typeof(cohorts) == "object") {
+    params.cohort = cohorts;
+    groupBy.push({key: "cohort", length: 1});
+  }
+  //Initialize data as an empty array and populate it with firebrowse.fetch data
+  let data = [];
+  //if-else statement accounts for whether there are sections of the firebrowse query to group by
+  if(groupBy.length == 0) {
+    data = await firebrowse.fetch("/Analyses/Mutation/MAF", params);
+  }
+  else {
+    data = await firebrowse.fetch("/Analyses/Mutation/MAF", params, groupBy);
+  }
   return data.MAF;
 };
 
@@ -294,11 +312,11 @@ firebrowse.fetchmRNASeq = async function({cohorts, genes, barcodes}) {
   const groupBy = [];
   if (genes) {
     params.gene = genes;
-    groupBy.push({key: "gene", length: 20});
+    groupBy.push({key: "gene", length: 1});
   }
   if (barcodes) {
     params.tcga_participant_barcode = barcodes;
-    groupBy.push({key: "tcga_participant_barcode", length: 50});
+    groupBy.push({key: "tcga_participant_barcode", length: 100});
   }
   const data = await firebrowse.fetch("/Samples/mRNASeq", params, groupBy);
   return data.mRNASeq;
