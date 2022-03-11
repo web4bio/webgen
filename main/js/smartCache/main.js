@@ -25,22 +25,29 @@
 // Bugs(?):
 // The data might sometimes not get saved
 
-cacheMe = undefined;
+var cacheMe = undefined
 
-;(function () {
-    const db = new loki('smart-cache.db', {
-        adapter: new LokiIndexedAdapter(),
-    })
-    db.loadDatabase({}, (err) => {
-        if (!db.getCollection('cohorts')) {
-            console.warn('db re-initialized')
-            db.addCollection('cohorts', { unique: '_id' })
-            db.saveDatabase()
-        }
-        cacheMe = new CacheInterface()
-    })
-})()
-
+async function getCacheMe() {
+    if (cacheMe) {
+        return cacheMe
+    } else {
+        return new Promise((resolve, reject) => {
+            const db = new loki('smart-cache.db', {
+                adapter: new LokiIndexedAdapter(),
+            })
+            db.loadDatabase({}, (err) => {
+                if (err) reject(err)
+                if (!db.getCollection('cohorts')) {
+                    console.warn('db re-initialized')
+                    db.addCollection('cohorts', { unique: '_id' })
+                    db.saveDatabase()
+                }
+                cacheMe = new CacheInterface()
+                resolve(cacheMe)
+            })
+        })
+    }
+}
 
 function CacheInterface() {
     this.interface = new Map([])
