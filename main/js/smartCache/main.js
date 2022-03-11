@@ -25,6 +25,8 @@
 // Bugs(?):
 // The data might sometimes not get saved
 
+cacheMe = undefined;
+
 ;(function () {
     const db = new loki('smart-cache.db', {
         adapter: new LokiIndexedAdapter(),
@@ -35,6 +37,7 @@
             db.addCollection('cohorts', { unique: '_id' })
             db.saveDatabase()
         }
+        cacheMe = new CacheInterface()
     })
 })()
 
@@ -243,5 +246,3 @@ CacheInterface.prototype.pprint = function () {
     }
     return f(this.interface)
 }
-
-cacheMe = new CacheInterface()
