@@ -64,6 +64,10 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
+  console.log("Genes Query: ");
+  console.log(mutationQuery);
+  console.log("Cohort Query: ");
+  console.log(cohortQuery);
   let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
