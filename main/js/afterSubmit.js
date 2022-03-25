@@ -64,10 +64,7 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-  console.log("Genes Query: ");
-  console.log(mutationQuery);
-  console.log("Cohort Query: ");
-  console.log(cohortQuery);
+
   let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
@@ -81,13 +78,18 @@ const buildPlots = async function() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // GET CLINICAL DATA:
-
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
     clinicalData = await firebrowse.fetchClinicalFH({barcodes: intersectedBarcodes});
   } else {
-    clinicalData = await firebrowse.fetchClinicalFH({cohorts: cohortQuery});
+    //Pass in barcodes from expressionData
+    let barcodesFromExpressionData = new Set();
+    for(let index = 0; index < expressionData.length; index++)
+      barcodesFromExpressionData.add(expressionData[index].tcga_participant_barcode);
+    barcodesFromExpressionData = Array.from(barcodesFromExpressionData);
+    clinicalData = await firebrowse.fetchClinicalFH({cohorts: cohortQuery, 
+      barcodes: barcodesFromExpressionData});
   }
 
   cache.set('rnaSeq', 'clinicalData', clinicalData)
@@ -116,7 +118,6 @@ const buildPlots = async function() {
 const getExpressionQuery = async function() {
   let expressionQuery = $(".geneTwoMultipleSelection")
     .select2("data").map((gene) => gene.text);  // get genes selected in geneTwoMultipleSelection
-
   const genesFromPathways = await getGenesByPathway();
   if(genesFromPathways.length > 0) {
     // Combine genes from multiple pathways
