@@ -46,6 +46,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     //Filter out data that does not belong to curPlot
     dataInput = dataInput.filter(patientData => patientData.gene == curPlot);
 
+    //checking for filtered data length is greater than 0
     if(dataInput.length <= 0) {
         return;
     }
