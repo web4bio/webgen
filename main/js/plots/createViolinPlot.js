@@ -46,6 +46,10 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     //Filter out data that does not belong to curPlot
     dataInput = dataInput.filter(patientData => patientData.gene == curPlot);
 
+    if(dataInput.length <= 0) {
+        return;
+    }
+
     var myGroups;
 
     //Add new field to data for purpose of creating keys and populating myGroups
