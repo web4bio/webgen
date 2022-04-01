@@ -179,6 +179,8 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   * @returns {Array} Clinical data.
   */
 firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum}) {
+  if(!pageNum)
+    pageNum = "1";
   if (!cohorts && !genes && !barcodes) {
     console.error("no arguments provided to function");
   }

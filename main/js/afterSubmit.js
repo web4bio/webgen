@@ -88,7 +88,7 @@ const buildPlots = async function() {
     for(let index = 0; index < expressionData.length; index++)
       barcodesFromExpressionData.add(expressionData[index].tcga_participant_barcode);
     barcodesFromExpressionData = Array.from(barcodesFromExpressionData);
-    clinicalData = await firebrowse.fetchClinicalFH({cohorts: cohortQuery, 
+    clinicalData = await firebrowse.fetchClinicalFH({/*cohorts: cohortQuery, */
       barcodes: barcodesFromExpressionData});
   }
 
