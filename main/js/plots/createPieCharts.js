@@ -207,17 +207,17 @@ let buildDataExplorePlots = async function() {
             } else {
                 for(let i = 0; i < allClinicalData.length; i++)
                     allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
-
-
-                var index = clinicalType.findIndex(p => p.name == currentFeature);
+                
+                    var index = clinicalType.findIndex(p => p.name == currentFeature);
                 clinicalType[index].isSelected = true;
-                if(clinicalType[index].type === "continuous")
+                if(clinicalType[index].type === "continuous"){
                     continuous = true;
-                else
+                    uniqueValuesForCurrentFeature = allValuesForCurrentFeature; // changed from uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
+                }
+                else{
                     continuous = false;
-                //console.log(clinicalType);
-
-                uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
+                    uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
+                }
                 xCounts.length = uniqueValuesForCurrentFeature.length;
                 for(let i = 0; i < xCounts.length; i++)
                     xCounts[i] = 0;
@@ -299,7 +299,7 @@ let buildDataExplorePlots = async function() {
 
             var histo_data = [{
                 x: uniqueValuesForCurrentFeature,
-                y: xCounts,
+                //y: xCounts,
                 hovertemplate: '<b>Number of samples:</b> %{y}<br>'+
                                '<extra></extra>',
                 type: 'histogram'
