@@ -159,8 +159,23 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
     for (let i=0; i<paramsMatrix.length; i++) {
       const paramsForThisCall = paramsMatrix[i];
       // Run a fetch and then collect the data into one common object.
-      const call = _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-        .then(x => results[expectedKey].push(...x[expectedKey]));
+      //const call = _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
+      //  .then(x => {
+      //    console.log("_fetchFromFirebrowse() Results: ");
+      //    console.log(x);
+      //    results[expectedKey].push(...x[expectedKey])});
+      
+      const call = setTimeout(() => {_fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
+        .then(x => {
+          console.log("_fetchFromFirebrowse() Results: ");
+          console.log(x);
+          results[expectedKey].push(...x[expectedKey])})}, i*1000000);
+      console.log("fetch Call: ");
+      console.log(call);
+      //const call = setTimeout(
+      //  _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
+      //    .then(x => results[expectedKey].push(...x[expectedKey])), i*500);
+      //const call_2 = setTimeout(call[,i*500]);
       calls.push(call);
     }
     await Promise.all(calls);

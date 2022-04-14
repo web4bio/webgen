@@ -77,6 +77,8 @@ const buildPlots = async function() {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  console.log("Expression Data: ");
+  console.log(expressionData);
   // GET CLINICAL DATA:
   // Get clinical data for either intsersected barcodes or entire cohort
   let clinicalData;
