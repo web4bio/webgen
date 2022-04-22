@@ -16,7 +16,6 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
   endpoint = `http://firebrowse.org/api/v1/${endpoint}`;
   params = new URLSearchParams(params);
   const url = `${base}?${endpoint}?${params.toString()}`;
-
   const minimalJson = { [expectedKey]: [] };
 
   const response = await fetch(url);
@@ -148,6 +147,10 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   // browser support at this time.
   const splits = endpoint.split("/");
   const expectedKey = splits[splits.length - 1];
+  let pageSize = 2000;
+  if(params.page_size) {
+    pageSize = params.page_size;
+  }
 
   if (groupBy == null || groupBy.length === 0) {
     return await _fetchFromFireBrowse(endpoint, params, expectedKey);
@@ -155,30 +158,24 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
     const results = {[expectedKey]: []};
     const paramsMatrix = _paramsToParamsMatrix(params, groupBy);
     /** @type {Array.<Promise<number>>} */
-    const calls = [];
+    //const calls = [];
     for (let i=0; i<paramsMatrix.length; i++) {
       const paramsForThisCall = paramsMatrix[i];
       // Run a fetch and then collect the data into one common object.
-      //const call = _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-      //  .then(x => {
-      //    console.log("_fetchFromFirebrowse() Results: ");
-      //    console.log(x);
-      //    results[expectedKey].push(...x[expectedKey])});
-      
-      const call = setTimeout(() => {_fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
+      /*const call = await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
+        .then(x => {results[expectedKey].push(...x[expectedKey])});*/
+      await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
+        .then(x => {results[expectedKey].push(...x[expectedKey])});
+      //calls.push(call);
+      //if(calls.length == ) {
+      //  await Promise.all(calls);
+      //  calls.splice(0, calls.length);
+      //}
+      /*const call = _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
         .then(x => {
-          console.log("_fetchFromFirebrowse() Results: ");
-          console.log(x);
-          results[expectedKey].push(...x[expectedKey])})}, i*1000000);
-      console.log("fetch Call: ");
-      console.log(call);
-      //const call = setTimeout(
-      //  _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-      //    .then(x => results[expectedKey].push(...x[expectedKey])), i*500);
-      //const call_2 = setTimeout(call[,i*500]);
-      calls.push(call);
+          results[expectedKey].push(...x[expectedKey])});*/
     }
-    await Promise.all(calls);
+    //await Promise.all(calls);
     return results;
   }
 };
@@ -334,7 +331,7 @@ firebrowse.fetchmRNASeq = async function({cohorts, genes, barcodes}) {
   }
   if (barcodes) {
     params.tcga_participant_barcode = barcodes;
-    groupBy.push({key: "tcga_participant_barcode", length: 100});
+    groupBy.push({key: "tcga_participant_barcode", length: 500});
   }
   const data = await firebrowse.fetch("/Samples/mRNASeq", params, groupBy);
   return data.mRNASeq;

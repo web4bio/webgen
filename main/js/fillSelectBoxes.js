@@ -351,16 +351,11 @@ let clinicalType = [];
  * @returns {undefined}
  */
 let fillClinicalSelectBox = async function () {
-
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
-
   let myCohort = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
 
   if (myCohort.length != 0) {
-
     let dataFetched = await fetchClinicalData(myCohort);
-    console.log("Fetched Data (from fillSelectBoxes.js): ");
-    console.log(dataFetched);
     allClinicalData = dataFetched;
 
     // ------------------------------------------------------------------------------------------------------------------------
@@ -368,24 +363,16 @@ let fillClinicalSelectBox = async function () {
     // if more than one cancer type is selected, the intersection of available clinical features between the two cancer types
     // is populated as options in the dropdown for clinical features
     let clinicalKeys = [];
-    /*
     for(i = 0; i < myCohort.length; i++) {
-      if(allClinicalData.some((el) => {return (el.cohort == myCohort[i])})) {
-        console.log("Success!")
-        clinicalKeys.push(Object.keys(allClinicalData[j]));
-        break;
-      }*/
-      for(i = 0; i < myCohort.length; i++) {
-        for(j = 0; j < allClinicalData.length; j++) {
-          if(allClinicalData[j].cohort == myCohort[i]) {
-            clinicalKeys.push(Object.keys(allClinicalData[j]));
-            break;
-          }
+      for(j = 0; j < allClinicalData.length; j++) {
+        if(allClinicalData[j].cohort == myCohort[i]) {
+          clinicalKeys.push(Object.keys(allClinicalData[j]));
+          break;
         }
       }
+    }
     
     let intersectedFeatures;
-    //console.log(clinicalKeys)
     if(clinicalKeys.length > 1)
       for(let i = 0; i < clinicalKeys.length - 1; i++) {
         let currentFeatures = clinicalKeys[i];
