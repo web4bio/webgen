@@ -161,6 +161,8 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
     //const calls = [];
     for (let i=0; i<paramsMatrix.length; i++) {
       const paramsForThisCall = paramsMatrix[i];
+      //i/paramsMatrix.length for progress bar
+      console.log("Fetch Progress: " + (i/paramsMatrix.length*100));
       // Run a fetch and then collect the data into one common object.
       /*const call = await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
         .then(x => {results[expectedKey].push(...x[expectedKey])});*/
