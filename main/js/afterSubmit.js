@@ -100,7 +100,7 @@ const buildPlots = async function() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  //buildDownloadData(cohortQuery, expressionData, mutationAndClinicalData);
+  buildDownloadData(cohortQuery, expressionData, mutationAndClinicalData);
   buildHeatmap(expressionData, mutationAndClinicalData);
   buildViolinPlot(expressionQuery, expressionData);
 
@@ -420,6 +420,7 @@ let getVariantClassification = function (mutationData, curTumorSampleBarcode,
   return curGene + " Wild_Type";
 };
 
+/*
 let buildDownloadDataButtons = function() {
   // clear div and add new button for json, csv_exp, csv_clin
   $("#downloadAllButton")
@@ -455,3 +456,4 @@ let buildDownloadDataButtons = function() {
   $("ul.tabs").show();
   instance.updateTabIndicator();
 };
+*/
