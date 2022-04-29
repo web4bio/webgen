@@ -100,7 +100,7 @@ const buildPlots = async function() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  buildDownloadData(cohortQuery, expressionData, mutationAndClinicalData);
+  //buildDownloadData(cohortQuery, expressionData, mutationAndClinicalData);
   buildHeatmap(expressionData, mutationAndClinicalData);
   buildViolinPlot(expressionQuery, expressionData);
 
@@ -260,6 +260,8 @@ const saveFile = function(x, fileName) {
  * @returns {undefined}
  */
 const buildDownloadData = function(cohortID, expressionData, clinicalData) {
+  //Get rid of redundant sorts
+  //Sort data from the get-go
   const timestamp = new Date().toUTCString().replace(",","");
   const genes = d3.map(expressionData, d => d.gene).keys();
   const clin_vars = Object.keys(clinicalData[0]);
