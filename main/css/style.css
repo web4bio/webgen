@@ -229,3 +229,12 @@
 .page-footer {
     background-color: #4db6ac;
 }
+
+#progress-bar {
+    --progress: 0;
+    position: fixed;
+    z-index: 100;
+    height: 5px;
+    width: var(--progress);
+    background-color:#FFDC41;
+}
