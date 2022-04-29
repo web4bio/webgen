@@ -419,3 +419,39 @@ let getVariantClassification = function (mutationData, curTumorSampleBarcode,
   }
   return curGene + " Wild_Type";
 };
+
+let buildDownloadDataButtons = function() {
+  // clear div and add new button for json, csv_exp, csv_clin
+  $("#downloadAllButton")
+    .on("click", function () {
+      console.log("All data downloaded!");
+      //saveFile(JSON.stringify(saveObject), "WebGen_data.json"); // use saveFile function
+    });
+  if (typeof expressionData !== "undefined" && expressionData.length > 0) {
+    $("#downloadExpressionZscoreButton")
+      .on("click", function () {
+        saveFile(csv_string_expZscore, "WebGen_expression_Zscore.csv"); // use saveFile function
+      });
+    $("#downloadExpressionLog2Button")
+      .on("click", function () {
+        saveFile(csv_string_expLog2, "WebGen_expression_log2.csv"); // use saveFile function
+      });
+  } else {
+    $("#downloadExpressionZscoreButton")
+      .on("click", function () {alert("Expression data is empty. Please select genes to save.");});
+    $("#downloadExpressionLog2Button")
+      .on("click", function () {alert("Expression data is empty. Please select genes to save.");});
+  }
+  if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
+    $("#downloadClinicalButton")
+      .on("click", function () {
+        saveFile(csv_string_clin, "WebGen_clinical.csv"); // use saveFile function
+      });
+  } else {
+    $("#downloadClinicalButton")
+      .on("click", function () {alert("Clinical data is empty. Please select clinical features to save.");});
+  }
+  $("#downloadDataButtons").show();
+  $("ul.tabs").show();
+  instance.updateTabIndicator();
+};
