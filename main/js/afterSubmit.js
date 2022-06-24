@@ -64,14 +64,11 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-
   let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
-
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
 
   // Extract expression data only at intersectedBarcodes
-
   const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
   cache.set('rnaSeq', 'expressionData', expressionData)
 
@@ -96,8 +93,8 @@ const buildPlots = async function() {
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   let mutationData = await getAllVariantClassifications(mutationQuery);
-  let mutationAndClinicalData = await mergeClinicalAndMutationData(mutationQuery, mutationData,
-                                                          clinicalData);
+  let mutationAndClinicalData = mergeClinicalAndMutationData(mutationQuery, mutationData,
+    clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,6 +260,8 @@ const saveFile = function(x, fileName) {
  * @returns {undefined}
  */
 const buildDownloadData = function(cohortID, expressionData, clinicalData) {
+  //Get rid of redundant sorts
+  //Sort data from the get-go
   const timestamp = new Date().toUTCString().replace(",","");
   const genes = d3.map(expressionData, d => d.gene).keys();
   const clin_vars = Object.keys(clinicalData[0]);
@@ -395,13 +394,13 @@ const buildDownloadData = function(cohortID, expressionData, clinicalData) {
   instance.updateTabIndicator();
 };
 
-let mergeClinicalAndMutationData = async function(mutationQuery, mutationData, clinicalData) {
+let mergeClinicalAndMutationData = function(mutationQuery, mutationData, clinicalData) {
   let dataToReturn = clinicalData;  
   for(let index = 0; index < dataToReturn.length; index++) {
     let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
     for(let geneIndex = 0; geneIndex < mutationQuery.length; geneIndex++) {
         let curGeneMutation = mutationQuery[geneIndex] + "_Mutation";
-        let mutationValue = await getVariantClassification(mutationData, curParticipantBarcode, 
+        let mutationValue = getVariantClassification(mutationData, curParticipantBarcode, 
                                                     mutationQuery[geneIndex]);
         //Append feature to JSON object
         dataToReturn[index][curGeneMutation] = mutationValue;
@@ -410,7 +409,7 @@ let mergeClinicalAndMutationData = async function(mutationQuery, mutationData, c
   return dataToReturn;
 };
 
-let getVariantClassification = async function (mutationData, curTumorSampleBarcode, 
+let getVariantClassification = function (mutationData, curTumorSampleBarcode, 
   curGene) {
     for(let index = 0; index < mutationData.length; index++) {
     if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 12) == curTumorSampleBarcode 
@@ -420,3 +419,41 @@ let getVariantClassification = async function (mutationData, curTumorSampleBarco
   }
   return curGene + " Wild_Type";
 };
+
+/*
+let buildDownloadDataButtons = function() {
+  // clear div and add new button for json, csv_exp, csv_clin
+  $("#downloadAllButton")
+    .on("click", function () {
+      console.log("All data downloaded!");
+      //saveFile(JSON.stringify(saveObject), "WebGen_data.json"); // use saveFile function
+    });
+  if (typeof expressionData !== "undefined" && expressionData.length > 0) {
+    $("#downloadExpressionZscoreButton")
+      .on("click", function () {
+        saveFile(csv_string_expZscore, "WebGen_expression_Zscore.csv"); // use saveFile function
+      });
+    $("#downloadExpressionLog2Button")
+      .on("click", function () {
+        saveFile(csv_string_expLog2, "WebGen_expression_log2.csv"); // use saveFile function
+      });
+  } else {
+    $("#downloadExpressionZscoreButton")
+      .on("click", function () {alert("Expression data is empty. Please select genes to save.");});
+    $("#downloadExpressionLog2Button")
+      .on("click", function () {alert("Expression data is empty. Please select genes to save.");});
+  }
+  if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
+    $("#downloadClinicalButton")
+      .on("click", function () {
+        saveFile(csv_string_clin, "WebGen_clinical.csv"); // use saveFile function
+      });
+  } else {
+    $("#downloadClinicalButton")
+      .on("click", function () {alert("Clinical data is empty. Please select clinical features to save.");});
+  }
+  $("#downloadDataButtons").show();
+  $("ul.tabs").show();
+  instance.updateTabIndicator();
+};
+*/

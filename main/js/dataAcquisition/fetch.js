@@ -16,7 +16,6 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
   endpoint = `http://firebrowse.org/api/v1/${endpoint}`;
   params = new URLSearchParams(params);
   const url = `${base}?${endpoint}?${params.toString()}`;
-
   const minimalJson = { [expectedKey]: [] };
 
   const response = await fetch(url);
@@ -148,6 +147,10 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   // browser support at this time.
   const splits = endpoint.split("/");
   const expectedKey = splits[splits.length - 1];
+  let pageSize = 2000;
+  if(params.page_size) {
+    pageSize = params.page_size;
+  }
 
   if (groupBy == null || groupBy.length === 0) {
     return await _fetchFromFireBrowse(endpoint, params, expectedKey);
@@ -155,15 +158,16 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
     const results = {[expectedKey]: []};
     const paramsMatrix = _paramsToParamsMatrix(params, groupBy);
     /** @type {Array.<Promise<number>>} */
-    const calls = [];
+    //const calls = [];
     for (let i=0; i<paramsMatrix.length; i++) {
       const paramsForThisCall = paramsMatrix[i];
+      // i/paramsMatrix.length for progress bar
+      ProgressBar.setPercentage(i/paramsMatrix.length*100, "Fetching " + expectedKey);
       // Run a fetch and then collect the data into one common object.
-      const call = _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-        .then(x => results[expectedKey].push(...x[expectedKey]));
-      calls.push(call);
+      await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
+        .then(x => {results[expectedKey].push(...x[expectedKey])});
     }
-    await Promise.all(calls);
+    ProgressBar.cleanUp();
     return results;
   }
 };
@@ -319,7 +323,7 @@ firebrowse.fetchmRNASeq = async function({cohorts, genes, barcodes}) {
   }
   if (barcodes) {
     params.tcga_participant_barcode = barcodes;
-    groupBy.push({key: "tcga_participant_barcode", length: 100});
+    groupBy.push({key: "tcga_participant_barcode", length: 400});
   }
   const data = await firebrowse.fetch("/Samples/mRNASeq", params, groupBy);
   return data.mRNASeq;
