@@ -145,7 +145,6 @@ const firebrowse = {};
 firebrowse.fetch = async function(endpoint, params, groupBy) {
   // We could use Array.at(-1) to get the last item, but that does not have broad
   // browser support at this time.
-  //ProgressBar.setPercentage(0);
   const splits = endpoint.split("/");
   const expectedKey = splits[splits.length - 1];
   let pageSize = 2000;
@@ -162,24 +161,12 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
     //const calls = [];
     for (let i=0; i<paramsMatrix.length; i++) {
       const paramsForThisCall = paramsMatrix[i];
-      //i/paramsMatrix.length for progress bar
+      // i/paramsMatrix.length for progress bar
       ProgressBar.setPercentage(i/paramsMatrix.length*100, "Fetching " + expectedKey);
-      console.log("Fetch Progress: " + (i/paramsMatrix.length*100));
       // Run a fetch and then collect the data into one common object.
-      /*const call = await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-        .then(x => {results[expectedKey].push(...x[expectedKey])});*/
       await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
         .then(x => {results[expectedKey].push(...x[expectedKey])});
-      //calls.push(call);
-      //if(calls.length == ) {
-      //  await Promise.all(calls);
-      //  calls.splice(0, calls.length);
-      //}
-      /*const call = _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-        .then(x => {
-          results[expectedKey].push(...x[expectedKey])});*/
     }
-    //await Promise.all(calls);
     ProgressBar.cleanUp();
     return results;
   }
