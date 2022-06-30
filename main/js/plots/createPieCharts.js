@@ -388,10 +388,10 @@ let buildDataExplorePlots = async function() {
             parentRowDiv.appendChild(newDiv);
 
             if(continuous){
-                Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true});
+                Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
             }
             else{
-                Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true});
+                Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
             }
             
             function updatePlots(){ //if window is resized, this function will be called to replot the pie charts and continuous data charts
@@ -559,10 +559,10 @@ let buildDataExplorePlots = async function() {
 
                 checkIfNumeric();
                 if(continuous){
-                    Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layoutNew, config, {scrollZoom: true});
+                    Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layoutNew, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
                     }
                 if(continuous==false){
-                    Plotly.newPlot(currentFeature + 'Div', data, layoutNew, config, {scrollZoom: true});
+                    Plotly.newPlot(currentFeature + 'Div', data, layoutNew, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
                     }
             }
             window.addEventListener("resize", updatePlots);
@@ -611,7 +611,6 @@ let buildDataExplorePlots = async function() {
                 var update = {'marker': {colors: colore,
                                         line: {color: 'black', width: 1}}};
                 Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
-                //displayNumberBarcodesAtIntersection()
             });
         }
     }
