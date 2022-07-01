@@ -631,9 +631,9 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
     let allValuesForCurrentFeature = [];
 
     for(let i = 0; i < allClinicalData.length; i++)
-        allValuesForCurrentFeature.push(allClinicalData[i][currentFeature]);
+        allValuesForCurrentFeature.push(allClinicalData[i][currentClinicalFeatureSelected]);
 
-    var index = clinicalType.findIndex(p => p.name == currentFeature);
+    var index = clinicalType.findIndex(p => p.name == currentClinicalFeatureSelected);
     clinicalType[index].isSelected = true;
     if(clinicalType[index].type === "continuous"){
         continuous = true;
@@ -648,7 +648,7 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
         xCounts[i] = 0;
     for(let i = 0; i < allClinicalData.length; i++)
         for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++)
-            if(allClinicalData[i][currentFeature] == uniqueValuesForCurrentFeature[k])
+            if(allClinicalData[i][currentClinicalFeatureSelected] == uniqueValuesForCurrentFeature[k])
                 xCounts[k]++;
 
     return [xCounts, uniqueValuesForCurrentFeature]
