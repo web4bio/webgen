@@ -3,6 +3,7 @@
   "recurseDepth": 10,
   "source": {
       "include": ["./main/js/"],
+      "exclude": ["./main/js/smartCache/"],
       "includePattern": ".+\\.js(doc|x)?$",
       "excludePattern": "(^|\\/|\\\\)_"
   },
