@@ -24,7 +24,7 @@ This is a public, open-source project, as well as a project that students may re
 5. Study the [GDC API](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/) and note how easy it is to retrieve data. The next step is to start doing just that in the middle of your own notes. Have a [look at mine](https://beta.observablehq.com/@jonasalmeida/webgen).
 6. Study the [FireBrowse API](http://firebrowse.org).
 7. Report issues or requests for new features.
-8. Create a fork or a branch, and make a pull request.
+8. Create a fork or a branch off of the **development branch**, and make a pull request.
 
 ## Participants
 
