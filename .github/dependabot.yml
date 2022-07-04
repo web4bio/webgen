@@ -6,4 +6,4 @@ updates:
       interval: "daily"
     # Update the npm manifest file to relax
     # the version requirements
-    target-branch: "develop"
+    target-branch: "development"
