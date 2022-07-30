@@ -167,7 +167,7 @@ let displayNumberSamples = async function () {
  */
 let getValidGeneList = async function () {
   let validGeneList = await fetch(
-    "https://raw.githubusercontent.com/web4bio/webgen/master/main/validGeneList.json"
+    "https://web4bio.github.io/webgen/main/geneList.json"
   ).then((response) => response.json());
   validGeneList = validGeneList.map((geneInfo) => geneInfo.hugoSymbol);
   return await validGeneList;
@@ -195,7 +195,7 @@ let getValidPathwaysList = async function () {
   //Note the specification of the 'preselectedGenes' branch name.
   //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
   let validPathwaysList = await fetch(
-    "https://raw.githubusercontent.com/web4bio/webgen/development/main/genePathwaysList.json"
+    "https://web4bio.github.io/webgen/main/genePathwaysList.json"
   ).then((response) => response.json());
   validPathwaysList = Object.keys(validPathwaysList);
   localStorage.setItem("genePathways", validPathwaysList);
@@ -218,7 +218,7 @@ let getGenesByPathway = async function () {
   //would only run if an option from pathway select box is selected
   if (pathwaySelectBoxLength > 0) {
     let validPathwaysList = await fetch(
-      "https://raw.githubusercontent.com/web4bio/webgen/development/main/genePathwaysList.json"
+      "https://web4bio.github.io/webgen/main/genePathwaysList.json"
     ).then((response) => response.json());
 
     //Get the pathway(s) selected
@@ -386,12 +386,13 @@ let fillClinicalSelectBox = async function () {
     $('#clinicalMultipleSelection').val(null).trigger('change'); // clear any preexisting selections
     $('#clinicalMultipleSelection').empty(); // clear any preexisting options in dropdown
     let selectBox = document.getElementById("clinicalMultipleSelection");
-    for (let i = 1; i < intersectedFeatures.length; i++) {
+    for (let i = 0; i < intersectedFeatures.length; i++) {
       let currentOption = document.createElement("option");
       currentOption.value = intersectedFeatures[i];
       currentOption.text = intersectedFeatures[i];
       currentOption.id = intersectedFeatures[i];
-      selectBox.appendChild(currentOption);
+      if(intersectedFeatures[i] != 'cohort')
+        selectBox.appendChild(currentOption);
     }
 
     // ------------------------------------------------------------------------------------------------------------------------
