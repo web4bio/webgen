@@ -386,12 +386,14 @@ let fillClinicalSelectBox = async function () {
     $('#clinicalMultipleSelection').val(null).trigger('change'); // clear any preexisting selections
     $('#clinicalMultipleSelection').empty(); // clear any preexisting options in dropdown
     let selectBox = document.getElementById("clinicalMultipleSelection");
-    for (let i = 1; i < intersectedFeatures.length; i++) {
+    // starting index at 1 to exclude 'cohort'
+    for (let i = 0; i < intersectedFeatures.length; i++) {
       let currentOption = document.createElement("option");
       currentOption.value = intersectedFeatures[i];
       currentOption.text = intersectedFeatures[i];
       currentOption.id = intersectedFeatures[i];
-      selectBox.appendChild(currentOption);
+      if(intersectedFeatures[i] != 'cohort')
+        selectBox.appendChild(currentOption);
     }
 
     // ------------------------------------------------------------------------------------------------------------------------
