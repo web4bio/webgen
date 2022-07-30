@@ -9,11 +9,9 @@ const ProgressBar = {
     setPercentage: function (newPercent,text) {
         if(!text) {
             document.getElementById("progress-bar").innerText = "";
-            //this.text = "";
         }
         else {
             document.getElementById("progress-bar").innerText = text;
-            //this.text = text;
         }
         if (newPercent >= 100)
             this.percent = 100
@@ -26,7 +24,6 @@ const ProgressBar = {
     cleanUp: function () {
         this.percent = 0
         document.getElementById("progress-bar").innerText = "";
-        //this.text = "";
         this.rerender()
     },
     rerender: function () {
