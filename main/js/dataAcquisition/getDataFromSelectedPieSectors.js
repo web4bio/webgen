@@ -156,7 +156,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery){
 
   // allData is used when no pie slices are chosen
-  let allData = allClinicalData
+  let allData = allClinicalData;
 
   // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {

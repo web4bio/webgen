@@ -178,13 +178,16 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   *
   * @returns {Array} Clinical data.
   */
-firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes}) {
+firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum}) {
+  if(!pageNum)
+    pageNum = "1";
   if (!cohorts && !genes && !barcodes) {
     console.error("no arguments provided to function");
   }
   const params = {
     format: "json",
     sort_by: "tcga_participant_barcode",
+    page: pageNum,
   };
   if (cohorts) {
     params.cohort = cohorts;
