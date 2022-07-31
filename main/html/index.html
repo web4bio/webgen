@@ -52,9 +52,6 @@
                             <ul id="nav-mobile" class="right hide-on-med-and-down">
                                 <li class="active"><a href="about.html">About</a></li>
                             </ul>
-                            <!-- <ul id="nav-mobile" class="right hide-on-med-and-down">
-                                <li class="active"><a href="image.html">Image</a></li>
-                            </ul> -->
                         </div>
                     </nav>
                 </div>
@@ -88,25 +85,31 @@
       Set up the user input text fields
       -->
                 <script>
+
                     $(document).ready(function () {
+                        
+                        // For Cancer Type Select2 Drop down:
+                        $(".cancerTypeMultipleSelection").select2({
+                            placeholder: "Tumor Type(s)",
+                        });
+                        fillCancerTypeSelectBox();
+
+                        // For Clinical feature Select2 Drop down:
+                        $(".clinicalMultipleSelection").select2({
+                                placeholder: "Clinical Feature(s)",
+                            });
+
                         //For Pathways Select2 Drop down:
                         $(".pathwayMultipleSelection").select2({
                             placeholder: "Pathway(s)",
                         });
-
                         fillPathwaySelectBox();
+
                     });
 
-                    // Get the list of valid genes users can search for:
                     validGeneListFetch = getValidGeneList();
                     validGeneListFetch.then(function (validGeneList) {
                         $(document).ready(function () {
-                            // For Cancer Type Select2 Drop down:
-                            $(".cancerTypeMultipleSelection").select2({
-                                placeholder: "Tumor Type(s)",
-                            });
-                            fillCancerTypeSelectBox();
-
                             // Map the array of geneList with attributes of id, text, and value
                             var geneListArray = _.map(_.range(0, validGeneList.length), function (i) {
                                 return {
@@ -115,7 +118,6 @@
                                     value: validGeneList[i],
                                 };
                             });
-
                             // For Gene Select2 Dropdown:
                             var fillGeneSelectBoxes = (geneSelectionBox) => {
                                 $(geneSelectionBox).select2({
@@ -146,11 +148,6 @@
                             };
                             fillGeneSelectBoxes(".geneOneMultipleSelection");
                             fillGeneSelectBoxes(".geneTwoMultipleSelection");
-
-                            // For Clinical feature Select2 Drop down:
-                            $(".clinicalMultipleSelection").select2({
-                                placeholder: "Clinical Feature(s)",
-                            });
                         });
                     });
                 </script>
