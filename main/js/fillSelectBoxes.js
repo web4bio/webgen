@@ -332,13 +332,13 @@ let getBarcodesFromCohortForClinical = async function () {
  * @returns {Promise<Array.<CohortClinicalData>>} Returns a promise for an array of JSONS
  * which contain clinical data for the cohort.
  */
-let fetchClinicalData = async function () {
-  let myCohort = $(".cancerTypeMultipleSelection")
-    .select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+let fetchClinicalData = async function (myCohort) {
+  //let myCohort = $(".cancerTypeMultipleSelection")
+  //  .select2("data")
+  //  .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   const barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.fetchClinicalFH({barcodes: barcodes});
-  clinicalData = clinicalData.filter(barcode => myCohort.includes(barcode.cohort));
+  let clinicalData = await firebrowse.fetchClinicalFH({cohorts: myCohort, barcodes: barcodes});
+  //clinicalData = clinicalData.filter(barcode => myCohort.includes(barcode.cohort));
   return clinicalData;
 };
 
@@ -351,28 +351,27 @@ let clinicalType = [];
  * @returns {undefined}
  */
 let fillClinicalSelectBox = async function () {
-
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
-
   let myCohort = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
 
   if (myCohort.length != 0) {
-
-    let dataFetched = await fetchClinicalData();
+    let dataFetched = await fetchClinicalData(myCohort);
     allClinicalData = dataFetched;
 
     // ------------------------------------------------------------------------------------------------------------------------
 
     // if more than one cancer type is selected, the intersection of available clinical features between the two cancer types
     // is populated as options in the dropdown for clinical features
-
     let clinicalKeys = [];
-    for(i = 0; i < myCohort.length; i++)
-      for(j = 0; j < allClinicalData.length; j++)
+    for(i = 0; i < myCohort.length; i++) {
+      for(j = 0; j < allClinicalData.length; j++) {
         if(allClinicalData[j].cohort == myCohort[i]) {
           clinicalKeys.push(Object.keys(allClinicalData[j]));
           break;
         }
+      }
+    }
+    
     let intersectedFeatures;
     if(clinicalKeys.length > 1)
       for(let i = 0; i < clinicalKeys.length - 1; i++) {

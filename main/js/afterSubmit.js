@@ -64,14 +64,11 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-
   let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
-
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
 
   // Extract expression data only at intersectedBarcodes
-
   const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
   cache.set('rnaSeq', 'expressionData', expressionData)
 
@@ -96,17 +93,16 @@ const buildPlots = async function() {
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   let mutationData = await getAllVariantClassifications(mutationQuery);
-  let mutationAndClinicalData = await mergeClinicalAndMutationData(mutationQuery, mutationData,
-                                                          clinicalData);
+  let mutationAndClinicalData = mergeClinicalAndMutationData(mutationQuery, mutationData,
+    clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  buildDownloadData(cohortQuery, expressionData, mutationAndClinicalData);
   buildHeatmap(expressionData, mutationAndClinicalData);
   buildViolinPlot(expressionQuery, expressionData);
-
+  buildDownloadButtons(expressionQuery, expressionData, clinicalData);
   return null;
 };
 
@@ -254,7 +250,33 @@ const saveFile = function(x, fileName) {
 };
 
 
-/** Build data for download.
+let mergeClinicalAndMutationData = function(mutationQuery, mutationData, clinicalData) {
+  let dataToReturn = clinicalData;  
+  for(let index = 0; index < dataToReturn.length; index++) {
+    let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
+    for(let geneIndex = 0; geneIndex < mutationQuery.length; geneIndex++) {
+        let curGeneMutation = mutationQuery[geneIndex] + "_Mutation";
+        let mutationValue = getVariantClassification(mutationData, curParticipantBarcode, 
+                                                    mutationQuery[geneIndex]);
+        //Append feature to JSON object
+        dataToReturn[index][curGeneMutation] = mutationValue;
+    }  
+  }
+  return dataToReturn;
+};
+
+let getVariantClassification = function (mutationData, curTumorSampleBarcode, 
+  curGene) {
+    for(let index = 0; index < mutationData.length; index++) {
+    if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 12) == curTumorSampleBarcode 
+        && mutationData[index].Hugo_Symbol == curGene) {
+          return(curGene + " " + mutationData[index].Variant_Classification);
+    }
+  }
+  return curGene + " Wild_Type";
+};
+
+/** Renders downloads buttons and sets up onClick() functions.
  *
  * @param {string[]} cohortID - Names of the cohorts.
  * @param {ExpressionData[]} expressionData - Array of expression data objects.
@@ -262,23 +284,57 @@ const saveFile = function(x, fileName) {
  *
  * @returns {undefined}
  */
-const buildDownloadData = function(cohortID, expressionData, clinicalData) {
+let buildDownloadButtons = async function(cohortID, expressionData, clinicalData) {
+  let genes, barcodes_exp, barcodes_clin;
+  if(expressionData) {
+    //Extract genes from RNA-seq expression data
+    genes = d3.map(expressionData, d => d.gene).keys();
+    //Extract participant barcodes for RNA-seq expression data to speed up download functions
+    barcodes_exp = d3.map(expressionData, (d) => {
+      if (d) return d.tcga_participant_barcode;
+      else return d;
+    }).keys().sort();
+  }
+  if(clinicalData) {
+    //Extract participant barcodes from clinical data to speed up download functions
+    barcodes_clin = d3.map(clinicalData, (d) => {
+      if (d) return d.tcga_participant_barcode;
+      else return d;
+    }).keys().sort();
+  }
+  // clear div and add new button for json, csv_exp, csv_clin
+  $("#downloadAllButton").on("click", function () {
+    downloadAllData(cohortID, expressionData, genes, clinicalData, barcodes_exp, barcodes_clin);
+  });
+  $("#downloadExpressionZscoreButton").on("click", async function () {
+    downloadExpressionZScore(cohortID, expressionData, genes, barcodes_exp);
+  });
+  $("#downloadExpressionLog2Button").on("click", function () {
+    downloadExpressionLog2(cohortID, expressionData, genes, barcodes_exp)
+  });
+  $("#downloadClinicalButton").on("click", function () {
+    downloadClinicalData(cohortID, clinicalData, barcodes_clin)
+  });
+  $("#downloadDataButtons").show();
+  $("ul.tabs").show();
+  instance.updateTabIndicator();
+}
+
+/** Builds downloadable file of the expression and clinical data.
+ *
+ * @param {string[]} cohortID - Names of the cohorts.
+ * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {clinicalData[]} clinicalData - Array of clinical data objects.
+ * @returns {undefined}
+ */
+let downloadAllData = function(cohortID, expressionData, genes, clinicalData, barcodes_exp, barcodes_clin) {
   const timestamp = new Date().toUTCString().replace(",","");
-  const genes = d3.map(expressionData, d => d.gene).keys();
   const clin_vars = Object.keys(clinicalData[0]);
+  //Unique union of expression + clinical barcodes
+  const barcodes_all = [...new Set([...barcodes_exp, ...barcodes_clin])];
 
-  const barcodes_exp = d3.map(expressionData, (d) => {
-    if (d) return d.tcga_participant_barcode;
-    else return d;
-  }).keys().sort();
-  const barcodes_clin = d3.map(clinicalData, (d) => {
-    if (d) return d.tcga_participant_barcode;
-    else return d;
-  }).keys().sort();
-  const barcodes_all = [...new Set([...barcodes_exp, ...barcodes_clin])]; // unique union of expression + clinical barcodes
-
-  // define the firebrowse query strings (to include in header)
-  // add barcodes else cohort ?
+  //Define the firebrowse query strings (to include in header)
+  //Add barcodes else cohort ?
   const fb_str_exp = jQuery.param({
     format: "json",
     cohort: cohortID,
@@ -311,112 +367,129 @@ const buildDownloadData = function(cohortID, expressionData, clinicalData) {
     timestamp: timestamp,
   };
 
-  // make saveObject for json download
+  //Create saveObject for JSON download
   const saveObject = {
     header: headerObject,
     expression_data: expressionData,
     clinical_data: clinicalData,
   };
 
-  // Make Expression CSV string
-  // make z-score and log2 csv's at once
-  let csv_string_expZscore = `Z-scored Gene Expression,Generated By WebGen: https://web4bio.github.io/webgen/,Time-Stamp:,${timestamp},TCGA Cohort(s):,${  cohortID  }\n`; // header for zscore csv
-  let csv_string_expLog2 = `Log2 Gene Expression,Generated By WebGen: https://web4bio.github.io/webgen/,Time-Stamp:,${timestamp},TCGA Cohort(s):,${  cohortID  }\n`; // header for expression_log2 csv
-  csv_string_expZscore += `Gene,${  barcodes_exp.join(",")}`; // row is column names
-  csv_string_expLog2 += `Gene,${  barcodes_exp.join(",")}`; // row is column names
-  // for each gene, add a row to csv, each comma-separated element is the gene expression for that barcode
-  genes.sort().forEach((g) => {
-    csv_string_expZscore += `\n${  g}`; // add newline and name of gene g in first column
-    csv_string_expLog2 += `\n${  g}`; // add newline and name of gene g in first column
-    barcodes_exp.forEach((b) => {
-      csv_string_expZscore += ",";
-      csv_string_expLog2 += ",";
-      // filter out one barcode/gene combination
-      const valZ = expressionData
-        .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
-        .map((el) => el["z-score"]); // zscore value to add to zscore csv
-      if (!valZ.length) { csv_string_expZscore += "NA"; } else { csv_string_expZscore += valZ; } // add to string
-      const valL = expressionData
-        .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
-        .map((el) => el.expression_log2); // log2 value to add to log2 csv
-      if (!valL.length) { csv_string_expLog2 += "NA"; } else { csv_string_expLog2 += valL; } // add to string
-    });
-  });
+  //Save file using saveFile() function
+  saveFile(JSON.stringify(saveObject), "WebGen_data.json");
+}
 
-  // Make Clinical CSV string
-  let csv_string_clin = `Clinical Metadata,Generated By WebGen: https://web4bio.github.io/webgen/,Time-Stamp:,${timestamp},TCGA Cohort(s):,${  cohortID  }\n`; // header for clinical csv
-  csv_string_clin += `Clinical Feature,${  barcodes_clin.join(",")}`; // first row is column names
-  // for each clinical feature, add a row to csv, each comma-separated element is the feature value for that barcode
-  clin_vars.sort().forEach((f) => {
-    csv_string_clin += `\r${  f}`; // add newline and name of feature f in first column
-    barcodes_clin.forEach((b) => {
-      csv_string_clin += ",";
-      // filter out barcode b, get field of feature f
-      const val = clinicalData.filter((el) => el.tcga_participant_barcode === b).map((el) => el[f]);
-      if (!val.length) {
-        csv_string_clin += "NA";
-      } else {
-        csv_string_clin += val.toString().replace(/\n|\r|,/g,""); // replace catches any commas or newlines within the added value
-      } // add to string
-    });
-  });
-
-  // clear div and add new button for json, csv_exp, csv_clin
-  $("#downloadAllButton")
-    .on("click", function () {
-      saveFile(JSON.stringify(saveObject), "WebGen_data.json"); // use saveFile function
-    });
-  if (typeof expressionData !== "undefined" && expressionData.length > 0) {
-    $("#downloadExpressionZscoreButton")
-      .on("click", function () {
-        saveFile(csv_string_expZscore, "WebGen_expression_Zscore.csv"); // use saveFile function
+/** Builds downloadable file of the z-score expression data.
+ *
+ * @param {string[]} cohortID - Names of the cohorts.
+ * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {string[]} genes - Names of the genes.
+ * @param {string[]} barcodes_exp - TCGA participant barcodes
+ * @returns {undefined}
+ */
+let downloadExpressionZScore = async function(cohortID, expressionData, genes, barcodes_exp) {
+  if (typeof(expressionData) === "undefined" || expressionData.length == 0) {
+    alert("Expression data is empty. Please select genes to save.");
+  }
+  else {
+    ProgressBar.setPercentage(0, "Preparing Download");
+    const timestamp = new Date().toUTCString().replace(",","");
+    //Make Expression CSV string
+    let csv_string_expZscore = `Z-scored Gene Expression,Generated By WebGen: https://web4bio.github.io/webgen/,Time-Stamp:,${timestamp},TCGA Cohort(s):,${  cohortID  }\n`; // header for zscore csv
+    csv_string_expZscore += `Gene,${  barcodes_exp.join(",")}`; //Row is column names
+    //For each gene, add a row to CSV, where each comma-separated element is the gene expression for that barcode
+    let count = 0;
+    genes.forEach((g) => {
+      //Append newline and name of gene g in first column
+      csv_string_expZscore += `\n${  g}`;
+      barcodes_exp.forEach((b) => {
+        csv_string_expZscore += ",";
+        //Filter out one barcode/gene combination and identify z-score value to add to z-score CSV
+        const valZ = expressionData
+          .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
+          .map((el) => el["z-score"]);
+        //Add value to z-score CSV
+        if (!valZ.length) { csv_string_expZscore += "NA"; } else { csv_string_expZscore += valZ; }
       });
-    $("#downloadExpressionLog2Button")
-      .on("click", function () {
-        saveFile(csv_string_expLog2, "WebGen_expression_log2.csv"); // use saveFile function
-      });
-  } else {
-    $("#downloadExpressionZscoreButton")
-      .on("click", function () {alert("Expression data is empty. Please select genes to save.");});
-    $("#downloadExpressionLog2Button")
-      .on("click", function () {alert("Expression data is empty. Please select genes to save.");});
+      count += 1;
+      ProgressBar.setPercentage(count/genes.length*100, "Preparing Download");
+      console.log("Preparing Download: " + ProgressBar.percent);
+    });
+    //Use saveFile() function
+    saveFile(csv_string_expZscore, "WebGen_expression_Zscore.csv");
+    ProgressBar.cleanUp();
   }
-  if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
-    $("#downloadClinicalButton")
-      .on("click", function () {
-        saveFile(csv_string_clin, "WebGen_clinical.csv"); // use saveFile function
-      });
-  } else {
-    $("#downloadClinicalButton")
-      .on("click", function () {alert("Clinical data is empty. Please select clinical features to save.");});
-  }
-  $("#downloadDataButtons").show();
-  $("ul.tabs").show();
-  instance.updateTabIndicator();
-};
+}
 
-let mergeClinicalAndMutationData = async function(mutationQuery, mutationData, clinicalData) {
-  let dataToReturn = clinicalData;  
-  for(let index = 0; index < dataToReturn.length; index++) {
-    let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
-    for(let geneIndex = 0; geneIndex < mutationQuery.length; geneIndex++) {
-        let curGeneMutation = mutationQuery[geneIndex] + "_Mutation";
-        let mutationValue = await getVariantClassification(mutationData, curParticipantBarcode, 
-                                                    mutationQuery[geneIndex]);
-        //Append feature to JSON object
-        dataToReturn[index][curGeneMutation] = mutationValue;
-    }  
+/** Builds downloadable file of the log2 expression data.
+ *
+ * @param {string[]} cohortID - Names of the cohorts.
+ * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {string[]} genes - Names of the genes.
+ * @param {string[]} barcodes_exp - TCGA participant barcodes
+ * @returns {undefined}
+ */
+let downloadExpressionLog2 = function(cohortID, expressionData, genes, barcodes_exp) {
+  if (typeof(expressionData) === "undefined" || expressionData.length == 0) {
+    alert("Expression data is empty. Please select genes to save.");
   }
-  return dataToReturn;
-};
+  else {
+    const timestamp = new Date().toUTCString().replace(",","");
+    //Make Expression CSV string
+    let csv_string_expLog2 = `Log2 Gene Expression,Generated By WebGen: https://web4bio.github.io/webgen/,Time-Stamp:,${timestamp},TCGA Cohort(s):,${  cohortID  }\n`; // header for expression_log2 csv
+    csv_string_expLog2 += `Gene,${  barcodes_exp.join(",")}`; //Row is column names  
+    //For each gene, add a row to CSV, where each comma-separated element is the gene expression for that barcode
+    genes.forEach((g) => {
+      //Append newline and name of gene g in first column
+      csv_string_expLog2 += `\n${  g}`;
+      barcodes_exp.forEach((b) => {
+        csv_string_expLog2 += ",";
+        //Filter out one barcode/gene combination and identify log2 value to add to log2 CSV
+        const valL = expressionData
+          .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
+          .map((el) => el.expression_log2);
+        //Add value to log2 CSV
+        if (!valL.length) { csv_string_expLog2 += "NA"; } else { csv_string_expLog2 += valL; }
+      });
+    });
+    //Use saveFile() function
+    saveFile(csv_string_expLog2, "WebGen_expression_log2.csv"); // use saveFile function
+  }
+}
 
-let getVariantClassification = async function (mutationData, curTumorSampleBarcode, 
-  curGene) {
-    for(let index = 0; index < mutationData.length; index++) {
-    if(mutationData[index]["Tumor_Sample_Barcode"].substring(0, 12) == curTumorSampleBarcode 
-        && mutationData[index].Hugo_Symbol == curGene) {
-          return(curGene + " " + mutationData[index].Variant_Classification);
-    }
+/** Builds downloadable file of the clinical data.
+ *
+ * @param {string[]} cohortID - Names of the cohorts.
+ * @param {clinicalData[]} clinicalData - Array of clinical data objects.
+ *
+ * @returns {undefined}
+ */
+let downloadClinicalData = function(cohortID, clinicalData, barcodes_clin) {
+  if (typeof(clinicalData) === "undefined" || clinicalData.length == 0) {
+    alert("Clinical data is empty. Please select clinical features to save.");
   }
-  return curGene + " Wild_Type";
-};
+  else {
+    //Extract clinical variables from clinical data and sort for formatting purposes
+    const clin_vars = Object.keys(clinicalData[0]).sort();
+    const timestamp = new Date().toUTCString().replace(",","");
+    //Make Clinical CSV string
+    let csv_string_clin = `Clinical Metadata,Generated By WebGen: https://web4bio.github.io/webgen/,Time-Stamp:,${timestamp},TCGA Cohort(s):,${  cohortID  }\n`; // header for clinical csv
+    csv_string_clin += `Clinical Feature,${  barcodes_clin.join(",")}`; // first row is column names
+    //for each clinical feature, add a row to csv, each comma-separated element is the feature value for that barcode
+    clin_vars.forEach((f) => {
+      // Add newline and name of feature f in first column
+      csv_string_clin += `\r${  f}`;
+      barcodes_clin.forEach((b) => {
+        csv_string_clin += ",";
+        // Obtain value at barcode b and field of feature f
+        const val = clinicalData.filter((el) => el.tcga_participant_barcode === b).map((el) => el[f]);
+        if (!val.length) { csv_string_clin += "NA"; } 
+        else {
+          //replace() catches any commas or newlines within the added value
+          csv_string_clin += val.toString().replace(/\n|\r|,/g,"");
+        }
+      });
+    });
+    //Use saveFile() function
+    saveFile(csv_string_clin, "WebGen_clinical.csv");
+  }
+}
