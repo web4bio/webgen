@@ -10,6 +10,9 @@ let selectedRange = [];
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
+// an object that defines color schema of pie charts
+// maintains yellow highlights despite addition removal of individual pie charts
+// maintains consistent color scheme across pie charts
 let colorOutOfSpace = {
     yellowAt: {},
     colorCodeKey: {}, // Genes Only
@@ -168,59 +171,17 @@ let buildDataExplorePlots = async function() {
 
             }
 
-  
-            var dpr=window.devicePixelRatio;
-            var threeColLower=850*dpr;
-            var twoColLower=675*dpr;
-            //if on mobile or tablet device, always 1 pie chart per row--> make pie chart larger
-            // if (dpr==1){
-            //     var scalingFactor=1;
-            // }
-            // else{
-            //     scalingFactor=1+2/dpr;
-            // }
-          
-            var windowWidth=window.innerWidth;
-            //pie chart size
-            if (window.innerWidth>(1000)){
-                var chartHeight=850;
-                var chartWidth=400;
-            }
-            //sizing parameters for different number of columns
-            else if (windowWidth>(threeColLower)){
-                chartHeight=0.8*(windowWidth)+80;
-                chartWidth=0.4*(windowWidth);
-            }else if (windowWidth>(twoColLower)){
-                chartHeight=0.9*(windowWidth)+200;
-                chartWidth=0.5*(windowWidth);
-            }else{
-                chartHeight=850;
-                chartWidth=400;
-            }
+            let chartDimensions = await setChartDimensions()
+            let chartHeight = chartDimensions[0]
+            let chartWidth = chartDimensions[1]
+            let windowWidth = chartDimensions[2]
+            let threeColLower = chartDimensions[3]
+            let twoColLower = chartDimensions[4]
 
-            //legend location
-            if(uniqueValuesForCurrentFeature.length>9){ //puts legend to the right if there are more than 9 labels in legend 
-                chartWidth=chartWidth*1.2;
-                locationX=1.2;
-                locationY=1;
-                for(let i=0; i<uniqueValuesForCurrentFeature.length; i++){
-                    if(uniqueValuesForCurrentFeature[i].length>10){
-                        var shorten=".."; //ellipses for shortening labels in the string
-                        var stringLength=uniqueValuesForCurrentFeature[i].length;
-                        //replaces the label with its shortened version
-                        uniqueValuesForCurrentFeature[i]=shorten.concat(uniqueValuesForCurrentFeature[i].substring(stringLength-7,stringLength));
-                    }
-                }
-                if (windowWidth>threeColLower){
-                    windowWidth=849*dpr;
-                }
-                else if(windowWidth>twoColLower){
-                    windowWidth=674*dpr;
-                }
-            }else{
-                locationX=0;
-                locationY=1;
-            }
+            let legendLocation = await setLegendLocation(chartWidth, uniqueValuesForCurrentFeature, threeColLower, twoColLower)
+            let locationX = legendLocation[0]
+            let locationY = legendLocation[1]
+
 
             var data = [{
                 values: xCounts,
@@ -245,6 +206,7 @@ let buildDataExplorePlots = async function() {
                 type: 'histogram'
             }];
 
+            // set colors of pie sectors:
             if (!continuous) {
                 colorOutOfSpace.buildColorCodeKeyGene(uniqueValuesForCurrentFeature)
                 let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
@@ -653,4 +615,64 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
 
     return [xCounts, uniqueValuesForCurrentFeature]
 
+}
+
+let setChartDimensions = async function() {
+    var dpr=window.devicePixelRatio;
+    var threeColLower=850*dpr;
+    var twoColLower=675*dpr;
+    //if on mobile or tablet device, always 1 pie chart per row--> make pie chart larger
+    // if (dpr==1){
+    //     var scalingFactor=1;
+    // }
+    // else{
+    //     scalingFactor=1+2/dpr;
+    // }
+
+    var windowWidth=window.innerWidth;
+    //pie chart size
+    if (window.innerWidth>(1000)){
+        var chartHeight=850;
+        var chartWidth=400;
+    }
+    //sizing parameters for different number of columns
+    else if (windowWidth>(threeColLower)){
+        chartHeight=0.8*(windowWidth)+80;
+        chartWidth=0.4*(windowWidth);
+    }else if (windowWidth>(twoColLower)){
+        chartHeight=0.9*(windowWidth)+200;
+        chartWidth=0.5*(windowWidth);
+    }else{
+        chartHeight=850;
+        chartWidth=400;
+    }
+
+    return [chartHeight, chartWidth, windowWidth, threeColLower, twoColLower]
+}
+
+//legend location
+let setLegendLocation = async function(chartWidth, uniqueValuesForCurrentFeature, threeColLower, twoColLower) {
+    if(uniqueValuesForCurrentFeature.length>9){ //puts legend to the right if there are more than 9 labels in legend 
+        chartWidth=chartWidth*1.2;
+        locationX=1.2;
+        locationY=1;
+        for(let i=0; i<uniqueValuesForCurrentFeature.length; i++){
+            if(uniqueValuesForCurrentFeature[i].length>10){
+                var shorten=".."; //ellipses for shortening labels in the string
+                var stringLength=uniqueValuesForCurrentFeature[i].length;
+                //replaces the label with its shortened version
+                uniqueValuesForCurrentFeature[i]=shorten.concat(uniqueValuesForCurrentFeature[i].substring(stringLength-7,stringLength));
+            }
+        }
+        if (windowWidth>threeColLower){
+            windowWidth=849*dpr;
+        }
+        else if(windowWidth>twoColLower){
+            windowWidth=674*dpr;
+        }
+    }else{
+        locationX=0;
+        locationY=1;
+    }
+    return [locationX, locationY]
 }
