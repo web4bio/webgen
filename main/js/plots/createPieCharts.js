@@ -118,15 +118,15 @@ function onlyUnique(value, index, self) {
  */
 let buildDataExplorePlots = async function() {
 
-    let mySelectedClinicalFeatures = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-    let mySelectedClinicalFeatures2 = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-    mySelectedClinicalFeatures = mySelectedClinicalFeatures.concat(mySelectedClinicalFeatures2)
+    let mySelectedGenes = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
 
-    // if no clinical features are selected, do not display any pie charts
-    if(mySelectedClinicalFeatures.length == 0) {
+    // if no features are selected, do not display any pie charts
+    if(mySelectedFeatures.length == 0) {
         document.getElementById('dataexploration').innerHTML = ""
 
-    // if clinical feature(s) is/are selected, display pie chart(s)
+    // if feature(s) is/are selected, display pie chart(s)
     } else {
 
         // clear all previous plots that were displayed
@@ -140,16 +140,15 @@ let buildDataExplorePlots = async function() {
         let totalNumberBarcodes = 0;
         for(let i = 0; i < countQuery.length; i++) {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
-
         // reset isSelected, so when a plot is deleted the clinicalType arr is updated
         for(let j = 0; j < clinicalType.length; j++){
             clinicalType[j].isSelected = false;
         }
         // loop through each selected clinical feature
-        for(let i = 0; i < mySelectedClinicalFeatures.length; i++) {
+        for(let i = 0; i < mySelectedFeatures.length; i++) {
 
             let continuous = false;
-            let currentFeature = mySelectedClinicalFeatures[i];
+            let currentFeature = mySelectedFeatures[i];
             let uniqueValuesForCurrentFeature = [];
             let xCounts = [];
 
