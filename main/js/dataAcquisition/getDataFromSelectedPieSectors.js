@@ -17,10 +17,7 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
       let currentGene = currentField;
       
-      const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
-        (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-
-      await firebrowse.fetchMutationMAF({cohorts: myCohortQuery, genes: currentGene}).then(function(mutationData) { // get ALL mutation data for current gene of the selected genes
+      await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: currentGene}).then(function(mutationData) { // get ALL mutation data for current gene of the selected genes
 
         // LOOP THRU ALL CLICKED "MUTATIONS"
         let clickedMutations = selectedData[currentGene];

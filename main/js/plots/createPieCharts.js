@@ -133,10 +133,7 @@ let buildDataExplorePlots = async function() {
         document.getElementById('dataexploration').innerHTML = "";
 
         // get total number of barcodes for selected cancer type(s)
-        let myCohort = $(".cancerTypeMultipleSelection")
-            .select2("data")
-            .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-        let countQuery = await firebrowse.fetchCounts(myCohort);
+        let countQuery = await firebrowse.fetchCounts(selectedTumorTypes);
         let totalNumberBarcodes = 0;
         for(let i = 0; i < countQuery.length; i++) {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
@@ -530,10 +527,8 @@ let buildDataExplorePlots = async function() {
 
     let allVariantClassifications = [];
     let allBarcodes = []; // barcodes that correspond to a mutation
-    const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
-        (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
 
-    await firebrowse.fetchMutationMAF({cohorts: myCohortQuery, genes: currentGeneSelected}).then(function(result) { // get all mutations that exist for this gene and cancer type
+    await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: currentGeneSelected}).then(function(result) { // get all mutations that exist for this gene and cancer type
 
         let mutationsForThisGene = result;
 

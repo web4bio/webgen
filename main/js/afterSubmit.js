@@ -31,8 +31,6 @@ const buildPlots = async function() {
 
   // GET DATA FROM SELECTIONS:
 
-  const cohortQuery = $(".cancerTypeMultipleSelection")
-    .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   const mutationQuery = $(".geneOneMultipleSelection")
     .select2("data").map((gene) => gene.text);
   const expressionQuery = await getExpressionQuery();
@@ -41,7 +39,7 @@ const buildPlots = async function() {
     return x === undefined || x === null || x.length === 0;
   };
 
-  if (isEmpty(cohortQuery) || isEmpty(expressionQuery) ) {
+  if (isEmpty(selectedTumorTypes) || isEmpty(expressionQuery) ) {
     console.log("user did not provide enough information for query");
     window.alert("Please select at least one tumor type and gene.");
     return null;
@@ -64,12 +62,12 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-  let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
+  let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: mutationQuery});
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
 
   // Extract expression data only at intersectedBarcodes
-  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
+  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,selectedTumorTypes);
   cache.set('rnaSeq', 'expressionData', expressionData)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,14 +83,14 @@ const buildPlots = async function() {
     for(let index = 0; index < expressionData.length; index++)
       barcodesFromExpressionData.add(expressionData[index].tcga_participant_barcode);
     barcodesFromExpressionData = Array.from(barcodesFromExpressionData);
-    clinicalData = await firebrowse.fetchClinicalFH({/*cohorts: cohortQuery, */
+    clinicalData = await firebrowse.fetchClinicalFH({/*cohorts: selectedTumorTypes, */
       barcodes: barcodesFromExpressionData});
   }
 
   cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
-  let mutationData = await firebrowse.fetchMutationMAF({cohorts: cohortQuery, genes: mutationQuery})
+  let mutationData = await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: mutationQuery})
   let mutationAndClinicalData = mergeClinicalAndMutationData(mutationQuery, mutationData,
     clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));

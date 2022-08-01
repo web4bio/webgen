@@ -248,14 +248,11 @@ let fillPathwaySelectBox = async function () {
  * @returns {Promise<Array.<string>>} An array of strings, the barcodes from the selected cohorts.
  */
 let getBarcodesFromCohortForClinical = async function () {
-  let myCohort = $(".cancerTypeMultipleSelection")
-    .select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   let results = [];
   let barcodesArr = [];
   let pageCount = 0;
   do {
-    results = await firebrowse.fetchClinicalFH({cohorts: myCohort, /*genes: "bcl2",*/ 
+    results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, /*genes: "bcl2",*/ 
       pageNum: pageCount.toString()});
     results.forEach((element) => barcodesArr.push(element.tcga_participant_barcode));
     //Increment page count for fetchClinicalFH function call (retrieves next page of data)
