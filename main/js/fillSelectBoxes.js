@@ -48,24 +48,6 @@ const fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let fetchNumberSamples = async function () {
-  let myCohort = $(".cancerTypeMultipleSelection")
-    .select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  
-  let fetchedCountData = await firebrowse.fetchCounts(myCohort);
-  
-  fetchedCountData = fetchedCountData.map(x => {
-    const container = {};
-    container.cohort = x.cohort.substring(0, fetchedCountData[0].cohort.indexOf('-'));
-    container.mrnaseq = x.mrnaseq;
-    return container;
-  });
-
-  return fetchedCountData;
-};
-
-
 /** Creates and displays the "Number of samples" element that appears when a cohort is selected.
  * 
  * @returns {undefined}
@@ -81,7 +63,13 @@ let displayNumberSamples = async function () {
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
     // get counts of samples for selected tumor types:
-    var countQuery = await fetchNumberSamples();
+    let fetchedCountData = await firebrowse.fetchCounts(myCohort);
+    fetchedCountData = fetchedCountData.map(x => {
+      const container = {};
+      container.cohort = x.cohort.substring(0, fetchedCountData[0].cohort.indexOf('-'));
+      container.mrnaseq = x.mrnaseq;
+      return container;
+    });
     // order counts array based on order in which tumor types were selected:
     function orderThings (array, order, key) {
       array.sort(function (a, b) {
@@ -94,7 +82,7 @@ let displayNumberSamples = async function () {
       });
       return array;
     };
-    orderedCountQuery = orderThings(countQuery, myCohort, 'cohort')
+    orderedCountQuery = orderThings(fetchedCountData, myCohort, 'cohort')
     // build label:
     let string = "";
     let para;
