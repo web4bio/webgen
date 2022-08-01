@@ -63,9 +63,9 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
               onlyBarcodes_2 = allData_2.map(x => x.tcga_participant_barcode);
 
               let barcodesForWildType = [];
-              for(let i = 0; i < onlyBarcodes_2.length; i++)
-                if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
-                  barcodesForWildType.push(onlyBarcodes_2[i]);
+              for(let k = 0; k < onlyBarcodes_2.length; k++)
+                if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[k]))
+                  barcodesForWildType.push(onlyBarcodes_2[k]);
               if(concatFilteredBarcodes['' + currentGene] == undefined)
                 concatFilteredBarcodes['' + currentGene] = barcodesForWildType;
               else
