@@ -92,7 +92,7 @@ const buildPlots = async function() {
   cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
-  let mutationData = await getAllVariantClassifications(mutationQuery);
+  let mutationData = await firebrowse.fetchMutationMAF({cohorts: cohortQuery, genes: mutationQuery})
   let mutationAndClinicalData = mergeClinicalAndMutationData(mutationQuery, mutationData,
     clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));

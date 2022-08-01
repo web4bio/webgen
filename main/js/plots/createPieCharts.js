@@ -144,7 +144,7 @@ let buildDataExplorePlots = async function() {
         for(let j = 0; j < clinicalType.length; j++){
             clinicalType[j].isSelected = false;
         }
-        // loop through each selected clinical feature
+        // loop through each selected feature
         for(let i = 0; i < mySelectedFeatures.length; i++) {
 
             let continuous = false;
@@ -530,7 +530,10 @@ let buildDataExplorePlots = async function() {
 
     let allVariantClassifications = [];
     let allBarcodes = []; // barcodes that correspond to a mutation
-    await getAllVariantClassifications(currentGeneSelected).then(function(result) { // get all mutations that exist for this gene and cancer type
+    const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
+        (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+
+    await firebrowse.fetchMutationMAF({cohorts: myCohortQuery, genes: currentGeneSelected}).then(function(result) { // get all mutations that exist for this gene and cancer type
 
         let mutationsForThisGene = result;
 
