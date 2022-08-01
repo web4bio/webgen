@@ -267,47 +267,10 @@ let getBarcodesFromCohortForClinical = async function () {
   return tpBarcodes;
 };
 
-/** Fetches CLINICAL data for those barcodes for which expression data exists 
- * for those cancer types that were selected.
- * 
- * @typedef {Object} CohortClinicalData
- * @property {string} cohort
- * @property {string} date
- * @property {string} date_to_initial_pathologic_diagnosis
- * @property {string} days_to_death
- * @property {string} days_to_last_followup
- * @property {string} days_to_last_known_alive
- * @property {string} ethnicity
- * @property {string} gender
- * @property {string} histological_type
- * @property {string} number_of_lymph_nodes
- * @property {string} pathologic_stage
- * @property {string} pathology_M_stage
- * @property {string} pathology_N_stage
- * @property {string} pathology_T_stage
- * @property {string} race
- * @property {string} radiation_therapy
- * @property {string} tcga_participant_barcode
- * @property {string} tool
- * @property {string} tumor_tissue_site
- * @property {string} vital_status
- * @property {string} years_to_birth
- * 
- * @returns {Promise<Array.<CohortClinicalData>>} Returns a promise for an array of JSONS
- * which contain clinical data for the cohort.
- */
-let fetchClinicalData = async function (myCohort) {
-  //let myCohort = $(".cancerTypeMultipleSelection")
-  //  .select2("data")
-  //  .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.fetchClinicalFH({cohorts: myCohort, barcodes: barcodes});
-  //clinicalData = clinicalData.filter(barcode => myCohort.includes(barcode.cohort));
-  return clinicalData;
-};
-
 let allClinicalData;
 let clinicalType = [];
+
+let selectedTumorTypes;
 
 /** Creates and fills the box to select clinical features.
  * Uses local storage if possible.
@@ -316,20 +279,20 @@ let clinicalType = [];
  */
 let fillClinicalSelectBox = async function () {
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
-  let myCohort = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-
-  if (myCohort.length != 0) {
-    let dataFetched = await fetchClinicalData(myCohort);
-    allClinicalData = dataFetched;
+  selectedTumorTypes = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  if (selectedTumorTypes.length != 0) {
+    const barcodes = await getBarcodesFromCohortForClinical();
+    // Fetches CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
+    allClinicalData = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: barcodes});
 
     // ------------------------------------------------------------------------------------------------------------------------
 
     // if more than one cancer type is selected, the intersection of available clinical features between the two cancer types
     // is populated as options in the dropdown for clinical features
     let clinicalKeys = [];
-    for(i = 0; i < myCohort.length; i++) {
+    for(i = 0; i < selectedTumorTypes.length; i++) {
       for(j = 0; j < allClinicalData.length; j++) {
-        if(allClinicalData[j].cohort == myCohort[i]) {
+        if(allClinicalData[j].cohort == selectedTumorTypes[i]) {
           clinicalKeys.push(Object.keys(allClinicalData[j]));
           break;
         }
