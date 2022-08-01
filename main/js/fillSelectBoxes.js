@@ -52,29 +52,9 @@ let fetchNumberSamples = async function () {
   let myCohort = $(".cancerTypeMultipleSelection")
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const hosturl = "https://firebrowse.herokuapp.com";
-  const endpointurl = "http://firebrowse.org/api/v1/Metadata/Counts";
-  const endpointurl_presets = {
-    cohort: myCohort,
-    sample_type: "TP",
-    data_type: "mrnaseq",
-    totals: "true",
-  };
-  const endpointurl_fieldsWithValues =
-    "&cohort=" +
-    endpointurl_presets.cohort.toString() +
-    "&sample_type=" +
-    endpointurl_presets.sample_type +
-    "&data_type=" +
-    endpointurl_presets.data_type +
-    "&totals=" +
-    endpointurl_presets.totals;
-  var fetchedCountData = await fetch(
-    hosturl + "?" + endpointurl + "?" + endpointurl_fieldsWithValues
-  ).then(function (response) {
-    return response.json();
-  });
-  fetchedCountData = fetchedCountData.Counts;
+  
+  let fetchedCountData = await firebrowse.fetchCounts(myCohort);
+  
   fetchedCountData = fetchedCountData.map(x => {
     const container = {};
     container.cohort = x.cohort.substring(0, fetchedCountData[0].cohort.indexOf('-'));
@@ -82,11 +62,7 @@ let fetchNumberSamples = async function () {
     return container;
   });
 
-  if (fetchedCountData == "")
-    return ["Error: Invalid Input Fields for Query.", 0];
-  else {
-    return fetchedCountData;
-  }
+  return fetchedCountData;
 };
 
 
