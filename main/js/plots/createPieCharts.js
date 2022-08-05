@@ -135,7 +135,9 @@ let buildDataExplorePlots = async function() {
             let unselectedFeature = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
             if(unselectedFeature.length > 0) {
                 let temp = document.getElementById(unselectedFeature[j] + 'Div');
-                temp.remove();
+                if (temp) {
+                    temp.remove();
+                }
             }
         }
         previouslySelectedFeatures = mySelectedFeatures;    
