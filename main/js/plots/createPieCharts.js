@@ -7,6 +7,7 @@
 
 let selectedData = [];
 let selectedRange = [];
+let previouslySelectedFeatures;
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
@@ -119,7 +120,7 @@ function onlyUnique(value, index, self) {
 let buildDataExplorePlots = async function() {
     let mySelectedGenes = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-    mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
+    let mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
 
     // if no features are selected, do not display any pie charts
     if(mySelectedFeatures.length == 0) {
@@ -128,18 +129,28 @@ let buildDataExplorePlots = async function() {
     // if feature(s) is/are selected, display pie chart(s)
     } else {
 
-        // clear all previous plots that were displayed
-        document.getElementById('dataexploration').innerHTML = "";
-
+        // Remove plot if feature was unselected
+        if (previouslySelectedFeatures !== undefined) {
+            // get any features that were previously selected that are no longer selected
+            let unselectedFeature = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
+            if(unselectedFeature.length > 0) {
+                let temp = document.getElementById(unselectedFeature[j] + 'Div');
+                temp.remove();
+            }
+        }
+        previouslySelectedFeatures = mySelectedFeatures;    
+        
         // get total number of barcodes for selected cancer type(s)
         let countQuery = await firebrowse.fetchCounts(selectedTumorTypes);
         let totalNumberBarcodes = 0;
         for(let i = 0; i < countQuery.length; i++) {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
+
         // reset isSelected, so when a plot is deleted the clinicalType arr is updated
         for(let j = 0; j < clinicalType.length; j++){
             clinicalType[j].isSelected = false;
         }
+
         // loop through each selected feature
         for(let i = 0; i < mySelectedFeatures.length; i++) {
 
@@ -147,6 +158,11 @@ let buildDataExplorePlots = async function() {
             let currentFeature = mySelectedFeatures[i];
             let uniqueValuesForCurrentFeature = [];
             let xCounts = [];
+
+            // If a plot already exists for this feature, do not re-render this plot
+            if(document.getElementById(currentFeature + 'Div')) {
+                continue
+            }
 
             // if current feature is a gene,
             // get values and labels for this feature
@@ -176,6 +192,7 @@ let buildDataExplorePlots = async function() {
                 newDiv = chartDimensions[4]
     
                 newDiv.setAttribute("id", currentFeature + "Div");
+                newDiv.setAttribute("style", "float:left;");
                 let parentRowDiv = document.getElementById("dataexploration");        
                 parentRowDiv.appendChild(newDiv);
     
@@ -274,12 +291,6 @@ let buildDataExplorePlots = async function() {
             await setChartDimsAndPlot(uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous)
             
             window.addEventListener("resize", function() { setChartDimsAndPlot(uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous); } )
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////////////////////////////////
-            //////////////////////// On-click event for pie charts below ///////////////////////////////////
-            ////////////////////////////////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////////////////////////////////
 
             document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
                 // checks if continuous data range has been added yet
