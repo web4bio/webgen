@@ -128,7 +128,7 @@ let buildDataExplorePlots = async function() {
 
     // if feature(s) is/are selected, display pie chart(s)
     } else {
-
+        
         // Remove plot if feature was unselected
         if (previouslySelectedFeatures !== undefined) {
             // get any features that were previously selected that are no longer selected
@@ -139,7 +139,7 @@ let buildDataExplorePlots = async function() {
             }
         }
         previouslySelectedFeatures = mySelectedFeatures;    
-        
+
         // get total number of barcodes for selected cancer type(s)
         let countQuery = await firebrowse.fetchCounts(selectedTumorTypes);
         let totalNumberBarcodes = 0;
@@ -182,115 +182,119 @@ let buildDataExplorePlots = async function() {
 
             }
 
+            let parentRowDiv = document.getElementById("dataexploration");        
+            let newDiv = document.createElement("div");
+            newDiv.setAttribute("id", currentFeature + "Div");
+            newDiv.setAttribute("style", "float:left;");
+            parentRowDiv.appendChild(newDiv);
+
             let setChartDimsAndPlot = async function (uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous) {
 
-                let chartDimensions = await setChartDimensions(uniqueValuesForCurrentFeature)
-                let chartHeight = chartDimensions[0]
-                let chartWidth = chartDimensions[1]
-                let legend_location_x = chartDimensions[2]
-                let legend_location_y = chartDimensions[3]
-                newDiv = chartDimensions[4]
-    
-                newDiv.setAttribute("id", currentFeature + "Div");
-                newDiv.setAttribute("style", "float:left;");
-                let parentRowDiv = document.getElementById("dataexploration");        
-                parentRowDiv.appendChild(newDiv);
-    
-                var data = [{
-                    values: xCounts,
-                    labels: uniqueValuesForCurrentFeature,
-                    type: 'pie',
-                    textinfo: "none",
-                    marker: {
-                        colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-                        '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
-                        line: {
-                            color: 'black',
-                            width: 1
-                        }
-                    }
-                }];
-    
-                var histo_data = [{
-                    x: uniqueValuesForCurrentFeature,
-                    //y: xCounts,
-                    hovertemplate: '<b>Number of samples:</b> %{y}<br>'+
-                                   '<extra></extra>',
-                    type: 'histogram'
-                }];
-    
-                // set colors of pie sectors:
-                if (!continuous) {
-                    colorOutOfSpace.buildColorCodeKeyGene(uniqueValuesForCurrentFeature)
-                    let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
-                    data[0] = {...data[0], marker: {
-                        colors: colorArray,
-                        line: {
-                            color: 'black',
-                            width: 1
-                        }
-                    }}
-                    if (colorOutOfSpace.yellowAt[currentFeature]) {
-                        // if (Object.keys(colorOutOfSpace.yellowAt[currentFeature]['Key']).length !== uniqueValuesForCurrentFeature.length) {}
-                        colorOutOfSpace.updateGlobalColorDict(uniqueValuesForCurrentFeature, currentFeature)
-                        data[0] = {...data[0], marker: {
-                            colors: colorOutOfSpace.createColorArray(colorArray, currentFeature),
+                let currentFeatureDiv = document.getElementById(currentFeature + "Div")
+                if (currentFeatureDiv) {
+
+                    let chartDimensions = await setChartDimensions(uniqueValuesForCurrentFeature, currentFeatureDiv)
+                    let chartHeight = chartDimensions[0]
+                    let chartWidth = chartDimensions[1]
+                    let legend_location_x = chartDimensions[2]
+                    let legend_location_y = chartDimensions[3]
+            
+                    var data = [{
+                        values: xCounts,
+                        labels: uniqueValuesForCurrentFeature,
+                        type: 'pie',
+                        textinfo: "none",
+                        marker: {
+                            colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                            '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
                             line: {
-                              color: 'black',
-                              width: 1
+                                color: 'black',
+                                width: 1
+                            }
+                        }
+                    }];
+        
+                    var histo_data = [{
+                        x: uniqueValuesForCurrentFeature,
+                        //y: xCounts,
+                        hovertemplate: '<b>Number of samples:</b> %{y}<br>'+
+                                    '<extra></extra>',
+                        type: 'histogram'
+                    }];
+        
+                    // set colors of pie sectors:
+                    if (!continuous) {
+                        colorOutOfSpace.buildColorCodeKeyGene(uniqueValuesForCurrentFeature)
+                        let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
+                        data[0] = {...data[0], marker: {
+                            colors: colorArray,
+                            line: {
+                                color: 'black',
+                                width: 1
                             }
                         }}
-                    } else {
-                        colorOutOfSpace.createGlobalColorDict(currentFeature, uniqueValuesForCurrentFeature)
+                        if (colorOutOfSpace.yellowAt[currentFeature]) {
+                            // if (Object.keys(colorOutOfSpace.yellowAt[currentFeature]['Key']).length !== uniqueValuesForCurrentFeature.length) {}
+                            colorOutOfSpace.updateGlobalColorDict(uniqueValuesForCurrentFeature, currentFeature)
+                            data[0] = {...data[0], marker: {
+                                colors: colorOutOfSpace.createColorArray(colorArray, currentFeature),
+                                line: {
+                                color: 'black',
+                                width: 1
+                                }
+                            }}
+                        } else {
+                            colorOutOfSpace.createGlobalColorDict(currentFeature, uniqueValuesForCurrentFeature)
+                        }
                     }
-                }
-    
-                var layout = {
-                    height: chartHeight,
-                    width: chartWidth,
-                    title: currentFeature + "",
-                    showlegend: true,
-                    legend: {
-                        // maxWidth: 5,
-                        x: legend_location_x,
-                        y: legend_location_y,
-                        font: {
-                            size: 14
+        
+                    var layout = {
+                        height: chartHeight,
+                        width: chartWidth,
+                        title: currentFeature + "",
+                        showlegend: true,
+                        legend: {
+                            // maxWidth: 5,
+                            x: legend_location_x,
+                            y: legend_location_y,
+                            font: {
+                                size: 14
+                            },
+                            itemwidth: 40,
+                            orientation: "v"
                         },
-                        itemwidth: 40,
-                        orientation: "v"
-                    },
-                    extendpiecolors: true,
-                };
-    
-                var histo_layout = {
-                    bargap: 0.05,
-                    height: 400,
-                    width: 500,
-                    title: currentFeature + "",
-                    showlegend: false,
-                    xaxis: {
-                        rangeselector: {},
-                        rangeslider: {}
-                    },
-                    yaxis: {
-                        fixedrange: true
+                        extendpiecolors: true,
+                    };
+        
+                    var histo_layout = {
+                        bargap: 0.05,
+                        height: 400,
+                        width: 500,
+                        title: currentFeature + "",
+                        showlegend: false,
+                        xaxis: {
+                            rangeselector: {},
+                            rangeslider: {}
+                        },
+                        yaxis: {
+                            fixedrange: true
+                        }
+                    };
+        
+                    var config = {responsive: true}
+        
+                    if (continuous) {
+                        Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
+                    } else {
+                        Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
                     }
-                };
-    
-                var config = {responsive: true}
-    
-                if (continuous) {
-                    Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
-                } else {
-                    Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
-                }    
 
+                }
             }
 
             await setChartDimsAndPlot(uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous)
             
-            window.addEventListener("resize", function() { setChartDimsAndPlot(uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous); } )
+            window.addEventListener("resize", function() { setChartDimsAndPlot(uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous);} )
 
             document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
                 // checks if continuous data range has been added yet
@@ -435,7 +439,7 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
 
 }
 
-let setChartDimensions = async function(uniqueValuesForCurrentFeature) {
+let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFeatureDiv) {
     let dpr = window.devicePixelRatio; // returns the ratio of the resolution in physical pixels to the resolution in CSS pixels for the current display device
     let windowWidth = window.innerWidth; // returns the interior width of the window in pixels
     let twoColLower = 675 * dpr;
@@ -451,16 +455,14 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature) {
     } 
     */
 
-    let newDiv = document.createElement("div");
-
     // depending on window width, set column size class of plot divs
     if (windowWidth > threeColLower) {
-        newDiv.setAttribute("class", "col s4");
+        currentFeatureDiv.setAttribute("class", "col s4");
     }
     else if (windowWidth > twoColLower) {
-        newDiv.setAttribute("class", "col s5");
+        currentFeatureDiv.setAttribute("class", "col s5");
     } else {
-        newDiv.setAttribute("class", "col s7");
+        currentFeatureDiv.setAttribute("class", "col s7");
     }
 
     // set chart height and width
@@ -499,6 +501,5 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature) {
         legend_location_x = 0;
         legend_location_y = 1;
     }
-
-    return [chartHeight, chartWidth, legend_location_x, legend_location_y, newDiv]
+    return [chartHeight, chartWidth, legend_location_x, legend_location_y]
 }
