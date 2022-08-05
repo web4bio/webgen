@@ -94,10 +94,17 @@
                         });
                         fillCancerTypeSelectBox();
 
+                        $("#geneOneMultipleSelection").val(null).trigger("change.select2");
+
+                        $("#geneOneMultipleSelection").on('change', function() { 
+                            buildDataExplorePlots(allClinicalData);
+                            saveInLocalStorage();
+                        });
+
                         // For Clinical feature Select2 Drop down:
                         $(".clinicalMultipleSelection").select2({
-                                placeholder: "Clinical Feature(s)",
-                            });
+                            placeholder: "Clinical Feature(s)",
+                        });
 
                         //For Pathways Select2 Drop down:
                         $(".pathwayMultipleSelection").select2({
@@ -180,7 +187,6 @@
                             name="selectedMutations[]"
                             multiple="multiple"
                             id="geneOneMultipleSelection"
-                            onchange="buildDataExplorePlots(allClinicalData), saveInLocalStorage()"
                         />
                         <!-- Filled by fillSelectBoxes.js -->
                     </div>

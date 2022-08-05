@@ -217,9 +217,6 @@ let getGenesByPathway = async function () {
 let fillPathwaySelectBox = async function () {
   validPathwaysList = await getValidPathwaysList();
   let selectBox = document.getElementById("pathwayMultipleSelection");
-
-  $("#geneOneMultipleSelection").val(null).trigger("change");
-
   for (let i = 0; i < validPathwaysList.length; i++) {
     let currentOption = document.createElement("option");
     currentOption.value = validPathwaysList[i];
