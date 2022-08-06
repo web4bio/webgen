@@ -66,7 +66,7 @@ const buildPlots = async function() {
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
 
   // Extract expression data only at intersectedBarcodes
-  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, selectedTumorTypes);
+  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, selectedTumorTypes, expressionQuery);
   cache.set('rnaSeq', 'expressionData', expressionData)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

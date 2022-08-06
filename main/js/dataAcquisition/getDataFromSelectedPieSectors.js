@@ -153,14 +153,13 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 }
 
 
-getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery){
+getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery, expressionQuery){
 
   // allData is used when no pie slices are chosen
   let allData = allClinicalData;
 
   // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {
-    let expressionQuery = await getExpressionQuery();
 
     // Validation of user inputs should prevent allData from being undefined, but we
     // should not depend on state outside of the function to check our values here.
@@ -194,7 +193,6 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     // The final data array may include a fewer number of barcodes than that contained in
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
-    let expressionQuery = await getExpressionQuery();
     return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: intersectedBarcodes});
   }
 }
