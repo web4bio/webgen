@@ -309,7 +309,7 @@ let fillClinicalSelectBox = async function () {
     for (let i = 0; i < intersectedFeatures.length; i++) {
       let currentOption = document.createElement("option");
       currentOption.value = intersectedFeatures[i];
-      currentOption.text = intersectedFeatures[i];
+      currentOption.text = (intersectedFeatures[i]).replaceAll('_', ' ');
       currentOption.id = intersectedFeatures[i];
       if(intersectedFeatures[i] != 'cohort')
         selectBox.appendChild(currentOption);

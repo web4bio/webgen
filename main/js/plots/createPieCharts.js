@@ -119,7 +119,7 @@ function onlyUnique(value, index, self) {
  */
 let buildDataExplorePlots = async function() {
     let mySelectedGenes = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
-    let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
+    let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.id);
     let mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
 
     // if no features are selected, do not display any pie charts
@@ -134,7 +134,7 @@ let buildDataExplorePlots = async function() {
             // get any features that were previously selected that are no longer selected
             let unselectedFeature = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
             if(unselectedFeature.length > 0) {
-                let temp = document.getElementById(unselectedFeature[j] + 'Div');
+                let temp = document.getElementById(unselectedFeature + 'Div');
                 if (temp) {
                     temp.remove();
                 }
@@ -219,7 +219,6 @@ let buildDataExplorePlots = async function() {
         
                     var histo_data = [{
                         x: uniqueValuesForCurrentFeature,
-                        //y: xCounts,
                         hovertemplate: '<b>Number of samples:</b> %{y}<br>'+
                                     '<extra></extra>',
                         type: 'histogram'
@@ -254,7 +253,7 @@ let buildDataExplorePlots = async function() {
                     var layout = {
                         height: chartHeight,
                         width: chartWidth,
-                        title: currentFeature + "",
+                        title: (currentFeature + "").replaceAll('_', ' '),
                         showlegend: true,
                         legend: {
                             // maxWidth: 5,
@@ -273,13 +272,15 @@ let buildDataExplorePlots = async function() {
                         bargap: 0.05,
                         height: 400,
                         width: 500,
-                        title: currentFeature + "",
+                        title: (currentFeature + "").replaceAll('_', ' '),
                         showlegend: false,
                         xaxis: {
+                            title: (currentFeature + "").replaceAll('_', ' '),
                             rangeselector: {},
                             rangeslider: {}
                         },
                         yaxis: {
+                            title: "Frequency",
                             fixedrange: true
                         }
                     };
