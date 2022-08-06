@@ -177,27 +177,24 @@ let getValidPathwaysList = async function () {
  */
 let getGenesByPathway = async function () {
 
-  var numberOfPathwaysSelected = $(".pathwayMultipleSelection").select2("data").length;
-  var allGenesByPathways = {};
+  let numberOfPathwaysSelected = $(".pathwayMultipleSelection").select2("data").length;
 
-  // would only run if an option from pathway select box is selected
+  let allGenesByPathways = {};
+
   if (numberOfPathwaysSelected > 0) {
 
     let validPathwaysList = await fetch("https://web4bio.github.io/webgen/main/genePathwaysList.json").then((response) => response.json());
 
-    //Get the pathway(s) selected
-    let myPathway = $(".pathwayMultipleSelection")
-      .select2("data")
-      .map((curPathway) => curPathway.id);
+    let selectedPathways = $(".pathwayMultipleSelection").select2("data").map((curPathway) => curPathway.id);
 
-    //Map all the genes from pathway(s) into an array
+    // Map all the genes from pathway(s) into an array
     allGenesByPathways = _.map(
-      _.range(0, myPathway.length),
+      _.range(0, selectedPathways.length),
       function (i) {
         return {
           id: i,
-          pathway: String(myPathway[i]),
-          genes: validPathwaysList[String(myPathway[i])],
+          pathway: String(selectedPathways[i]),
+          genes: validPathwaysList[String(selectedPathways[i])],
         };
       }
     );

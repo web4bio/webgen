@@ -5,9 +5,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-let selectedData = [];
+let selectedCategoricalFeatures = [];
 let selectedRange = [];
 let previouslySelectedFeatures;
+let mutationDataForAllGenes = []
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
@@ -324,17 +325,17 @@ let buildDataExplorePlots = async function() {
                         colore = data.points[j].data.marker.colors;
                         slice = data.points[j].label;
                     }
-                    if(selectedData[currentFeature] != null) {
-                        if(selectedData[currentFeature].findIndex(element => element == slice) != -1){
+                    if(selectedCategoricalFeatures[currentFeature] != null) {
+                        if(selectedCategoricalFeatures[currentFeature].findIndex(element => element == slice) != -1){
                             let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
                             colore[pts] = colorArray[pts];
-                            selectedData[currentFeature].pop(slice);
+                            selectedCategoricalFeatures[currentFeature].pop(slice);
                         } else {
-                            selectedData[currentFeature].push(slice);
+                            selectedCategoricalFeatures[currentFeature].push(slice);
                             colore[pts] = '#FFF34B';
                         }
                     } else {
-                        selectedData[currentFeature] = [slice];
+                        selectedCategoricalFeatures[currentFeature] = [slice];
                         colore[pts] = '#FFF34B';
                     }
                     colorOutOfSpace.updateYellowAt(currentFeature, slice)
@@ -365,21 +366,20 @@ let buildDataExplorePlots = async function() {
  let computeGeneMutationFrequencies = async function(xCounts, uniqueValuesForCurrentFeature, totalNumberBarcodes, currentGeneSelected) {
 
     let allVariantClassifications = [];
-    let allBarcodes = []; // barcodes that correspond to a mutation
+    // let allBarcodes = []; // barcodes that correspond to a mutation
 
-    await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: currentGeneSelected}).then(function(result) { // get all mutations that exist for this gene and cancer type
+    await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: currentGeneSelected}).then(function(mutationDataForThisGene) { // get all mutations that exist for this gene and cancer type
 
-        let mutationsForThisGene = result;
+        mutationDataForAllGenes.push(mutationDataForThisGene)
 
         // if mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
-        if(mutationsForThisGene != undefined) {
-            for(let i = 0; i < mutationsForThisGene.length; i++) {
-
+        if(mutationDataForThisGene != undefined) {
+            for(let i = 0; i < mutationDataForThisGene.length; i++) {
                 // add all variant classifications (i.e., mutation types) (WITH DUPLICATES) for the given gene to the array
-                allVariantClassifications.push(mutationsForThisGene[i].Variant_Classification);
+                allVariantClassifications.push(mutationDataForThisGene[i].Variant_Classification);
 
                 // add all associated barcodes that correspond to the cancer type and gene to the array
-                allBarcodes.push(mutationsForThisGene[i].Tumor_Sample_Barcode);
+                // allBarcodes.push(mutationDataForThisGene[i].Tumor_Sample_Barcode);
             }
 
             // create an array of unique variant classifications (i.e., mutation types) for each gene selected
