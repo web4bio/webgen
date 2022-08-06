@@ -149,8 +149,8 @@ let buildDataExplorePlots = async function() {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
 
         // reset isSelected, so when a plot is deleted the clinicalType arr is updated
-        for(let j = 0; j < clinicalType.length; j++){
-            clinicalType[j].isSelected = false;
+        for(let i = 0; i < clinicalType.length; i++){
+            clinicalType[i].isSelected = false;
         }
 
         // loop through each selected feature
@@ -178,9 +178,10 @@ let buildDataExplorePlots = async function() {
             // get values and labels for this feature
             } else {
 
-                let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature);
+                let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous);
                 xCounts = clinicalFeaturesResults[0]
                 uniqueValuesForCurrentFeature = clinicalFeaturesResults[1]
+                continuous = clinicalFeaturesResults[2]
 
             }
 
@@ -413,19 +414,18 @@ let buildDataExplorePlots = async function() {
   *
   * @returns {Array} Contains values and labels to input to Plotly data object.
   */
-let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected) {
+let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected, continuous) {
+    
     let allValuesForCurrentFeature = [];
-
     for(let i = 0; i < allClinicalData.length; i++)
         allValuesForCurrentFeature.push(allClinicalData[i][currentClinicalFeatureSelected]);
-
-    var index = clinicalType.findIndex(p => p.name == currentClinicalFeatureSelected);
+    
+    let index = clinicalType.findIndex(x => x.name == currentClinicalFeatureSelected);
     clinicalType[index].isSelected = true;
-    if(clinicalType[index].type === "continuous"){
+    if (clinicalType[index].type === "continuous") {
         continuous = true;
         uniqueValuesForCurrentFeature = allValuesForCurrentFeature; // changed from uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
-    }
-    else {
+    } else {
         continuous = false;
         uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
     }
@@ -437,7 +437,7 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
             if(allClinicalData[i][currentClinicalFeatureSelected] == uniqueValuesForCurrentFeature[k])
                 xCounts[k]++;
 
-    return [xCounts, uniqueValuesForCurrentFeature]
+    return [xCounts, uniqueValuesForCurrentFeature, continuous]
 
 }
 
