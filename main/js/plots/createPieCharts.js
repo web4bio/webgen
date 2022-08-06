@@ -279,8 +279,8 @@ let buildDataExplorePlots = async function() {
                         showlegend: false,
                         xaxis: {
                             title: (currentFeature + "").replaceAll('_', ' '),
-                            rangeselector: {},
-                            rangeslider: {}
+                            rangeselector: {}
+                            // rangeslider: {}
                         },
                         yaxis: {
                             title: "Frequency",
