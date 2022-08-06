@@ -315,24 +315,22 @@ let buildDataExplorePlots = async function() {
                 var colore;
                 var tn = '';
                 var slice = '';
-                for(let i = 0; i < data.points.length; i++) {
-                    pts = data.points[i].pointNumber;
-                    tn = data.points[i].curveNumber;
-                    colore = data.points[i].data.marker.colors;
-                    slice = data.points[i].label;
+                for(let j = 0; j < data.points.length; j++) {
+                    pts = data.points[j].pointNumber;
+                    tn = data.points[j].curveNumber;
+                    colore = data.points[j].data.marker.colors;
+                    slice = data.points[j].label;
                 }
                 if(selectedData[currentFeature] != null) {
                     if(selectedData[currentFeature].findIndex(element => element == slice) != -1){
                         let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
                         colore[pts] = colorArray[pts];
                         selectedData[currentFeature].pop(slice);
-                    }
-                    else {
+                    } else {
                         selectedData[currentFeature].push(slice);
                         colore[pts] = '#FFF34B';
                     }
-                }
-                else {
+                } else {
                     selectedData[currentFeature] = [slice];
                     colore[pts] = '#FFF34B';
                 }
@@ -384,8 +382,8 @@ let buildDataExplorePlots = async function() {
             for(let i = 0; i < xCounts.length; i++)
                 xCounts[i] = 0;
             let totalNumberMutations = 0;
-            for(let k = 0; k < allVariantClassifications.length; k++) {
-                xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[k] )]++;
+            for(let i = 0; i < allVariantClassifications.length; i++) {
+                xCounts[uniqueValuesForCurrentFeature.indexOf( allVariantClassifications[i] )]++;
                 totalNumberMutations++;
             }
 
@@ -462,8 +460,7 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
     // depending on window width, set column size class of plot divs
     if (windowWidth > threeColLower) {
         currentFeatureDiv.setAttribute("class", "col s4");
-    }
-    else if (windowWidth > twoColLower) {
+    } else if (windowWidth > twoColLower) {
         currentFeatureDiv.setAttribute("class", "col s5");
     } else {
         currentFeatureDiv.setAttribute("class", "col s7");
