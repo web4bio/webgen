@@ -220,8 +220,9 @@ let buildDataExplorePlots = async function() {
         
                     var histo_data = [{
                         x: uniqueValuesForCurrentFeature,
-                        hovertemplate: '<b>Number of samples:</b> %{y}<br>'+
-                                    '<extra></extra>',
+                        hovertemplate: '%{x}<br>'+
+                                       '<extra></extra>'+
+                                       '<b>Frequency:</b> %{y}',
                         type: 'histogram'
                     }];
         
@@ -273,7 +274,7 @@ let buildDataExplorePlots = async function() {
                         bargap: 0.05,
                         height: 400,
                         width: 500,
-                        title: (currentFeature + "").replaceAll('_', ' '),
+                        // title: (currentFeature + "").replaceAll('_', ' '),
                         showlegend: false,
                         xaxis: {
                             title: (currentFeature + "").replaceAll('_', ' '),
