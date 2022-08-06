@@ -136,7 +136,13 @@ let buildDataExplorePlots = async function() {
             if(unselectedFeature.length > 0) {
                 let temp = document.getElementById(unselectedFeature + 'Div');
                 if (temp) {
+                    // remove associated div
                     temp.remove();
+                }
+                // if unselected feature is not a gene, set isSelected status to false
+                if(!(unselectedFeature[0] === unselectedFeature[0].toUpperCase())) {
+                    let index = clinicalType.findIndex(x => x.name == unselectedFeature);
+                    clinicalType[index].isSelected = false;
                 }
             }
         }
@@ -147,11 +153,6 @@ let buildDataExplorePlots = async function() {
         let totalNumberBarcodes = 0;
         for(let i = 0; i < countQuery.length; i++) {
             totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
-
-        // reset isSelected, so when a plot is deleted the clinicalType arr is updated
-        for(let i = 0; i < clinicalType.length; i++){
-            clinicalType[i].isSelected = false;
-        }
 
         // loop through each selected feature
         for(let i = 0; i < mySelectedFeatures.length; i++) {
