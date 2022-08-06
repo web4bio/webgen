@@ -102,15 +102,14 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
       }
     }
   }
-  let continuousRangeData = selectedRange;
   // loop through all range data
-  for(let i = 0; i < continuousRangeData.length; i++) {
-    let continuousFeature = continuousRangeData[i];
-    var div = document.getElementById(continuousFeature + 'Div');
+  for(let i = 0; i < selectedRange.length; i++) {
+    let continuousFeature = selectedRange[i];
+    let div = document.getElementById(continuousFeature + 'Div');
     let rangeValue = div.layout.xaxis.range;
-    console.log(continuousFeature);
-    console.log(rangeValue[0]);
-    console.log(rangeValue[1]);
+    // console.log(continuousFeature);
+    // console.log(rangeValue[0]);
+    // console.log(rangeValue[1]);
 
     filteredRangeData = allClinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
 

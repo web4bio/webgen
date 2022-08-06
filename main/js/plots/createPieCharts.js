@@ -311,35 +311,44 @@ let buildDataExplorePlots = async function() {
                 }
             });
 
-            document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
-                var pts = '';
-                var colore;
-                var tn = '';
-                var slice = '';
-                for(let j = 0; j < data.points.length; j++) {
-                    pts = data.points[j].pointNumber;
-                    tn = data.points[j].curveNumber;
-                    colore = data.points[j].data.marker.colors;
-                    slice = data.points[j].label;
-                }
-                if(selectedData[currentFeature] != null) {
-                    if(selectedData[currentFeature].findIndex(element => element == slice) != -1){
-                        let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
-                        colore[pts] = colorArray[pts];
-                        selectedData[currentFeature].pop(slice);
+            // add on click event for pie chart
+            if(currentFeature[0] === currentFeature[0].toUpperCase()) {
+                document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
+                    var pts = '';
+                    var colore;
+                    var tn = '';
+                    var slice = '';
+                    for(let j = 0; j < data.points.length; j++) {
+                        pts = data.points[j].pointNumber;
+                        tn = data.points[j].curveNumber;
+                        colore = data.points[j].data.marker.colors;
+                        slice = data.points[j].label;
+                    }
+                    if(selectedData[currentFeature] != null) {
+                        if(selectedData[currentFeature].findIndex(element => element == slice) != -1){
+                            let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
+                            colore[pts] = colorArray[pts];
+                            selectedData[currentFeature].pop(slice);
+                        } else {
+                            selectedData[currentFeature].push(slice);
+                            colore[pts] = '#FFF34B';
+                        }
                     } else {
-                        selectedData[currentFeature].push(slice);
+                        selectedData[currentFeature] = [slice];
                         colore[pts] = '#FFF34B';
                     }
-                } else {
-                    selectedData[currentFeature] = [slice];
-                    colore[pts] = '#FFF34B';
-                }
-                colorOutOfSpace.updateYellowAt(currentFeature, slice)
-                var update = {'marker': {colors: colore,
-                                        line: {color: 'black', width: 1}}};
-                Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
-            });
+                    colorOutOfSpace.updateYellowAt(currentFeature, slice)
+                    var update = {'marker': {colors: colore,
+                                            line: {color: 'black', width: 1}}};
+                    Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
+                });
+            } else { // add on double click event for histograms to reset axes
+                document.getElementById(currentFeature + 'Div').on('plotly_doubleclick', function() {
+                    selectedRange = []
+                    let update = { };
+                    Plotly.restyle(currentFeature + 'Div', update);
+                })    
+            }
         }
     }
 }}
