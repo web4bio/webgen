@@ -312,7 +312,7 @@ let buildDataExplorePlots = async function() {
             });
 
             // add on click event for pie chart
-            if(currentFeature[0] === currentFeature[0].toUpperCase()) {
+            if(!continuous) {
                 document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
                     var pts = '';
                     var colore;
