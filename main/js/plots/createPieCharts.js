@@ -277,6 +277,7 @@ let buildDataExplorePlots = async function() {
                         width: 500,
                         // title: (currentFeature + "").replaceAll('_', ' '),
                         showlegend: false,
+                        hoverlabel: { bgcolor: "#FFF" },
                         xaxis: {
                             title: (currentFeature + "").replaceAll('_', ' '),
                             rangeselector: {}
