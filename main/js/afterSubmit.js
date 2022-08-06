@@ -31,8 +31,7 @@ const buildPlots = async function() {
 
   // GET DATA FROM SELECTIONS:
 
-  const mutationQuery = $(".geneOneMultipleSelection")
-    .select2("data").map((gene) => gene.text);
+  const selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((gene) => gene.text);
   const expressionQuery = await getExpressionQuery();
 
   const isEmpty = (x) => {
@@ -62,12 +61,12 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   // Fetch expression data for selected cancer cohort(s) and gene(s)
-  let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: mutationQuery});
+  let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: selectedGene1});
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
 
   // Extract expression data only at intersectedBarcodes
-  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,selectedTumorTypes);
+  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, selectedTumorTypes);
   cache.set('rnaSeq', 'expressionData', expressionData)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,8 +89,8 @@ const buildPlots = async function() {
   cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
-  let mutationData = await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: mutationQuery})
-  let mutationAndClinicalData = mergeClinicalAndMutationData(mutationQuery, mutationData,
+  let mutationData = await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: selectedGene1})
+  let mutationAndClinicalData = mergeClinicalAndMutationData(selectedGene1, mutationData,
     clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
@@ -110,8 +109,7 @@ const buildPlots = async function() {
  * @returns {Promise<string[]>} Promise that return array of gene names.
  */
 const getExpressionQuery = async function() {
-  let expressionQuery = $(".geneTwoMultipleSelection")
-    .select2("data").map((gene) => gene.text);  // get genes selected in geneTwoMultipleSelection
+  let expressionQuery = $(".geneTwoMultipleSelection").select2("data").map((gene) => gene.text);
   const genesFromPathways = await getGenesByPathway();
   if(genesFromPathways.length > 0) {
     // Combine genes from multiple pathways
@@ -248,14 +246,14 @@ const saveFile = function(x, fileName) {
 };
 
 
-let mergeClinicalAndMutationData = function(mutationQuery, mutationData, clinicalData) {
+let mergeClinicalAndMutationData = function(selectedGene1, mutationData, clinicalData) {
   let dataToReturn = clinicalData;  
   for(let index = 0; index < dataToReturn.length; index++) {
     let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
-    for(let geneIndex = 0; geneIndex < mutationQuery.length; geneIndex++) {
-        let curGeneMutation = mutationQuery[geneIndex] + "_Mutation";
+    for(let geneIndex = 0; geneIndex < selectedGene1.length; geneIndex++) {
+        let curGeneMutation = selectedGene1[geneIndex] + "_Mutation";
         let mutationValue = getVariantClassification(mutationData, curParticipantBarcode, 
-                                                    mutationQuery[geneIndex]);
+          selectedGene1[geneIndex]);
         //Append feature to JSON object
         dataToReturn[index][curGeneMutation] = mutationValue;
     }  

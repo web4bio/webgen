@@ -176,14 +176,14 @@ let getValidPathwaysList = async function () {
  * @returns {Promise<Array.<GenesByPathway>>} Array of JSONs, the genes associated with pathways.
  */
 let getGenesByPathway = async function () {
-  var pathwaySelectBoxLength = $(".pathwayMultipleSelection").select2("data").length;
+
+  var numberOfPathwaysSelected = $(".pathwayMultipleSelection").select2("data").length;
   var allGenesByPathways = {};
 
-  //would only run if an option from pathway select box is selected
-  if (pathwaySelectBoxLength > 0) {
-    let validPathwaysList = await fetch(
-      "https://web4bio.github.io/webgen/main/genePathwaysList.json"
-    ).then((response) => response.json());
+  // would only run if an option from pathway select box is selected
+  if (numberOfPathwaysSelected > 0) {
+
+    let validPathwaysList = await fetch("https://web4bio.github.io/webgen/main/genePathwaysList.json").then((response) => response.json());
 
     //Get the pathway(s) selected
     let myPathway = $(".pathwayMultipleSelection")
@@ -346,17 +346,10 @@ let fillClinicalSelectBox = async function () {
       $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
     }
 
-    let mySelectedClinicalFeatures = $(".geneOneMultipleSelection")
-      .select2("data")
-      .map((clinicalInfo) => clinicalInfo.text);
-    let mySelectedClinicalFeatures2 = $(".clinicalMultipleSelection")
-      .select2("data")
-      .map((clinicalInfo) => clinicalInfo.text);
+    let selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((clinicalInfo) => clinicalInfo.text);
+    let selectedClinicalFeatures = $(".clinicalMultipleSelection").select2("data").map((clinicalInfo) => clinicalInfo.text);
 
-    if (
-      mySelectedClinicalFeatures.length >= 1 ||
-      mySelectedClinicalFeatures2 >= 1
-    ) {
+    if (selectedGene1.length >= 1 || selectedClinicalFeatures >= 1) {
       buildDataExplorePlots(allClinicalData);
     }
   }
