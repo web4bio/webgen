@@ -6,6 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 let selectedCategoricalFeatures = [];
+let selectedContinuousFeatures = [];
 let selectedRange = [];
 let previouslySelectedFeatures;
 let mutationDataForAllGenes = []
@@ -280,13 +281,15 @@ let buildDataExplorePlots = async function() {
                         hoverlabel: { bgcolor: "#FFF" },
                         xaxis: {
                             title: (currentFeature + "").replaceAll('_', ' '),
-                            rangeselector: {}
-                            // rangeslider: {}
+                            // rangeselector: {}
+                            fixedrange: true
                         },
                         yaxis: {
                             title: "Frequency",
                             fixedrange: true
-                        }
+                        },
+                        dragmode: 'select',
+                        selectdirection: 'h'
                     };
         
                     var config = {responsive: true}
@@ -304,12 +307,18 @@ let buildDataExplorePlots = async function() {
             
             window.addEventListener("resize", function() { setChartDimsAndPlot(uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous);} )
 
-            document.getElementById(currentFeature + 'Div').on('plotly_relayout', function(data) {
-                // checks if continuous data range has been added yet
-                if(selectedRange.findIndex(element => element == currentFeature) == -1){
+            document.getElementById(currentFeature + 'Div').on('plotly_selected', function(eventData) {
+                // if continuous data range has not yet been added 
+                if(selectedContinuousFeatures.findIndex(element => element == currentFeature) == -1){
                     if(currentFeature != "pathologic_stage") {
-                        selectedRange.push(currentFeature);
+                        selectedContinuousFeatures.push(currentFeature);
                     }
+                }
+                if(eventData) {
+                    selectedRange[0] = eventData.range.x[0];
+                    selectedRange[1] = eventData.range.x[1];
+                } else {
+                    selectedRange = (document.getElementById(currentFeature + 'Div')).layout.xaxis.range;
                 }
             });
 
@@ -344,12 +353,6 @@ let buildDataExplorePlots = async function() {
                                             line: {color: 'black', width: 1}}};
                     Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
                 });
-            } else { // add on double click event for histograms to reset axes
-                document.getElementById(currentFeature + 'Div').on('plotly_doubleclick', function() {
-                    selectedRange = []
-                    let update = { };
-                    Plotly.restyle(currentFeature + 'Div', update);
-                })    
             }
         }
     }

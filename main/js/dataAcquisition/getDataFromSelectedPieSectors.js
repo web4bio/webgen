@@ -107,10 +107,9 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
     }
   }
   // loop through all range data
-  for(let i = 0; i < selectedRange.length; i++) {
-    let continuousFeature = selectedRange[i];
-    let div = document.getElementById(continuousFeature + 'Div');
-    let rangeValue = div.layout.xaxis.range;
+  for(let i = 0; i < selectedContinuousFeatures.length; i++) {
+    let continuousFeature = selectedContinuousFeatures[i];
+    let rangeValue = selectedRange;
     // console.log(continuousFeature);
     // console.log(rangeValue[0]);
     // console.log(rangeValue[1]);
