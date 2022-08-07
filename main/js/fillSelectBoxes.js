@@ -237,25 +237,23 @@ let fillPathwaySelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Gets barcodes for which expression data exists for the cancer types that were selected.
+/** Gets clinial data for which expression data exist for the cancer type(s) that was/were selected.
  * 
- * @returns {Promise<Array.<string>>} An array of strings, the barcodes from the selected cohorts.
+ * @returns {Promise<Array.<object>>} An array of objects.
  */
-let getBarcodesFromCohortForClinical = async function () {
+let getClinicalByCohortWithMrnaseq = async function () {
   let results = [];
-  let barcodesArr = [];
+  let finalClinicalData = [];
   let pageCount = 1;
+  let theBarcodes = []
+  let expressionData = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: ['bcl2']});
+  expressionData.forEach((x) => theBarcodes.push(x.tcga_participant_barcode));
   do {
-    results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, /*genes: "bcl2",*/ 
-      pageNum: pageCount.toString()});
-    results.forEach((element) => barcodesArr.push(element.tcga_participant_barcode));
-    //Increment page count for fetchClinicalFH function call (retrieves next page of data)
-    pageCount++;
+    results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: theBarcodes, pageNum: pageCount.toString()});
+    results.forEach((element) => { finalClinicalData.push(element); });
+    pageCount++; // Increment page count for fetchClinicalFH function call (retrieves next page of data)
   } while(results.length >= 250)
-  //Remove duplicate barcodes if necessary
-  let barcodesSet = new Set(barcodesArr);
-  const tpBarcodes = Array.from(barcodesSet);
-  return tpBarcodes;
+  return finalClinicalData;
 };
 
 let allClinicalData;
@@ -272,9 +270,7 @@ let fillClinicalSelectBox = async function () {
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
   selectedTumorTypes = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (selectedTumorTypes.length != 0) {
-    const barcodes = await getBarcodesFromCohortForClinical();
-    // Fetches CLINICAL data for those barcodes for which expression data exists for those cancer types that were selected
-    allClinicalData = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: barcodes});
+    allClinicalData = await getClinicalByCohortWithMrnaseq();
 
     // ------------------------------------------------------------------------------------------------------------------------
 
