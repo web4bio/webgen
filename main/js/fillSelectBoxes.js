@@ -244,7 +244,7 @@ let fillPathwaySelectBox = async function () {
 let getBarcodesFromCohortForClinical = async function () {
   let results = [];
   let barcodesArr = [];
-  let pageCount = 0;
+  let pageCount = 1;
   do {
     results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, /*genes: "bcl2",*/ 
       pageNum: pageCount.toString()});
