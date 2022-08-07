@@ -243,17 +243,11 @@ let fillPathwaySelectBox = async function () {
  */
 let getClinicalByCohortWithMrnaseq = async function () {
   let results = [];
-  let finalClinicalData = [];
-  let pageCount = 1;
   let theBarcodes = []
   let expressionData = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: ['bcl2']});
   expressionData.forEach((x) => theBarcodes.push(x.tcga_participant_barcode));
-  do {
-    results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: theBarcodes, pageNum: pageCount.toString()});
-    results.forEach((element) => { finalClinicalData.push(element); });
-    pageCount++; // Increment page count for fetchClinicalFH function call (retrieves next page of data)
-  } while(results.length >= 250)
-  return finalClinicalData;
+  results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: theBarcodes});
+  return results;
 };
 
 let allClinicalData;
