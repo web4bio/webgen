@@ -28,20 +28,14 @@ const addDivInside = function (newDivID, parentDivID) {
 const buildPlots = async function() {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // GET DATA FROM SELECTIONS:
-
-  const cohortQuery = $(".cancerTypeMultipleSelection")
-    .select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const mutationQuery = $(".geneOneMultipleSelection")
-    .select2("data").map((gene) => gene.text);
-  const expressionQuery = await getExpressionQuery();
+  
+  const allSelectedGenes = await getAllSelectedGenes();
 
   const isEmpty = (x) => {
     return x === undefined || x === null || x.length === 0;
   };
 
-  if (isEmpty(cohortQuery) || isEmpty(expressionQuery) ) {
+  if (isEmpty(selectedTumorTypes) || isEmpty(allSelectedGenes) ) {
     console.log("user did not provide enough information for query");
     window.alert("Please select at least one tumor type and gene.");
     return null;
@@ -63,13 +57,16 @@ const buildPlots = async function() {
 
   // GET EXPRESSION DATA:
 
-  // Fetch expression data for selected cancer cohort(s) and gene(s)
-  let expressionData_1 = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: mutationQuery});
+  const selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((gene) => gene.text);
+
+  // Fetch expression data for selected cancer cohort(s) and gene(s) selected from first dropdown
+  let expressionData_forMutationFetching = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: selectedGene1});
+
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
-  const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_1);
+  const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_forMutationFetching);
 
   // Extract expression data only at intersectedBarcodes
-  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes,cohortQuery);
+  const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, selectedTumorTypes, allSelectedGenes);
   cache.set('rnaSeq', 'expressionData', expressionData)
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,15 +82,15 @@ const buildPlots = async function() {
     for(let index = 0; index < expressionData.length; index++)
       barcodesFromExpressionData.add(expressionData[index].tcga_participant_barcode);
     barcodesFromExpressionData = Array.from(barcodesFromExpressionData);
-    clinicalData = await firebrowse.fetchClinicalFH({/*cohorts: cohortQuery, */
+    clinicalData = await firebrowse.fetchClinicalFH({/*cohorts: selectedTumorTypes, */
       barcodes: barcodesFromExpressionData});
   }
 
   cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
-  let mutationData = await getAllVariantClassifications(mutationQuery);
-  let mutationAndClinicalData = mergeClinicalAndMutationData(mutationQuery, mutationData,
+  let mutationData = await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: selectedGene1})
+  let mutationAndClinicalData = mergeClinicalAndMutationData(selectedGene1, mutationData,
     clinicalData);
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
@@ -101,8 +98,8 @@ const buildPlots = async function() {
 
 
   buildHeatmap(expressionData, mutationAndClinicalData);
-  buildViolinPlot(expressionQuery, expressionData);
-  buildDownloadButtons(expressionQuery, expressionData, clinicalData);
+  buildViolinPlot(allSelectedGenes, expressionData);
+  buildDownloadButtons(allSelectedGenes, expressionData, clinicalData);
   return null;
 };
 
@@ -111,25 +108,27 @@ const buildPlots = async function() {
  *
  * @returns {Promise<string[]>} Promise that return array of gene names.
  */
-const getExpressionQuery = async function() {
-  let expressionQuery = $(".geneTwoMultipleSelection")
-    .select2("data").map((gene) => gene.text);  // get genes selected in geneTwoMultipleSelection
-  const genesFromPathways = await getGenesByPathway();
-  if(genesFromPathways.length > 0) {
+const getAllSelectedGenes = async function() {
+
+  let selectedGenes = $(".geneTwoMultipleSelection").select2("data").map((gene) => gene.text);
+  
+  const genesFromSelectedPathways = await getGenesByPathway();
+
+  if(genesFromSelectedPathways.length > 0) {
     // Combine genes from multiple pathways
-    for(let i = 0; i < genesFromPathways.length; i++) {
-      expressionQuery = expressionQuery.concat(genesFromPathways[i].genes);
+    for(let i = 0; i < genesFromSelectedPathways.length; i++) {
+      selectedGenes = selectedGenes.concat(genesFromSelectedPathways[i].genes);
     }
 
     // Remove duplicates from the array
     const removedDuplicates = [];
-    $.each(expressionQuery, function(i, element){
+    $.each(selectedGenes, function(i, element){
       if($.inArray(element, removedDuplicates) === -1) removedDuplicates.push(element);
     });
-    expressionQuery = removedDuplicates;
+    selectedGenes = removedDuplicates;
   }
 
-  return expressionQuery;
+  return selectedGenes;
 };
 
 /** Build the heatmap given expression data and clinical data.
@@ -250,14 +249,14 @@ const saveFile = function(x, fileName) {
 };
 
 
-let mergeClinicalAndMutationData = function(mutationQuery, mutationData, clinicalData) {
+let mergeClinicalAndMutationData = function(selectedGene1, mutationData, clinicalData) {
   let dataToReturn = clinicalData;  
   for(let index = 0; index < dataToReturn.length; index++) {
     let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
-    for(let geneIndex = 0; geneIndex < mutationQuery.length; geneIndex++) {
-        let curGeneMutation = mutationQuery[geneIndex] + "_Mutation";
+    for(let geneIndex = 0; geneIndex < selectedGene1.length; geneIndex++) {
+        let curGeneMutation = selectedGene1[geneIndex] + "_Mutation";
         let mutationValue = getVariantClassification(mutationData, curParticipantBarcode, 
-                                                    mutationQuery[geneIndex]);
+          selectedGene1[geneIndex]);
         //Append feature to JSON object
         dataToReturn[index][curGeneMutation] = mutationValue;
     }  

@@ -147,10 +147,6 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   // browser support at this time.
   const splits = endpoint.split("/");
   const expectedKey = splits[splits.length - 1];
-  let pageSize = 2000;
-  if(params.page_size) {
-    pageSize = params.page_size;
-  }
 
   if (groupBy == null || groupBy.length === 0) {
     return await _fetchFromFireBrowse(endpoint, params, expectedKey);

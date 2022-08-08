@@ -84,7 +84,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
     // automatically check off selected boxes from clinical query box
-    sampTrackVars = $('.clinicalMultipleSelection').select2('data').map((el) => el.text);
+    sampTrackVars = $('.clinicalMultipleSelection').select2('data').map((el) => el.id);
     sampTrackVars.forEach(id => {
         div_selectBody.select('#check'+id).property('checked', true);
     });
