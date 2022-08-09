@@ -386,5 +386,25 @@
                 </div>
             </footer>
         </div>
-    </body>
+
+    <script>
+        const updateParamsInURL = function(key, value) {
+            if (value === undefined || value === null) {
+                return
+            }
+            const url = new URL(window.location.href);
+            url.searchParams.set(key, value);
+            if (url.searchParams.get(key) === "") {
+                url.searchParams.delete(key)
+            }
+            window.history.replaceState(null, null, url);
+        }
+        $("#cancerTypeMultipleSelection").on('change.select2', e => updateParamsInURL("cohorts", e.val));
+        $("#geneOneMultipleSelection").on('change.select2', e => updateParamsInURL("genesMutation", e.val));
+        $("#clinicalMultipleSelection").on('change.select2', e => updateParamsInURL("clinical", e.val));
+        $("#geneTwoMultipleSelection").on('change.select2', e => updateParamsInURL("genesExpression", e.val));
+        $("#pathwayMultipleSelection").on('change.select2', e => updateParamsInURL("pathways", e.val));
+    </script>
+
+</body>
 </html>
