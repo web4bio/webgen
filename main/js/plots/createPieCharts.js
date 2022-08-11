@@ -151,10 +151,9 @@ let buildDataExplorePlots = async function() {
         previouslySelectedFeatures = mySelectedFeatures;    
 
         // get total number of barcodes for selected cancer type(s)
-        let countQuery = await firebrowse.fetchCounts(selectedTumorTypes);
         let totalNumberBarcodes = 0;
-        for(let i = 0; i < countQuery.length; i++) {
-            totalNumberBarcodes += parseInt(countQuery[i].mrnaseq);
+        for(let i = 0; i < numbersOfSamples.length; i++) {
+            totalNumberBarcodes += parseInt(numbersOfSamples[i].mrnaseq);
 
         // loop through each selected feature
         for(let i = 0; i < mySelectedFeatures.length; i++) {
