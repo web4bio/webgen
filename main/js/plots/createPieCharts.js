@@ -259,6 +259,9 @@ let buildDataExplorePlots = async function() {
                         width: chartWidth,
                         title: (currentFeature + "").replaceAll('_', ' '),
                         showlegend: true,
+                        font: {
+                            family: 'Arial, Helvetica, sans-serif'
+                        },
                         legend: {
                             // maxWidth: 5,
                             x: legend_location_x,
@@ -269,7 +272,7 @@ let buildDataExplorePlots = async function() {
                             itemwidth: 40,
                             orientation: "v"
                         },
-                        extendpiecolors: true,
+                        extendpiecolors: true
                     };
         
                     var histo_layout = {
@@ -278,6 +281,9 @@ let buildDataExplorePlots = async function() {
                         width: 500,
                         // title: (currentFeature + "").replaceAll('_', ' '),
                         showlegend: false,
+                        font: {
+                            family: 'Arial, Helvetica, sans-serif'
+                        },
                         hoverlabel: { bgcolor: "#FFF" },
                         xaxis: {
                             title: (currentFeature + "").replaceAll('_', ' '),
