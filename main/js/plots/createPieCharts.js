@@ -292,7 +292,10 @@ let buildDataExplorePlots = async function() {
                         selectdirection: 'h'
                     };
         
-                    var config = {responsive: true}
+                    var config = {
+                        responsive: true, 
+                        displayModeBar: false
+                    }
         
                     if (continuous) {
                         Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
