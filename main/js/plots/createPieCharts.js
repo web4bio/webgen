@@ -9,7 +9,7 @@ let selectedCategoricalFeatures = [];
 let selectedContinuousFeatures = [];
 let selectedRange = [];
 let previouslySelectedFeatures;
-let mutationDataForAllGenes = []
+let mutationDataForAllGenesSelected = []
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 
@@ -131,14 +131,14 @@ let buildDataExplorePlots = async function() {
     // if feature(s) is/are selected, display pie chart(s)
     } else {
         
-        // Remove plot if feature was unselected
+        // If feature was unselected
         if (previouslySelectedFeatures !== undefined) {
             // get any features that were previously selected that are no longer selected
             let unselectedFeature = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
             if(unselectedFeature.length > 0) {
                 let temp = document.getElementById(unselectedFeature + 'Div');
                 if (temp) {
-                    // remove associated div
+                    // remove associated div/plot
                     temp.remove();
                 }
                 // if unselected feature is not a gene, set isSelected status to false
@@ -146,6 +146,12 @@ let buildDataExplorePlots = async function() {
                     let index = clinicalType.findIndex(x => x.name == unselectedFeature);
                     clinicalType[index].isSelected = false;
                 }
+                // if unselected feature is a gene, update mutationDataForAllGenesSelected
+                if(unselectedFeature[0] === unselectedFeature[0].toUpperCase()) {
+                    let index = mutationDataForAllGenesSelected.findIndex(x => x[0].Hugo_Symbol == unselectedFeature);
+                    mutationDataForAllGenesSelected.splice(index, 1)
+                }
+                
             }
         }
         previouslySelectedFeatures = mySelectedFeatures;    
@@ -380,9 +386,10 @@ let buildDataExplorePlots = async function() {
     let allVariantClassifications = [];
     // let allBarcodes = []; // barcodes that correspond to a mutation
 
-    await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: currentGeneSelected}).then(function(mutationDataForThisGene) { // get all mutations that exist for this gene and cancer type
+    // get all mutations that exist for this gene and cancer type
+    await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: currentGeneSelected}).then(function(mutationDataForThisGene) {
 
-        mutationDataForAllGenes.push(mutationDataForThisGene)
+        mutationDataForAllGenesSelected.push(mutationDataForThisGene)
 
         // if mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
         if(mutationDataForThisGene != undefined) {
