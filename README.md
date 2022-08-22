@@ -6,7 +6,7 @@ WebGen is hosted on GitHub Pages at [web4bio.github.io/webgen/main/html](https:/
 
 View our May 2020 interactive presentation at [web4bio.github.io/webgen/presentationPoster/](https://web4bio.github.io/webgen/presentationPoster/)
 
-Conference call via [Zoom](https://sbubmi.page.link/vip) Fridays at 11:45AM EST
+Conference call via [Zoom](https://sbubmi.page.link/vip) Wednesdays at 9:15AM EST
 Other weekly meetings [here](https://www.when2meet.com/?12629008-XMsjv)
 
 ## Background
