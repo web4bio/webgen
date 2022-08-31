@@ -19,9 +19,9 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
       
       // get ALL mutation data for current gene of the selected genes
       let mutationDataForThisGene;
-      for(let j = 0; j < mutationDataForAllGenes.length; j++)
-        if(mutationDataForAllGenes[j][0].Hugo_Symbol == currentGene)
-          mutationDataForThisGene = mutationDataForAllGenes[j];
+      for(let j = 0; j < mutationDataForAllGenesSelected.length; j++)
+        if(mutationDataForAllGenesSelected[j][0].Hugo_Symbol == currentGene)
+          mutationDataForThisGene = mutationDataForAllGenesSelected[j];
 
       // LOOP THRU ALL CLICKED "MUTATIONS"
       let clickedMutations = selectedCategoricalFeatures[currentGene];

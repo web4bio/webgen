@@ -48,6 +48,8 @@ const fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+let numbersOfSamples;
+
 /** Creates and displays the "Number of samples" element that appears when a cohort is selected.
  * 
  * @returns {undefined}
@@ -63,10 +65,10 @@ let displayNumberSamples = async function () {
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
     // get counts of samples for selected tumor types:
-    let fetchedCountData = await firebrowse.fetchCounts(myCohort);
-    fetchedCountData = fetchedCountData.map(x => {
+    numbersOfSamples = await firebrowse.fetchCounts(myCohort);
+    let formatted_numbersOfSamples = numbersOfSamples.map(x => {
       const container = {};
-      container.cohort = x.cohort.substring(0, fetchedCountData[0].cohort.indexOf('-'));
+      container.cohort = x.cohort.substring(0, numbersOfSamples[0].cohort.indexOf('-'));
       container.mrnaseq = x.mrnaseq;
       return container;
     });
@@ -82,7 +84,7 @@ let displayNumberSamples = async function () {
       });
       return array;
     };
-    orderedCountQuery = orderThings(fetchedCountData, myCohort, 'cohort')
+    orderedCountQuery = orderThings(formatted_numbersOfSamples, myCohort, 'cohort')
     // build label:
     let string = "";
     let para;
