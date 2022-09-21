@@ -34,6 +34,8 @@ const fillCancerTypeSelectBox = async function () {
     $(".cancerTypeMultipleSelection").trigger('change');
   }
 
+  return true;
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,6 +344,7 @@ let fillClinicalSelectBox = async function () {
       buildDataExplorePlots(allClinicalData);
     }
   }
+
 };
 
 /** Creates and populates the Violin Partion Box HTML element.
