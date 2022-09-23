@@ -40,8 +40,11 @@
     </head>
 
     <body>
+        <div id="load"></div>
+        
+
         <div id="page-container">
-            <div id="content-wrap">
+            <div id="content-wrap contents">
                 <!--
         Set up the navbar:
       -->
@@ -80,84 +83,6 @@
                     </h5>
                     <br />
                 </div>
-
-                <!--
-      Set up the user input text fields
-      -->
-                <script>
-
-                    $(document).ready(function () {
-                        
-                        // For Cancer Type Select2 Drop down:
-                        $(".cancerTypeMultipleSelection").select2({
-                            placeholder: "Tumor Type(s)",
-                        });
-                        fillCancerTypeSelectBox();
-
-                        $("#geneOneMultipleSelection").val(null).trigger("change.select2");
-
-                        $("#geneOneMultipleSelection").on('change', function() { 
-                            buildDataExplorePlots(allClinicalData);
-                            saveInLocalStorage();
-                        });
-
-                        // For Clinical feature Select2 Drop down:
-                        $(".clinicalMultipleSelection").select2({
-                            placeholder: "Clinical Feature(s)",
-                        });
-
-                        //For Pathways Select2 Drop down:
-                        $(".pathwayMultipleSelection").select2({
-                            placeholder: "Pathway(s)",
-                        });
-                        fillPathwaySelectBox();
-
-                    });
-
-                    validGeneListFetch = getValidGeneList();
-                    validGeneListFetch.then(function (validGeneList) {
-                        $(document).ready(function () {
-                            // Map the array of geneList with attributes of id, text, and value
-                            var geneListArray = _.map(_.range(0, validGeneList.length), function (i) {
-                                return {
-                                    id: validGeneList[i],
-                                    text: validGeneList[i],
-                                    value: validGeneList[i],
-                                };
-                            });
-                            // For Gene Select2 Dropdown:
-                            var fillGeneSelectBoxes = (geneSelectionBox) => {
-                                $(geneSelectionBox).select2({
-                                    data: geneListArray,
-                                    multiple: true,
-                                    placeholder: "Gene(s)",
-                                    // creating query with pagination functionality.
-                                    query: function (data) {
-                                        var pageSize,
-                                            dataset,
-                                            thatQuery = this;
-                                        pageSize = 5; // Number of the option loads at a time
-                                        results = [];
-                                        if (data.term && data.term !== "") {
-                                            // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
-                                            results = _.filter(thatQuery.data, function (e) {
-                                                return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
-                                            });
-                                        } else {
-                                            results = thatQuery.data;
-                                        }
-                                        data.callback({
-                                            results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
-                                            more: results.length >= data.page * pageSize,
-                                        });
-                                    },
-                                });
-                            };
-                            fillGeneSelectBoxes(".geneOneMultipleSelection");
-                            fillGeneSelectBoxes(".geneTwoMultipleSelection");
-                        });
-                    });
-                </script>
 
                 <div>
                     <p style="text-align: center"><b>1) Select tumor type(s)</b></p>
@@ -387,4 +312,92 @@
             </footer>
         </div>
     </body>
+
+    <!-- 
+    Set up the user input text fields 
+-->
+
+    <script>
+        $(document).ready(function () {
+            
+            var cancerType = false;
+
+            // For Cancer Type Select2 Drop down:
+            $(".cancerTypeMultipleSelection").select2({
+                placeholder: "Tumor Type(s)",
+            });
+            cancerType = fillCancerTypeSelectBox();
+
+            if (!cancerType)
+                $("#load").css("visibility", "visible");
+            else {
+                $("#load").css("visibility", "hidden");
+                $("#contents").css("visibility", "visible");
+            } 
+
+            $("#geneOneMultipleSelection").val(null).trigger("change.select2");
+
+            $("#geneOneMultipleSelection").on('change', function() { 
+                buildDataExplorePlots(allClinicalData);
+                saveInLocalStorage();
+            });
+
+            // For Clinical feature Select2 Drop down:
+            $(".clinicalMultipleSelection").select2({
+                placeholder: "Clinical Feature(s)",
+            });
+
+            //For Pathways Select2 Drop down:
+            $(".pathwayMultipleSelection").select2({
+                placeholder: "Pathway(s)",
+            });
+            fillPathwaySelectBox();
+
+        });
+
+        validGeneListFetch = getValidGeneList();
+        validGeneListFetch.then(function (validGeneList) {
+            $(document).ready(function () {
+                // Map the array of geneList with attributes of id, text, and value
+                var geneListArray = _.map(_.range(0, validGeneList.length), function (i) {
+                    return {
+                        id: validGeneList[i],
+                        text: validGeneList[i],
+                        value: validGeneList[i],
+                    };
+                });
+                // For Gene Select2 Dropdown:
+                var fillGeneSelectBoxes = (geneSelectionBox) => {
+                    $(geneSelectionBox).select2({
+                        data: geneListArray,
+                        multiple: true,
+                        placeholder: "Gene(s)",
+                        // creating query with pagination functionality.
+                        query: function (data) {
+                            var pageSize,
+                                dataset,
+                                thatQuery = this;
+                            pageSize = 5; // Number of the option loads at a time
+                            results = [];
+                            if (data.term && data.term !== "") {
+                                // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
+                                results = _.filter(thatQuery.data, function (e) {
+                                    return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
+                                });
+                            } else {
+                                results = thatQuery.data;
+                            }
+                            data.callback({
+                                results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
+                                more: results.length >= data.page * pageSize,
+                            });
+                        },
+                    });
+                };
+                fillGeneSelectBoxes(".geneOneMultipleSelection");
+                fillGeneSelectBoxes(".geneTwoMultipleSelection");
+            });
+        });
+    </script>
+
 </html>
