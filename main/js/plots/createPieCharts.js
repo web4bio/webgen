@@ -179,8 +179,16 @@ let buildDataExplorePlots = async function() {
             if(currentFeature[0] === currentFeature[0].toUpperCase()) {
                 
                 let geneResults = await computeGeneMutationFrequencies(xCounts, uniqueValuesForCurrentFeature, totalNumberBarcodes, currentFeature);
+                //DEBUGGING
+                console.log("Mutation Frequncies: " + geneResults)
+                //DEBUGGING
                 xCounts = geneResults[0]
+                //DEBUGGING
+                console.log("Count: " + xCounts)
+                //DEBUGGING
                 uniqueValuesForCurrentFeature = geneResults[1]
+                console.log("Unique Values: " + uniqueValuesForCurrentFeature)
+
 
             // if current feature is clinical (i.e., not a gene)
             // get values and labels for this feature
