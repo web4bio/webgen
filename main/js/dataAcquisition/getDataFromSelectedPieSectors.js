@@ -3,9 +3,24 @@
 
 getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
+  //DEBUG
+  console.log("Initial Cohort Size: ");
+  console.log(expressionData.length)
+  //DEBUG
+
+  //DEBUG
+  console.log("Mutation Data when Getting Data from Pie Sectors: ");
+  console.log(mutationDataForAllGenesSelected)
+  //DEBUG
+
   // a "field" is either a gene name or a clinical feature
   let selectedCategoricalFields = Object.keys(selectedCategoricalFeatures);
   let concatFilteredBarcodes = [];
+
+  //DEBUG
+  console.log("Selected Features: ");
+  console.log(selectedCategoricalFeatures)
+  //DEBUG
 
   // LOOP THRU ALL CLICKED FIELDS
   for(let i = 0; i < selectedCategoricalFields.length; i++) {
@@ -25,6 +40,10 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
 
       // LOOP THRU ALL CLICKED "MUTATIONS"
       let clickedMutations = selectedCategoricalFeatures[currentGene];
+      //DEBUG
+      console.log("Selected Mutations: ")
+      console.log(clickedMutations)
+      //DEBUG
       for(let j = 0; j < clickedMutations.length; j++) {
         let currentMutation = clickedMutations[j];
         // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
@@ -151,6 +170,10 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
     }
   }
 
+  //DEBUG
+  console.log("Final Cohort Size: ");
+  console.log(intersectedBarcodes.length)
+  //DEBUG
   return intersectedBarcodes
 }
 

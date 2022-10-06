@@ -11,7 +11,9 @@ let selectedRange = [];
 let previouslySelectedFeatures;
 let mutationDataForAllGenesSelected = []
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-'#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+'#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#90cc54', '#c9bf61'];
+
+let mutationDataForAllGenes = [];
 
 // an object that defines color schema of pie charts
 // maintains yellow highlights despite addition removal of individual pie charts
@@ -179,20 +181,12 @@ let buildDataExplorePlots = async function() {
             if(currentFeature[0] === currentFeature[0].toUpperCase()) {
                 
                 let geneResults = await computeGeneMutationFrequencies(xCounts, uniqueValuesForCurrentFeature, totalNumberBarcodes, currentFeature);
-                //DEBUGGING
-                console.log("Mutation Frequncies: " + geneResults)
-                //DEBUGGING
                 xCounts = geneResults[0]
-                //DEBUGGING
-                console.log("Count: " + xCounts)
-                //DEBUGGING
                 uniqueValuesForCurrentFeature = geneResults[1]
-                console.log("Unique Values: " + uniqueValuesForCurrentFeature)
-
-
+            }
             // if current feature is clinical (i.e., not a gene)
-            // get values and labels for this feature
-            } else {
+            // get values and labels for this feature 
+            else {
 
                 let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous);
                 xCounts = clinicalFeaturesResults[0]
@@ -224,8 +218,9 @@ let buildDataExplorePlots = async function() {
                         type: 'pie',
                         textinfo: "none",
                         marker: {
-                            colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
-                            '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
+                            sliceColors,
+                            //colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                            //'#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'],
                             line: {
                                 color: 'black',
                                 width: 1
@@ -466,24 +461,38 @@ let buildDataExplorePlots = async function() {
             // get array of unique paired mutation types in which a single barcode appears
             let pool = []
             pool.length = barcodesWithMoreThanOneMutationForGene.length;
-            for(let i = 0; i < pool.length; i++)
+
+            let poolWithBarcodes = [];
+            poolWithBarcodes.length = barcodesWithMoreThanOneMutationForGene.length;
+
+            for(let i = 0; i < pool.length; i++) {
                 pool[i] = 0;
+                /*Each element in poolWithBarcodes will have a gene, mutationLabel, and
+                patientBarcode field to map patients to mutation labels*/
+                poolWithBarcodes[i] = {mutationLabel:0, patientBarcode:0};
+            }
             for(let i = 0; i < barcodesWithMoreThanOneMutationForGene.length; i++)
                 for(let j = 0; j < barcodesByMutationType.length; j++)
                     if(barcodesByMutationType[j][uniqueValuesForCurrentFeature[j]].includes(barcodesWithMoreThanOneMutationForGene[i])) {
-                        if(pool[i].length > 1) {
-                            pool[i] += '&' + uniqueValuesForCurrentFeature[j];
+                        if(pool[i]/*.mutationLabel*/.length > 1) {
+                            pool[i] += '_&_' + uniqueValuesForCurrentFeature[j];
+                            poolWithBarcodes[i].mutationLabel += '_&_' + uniqueValuesForCurrentFeature[j];
+                            poolWithBarcodes[i].patientBarcode = barcodesWithMoreThanOneMutationForGene[i];
                         } else {
                             pool[i] = uniqueValuesForCurrentFeature[j] + '';
+                            poolWithBarcodes[i].mutationLabel = uniqueValuesForCurrentFeature[j] + '';
+                            poolWithBarcodes[i].patientBarcode = barcodesWithMoreThanOneMutationForGene[i];
                         }
                     }
             let swim = []
             for(let i = 0; i < pool.length; i++)
                 if(!swim.includes(pool[i]))
                     swim.push(pool[i])
-            
 
             // combine all unique labels into a single array
+            //allLabels = new Set();
+            //swim.forEach(el => allLabels.add(el.mutationType));
+            //allLabels = Array.from(allLabels);
             allLabels = swim.concat(uniqueValuesForCurrentFeature)
 
             // ----------------------------------------------------------------------------------------------
@@ -508,17 +517,36 @@ let buildDataExplorePlots = async function() {
 
             let totalNumberMutations = 0;
             
+            //Create array to track the single-mutation patient barcodes and their mutation types
+            let singleMutationPatients = [];
+            /*From the filter() above, we have removed multi-mutation patient barcodes
+            from mutationDataForThisGene, so we can use the length property safely*/
+            singleMutationPatients.length = mutationDataForThisGene.length;
+            //Initialize each element of singleMutationPatients to be a JSON object
+            for(let i = 0; i < singleMutationPatients.length; i++) {
+                singleMutationPatients[i] = {mutationLabel:0, patientBarcode:0};
+            }
             // count number of barcodes associated with single mutations
             for(let i = 0; i < mutationDataForThisGene.length; i++) {
                 xCounts[allLabels.indexOf( mutationDataForThisGene[i].Variant_Classification )]++;
                 totalNumberMutations++;
+                singleMutationPatients[i].mutationLabel = mutationDataForThisGene[i].Variant_Classification;
+                singleMutationPatients[i].patientBarcode = mutationDataForThisGene[i].Tumor_Sample_Barcode;
             }
+
+            let jsonToAppend = {gene:mutationDataForThisGene[i].Hugo_Symbol,
+                mutationData:poolWithBarcodes.concat(singleMutationPatients)};
+            mutationDataForAllGenes.push(jsonToAppend);
+            //DEBUG
+            console.log("Proposed Structure for Storing Mutation Data Globally: ");
+            console.log(mutationDataForAllGenes);
+            //DEBUG
 
             // count number of barcodes associated with >1 mutation
             for(let i = 0; i < swim.length; i++)
                 for(let j = 0; j < pool.length; j++)
                     if(swim[i] == pool[j]) {
-                        xCounts[allLabels.indexOf( swim[i] )]++;
+                        xCounts[allLabels.indexOf(swim[i])]++;
                         totalNumberMutations++;
                     }
 
@@ -539,6 +567,15 @@ let buildDataExplorePlots = async function() {
         }
 
     });
+
+    //Finally, filter out values with frequency counts of 0
+    for(let index = 0; index < xCounts.length; index++) {
+        if(xCounts[index] == 0) {
+            //Remove element with splice() from xCounts and allLabels
+            xCounts.splice(index, 1);
+            allLabels.splice(index, 1);
+        }
+    }
 
     return [xCounts, allLabels]
 
@@ -625,12 +662,14 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
         legend_location_x = 1.2;
         legend_location_y = 1;
         for (let i = 0; i < uniqueValuesForCurrentFeature.length; i++) {
+            /*
             if (uniqueValuesForCurrentFeature[i].length > 10) {
                 let shorten = ".."; // ellipses for shortening labels in the string
                 let stringLength = uniqueValuesForCurrentFeature[i].length;
                 //replaces the label with its shortened version
                 uniqueValuesForCurrentFeature[i] = shorten.concat(uniqueValuesForCurrentFeature[i].substring(stringLength-7,stringLength));
             }
+            */
         }
         if (windowWidth > threeColLower)
             windowWidth = 849 * dpr;

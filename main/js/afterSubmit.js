@@ -60,6 +60,7 @@ const buildPlots = async function() {
   const selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((gene) => gene.text);
 
   // Fetch expression data for selected cancer cohort(s) and gene(s) selected from first dropdown
+  //Harcode 'genes' param to query one gene's worth of information
   let expressionData_forMutationFetching = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: selectedGene1});
 
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
