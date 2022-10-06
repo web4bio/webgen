@@ -193,7 +193,10 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
       return
     }
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
-    return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
+    const smartCache = await getCacheMe();
+    // return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
+    console.log(cohortQuery, expressionQuery, allBarcodes);
+    return await smartCache.fetchWrapper(cohortQuery, expressionQuery, allBarcodes);
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
@@ -218,6 +221,9 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     // The final data array may include a fewer number of barcodes than that contained in
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
-    return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: intersectedBarcodes});
+    const smartCache = await getCacheMe();
+    console.log(cohortQuery, expressionQuery, intersectedBarcodes);
+    // return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: intersectedBarcodes});
+    return await smartCache.fetchWrapper(cohortQuery, expressionQuery, intersectedBarcodes);
   }
 }
