@@ -128,7 +128,8 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-
+        xAxisHeight = frameHeight
+        yAxisHeight = Math.round(frameHeight / 1.5)
     // Create svg object frame for the plots
     var heatmapCol = gridRow.append('div');
     heatmapCol.attr("class", "col s8");
@@ -146,6 +147,18 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         .attr("y", margin.top - 25)
         .style("font-size", "26px")
         .text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
+
+    svg_frame.append("text")
+        .attr('id', 'heatmapXAxisLabel')
+        .style("font-size", "14px")
+        .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
+        .text("Patient Samples");
+
+    svg_frame.append("text")
+        .attr('id', 'heatmapYAxisLabel')
+        .style("font-size", "14px")
+        .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
+        .text("Transcripts");    
 
     // Add nested svg for dendrogram
     var svg_dendrogram = svg_frame
@@ -618,6 +631,12 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
                 .attr("y", margin.top + dendHeight + sampTrackHeight_total);
             frameHeight = margin.top + dendHeight + margin.space + heatHeight + sampTrackHeight_total + margin.bottom;
 
+            yAxisHeight = Math.round(frameHeight - (frameHeight / 4))
+            svg_frame.select("#heatmapYAxisLabel")
+                .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
+            xAxisHeight = Math.round(frameHeight)
+            svg_frame.select("#heatmapXAxisLabel")
+                .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
         } else { // otherwise remove the dendrogam and shift the heatmap up
             svg_dendrogram.attr("height", 0);
             svg_frame.select(".sampletrack")
@@ -625,6 +644,13 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             svg_frame.select(".heatmap")
                 .attr("y", margin.top + sampTrackHeight_total);
             frameHeight = margin.top + heatHeight + sampTrackHeight_total + margin.bottom;
+
+            yAxisHeight = Math.round(frameHeight / 1.5)
+            svg_frame.select("#heatmapYAxisLabel")
+                .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
+            xAxisHeight = Math.round(frameHeight)
+            svg_frame.select("#heatmapXAxisLabel")
+                .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
         }
         // apply new frameHeight (adjusting for dendrogram and # sample tracks)
         svg_frame.attr('height', frameHeight);
