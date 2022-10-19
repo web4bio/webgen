@@ -128,7 +128,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-        xAxisHeight = frameHeight
+        xAxisHeight = frameHeight - 5
         yAxisHeight = Math.round(frameHeight / 1.5)
     // Create svg object frame for the plots
     var heatmapCol = gridRow.append('div');
@@ -632,11 +632,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             frameHeight = margin.top + dendHeight + margin.space + heatHeight + sampTrackHeight_total + margin.bottom;
 
             yAxisHeight = Math.round(frameHeight - (frameHeight / 4))
-            svg_frame.select("#heatmapYAxisLabel")
-                .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
-            xAxisHeight = Math.round(frameHeight)
-            svg_frame.select("#heatmapXAxisLabel")
-                .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
+            xAxisHeight = frameHeight - 5
         } else { // otherwise remove the dendrogam and shift the heatmap up
             svg_dendrogram.attr("height", 0);
             svg_frame.select(".sampletrack")
@@ -646,12 +642,12 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             frameHeight = margin.top + heatHeight + sampTrackHeight_total + margin.bottom;
 
             yAxisHeight = Math.round(frameHeight / 1.5)
-            svg_frame.select("#heatmapYAxisLabel")
-                .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
-            xAxisHeight = Math.round(frameHeight)
-            svg_frame.select("#heatmapXAxisLabel")
-                .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
+            xAxisHeight = frameHeight - 5
         }
+        svg_frame.select("#heatmapYAxisLabel")
+            .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
+        svg_frame.select("#heatmapXAxisLabel")
+            .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
         // apply new frameHeight (adjusting for dendrogram and # sample tracks)
         svg_frame.attr('height', frameHeight);
     };
