@@ -157,7 +157,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     svg_frame.append("text")
         .attr('id', 'heatmapYAxisLabel')
         .style("font-size", "14px")
-        .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
+        .attr("transform", `translate(15,${yAxisHeight}),rotate(-90)`)
         .text("Transcripts");    
 
     // Add nested svg for dendrogram
@@ -645,7 +645,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             xAxisHeight = frameHeight - 5
         }
         svg_frame.select("#heatmapYAxisLabel")
-            .attr("transform", `translate(${Math.round(margin.left / 2)},${yAxisHeight}),rotate(-90)`)
+            .attr("transform", `translate(15,${yAxisHeight}),rotate(-90)`)
         svg_frame.select("#heatmapXAxisLabel")
             .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
         // apply new frameHeight (adjusting for dendrogram and # sample tracks)
