@@ -391,11 +391,6 @@ let buildDataExplorePlots = async function() {
     let expressionData = await firebrowse.fetchmRNASeq({cohorts:selectedTumorTypes,
         genes:'TTN'});
     
-    //DEBUG
-    console.log("All Experssion Data:")
-    console.log(expressionData)
-    //DEBUG
-    
 
     let allBarcodes = []; // barcodes that correspond to a mutation
     //let correspondingCohort = [];
@@ -404,6 +399,7 @@ let buildDataExplorePlots = async function() {
     }
     //Filter allBarcodes to obtain unique barcodes
     allBarcodes = allBarcodes.filter(onlyUnique);
+
     let allCohortsBarcodes = [];
     for(let i = 0; i < expressionData.length; i++) {
         let barcodeIndex = allBarcodes.indexOf(expressionData[i].tcga_participant_barcode)
@@ -415,7 +411,7 @@ let buildDataExplorePlots = async function() {
             //Remove barcode from allBarcodes to track which we have appended
             allBarcodes.splice(barcodeIndex, 1);
         }
-    }
+    } 
 
     let allVariantClassifications = [];
     let allLabels = []; //Mutation labels for each barcode
@@ -424,11 +420,6 @@ let buildDataExplorePlots = async function() {
     //await firebrowse.fetchMutationMAF({cohorts: selectedTumorTypes, genes: currentGeneSelected}).then(function(mutationDataForThisGene) {
     let mutationDataForThisGene = await firebrowse.fetchMutationMAF({
         cohorts: selectedTumorTypes, genes: currentGeneSelected});
-
-    //DEBUG
-    console.log("All Mutation Data:")
-    console.log(mutationDataForThisGene)
-    //DEBUG
     
         let distinctBarcodesTest = new Set();
         let mutationCountsMap = new Map();
@@ -447,12 +438,29 @@ let buildDataExplorePlots = async function() {
 
         // if mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
         if(mutationDataForThisGene != undefined) {
-
             // substring barcodes & save barcodes
             for(let i = 0; i < mutationDataForThisGene.length; i++) {
-                mutationDataForThisGene[i].Tumor_Sample_Barcode = mutationDataForThisGene[i].Tumor_Sample_Barcode.substring(0, 12)
-                allVariantClassifications.push(mutationDataForThisGene[i].Variant_Classification);
-                allBarcodes.push(mutationDataForThisGene[i].Tumor_Sample_Barcode);
+                //Loop over allBarcodes from expression data to filter out
+                //barcodes unique to the mutation data
+                mutationDataForThisGene[i].Tumor_Sample_Barcode = mutationDataForThisGene[i].Tumor_Sample_Barcode.substring(0, 12);
+                let participantBarcode = mutationDataForThisGene[i].Tumor_Sample_Barcode;
+                let barcodeInExpressionCohort = false;
+                for(let j = 0; j < allCohortsBarcodes.length; j++) {
+                    if(allCohortsBarcodes[j].patient_barcode == participantBarcode) {
+                        barcodeInExpressionCohort = true;
+                        break;
+                    }
+                }
+
+                if(!barcodeInExpressionCohort) {
+                    console.log(mutationDataForThisGene.splice(i, 1));
+                    //Decrement index i by 1
+                    i--;
+                }
+                else {
+                    allVariantClassifications.push(mutationDataForThisGene[i].Variant_Classification);
+                    allBarcodes.push(mutationDataForThisGene[i].Tumor_Sample_Barcode);
+                }
             }
 
             // get unique mutation types and unique substringed barcodes
@@ -478,11 +486,6 @@ let buildDataExplorePlots = async function() {
                 let temp = new Set(barcodesByMutationType[i][uniqueValuesForCurrentFeature[i]])
                 barcodesByMutationType[i][uniqueValuesForCurrentFeature[i]] = Array.from(temp);
             }
-
-            //DEBUG
-            console.log("Barcode by Mutation Type:")
-            console.log(barcodesByMutationType)
-            //DEBUG
 
             // ----------------------------------------------------------------------------------------------
 
@@ -536,16 +539,13 @@ let buildDataExplorePlots = async function() {
                     if(barcodesByMutationType[j][uniqueValuesForCurrentFeature[j]].includes(
                         barcodesWithMoreThanOneMutationForGene[i].patient_barcode)) {
                         if(poolWithBarcodes[i].mutation_label.length > 1) {
-                            //pool[i] += '_&_' + uniqueValuesForCurrentFeature[j];
                             poolWithBarcodes[i].mutation_label += '_&_' + uniqueValuesForCurrentFeature[j];
                             poolWithBarcodes[i].patient_barcode = barcodesWithMoreThanOneMutationForGene[i].patient_barcode;
                             poolWithBarcodes[i].cohort = barcodesWithMoreThanOneMutationForGene[i].cohort;
                         } else {
-                            //pool[i] = uniqueValuesForCurrentFeature[j] + '';
                             poolWithBarcodes[i].mutation_label = uniqueValuesForCurrentFeature[j] + '';
                             poolWithBarcodes[i].patient_barcode = barcodesWithMoreThanOneMutationForGene[i].patient_barcode;
                             poolWithBarcodes[i].cohort = barcodesWithMoreThanOneMutationForGene[i].cohort;
-
                         }
                     }
             let swim = []
@@ -554,10 +554,6 @@ let buildDataExplorePlots = async function() {
                     swim.push(poolWithBarcodes[i].mutation_label)
 
             allLabels = swim.concat(uniqueValuesForCurrentFeature)
-            //DEBUG
-            console.log("Multi-Mutation Labels:")
-            console.log(swim)
-            //DEBUG
 
             // ----------------------------------------------------------------------------------------------
 
@@ -642,31 +638,16 @@ let buildDataExplorePlots = async function() {
             for(let i = 0; i < mergedMutationData.length; i++) {
                 mergedMutationBarcodes.push(mergedMutationData[i].patient_barcode);
             }
-            //DEBUG
-            console.log("Merged Mutation Data Barcodes:")
-            console.log(mergedMutationBarcodes)
-            //DEBUG
             //Remove barcode from patientsWithNoMutation array if it has mutation data
             let patientsWithNoMutation = allCohortsBarcodes;
             let barcodesArr = [];
             for(let i = 0; i < patientsWithNoMutation.length; i++) {
                 barcodesArr.push(patientsWithNoMutation[i].patient_barcode);
             }
-            //DEBUG
-            console.log("All Barcodes:")
-            console.log(barcodesArr)
-            //DEBUG
 
             for(let i = 0; i < mergedMutationBarcodes.length; i++) {
                 let indexToRemove = barcodesArr.indexOf(mergedMutationBarcodes[i]);
-                //DEBUG
-                console.log("Barcode of Interest: " +mergedMutationBarcodes[i]);
-                console.log("Index to Remove: " + indexToRemove)
-                //DEBUG
                 if(indexToRemove > -1) {
-                    //DEBUG
-                    console.log("Removing element")
-                    //DEBUG
                     barcodesArr.splice(indexToRemove, 1);
                     patientsWithNoMutation.splice(indexToRemove, 1);
                 }
@@ -683,32 +664,19 @@ let buildDataExplorePlots = async function() {
                 }
             }
 
-            //for(let i = 0; i < patientsWithNoMutation.length; i++) {
-            //    let patientBarcode = patientsWithNoMutation[i].patient_barcode;
-            //    if(mergedMutationBarcodes.includes(patientBarcode)) {
-            //        console.log("splice called!");
-            //        patientsWithNoMutation.splice(i, 1)
-            //    }
-            //}
-            //Loop over patientsWithNoMutation to assign "Wild_Type" value
+            //Append element to allLabels and xCounts for Wild_Type mutation
+            if(patientsWithNoMutation) {
+                allLabels.push("Wild_Type");
+                xCounts.push(0);
+            }
+
             for(let i = 0; i < patientsWithNoMutation.length; i++) {
                 patientsWithNoMutation[i].mutation_label = "Wild_Type";
             }
-            //DEBUG
-            console.log("Merged Mutation Data: ");
-            console.log(mergedMutationData);
-            console.log("Patients with No Mutation Data:")
-            console.log(patientsWithNoMutation)
-            //DEBUG
+            mergedMutationData = mergedMutationData.concat(patientsWithNoMutation);
             //Concatenate patientWithNoMutation and mergedMutationData
-            //mergedMutationData = mergedMutationData.concat(patientsWithNoMutation);
-
             let jsonToAppend = {gene:mutationDataForThisGene[i].Hugo_Symbol,
-                mutationData:poolWithBarcodes.concat(singleMutationPatients)};
-            //DEBUG
-            console.log("Final JSON for gene's mutation data:")
-            console.log(jsonToAppend);
-            //DEBUG
+                mutationData:mergedMutationData};
             
             //let selectedGenes = []
 
@@ -719,17 +687,16 @@ let buildDataExplorePlots = async function() {
             }
             else
                 mutationDataForAllGenes.push(jsonToAppend);
-            
-            //DEBUG
-            console.log("Proposed Structure for Storing Mutation Data Globally: ");
-            console.log(mutationDataForAllGenes);
-            //DEBUG
+
+            //Loop over xCounts and reset all values to 0
+            for(let i = 0; i < xCounts.length; i++) {
+                xCounts[i] = 0;
+            }
 
             // count number of barcodes associated with >1 mutation
-            for(let i = 0; i < swim.length; i++)
-                for(let j = 0; j < pool.length; j++)
-                    if(swim[i] == pool[j]) {
-                        xCounts[allLabels.indexOf(swim[i])]++;
+            for(let i = 0; i < mergedMutationData.length; i++)
+                    if(allLabels.includes(mergedMutationData[i].mutation_label)) {
+                        xCounts[allLabels.indexOf(mergedMutationData[i].mutation_label)]++;
                         totalNumberMutations++;
                     }
 
@@ -738,17 +705,12 @@ let buildDataExplorePlots = async function() {
 
             // if there are fewer patients with mutations than the total number of patients for the given cancer type and gene,
             // then create a new pie sector for patients with a wild-type version of the gene
-            if(totalNumberMutations < totalNumberBarcodes) {
-                allLabels.push("Wild_Type");
-                xCounts[xCounts.length] = totalNumberBarcodes - totalNumberMutations;
-            }
-
         // if mutations do NOT exist for this gene (i.e., if the gene is wild-type)
         } else {
             allLabels.push("Wild_Type");
             //xCounts.push(totalNumberBarcodes);
             //Update global variable for mutation data with all "Wild_Type" values
-            xCounts.push(allCohortsBarcodes.length);
+            //xCounts.push(allCohortsBarcodes.length);
         }
 
     //});
