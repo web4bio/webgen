@@ -499,9 +499,7 @@ let buildDataExplorePlots = async function() {
             let barcodesWithMoreThanOneMutationForGene = []
             for(let i = 0; i < myIndices.length; i++) {
                 if(myIndices[i] > 1) {
-                //CORRECT CODE TO IMPLEMENT
                 //let barcode = allCohortsBarcodes[myIndices[i]].patient_barcode;
-                //CORRECT CODE TO IMPLEMENT
                 let barcode = allBarcodes[myIndices[i]];
                 let cohort = allCohortsBarcodes[myIndices[i]].cohort;
                 let elToAppend = {cohort:cohort, patient_barcode:barcode};
@@ -509,19 +507,11 @@ let buildDataExplorePlots = async function() {
                 }
             }
 
-            //debug
-            console.log("barcodesWithMoreThanOneMutationForGene:");
-            console.log(barcodesWithMoreThanOneMutationForGene);
-            //debug
 
             // ----------------------------------------------------------------------------------------------
 
             // FINAL: GET LABELS
 
-            //DEBUG
-            console.log("barcodesByMutationType:");
-            console.log(barcodesByMutationType);
-            //DEBUG
 
             // get array of unique paired mutation types in which a single barcode appears
             let poolWithBarcodes = [];
@@ -532,15 +522,9 @@ let buildDataExplorePlots = async function() {
                 poolWithBarcodes[i] = {mutation_label:"", patient_barcode:"", cohort:""};
             }
             for(let i = 0; i < barcodesWithMoreThanOneMutationForGene.length; i++) {
-                //DEBUG
-                console.log("Current Barcode:" + barcodesWithMoreThanOneMutationForGene[i].patient_barcode);
-                //DEBUG
                 for(let j = 0; j < barcodesByMutationType.length; j++) {
                     if(barcodesByMutationType[j][uniqueValuesForCurrentFeature[j]].includes(
                         barcodesWithMoreThanOneMutationForGene[i].patient_barcode)) {
-                        //DEBUG
-                        console.log("Condition equated to true!");
-                        //DEBUG
                         if(poolWithBarcodes[i].mutation_label.length > 1) {
                             poolWithBarcodes[i].mutation_label += '_&_' + uniqueValuesForCurrentFeature[j];
                             poolWithBarcodes[i].patient_barcode = barcodesWithMoreThanOneMutationForGene[i].patient_barcode;
@@ -559,11 +543,6 @@ let buildDataExplorePlots = async function() {
                     swim.push(poolWithBarcodes[i].mutation_label)
 
             allLabels = swim.concat(uniqueValuesForCurrentFeature)
-
-            //DEBUG
-            console.log("poolWithBarcodes:");
-            console.log(poolWithBarcodes);
-            //DEBUG
 
             // ----------------------------------------------------------------------------------------------
 
@@ -697,10 +676,6 @@ let buildDataExplorePlots = async function() {
             }
             else
                 mutationDataForAllGenes.push(jsonToAppend);
-            
-            //DEBUG
-            console.log(mutationDataForAllGenes);
-            //DEBUG
 
             //Loop over xCounts and reset all values to 0
             for(let i = 0; i < xCounts.length; i++) {
