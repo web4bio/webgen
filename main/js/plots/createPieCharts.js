@@ -421,18 +421,6 @@ let buildDataExplorePlots = async function() {
     let mutationDataForThisGene = await firebrowse.fetchMutationMAF({
         cohorts: selectedTumorTypes, genes: currentGeneSelected});
     
-        let distinctBarcodesTest = new Set();
-        let mutationCountsMap = new Map();
-        for(let index = 0; index < mutationDataForThisGene.length; index++) {
-            if(mutationCountsMap.get(mutationDataForThisGene[index].Variant_Classification) == undefined) {
-                mutationCountsMap.set(mutationDataForThisGene[index].Variant_Classification, 1);
-            }
-            else {
-                mutationCountsMap.set(mutationDataForThisGene[index].Variant_Classification, mutationCountsMap.get(mutationDataForThisGene[index].Variant_Classification)+1);
-            }
-            distinctBarcodesTest.add(mutationDataForThisGene[index].Tumor_Sample_Barcode.substring(0, 12))
-        }
-        distinctBarcodesTest = Array.from(distinctBarcodesTest);
         //Push the mutation data to global variable
         mutationDataForAllGenesSelected.push(mutationDataForThisGene)
 
@@ -451,9 +439,8 @@ let buildDataExplorePlots = async function() {
                         break;
                     }
                 }
-
                 if(!barcodeInExpressionCohort) {
-                    console.log(mutationDataForThisGene.splice(i, 1));
+                    mutationDataForThisGene.splice(i, 1);
                     //Decrement index i by 1
                     i--;
                 }
@@ -465,7 +452,8 @@ let buildDataExplorePlots = async function() {
 
             // get unique mutation types and unique substringed barcodes
             uniqueValuesForCurrentFeature = allVariantClassifications.filter(onlyUnique);
-            allBarcodes = allBarcodes.filter(onlyUnique)
+            allBarcodes = allBarcodes.filter(onlyUnique);
+
 
             // ----------------------------------------------------------------------------------------------
 
@@ -511,33 +499,48 @@ let buildDataExplorePlots = async function() {
             let barcodesWithMoreThanOneMutationForGene = []
             for(let i = 0; i < myIndices.length; i++) {
                 if(myIndices[i] > 1) {
+                //CORRECT CODE TO IMPLEMENT
+                //let barcode = allCohortsBarcodes[myIndices[i]].patient_barcode;
+                //CORRECT CODE TO IMPLEMENT
                 let barcode = allBarcodes[myIndices[i]];
-                let cohort = allBarcodes[myIndices[i]];
+                let cohort = allCohortsBarcodes[myIndices[i]].cohort;
                 let elToAppend = {cohort:cohort, patient_barcode:barcode};
                 barcodesWithMoreThanOneMutationForGene.push(elToAppend)
                 }
             }
 
+            //debug
+            console.log("barcodesWithMoreThanOneMutationForGene:");
+            console.log(barcodesWithMoreThanOneMutationForGene);
+            //debug
+
             // ----------------------------------------------------------------------------------------------
 
             // FINAL: GET LABELS
 
-            // get array of unique paired mutation types in which a single barcode appears
-            let pool = []
-            pool.length = barcodesWithMoreThanOneMutationForGene.length;
+            //DEBUG
+            console.log("barcodesByMutationType:");
+            console.log(barcodesByMutationType);
+            //DEBUG
 
+            // get array of unique paired mutation types in which a single barcode appears
             let poolWithBarcodes = [];
             poolWithBarcodes.length = barcodesWithMoreThanOneMutationForGene.length;
-
-            for(let i = 0; i < pool.length; i++) {
+            for(let i = 0; i < poolWithBarcodes.length; i++) {
                 /*Each element in poolWithBarcodes will have a gene, mutation_label, and
                 patient_barcode field to map patients to mutation labels*/
                 poolWithBarcodes[i] = {mutation_label:"", patient_barcode:"", cohort:""};
             }
-            for(let i = 0; i < barcodesWithMoreThanOneMutationForGene.length; i++)
-                for(let j = 0; j < barcodesByMutationType.length; j++)
+            for(let i = 0; i < barcodesWithMoreThanOneMutationForGene.length; i++) {
+                //DEBUG
+                console.log("Current Barcode:" + barcodesWithMoreThanOneMutationForGene[i].patient_barcode);
+                //DEBUG
+                for(let j = 0; j < barcodesByMutationType.length; j++) {
                     if(barcodesByMutationType[j][uniqueValuesForCurrentFeature[j]].includes(
                         barcodesWithMoreThanOneMutationForGene[i].patient_barcode)) {
+                        //DEBUG
+                        console.log("Condition equated to true!");
+                        //DEBUG
                         if(poolWithBarcodes[i].mutation_label.length > 1) {
                             poolWithBarcodes[i].mutation_label += '_&_' + uniqueValuesForCurrentFeature[j];
                             poolWithBarcodes[i].patient_barcode = barcodesWithMoreThanOneMutationForGene[i].patient_barcode;
@@ -548,12 +551,19 @@ let buildDataExplorePlots = async function() {
                             poolWithBarcodes[i].cohort = barcodesWithMoreThanOneMutationForGene[i].cohort;
                         }
                     }
+                }
+            }
             let swim = []
             for(let i = 0; i < poolWithBarcodes.length; i++)
                 if(!swim.includes(poolWithBarcodes[i].mutation_label))
                     swim.push(poolWithBarcodes[i].mutation_label)
 
             allLabels = swim.concat(uniqueValuesForCurrentFeature)
+
+            //DEBUG
+            console.log("poolWithBarcodes:");
+            console.log(poolWithBarcodes);
+            //DEBUG
 
             // ----------------------------------------------------------------------------------------------
 
@@ -687,6 +697,10 @@ let buildDataExplorePlots = async function() {
             }
             else
                 mutationDataForAllGenes.push(jsonToAppend);
+            
+            //DEBUG
+            console.log(mutationDataForAllGenes);
+            //DEBUG
 
             //Loop over xCounts and reset all values to 0
             for(let i = 0; i < xCounts.length; i++) {
