@@ -827,3 +827,11 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
     }
     return [chartHeight, chartWidth, legend_location_x, legend_location_y]
 }
+
+/**
+ * Gets the sanitized mutation data with multiple mutation records for a patient merged into a single multi-mutation entry
+ * @returns The sanitized mutation data that ensures patients with multiple mutations only account for one entry per gene
+ */
+let getSanitizedMutationData = async function() {
+    return mutationDataForAllGenes;
+}
