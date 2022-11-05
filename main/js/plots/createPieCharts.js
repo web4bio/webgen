@@ -150,6 +150,7 @@ let buildDataExplorePlots = async function() {
                 }
                 // if unselected feature is a gene, update mutationDataForAllGenesSelected
                 if(unselectedFeature[0] === unselectedFeature[0].toUpperCase()) {
+                    //let index = mutationDataForAllGenes.findIndex(x => x[0].gene == unselectedFeature);
                     let index = mutationDataForAllGenesSelected.findIndex(x => x[0].Hugo_Symbol == unselectedFeature);
                     mutationDataForAllGenesSelected.splice(index, 1)
                 }
@@ -664,15 +665,24 @@ let buildDataExplorePlots = async function() {
             }
             mergedMutationData = mergedMutationData.concat(patientsWithNoMutation);
             //Concatenate patientWithNoMutation and mergedMutationData
-            let jsonToAppend = {gene:mutationDataForThisGene[i].Hugo_Symbol,
+            let jsonToAppend = {gene:currentGeneSelected,
                 mutationData:mergedMutationData};
             
             //let selectedGenes = []
 
             /*If mutationDataForAllGenes includes the jsonToAppend, then
             replace entry for that specific gene*/
-            if(mutationDataForAllGenes.includes(jsonToAppend)) {
-                //Remove 
+            let mutationDataForAllGenesIndex = -1;
+            for(let index = 0; index < mutationDataForAllGenes.length; index++) {
+                if(mutationDataForAllGenes[index].gene == currentGeneSelected) {
+                    mutationDataForAllGenesIndex = index;
+                    break;
+                }
+            }
+            if(mutationDataForAllGenesIndex >= 0) {
+                //This branch triggers when the global mutation data needs to be updated
+                //Replace outdated entry with current gene's worth of data
+                mutationDataForAllGenes[mutationDataForAllGenesIndex] = jsonToAppend;
             }
             else
                 mutationDataForAllGenes.push(jsonToAppend);
