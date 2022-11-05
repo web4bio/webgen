@@ -373,7 +373,7 @@ let buildDataExplorePlots = async function() {
                     Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
                 });
             }
-        }
+s        }
     }
 }}
 
@@ -389,7 +389,6 @@ let buildDataExplorePlots = async function() {
     let expressionData = await firebrowse.fetchmRNASeq({cohorts:selectedTumorTypes,
         genes:'TTN'});
     let allBarcodes = []; // Barcodes in expression data
-    //let correspondingCohort = [];
     for(let i = 0; i < expressionData.length; i++) {
         allBarcodes.push(expressionData[i].tcga_participant_barcode);
     }
@@ -646,7 +645,7 @@ let buildDataExplorePlots = async function() {
 
         mergedMutationData = mergedMutationData.concat(patientsWithNoMutation);
         //Concatenate patientWithNoMutation and mergedMutationData
-        let jsonToAppend = {gene:currentGeneSelected, mutationData:mergedMutationData};
+        let jsonToAppend = {gene:currentGeneSelected, mutation_data:mergedMutationData};
             
 
         //If mutationDataForAllGenes already includes the gene of interest, then replace entry for that specific gene
@@ -688,7 +687,7 @@ let buildDataExplorePlots = async function() {
                 patient_barcode:allCohortsBarcodes[index].patient_barcode, cohort:allCohortsBarcodes[index].cohort});
         }
         //Declare jsonToAppend with necessary data
-        let jsonToAppend = {gene:currentGeneSelected, mutationData:wildTypeMutationData};
+        let jsonToAppend = {gene:currentGeneSelected, mutation_data:wildTypeMutationData};
         //If mutationDataForAllGenes already includes the gene of interest, then replace entry for that specific gene
         let mutationDataForAllGenesIndex = -1;
         for(let index = 0; index < mutationDataForAllGenes.length; index++) {
