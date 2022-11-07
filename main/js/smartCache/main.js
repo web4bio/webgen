@@ -13,8 +13,7 @@
  */
 
 // Test commands:
-// initDatabase()
-// cacheMe = new CacheInterface()
+// cacheMe = await getCacheGE()
 // cacheMe.fetchWrapper(['ACC'], ['ABI1'], ['TCGA-OR-A5J1','TCGA-OR-A5J2','TCGA-OR-A5J3'])
 // cacheMe.fetchWrapper(['ACC'], ['ABI1'], ['TCGA-OR-A5J1','TCGA-OR-A5J2','TCGA-OR-A5J3', 'TCGA-OR-A5JO'])
 
@@ -91,6 +90,9 @@ function CacheInterface(nameOfDb) {
     }
   })
 
+  // cohort = primary key
+  // barcode = ternary key (only purpose is to index the payload, any unique field in payload works)
+  // expression = secondary key
   this.saveToDB = function (cohort, barcode, expression, payload) {
     let dv = this.db
       .getCollection('cohorts')
@@ -171,14 +173,8 @@ function CacheInterface(nameOfDb) {
     }
     return [s, foundS]
   }
-  // to-do create for mutation
-  this.constructQueriesMU = function (
-    listOfCohorts,
-    listOfExpressions,
-    listOfBarcodes
-  ) {}
 
-  this.constructQueriesGE = function (
+  this.constructQueries = function (
     listOfCohorts,
     listOfExpressions,
     listOfBarcodes
@@ -218,14 +214,60 @@ function CacheInterface(nameOfDb) {
     return [res, foundRes]
   }
 
-  if (nameOfDb === 'smart-cache-ge.db') {
-    this.constructQueries = this.constructQueriesGE
-  } else {
-    // Tbd mutation construction
-    this.constructQueries = this.constructQueriesGE
-  }
+  //   this.executeQueriesMU = function (interface) {
+  //     let promises = []
+  //     // Loop through each cancer type in interface
+  //     // {
+  //     //     "ACC": {
+  //     //         "ABI1": [
+  //     //             "TCGA-OR-A5J1", "TCGA-OR-A5J2", "TCGA-OR-A5J3"
+  //     //         ],
+  //     //          "ABI2": [
+  //     //             "XCGA-OR-A5J1", "XCGA-OR-A5J2", "XCGA-OR-A5J3"
+  //     //         ]
+  //     //     }
+  //     // }
+  //     for (let cohort in interface) {
+  //       for (let expr in interface[cohort]) {
+  //         promises.push(
+  //           new Promise((resolve, reject) =>
+  //             resolve({
+  //               cohort: 'ACC',
+  //               mutation_label: 'Missense',
+  //               patient_barcode: 'TCGA-asdf',
+  //             })
+  //           )
+  //           //   firebrowse
+  //           // .fetchmRNASeq({
+  //           //   cohorts: [cohort],
+  //           //   genes: [expr],
+  //           //   barcodes: interface[cohort][expr],
+  //           // })
+  //           // .then((res) => {
+  //           //   console.log(res)
+  //           //   return res.map((obj) => {
+  //           //     // Store the entire obj into the interface
+  //           //     this.add(obj.cohort, obj.tcga_participant_barcode, expr, obj)
+  //           //     this.saveToDB(
+  //           //       obj.cohort,
+  //           //       obj.tcga_participant_barcode,
+  //           //       expr,
+  //           //       obj
+  //           //     )
+  //           //     return obj
+  //           //   })
+  //           // })
+  //           // .catch((error) => {
+  //           //   console.error('Failed, skipping.', error)
+  //           //   return undefined
+  //           // })
+  //         )
+  //       }
+  //     }
+  //     return promises
+  //   }
 
-  this.executeQueries = function (interface) {
+  this.executeQueriesGE = function (interface) {
     let promises = []
     for (let cohort in interface) {
       for (let expr in interface[cohort]) {
@@ -260,7 +302,7 @@ function CacheInterface(nameOfDb) {
     return promises
   }
 
-  this.fetchWrapper = async function (
+  this.fetchWrapperGE = async function (
     listOfCohorts,
     listOfExpressions,
     listOfBarcodes
@@ -270,7 +312,7 @@ function CacheInterface(nameOfDb) {
       listOfExpressions,
       listOfBarcodes
     )
-    let promises = this.executeQueries(missingInterface)
+    let promises = this.executeQueriesGE(missingInterface)
     // console.log(hasInterface)
     // RETURNS A 2-D ARRAY of size COHORT.len * GENE.len, each index contains an array for that combo
     return (
@@ -279,7 +321,7 @@ function CacheInterface(nameOfDb) {
           if (err) {
             console.error(err)
           } else {
-            console.log('Saved.')
+            console.log('Saved to.', nameOfDb)
           }
         })
         let tmp = []
@@ -306,6 +348,74 @@ function CacheInterface(nameOfDb) {
         return allData.filter((lst) => lst.length !== 0).concat(...tmp)
       })
     ).flat()
+  }
+
+  // Retrieves what is found in the cache, also returns what isn't found in the cache
+  this.fetchWrapperMU = async function (listOfCohorts, listOfExpressions) {
+    function constructQueriesMU(listOfCohorts, listOfExpressions) {
+      let res = {}
+      let foundRes = {}
+      for (let cohort of listOfCohorts) {
+        if (!(cohort in res)) {
+          res[cohort] = []
+        }
+        if (!(cohort in foundRes)) {
+          foundRes[cohort] = []
+        }
+        for (let expr of listOfExpressions) {
+          let interface = this.interface
+          if (interface.has(cohort) && interface.get(cohort).has(expression)) {
+            foundRes[cohort].push(expression)
+          } else {
+            res[cohort].push(expression)
+          }
+        }
+      }
+      for (let k in foundRes) {
+        if (foundRes[k].length === 0) {
+          delete foundRes[k]
+        }
+      }
+      return [res, foundRes]
+    }
+
+    let [missingInterface, hasInterface] = constructQueriesMU(
+      listOfCohorts,
+      listOfExpressions
+    )
+
+    let tmp = []
+    // It wants all the barcodes
+    for (let cohort in hasInterface) {
+      let interfaceData = this.interface.get(cohort) // Map([])
+      for (let gene of hasInterface[cohort]) {
+        tmp.push([...interfaceData.get(gene).values()])
+      }
+    }
+
+    return [missingInterface, tmp.flat()]
+  }
+
+  // Manually save it to interface/db, call in computeGeneMutationAndFreq
+  this.saveToDBAndSaveToInterface = async function (sanitizedData) {
+    const { gene, mutationData } = sanitizedData
+    for (let data of mutationData) {
+      this.add(data.cohort, data.patient_barcode, gene, data)
+      this.saveToDB(data.cohort, data.patient_barcode, gene, data)
+    }
+    return this.db.saveDatabase((err) => {
+      if (err) {
+        throw err
+      } else {
+        console.log('Saved to.', nameOfDb)
+      }
+    })
+  }
+
+  if (nameOfDb === 'smart-cache-ge.db') {
+    this.fetchWrapper = this.fetchWrapperGE
+  } else {
+    this.fetchWrapper = this.fetchWrapperMU
   }
 }
 
