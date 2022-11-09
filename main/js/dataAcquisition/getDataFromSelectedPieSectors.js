@@ -36,20 +36,21 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
       let mutationDataForThisGene;
       for(let j = 0; j < mutationDataForAllGenesSelected.length; j++)
         if(mutationDataForAllGenesSelected[j][0].Hugo_Symbol == currentGene)
-          mutationDataForThisGene = mutationDataForAllGenesSelected[j];
+        //if(mutationDataForAllGenes[j][0].gene == currentGene)
+          mutationDataForThisGene = mutationDataForAllGenes[j];
+          //mutationDatForThisGene = mutationDataForAllGenes[j].mutation_data;
 
-      // LOOP THRU ALL CLICKED "MUTATIONS"
+      // LOOP THROUGH ALL CLICKED "MUTATIONS"
       let clickedMutations = selectedCategoricalFeatures[currentGene];
-      //DEBUG
-      console.log("Selected Mutations: ")
-      console.log(clickedMutations)
-      //DEBUG
       for(let j = 0; j < clickedMutations.length; j++) {
         let currentMutation = clickedMutations[j];
         // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
         if(currentMutation != "Wild_Type") {
           let allDataForCurrentMutation = mutationDataForThisGene.filter(person => (person.Variant_Classification == currentMutation));
+          //let allDataForCurrentMutation = mutationDataForThisGene.filter(person => (person.mutation_label = currentMutation));
           let onlyBarcodes = allDataForCurrentMutation.map(x => x.Tumor_Sample_Barcode);
+          //let onlyBarcodes = allDataForCurrentMutation.map(x => x.patient_barcode);
+          //BELOW LINE IS NOT NEEDED IF LINE ABOVE IS IMPLEMENTED
           let trimmedOnlyBarcodes = onlyBarcodes.map(x => x.slice(0,12));
 
           // we need to perform filtering to get only unique barcodes because some genes with a given
