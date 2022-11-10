@@ -352,7 +352,7 @@ function CacheInterface(nameOfDb) {
 
   // Retrieves what is found in the cache, also returns what isn't found in the cache
   this.fetchWrapperMU = async function (listOfCohorts, listOfExpressions) {
-    function constructQueriesMU(listOfCohorts, listOfExpressions) {
+    function constructQueriesMU(listOfCohorts, listOfExpressions, interface) {
       let res = {}
       let foundRes = {}
       for (let cohort of listOfCohorts) {
@@ -362,8 +362,7 @@ function CacheInterface(nameOfDb) {
         if (!(cohort in foundRes)) {
           foundRes[cohort] = []
         }
-        for (let expr of listOfExpressions) {
-          let interface = this.interface
+        for (let expression of listOfExpressions) {
           if (interface.has(cohort) && interface.get(cohort).has(expression)) {
             foundRes[cohort].push(expression)
           } else {
@@ -381,7 +380,8 @@ function CacheInterface(nameOfDb) {
 
     let [missingInterface, hasInterface] = constructQueriesMU(
       listOfCohorts,
-      listOfExpressions
+      listOfExpressions,
+      this.interface
     )
 
     let tmp = []
@@ -398,10 +398,10 @@ function CacheInterface(nameOfDb) {
 
   // Manually save it to interface/db, call in computeGeneMutationAndFreq
   this.saveToDBAndSaveToInterface = async function (sanitizedData) {
-    const { gene, mutationData } = sanitizedData
-    for (let data of mutationData) {
-      this.add(data.cohort, data.patient_barcode, gene, data)
-      this.saveToDB(data.cohort, data.patient_barcode, gene, data)
+    const { gene, mutation_data } = sanitizedData
+    for (let data of mutation_data) {
+      this.add(data.cohort, data.patient_barcode, gene, data.mutation_label)
+      this.saveToDB(data.cohort, data.patient_barcode, gene, data.mutation_label)
     }
     return this.db.saveDatabase((err) => {
       if (err) {

@@ -2,25 +2,9 @@
 // ***** Get intersection of barcodes from selected pie sectors (below) *****
 
 getBarcodesFromSelectedPieSectors = async function(expressionData) {
-
-  //DEBUG
-  console.log("Initial Cohort Size: ");
-  console.log(expressionData.length)
-  //DEBUG
-
-  //DEBUG
-  console.log("Mutation Data when Getting Data from Pie Sectors: ");
-  console.log(mutationDataForAllGenesSelected)
-  //DEBUG
-
   // a "field" is either a gene name or a clinical feature
   let selectedCategoricalFields = Object.keys(selectedCategoricalFeatures);
   let concatFilteredBarcodes = [];
-
-  //DEBUG
-  console.log("Selected Features: ");
-  console.log(selectedCategoricalFeatures)
-  //DEBUG
 
   // LOOP THRU ALL CLICKED FIELDS
   for(let i = 0; i < selectedCategoricalFields.length; i++) {
@@ -39,11 +23,25 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
         //if(mutationDataForAllGenes[j][0].gene == currentGene)
           mutationDataForThisGene = mutationDataForAllGenes[j];
           //mutationDatForThisGene = mutationDataForAllGenes[j].mutation_data;
+          //DEBUG
+          console.log(mutationDataForAllGenes);          
+          //DEBUG
 
       // LOOP THROUGH ALL CLICKED "MUTATIONS"
       let clickedMutations = selectedCategoricalFeatures[currentGene];
       for(let j = 0; j < clickedMutations.length; j++) {
         let currentMutation = clickedMutations[j];
+
+        //Loop over mutationDataForThisGene and push the barcodes that match currentMutation
+        /*let allDataForCurrentMutation = mutationDataForThisGene.filter(person => (person.mutation_label == currentMutation));
+        let onlyBarcodes = allDataForCurrentMutation.map(person => person.patient_barcodes);
+        if(concatFilteredBarcodes['' + currentGene] == undefined)
+          concatFilteredBarcodes['' + currentGene] = uniqueTrimmedOnlyBarcodes;
+        else
+          concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(uniqueTrimmedOnlyBarcodes);
+        */
+
+
         // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
         if(currentMutation != "Wild_Type") {
           let allDataForCurrentMutation = mutationDataForThisGene.filter(person => (person.Variant_Classification == currentMutation));
@@ -172,8 +170,8 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
   }
 
   //DEBUG
-  console.log("Final Cohort Size: ");
-  console.log(intersectedBarcodes.length)
+  //console.log("Final Cohort Size: ");
+  //console.log(intersectedBarcodes.length)
   //DEBUG
   return intersectedBarcodes
 }
@@ -194,7 +192,7 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
       return
     }
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
-    const smartCache = await getCacheMe();
+    const smartCache = await getCacheGE();
     // return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
     console.log(cohortQuery, expressionQuery, allBarcodes);
     return await smartCache.fetchWrapper(cohortQuery, expressionQuery, allBarcodes);

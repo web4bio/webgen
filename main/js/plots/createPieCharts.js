@@ -150,7 +150,6 @@ let buildDataExplorePlots = async function() {
                 }
                 // if unselected feature is a gene, update mutationDataForAllGenesSelected
                 if(unselectedFeature[0] === unselectedFeature[0].toUpperCase()) {
-                    //let index = mutationDataForAllGenes.findIndex(x => x[0].gene == unselectedFeature);
                     let index = mutationDataForAllGenesSelected.findIndex(x => x[0].Hugo_Symbol == unselectedFeature);
                     mutationDataForAllGenesSelected.splice(index, 1)
                 }
@@ -373,7 +372,7 @@ let buildDataExplorePlots = async function() {
                     Plotly.restyle(currentFeature + 'Div', update, [tn], {scrollZoom: true});
                 });
             }
-s        }
+        }
     }
 }}
 
@@ -385,6 +384,8 @@ s        }
   * @returns {Array} Contains values and labels to input to Plotly data object.
   */
  let computeGeneMutationFrequencies = async function(xCounts, uniqueValuesForCurrentFeature, currentGeneSelected) {
+    let jsonToAppend;
+    
     //Acquire all the barcodes for the cohort specified to identify which patients in the cohort have wild-type mutations
     let expressionData = await firebrowse.fetchmRNASeq({cohorts:selectedTumorTypes,
         genes:'TTN'});
@@ -645,7 +646,7 @@ s        }
 
         mergedMutationData = mergedMutationData.concat(patientsWithNoMutation);
         //Concatenate patientWithNoMutation and mergedMutationData
-        let jsonToAppend = {gene:currentGeneSelected, mutation_data:mergedMutationData};
+        jsonToAppend = {gene:currentGeneSelected, mutation_data:mergedMutationData};
             
 
         //If mutationDataForAllGenes already includes the gene of interest, then replace entry for that specific gene
@@ -687,7 +688,7 @@ s        }
                 patient_barcode:allCohortsBarcodes[index].patient_barcode, cohort:allCohortsBarcodes[index].cohort});
         }
         //Declare jsonToAppend with necessary data
-        let jsonToAppend = {gene:currentGeneSelected, mutation_data:wildTypeMutationData};
+        jsonToAppend = {gene:currentGeneSelected, mutation_data:wildTypeMutationData};
         //If mutationDataForAllGenes already includes the gene of interest, then replace entry for that specific gene
         let mutationDataForAllGenesIndex = -1;
         for(let index = 0; index < mutationDataForAllGenes.length; index++) {
@@ -713,6 +714,25 @@ s        }
             allLabels.splice(index, 1);
         }
     }
+
+    //Just testing for now
+
+
+    //DEBUG
+    //Save mutation data to smartCache interface
+    cacheMu = await getCacheMU();
+    await cacheMu.saveToDBAndSaveToInterface(jsonToAppend);
+
+    //DEBUG
+    //Was the data cached?
+    console.log("Cached Data after cacheMu.saveToDBAndSaveToInterface():")
+    console.log(cacheMu.db.getCollection('cohorts'))
+
+
+    //DEBUG
+    console.log("Result of fetchWrapperMU() after caching data: ");
+    console.log(await cacheMu.fetchWrapperMU(selectedTumorTypes,[currentGeneSelected]));
+
 
     return [xCounts, allLabels]
 }
