@@ -65,7 +65,7 @@ async function getCacheMU() {
           db.saveDatabase()
         }
         cacheMU = new CacheInterface('smart-cache-mu.db')
-        resolve(cacheMU)
+        setTimeout(() => resolve(cacheMU), 500)
       })
     })
   }
