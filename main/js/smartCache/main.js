@@ -93,11 +93,13 @@ function CacheInterface(nameOfDb) {
   // cohort = primary key
   // barcode = ternary key (only purpose is to index the payload, any unique field in payload works)
   // expression = secondary key
-  this.saveToDB = function (cohort, barcode, expression, payload) {
+  this.saveToDB = function (cohort, barcode, /*gene,*/ expression, payload) {
     let dv = this.db
       .getCollection('cohorts')
+      //.getCollection('mutations')
       .addDynamicView('dv')
       .applyFind({ _id: cohort }) // Check if _cohort exists
+      //.applyFind({_id: gene})
     if (dv.data().length <= 0) {
       // Not found, create the collection named _cohort
       this.db.getCollection('cohorts').insert({ _id: cohort })
@@ -389,7 +391,15 @@ function CacheInterface(nameOfDb) {
     for (let cohort in hasInterface) {
       let interfaceData = this.interface.get(cohort) // Map([])
       for (let gene of hasInterface[cohort]) {
-        tmp.push([...interfaceData.get(gene).values()])
+        //DEBUG
+        console.log("Interface data for gene of interest")
+        console.log(interfaceData.get(gene))
+        //DEBUG
+        let emptyTmp = []
+        for (let [k, v] of interfaceData.get(gene)) {
+          emptyTmp.push({ barcode: k, mutation_label: v})//, gene: gene })
+        }
+        tmp.push({gene:gene, cohort:cohort, mutation_data: emptyTmp})
       }
     }
 

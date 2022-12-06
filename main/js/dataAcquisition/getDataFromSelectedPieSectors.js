@@ -23,16 +23,19 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
         //if(mutationDataForAllGenes[j][0].gene == currentGene)
           mutationDataForThisGene = mutationDataForAllGenes[j];
           //mutationDatForThisGene = mutationDataForAllGenes[j].mutation_data;
-          //DEBUG
-          console.log(mutationDataForAllGenes);          
-          //DEBUG
+
+      //let cacheMu = await getCacheMU();
+      //let cachedMutationDataForCurGene = await cacheMu.fetchWrapperMU(selectedTumorTypes,[currentGeneSelected]);
+      //cachedMutationDataForCurGene = cachedMutationDataForCurGene.mutation_data;
 
       // LOOP THROUGH ALL CLICKED "MUTATIONS"
       let clickedMutations = selectedCategoricalFeatures[currentGene];
       for(let j = 0; j < clickedMutations.length; j++) {
         let currentMutation = clickedMutations[j];
 
-        //Loop over mutationDataForThisGene and push the barcodes that match currentMutation
+        //Loop over cached mutation data and push the barcodes that match currentMutation
+        //let cacheMu = await getCacheMU();
+        //let cachedMutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes,[currentGeneSelected])
         /*let allDataForCurrentMutation = mutationDataForThisGene.filter(person => (person.mutation_label == currentMutation));
         let onlyBarcodes = allDataForCurrentMutation.map(person => person.patient_barcodes);
         if(concatFilteredBarcodes['' + currentGene] == undefined)
