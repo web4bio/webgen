@@ -65,7 +65,7 @@ async function getCacheMU() {
           db.saveDatabase()
         }
         cacheMU = new CacheInterface('smart-cache-mu.db')
-        resolve(cacheMU)
+        setTimeout(() => resolve(cacheMU), 500)
       })
     })
   }
@@ -93,11 +93,13 @@ function CacheInterface(nameOfDb) {
   // cohort = primary key
   // barcode = ternary key (only purpose is to index the payload, any unique field in payload works)
   // expression = secondary key
-  this.saveToDB = function (cohort, barcode, expression, payload) {
+  this.saveToDB = function (cohort, barcode, /*gene,*/ expression, payload) {
     let dv = this.db
       .getCollection('cohorts')
+      //.getCollection('mutations')
       .addDynamicView('dv')
       .applyFind({ _id: cohort }) // Check if _cohort exists
+      //.applyFind({_id: gene})
     if (dv.data().length <= 0) {
       // Not found, create the collection named _cohort
       this.db.getCollection('cohorts').insert({ _id: cohort })
@@ -352,7 +354,7 @@ function CacheInterface(nameOfDb) {
 
   // Retrieves what is found in the cache, also returns what isn't found in the cache
   this.fetchWrapperMU = async function (listOfCohorts, listOfExpressions) {
-    function constructQueriesMU(listOfCohorts, listOfExpressions) {
+    function constructQueriesMU(listOfCohorts, listOfExpressions, interface) {
       let res = {}
       let foundRes = {}
       for (let cohort of listOfCohorts) {
@@ -362,8 +364,7 @@ function CacheInterface(nameOfDb) {
         if (!(cohort in foundRes)) {
           foundRes[cohort] = []
         }
-        for (let expr of listOfExpressions) {
-          let interface = this.interface
+        for (let expression of listOfExpressions) {
           if (interface.has(cohort) && interface.get(cohort).has(expression)) {
             foundRes[cohort].push(expression)
           } else {
@@ -381,7 +382,8 @@ function CacheInterface(nameOfDb) {
 
     let [missingInterface, hasInterface] = constructQueriesMU(
       listOfCohorts,
-      listOfExpressions
+      listOfExpressions,
+      this.interface
     )
 
     let tmp = []
@@ -389,7 +391,15 @@ function CacheInterface(nameOfDb) {
     for (let cohort in hasInterface) {
       let interfaceData = this.interface.get(cohort) // Map([])
       for (let gene of hasInterface[cohort]) {
-        tmp.push([...interfaceData.get(gene).values()])
+        //DEBUG
+        console.log("Interface data for gene of interest")
+        console.log(interfaceData.get(gene))
+        //DEBUG
+        let emptyTmp = []
+        for (let [k, v] of interfaceData.get(gene)) {
+          emptyTmp.push({ barcode: k, mutation_label: v})//, gene: gene })
+        }
+        tmp.push({gene:gene, cohort:cohort, mutation_data: emptyTmp})
       }
     }
 
@@ -398,10 +408,10 @@ function CacheInterface(nameOfDb) {
 
   // Manually save it to interface/db, call in computeGeneMutationAndFreq
   this.saveToDBAndSaveToInterface = async function (sanitizedData) {
-    const { gene, mutationData } = sanitizedData
-    for (let data of mutationData) {
-      this.add(data.cohort, data.patient_barcode, gene, data)
-      this.saveToDB(data.cohort, data.patient_barcode, gene, data)
+    const { gene, mutation_data } = sanitizedData
+    for (let data of mutation_data) {
+      this.add(data.cohort, data.patient_barcode, gene, data.mutation_label)
+      this.saveToDB(data.cohort, data.patient_barcode, gene, data.mutation_label)
     }
     return this.db.saveDatabase((err) => {
       if (err) {
