@@ -9,7 +9,7 @@ View our May 2020 interactive presentation at [web4bio.github.io/webgen/presenta
 Conference call via [Zoom](https://sbubmi.page.link/vip) W 10:30 -11:25 AM EST
 Other weekly meetings [here](https://www.when2meet.com/?12629008-XMsjv)
 
-[Private folder](https://drive.google.com/drive/u/1/folders/1LHkly4auVYhwcCb1xAUr-x9BkIluDVN8) for 2023 student notebooks
+[Private folder](https://drive.google.com/drive/u/1/folders/1_ojgzW8VkjHMVdbd4wMM9cjAiC4QKpQ5) for 2023 student notebooks
 
 ## Background
 
