@@ -9,6 +9,8 @@ View our May 2020 interactive presentation at [web4bio.github.io/webgen/presenta
 Conference call via [Zoom](https://sbubmi.page.link/vip) W 10:30 -11:25 AM EST
 Other weekly meetings [here](https://www.when2meet.com/?12629008-XMsjv)
 
+[Private folder](https://drive.google.com/drive/u/1/folders/1LHkly4auVYhwcCb1xAUr-x9BkIluDVN8) for 2023 student notebooks
+
 ## Background
 
 There is an ever-growing Biomedical BigData reference, which is particularly striking for (1) pathologies with a genomic basis, like Cancer, and (2) observational studies from electronic health records. Accordingly, NIH has spearheaded the establishment of interoperable repositories such as the Genomic Data Commons (gdc.cancer.gov) & the National Covid Cohort Collaborative (covid.cd2h.org). These  data ecosystems allow the scientific community, including the citizen scientist, to generate complimentary analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) using these public data..
