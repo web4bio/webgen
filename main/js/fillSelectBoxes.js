@@ -248,7 +248,20 @@ let fillPathwaySelectBox = async function () {
 let getClinicalByCohortWithMrnaseq = async function () {
   let results = [];
   let theBarcodes = []
+  /* Proposed revisions */
+  console.log("START OF DEBUG")
+  //Instantiate barcode caching interface
+  let cacheBar = await getCacheBAR();
+  //Obtain barcodes for cohorts of interest
+  let barcodes = await cacheBar.fetchWrapperBAR(selectedTumorTypes);
+  console.log("Do we have barcodes?");
+  console.log(barcodes);
+  console.log("END OF DEBUG")
+  /* Proposed revisions */
+  //Omit below line after revisions
   let expressionData = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: ['bcl2']});
+  //Set barcodes arr barcode caching call instead of using lower-level functions (good initial test)
+  //Omit below line after revisions
   expressionData.forEach((x) => theBarcodes.push(x.tcga_participant_barcode));
   results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: theBarcodes});
   return results;
