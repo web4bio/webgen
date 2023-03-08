@@ -735,6 +735,8 @@ let buildDataExplorePlots = async function() {
         }
     }
 
+    console.log(jsonToAppend);
+
     //DEBUG
     //Save mutation data to smartCache interface
     cacheMu = await getCacheMU();
@@ -767,6 +769,8 @@ let buildDataExplorePlots = async function() {
   */
 let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected, continuous) {
     
+    let jsonToAppend2;
+
     let allValuesForCurrentFeature = [];
     for(let i = 0; i < allClinicalData.length; i++)
         allValuesForCurrentFeature.push(allClinicalData[i][currentClinicalFeatureSelected]);
@@ -787,6 +791,10 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
         for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++)
             if(allClinicalData[i][currentClinicalFeatureSelected] == uniqueValuesForCurrentFeature[k])
                 xCounts[k]++;
+
+
+    jsonToAppend2 = {clinical_data:null};
+    console.log([xCounts, uniqueValuesForCurrentFeature, continuous])
 
     return [xCounts, uniqueValuesForCurrentFeature, continuous]
 
