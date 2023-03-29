@@ -26,6 +26,8 @@
 
 var cacheGE = undefined
 var cacheMU = undefined
+//Create undefined cache object for bardcode data
+var cacheBAR = undefined
 
 async function getCacheGE() {
   if (cacheGE) {
@@ -43,7 +45,9 @@ async function getCacheGE() {
           db.saveDatabase()
         }
         cacheGE = new CacheInterface('smart-cache-ge.db')
-        resolve(cacheGE)
+        //Including setTimeout() for cacheGE
+        setTimeout(() => resolve(cacheGE), 500)
+        //resolve(cacheGE)
       })
     })
   }
@@ -66,6 +70,34 @@ async function getCacheMU() {
         }
         cacheMU = new CacheInterface('smart-cache-mu.db')
         setTimeout(() => resolve(cacheMU), 500)
+      })
+    })
+  }
+}
+
+/**
+ * If barcode cache database exists, return interface to interact with database.
+ * Otherwise create database and then return interface.
+ * @returns CacheInterface object for barcode caching
+ */
+async function getCacheBAR() {
+  if(cacheBAR) {
+    return cacheBAR
+  }
+  else {
+    return new Promise((resolve, reject) => {
+      const db = new loki('smart-cache-bar.db', {
+        adapter: new LokiIndexedAdapter(),
+      })
+      db.loadDatabase({}, (err) => {
+        if (err) reject(err)
+        if (!db.getCollection('cohorts')) {
+          console.warn('db re-initialized')
+          db.addCollection('cohorts', { unique: '_id' })
+          db.saveDatabase()
+        }
+        cacheBAR = new CacheInterface('smart-cache-bar.db')
+        setTimeout(() => resolve(cacheBAR), 500)
       })
     })
   }
@@ -143,11 +175,29 @@ function CacheInterface(nameOfDb) {
 
   this.add = function (cohort, barcode, expression, payload) {
     let interface = this.interface
-    if (!interface.get(cohort)) {
+    //Added if logic for if the barcode is present (ie. caching anything but barcodes)
+    if (!interface.get(cohort) && payload) {
       interface.set(cohort, new Map([]))
     }
+    else if(!interface.get(cohort) && !payload) {
+      interface.set(cohort, [])
+    }
 
-    if (interface.get(cohort).get(expression)) {
+    //Add edge case for saving only barcodes
+    if(!expression && !payload) {
+      if(interface.get(cohort)) {
+        let temp = interface.get(cohort)
+        if (typeof(temp) === 'undefined' || temp.length == 0) {
+          interface.set(cohort, [barcode])
+        }
+        else {
+          temp.push(barcode)
+          interface.set(cohort, temp)
+        } 
+      }   
+    }
+
+    else if (interface.get(cohort).get(expression)) {
       let temp = interface.get(cohort).get(expression).get(barcode)
       if (typeof temp === 'undefined') {
         interface.get(cohort).get(expression).set(barcode, payload)
@@ -377,6 +427,7 @@ function CacheInterface(nameOfDb) {
           delete foundRes[k]
         }
       }
+      //Clean up on res?
       return [res, foundRes]
     }
 
@@ -391,10 +442,6 @@ function CacheInterface(nameOfDb) {
     for (let cohort in hasInterface) {
       let interfaceData = this.interface.get(cohort) // Map([])
       for (let gene of hasInterface[cohort]) {
-        //DEBUG
-        console.log("Interface data for gene of interest")
-        console.log(interfaceData.get(gene))
-        //DEBUG
         let emptyTmp = []
         for (let [k, v] of interfaceData.get(gene)) {
           emptyTmp.push({ barcode: k, mutation_label: v})//, gene: gene })
@@ -406,26 +453,95 @@ function CacheInterface(nameOfDb) {
     return [missingInterface, tmp.flat()]
   }
 
-  // Manually save it to interface/db, call in computeGeneMutationAndFreq
-  this.saveToDBAndSaveToInterface = async function (sanitizedData) {
-    const { gene, mutation_data } = sanitizedData
-    for (let data of mutation_data) {
-      this.add(data.cohort, data.patient_barcode, gene, data.mutation_label)
-      this.saveToDB(data.cohort, data.patient_barcode, gene, data.mutation_label)
-    }
-    return this.db.saveDatabase((err) => {
-      if (err) {
-        throw err
-      } else {
-        console.log('Saved to.', nameOfDb)
+  /**
+   * Creates interface for barcode data that is indexed by cohort
+   * @param {Array} listOfCohorts 
+   * @returns A flattened array of JSON objects indexed by cohort containing barcode data
+   */
+  this.fetchWrapperBAR = async function(listOfCohorts) {
+    /**
+     * Returns two lists of cohorts whose barcodes are and are not cached in database
+     * @param {Array} listOfCohorts is an array of cohorts to determine if their barcodes
+     * are cached or not
+     * @param {CacheInterface} interface for caching data
+     * @returns Two lists of cohorts corresponding to either cached or not cached barcodes
+     */
+    function constructQueriesBAR(listOfCohorts, interface) {
+      let res = {}
+      let foundRes = {}
+      for (let cohort of listOfCohorts) {
+        if (!(interface.has(cohort))) {
+          res[cohort] = []
+        }
+        else {
+          foundRes[cohort] = []
+        }
       }
-    })
-  }
+      return [res, foundRes]
+    }
+    /**
+     * Fetches the barcodes that are missing in the cache and stores them in the cache
+     * @param {Array} interface is an array of strings representing each cohort of interest
+     * @returns No data is returned
+     */
+    async function executeQueriesBAR(interface) {
+      //Harcode gene to query mRNASeq data for
+      let expr = "TP53"
+      //For each cohort, query the mRNASeq data for that cohort
+      for (let cohort in interface) {
+        //Get mRNASeq data with hardcoded gene
+        /*Currently uses low-level firebrowse function to fetch mRNASeq data;
+        replace with appropriate gene expression caching method!*/
+        let expressionData = await firebrowse.fetchmRNASeq({
+          cohorts: [cohort],
+          genes: [expr],
+        })
+        //Iterate over each JSON object in fetched expression data and save to cache
+        for(let index = 0; index < expressionData.length; index++) {
+          let obj = expressionData[index];
+          try {
+            //Call add() and saveToDB() to cache the fetched data
+            await cacheBAR.add(obj.cohort, obj.tcga_participant_barcode);
+            await cacheBAR.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj);
+          } catch(err) {
+            //If an error occurred, print an error message and end execution
+            console.error('Failed, skipping for cohort.', err);
+            return undefined
+          }
+        }
+      }
+    }
 
-  if (nameOfDb === 'smart-cache-ge.db') {
-    this.fetchWrapper = this.fetchWrapperGE
-  } else {
-    this.fetchWrapper = this.fetchWrapperMU
+    //missingInterface is an array of cohorts whose barcodes have not yet been cached
+    //hasInterface is an array of barcodes whose barcodes have been cached
+    let [missingInterface, hasInterface] = constructQueriesBAR(
+      listOfCohorts,
+      this.interface
+    )
+    //tmp will be the aray that contains the requested barcodes and gets returned
+    let tmp = []
+    // Iterate through the cohorts whose barcodes have already been cached and retrieve those barcodes
+    for (let cohort in hasInterface) {
+      let cachedBarcodes = await this.interface.get(cohort)
+      let emptyTmp = []
+      for (let k of cachedBarcodes) {
+        emptyTmp.push(k)
+      }
+      tmp.push({cohort:cohort, barcodes: emptyTmp})
+    }
+    //Execute queries for missing cohort barcodes
+    await executeQueriesBAR(missingInterface);
+    //Append missing data that was just queried to tmp
+    for(let cohort in missingInterface) {
+      let newBarcodes = await this.interface.get(cohort)
+      let emptyTmp = []
+      for (let k of newBarcodes) {
+        emptyTmp.push(k)
+      }
+      tmp.push({cohort:cohort, barcodes: emptyTmp})
+    }  
+    //Return the data pushed to tmp
+    return tmp.flat();
   }
 }
 
@@ -439,5 +555,5 @@ CacheInterface.prototype.pprint = function () {
     }
     return o
   }
-  return f(this.interface)
+  return (this.interface)
 }
