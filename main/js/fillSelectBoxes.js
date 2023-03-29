@@ -247,10 +247,16 @@ let fillPathwaySelectBox = async function () {
  */
 let getClinicalByCohortWithMrnaseq = async function () {
   let results = [];
-  let theBarcodes = []
-  let expressionData = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: ['bcl2']});
-  expressionData.forEach((x) => theBarcodes.push(x.tcga_participant_barcode));
-  results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: theBarcodes});
+  //Instantiate barcode caching interface
+  let cacheBar = await getCacheBAR();
+  //Obtain barcodes for cohorts of interest
+  let barcodesByCohort = await cacheBar.fetchWrapperBAR(selectedTumorTypes);
+  /*Since fetchWrapperBAR() returns an array of JSONs (one JSON containing an array for each cohort's barcodes),
+  we need to merge each array of barcodes into a single array*/
+  let allBarcodes = [];
+  for(let index = 0; index < barcodesByCohort.length; index++)
+    allBarcodes = allBarcodes.concat(barcodesByCohort[index].barcodes);
+  results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: allBarcodes});
   return results;
 };
 

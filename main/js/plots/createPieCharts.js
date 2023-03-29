@@ -390,10 +390,9 @@ let buildDataExplorePlots = async function() {
   */
  let computeGeneMutationFrequencies = async function(xCounts, uniqueValuesForCurrentFeature, currentGeneSelected) {
     let jsonToAppend;
-    
     //Acquire all the barcodes for the cohort specified to identify which patients in the cohort have wild-type mutations
     let expressionData = await firebrowse.fetchmRNASeq({cohorts:selectedTumorTypes,
-        genes:'TTN'});
+        genes:'TTN'});    
     let allBarcodes = []; // Barcodes in expression data
     for(let i = 0; i < expressionData.length; i++) {
         allBarcodes.push(expressionData[i].tcga_participant_barcode);
