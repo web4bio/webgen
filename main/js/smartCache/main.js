@@ -354,52 +354,154 @@ function CacheInterface(nameOfDb) {
     return promises
   }
 
-  this.fetchWrapperGE = async function (
-    listOfCohorts,
-    listOfExpressions,
-    listOfBarcodes
-  ) {
-    let [missingInterface, hasInterface] = this.constructQueries(
-      listOfCohorts,
-      listOfExpressions,
-      listOfBarcodes
-    )
-    let promises = this.executeQueriesGE(missingInterface)
-    // console.log(hasInterface)
-    // RETURNS A 2-D ARRAY of size COHORT.len * GENE.len, each index contains an array for that combo
-    return (
-      await Promise.all(promises).then((allData) => {
-        this.db.saveDatabase((err) => {
-          if (err) {
-            console.error(err)
+  this.fetchWrapperGE = async function (listOfCohorts, listOfGenes, listOfBarcodes) {
+    findDiff = function (listOfBarcodes, cohort, expression, interface) {
+      let s = new Set()
+      let foundS = new Set()
+      if (interface.has(cohort) && interface.get(cohort).has(expression)) {
+        let map = interface.get(cohort).get(expression)
+        for (let barcode of listOfBarcodes) {
+          if (!map.has(barcode)) {
+            s.add(barcode)
           } else {
-            console.log('Saved to.', nameOfDb)
+            foundS.add(barcode)
           }
-        })
-        let tmp = []
-        // OPT 1: Fetches from DB.
-        // for (let cohort in hasInterface) {
-        //     let foundCohortCollection = this.db.getCollection(cohort)
-        //     let dynamicView = foundCohortCollection.addDynamicView('findExistingGenes')
-        //     let existingGenes = Object.keys(hasInterface[cohort])
-        //     // doc._id is the GENE_EXPR
-        //     dynamicView.applyWhere(function (doc) { return existingGenes.includes(doc._id) })
-        //     // REAL data is dv.data().map(data => data.barcodes)
-        //     tmp.push(dynamicView.data().map(data => Object.values(data.barcodes)))
-        // }
-        // OPT 2: Fetches from interface.
-        for (let cohort in hasInterface) {
-          let interfaceData = this.interface.get(cohort) // Map([])
-          for (let gene of Object.keys(hasInterface[cohort])) {
-            hasListOfBarcodes = hasInterface[cohort][gene]
-            for (let barCode of hasListOfBarcodes) {
-              tmp.push(interfaceData.get(gene).get(barCode))
+        }
+      } else {
+        return [new Set(listOfBarcodes), foundS]
+      }
+      return [s, foundS]
+    }
+
+    /**
+     * 
+     * @param {Array} listOfCohorts 
+     * @param {Array} listOfGenes 
+     * @param {Array} listOfBarcodes 
+     * @param {Map} interface 
+     * @returns 
+     */
+    function constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes = [], interface) {
+      /*There is no scenario in which a subset of a cohort's gene expression data gets cached before the entire
+      cohort's gene expression data is cached.*/
+      let res = {}
+      let foundRes = {}
+      //Iterate over list of cohorts
+      for (let cohort of listOfCohorts) {
+        //Set cohort field for res, foundRes to shorten future logic
+        res[cohort] = {}
+        foundRes[cohort] = {}
+        //Iterate over list of genes (recall that the objects returned will be doubly-indexed)
+        for (let gene of listOfGenes) {
+          /*There is no instance where only a subset of a cohort has its gene expression cached, so we don't factor
+          in barcodes here*/
+          if (interface.has(cohort) && interface.get(cohort).has(gene)) {
+            //Within the empty JSON referenced by foundRes[cohort], append gene as a property that points to empty array
+            foundRes[cohort][gene] = [];
+          }
+          /*If cached data does not have a specific gene's expression data or has not cached the cohort,
+          then include this gene, cohort combination in res*/
+          else {
+            //Within the empty JSON referenced by res[cohort], append gene as a property that points to empty array
+            res[cohort][gene] = [];
+          }
+          /*If a listOfBarcodes contains data, then identify the barcodes that are not cached for a cohort, gene
+          combination and identify the barcodes that are cached for a cohort, gene combination. */
+          let [diff, alreadyHave] = findDiff(listOfBarcodes, cohort, gene, interface)
+          if (diff.size > 0) {
+            diff.forEach((val) => res[cohort][gene].push(val))
+          }
+          if (alreadyHave.size > 0) {
+            alreadyHave.forEach((val) => foundRes[cohort][gene].push(val))
+          }
+        }
+      }
+      //Remove the instances of empty array values from foundRes, res
+      for (let cohort in foundRes) {
+        //If no genes are cached for a certain cohort at all, then delete the JSON field for cohort from res
+        if(Object.keys(foundRes[cohort]).length === 0) {
+          delete foundRes[cohort]
+        }
+        else {
+          for (let gene in foundRes[cohort]) {
+            if (foundRes[cohort][gene].length === 0) {
+              delete foundRes[cohort][gene]
             }
           }
         }
-        return allData.filter((lst) => lst.length !== 0).concat(...tmp)
-      })
-    ).flat()
+      }
+      for (let cohort in res) {
+        //If no genes are cached for a certain cohort at all, then delete the JSON field for cohort from res
+        if(Object.keys(res[cohort]).length === 0) {
+          delete res[cohort]
+        }
+        else {
+          for (let gene in res[cohort]) {
+            if (res[cohort][gene].length === 0) {
+              delete res[cohort][gene]
+            }
+          }
+        }
+      }
+      return [res, foundRes]
+    }
+
+    /**
+     * 
+     * @param {Array} interface 
+     * @returns 
+     */
+    async function executeQueriesGE(interface) {
+      for (let cohort in interface) {
+        for (let gene in interface[cohort]) {
+          //Fetch expression data for requested cohort, gene, and barcodes
+          let expressionData = await firebrowse.fetchmRNASeq({cohorts: [cohort], genes: [gene], 
+            barcodes: interface[cohort][gene]})
+            
+          for(let index = 0; index < expressionData.length; index++) {
+            let obj = expressionData[index];
+            try {
+              //Call add() and saveToDB() to cache the fetched data
+              await cacheGE.add(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+              await cacheGE.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+            } catch(err) {
+              //If an error occurred, print an error message and end execution
+              console.error('Failed, skipping for cohort.', err);
+              return undefined
+            }
+          }
+        }
+      }
+    }
+
+    //Identify missing gene expression records and retrieve currently-cached gene expression records
+    let [missingInterface, hasInterface] = constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes, this.interface)
+
+    // Iterate through the cohorts, genes whose gene expression records have been cached and retrieve those records
+    for (let cohort in hasInterface) {
+      for (let gene in listOfGenes) {
+        let cachedGeneExpression = await this.interface.get(cohort).get(gene);
+        let emptyTmp = []
+        for (let k of cachedGeneExpression) {
+          emptyTmp.push(k);
+        }
+        //tmp.push({cohort:cohort: emptyTmp});
+      }
+    }
+    await executeQueriesGE(missingInterface)
+    // RETURNS A 2-D ARRAY of size COHORT.len * GENE.len, each index contains an array for that combo
+    let tmp = []
+
+    for (let cohort in hasInterface) {
+      let interfaceData = this.interface.get(cohort) // Map([])
+      for (let gene of Object.keys(hasInterface[cohort])) {
+        hasListOfBarcodes = hasInterface[cohort][gene]
+        for (let barCode of hasListOfBarcodes) {
+          tmp.push(interfaceData.get(gene).get(barCode))
+        }
+      }
+    }
+    //return allData.filter((lst) => lst.length !== 0).concat(...tmp).flat()
   }
 
   // Retrieves what is found in the cache, also returns what isn't found in the cache

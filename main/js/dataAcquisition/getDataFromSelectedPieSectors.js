@@ -196,9 +196,12 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     }
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
     const smartCache = await getCacheGE();
-    // return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
-    console.log(cohortQuery, expressionQuery, allBarcodes);
-    return await smartCache.fetchWrapper(cohortQuery, expressionQuery, allBarcodes);
+    await smartCache.fetchWrapperGE(cohortQuery, expressionQuery, allBarcodes);
+    let results = await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
+    console.log(results);
+    return results;
+    //return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
+    //return await smartCache.fetchWrapper(cohortQuery, expressionQuery, allBarcodes);
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
