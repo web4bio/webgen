@@ -412,6 +412,7 @@ function CacheInterface(nameOfDb) {
         //     tmp.push(dynamicView.data().map(data => Object.values(data.barcodes)))
         // }
         // OPT 2: Fetches from interface.
+        let hasListOfBarcodes;
         for (let cohort in hasInterface) {
           let interfaceData = this.interface.get(cohort) // Map([])
           for (let gene of Object.keys(hasInterface[cohort])) {
@@ -568,14 +569,86 @@ function CacheInterface(nameOfDb) {
     return tmp.flat();
   }
 
-  this.fetchWrapperCLIN = async function(listOfCohorts) {
-    function constructQueriesCLIN(listOfCohorts) {
-      console.log(listOfCohorts)
+  this.fetchWrapperCLIN = async function (listOfCohorts, listOfClinicals, listOfBarcodes) {
+
+    // this.executeQueriesCLIN = function (interface) {
+    //   let promises = []
+    //   for (let cohort in interface) {
+    //     for (let expr in interface[cohort]) {
+    //       promises.push(
+    //         firebrowse
+    //           .fetchmRNASeq({
+    //             cohorts: [cohort],
+    //             genes: [expr],
+    //             barcodes: interface[cohort][expr],
+    //           })
+    //           .then((res) => {
+    //             console.log(res)
+    //             return res.map((obj) => {
+    //               // Store the entire obj into the interface
+    //               this.add(obj.cohort, obj.tcga_participant_barcode, expr, obj)
+    //               this.saveToDB(
+    //                 obj.cohort,
+    //                 obj.tcga_participant_barcode,
+    //                 expr,
+    //                 obj
+    //               )
+    //               return obj
+    //             })
+    //           })
+    //           .catch((error) => {
+    //             console.error('Failed, skipping.', error)
+    //             return undefined
+    //           })
+    //       )
+    //     }
+    //   }
+    //   return promises
+    // }
+
+    function constructQueriesCLIN(listOfCohorts, listOfClinicals, interface) {
+      let res = {}
+      let foundRes = {}
+      for (let cohort of listOfCohorts) {
+        if (!(cohort in res)) {
+          res[cohort] = []
+        }
+        if (!(cohort in foundRes)) {
+          foundRes[cohort] = []
+        }
+        for (let clinical of listOfClinicals) {
+          if (interface.has(cohort) && interface.get(cohort).has(clinical)) {
+            foundRes[cohort].push(clinical)
+          } else {
+            res[cohort].push(clinical)
+          }
+        }
+      }
+      for (let k in foundRes) {
+        if (foundRes[k].length === 0) {
+          delete foundRes[k]
+        }
+      }
+      return [res, foundRes]
     }
 
-    (constructQueriesCLIN(
-      listOfCohorts
-    ))
+    let [missingInterface, hasInterface] = constructQueriesCLIN(
+      listOfCohorts,
+      listOfClinicals,
+      this.interface
+    )
+    
+    let tmp = []
+    for (let cohort in hasInterface) {
+      let newClinicals = this.interface.get(cohort) // Map([])
+      let emptyTmp = []
+      for (let [k, v] of newClinicals) {
+        emptyTmp.push({ barcode: k, clinical_label: v})
+      }
+      tmp.push({cohort:cohort, clinical_data: emptyTmp})
+    }
+
+    return [missingInterface, tmp.flat()]
   }
 }
 
