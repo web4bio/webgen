@@ -28,6 +28,7 @@ var cacheGE = undefined
 var cacheMU = undefined
 //Create undefined cache object for bardcode data
 var cacheBAR = undefined
+var cacheCLIN = undefined
 
 async function getCacheGE() {
   if (cacheGE) {
@@ -98,6 +99,29 @@ async function getCacheBAR() {
         }
         cacheBAR = new CacheInterface('smart-cache-bar.db')
         setTimeout(() => resolve(cacheBAR), 500)
+      })
+    })
+  }
+}
+
+async function getCacheCLIN() {
+  if(cacheCLIN) {
+    return cacheCLIN
+  }
+  else {
+    return new Promise((resolve, reject) => {
+      const db = new loki('smart-cache-clin.db', {
+        adapter: new LokiIndexedAdapter(),
+      })
+      db.loadDatabase({}, (err) => {
+        if (err) reject(err)
+        if (!db.getCollection('cohorts')) {
+          console.warn('db re-initialized')
+          db.addCollection('cohorts', { unique: '_id' })
+          db.saveDatabase()
+        }
+        cacheCLIN = new CacheInterface('smart-cache-clin.db')
+        setTimeout(() => resolve(cacheCLIN), 500)
       })
     })
   }
@@ -542,6 +566,16 @@ function CacheInterface(nameOfDb) {
     }  
     //Return the data pushed to tmp
     return tmp.flat();
+  }
+
+  this.fetchWrapperCLIN = async function(listOfCohorts) {
+    function constructQueriesCLIN(listOfCohorts) {
+      console.log(listOfCohorts)
+    }
+
+    (constructQueriesCLIN(
+      listOfCohorts
+    ))
   }
 }
 

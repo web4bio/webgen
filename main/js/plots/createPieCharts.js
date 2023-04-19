@@ -189,6 +189,7 @@ let buildDataExplorePlots = async function() {
             else {
 
                 let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous);
+                console.log(clinicalFeaturesResults)
                 xCounts = clinicalFeaturesResults[0]
                 uniqueValuesForCurrentFeature = clinicalFeaturesResults[1]
                 continuous = clinicalFeaturesResults[2]
@@ -374,9 +375,9 @@ let buildDataExplorePlots = async function() {
             }
         }
         //Hard code for now
-        let testCacheFetch = await cacheMu.fetchWrapperMU("ACC",["TP53","ABL1","ACSL3"])
-        console.log("All cached data: ")
-        console.log(testCacheFetch)
+        // let testCacheFetch = await cacheMu.fetchWrapperMU("ACC",["TP53","ABL1","ACSL3"])
+        // console.log("All cached data: ")
+        // console.log(testCacheFetch)
 
     }
 }}
@@ -767,8 +768,6 @@ let buildDataExplorePlots = async function() {
   * @returns {Array} Contains values and labels to input to Plotly data object.
   */
 let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected, continuous) {
-    
-    let jsonToAppend2;
 
     let allValuesForCurrentFeature = [];
     for(let i = 0; i < allClinicalData.length; i++)
@@ -791,8 +790,6 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
             if(allClinicalData[i][currentClinicalFeatureSelected] == uniqueValuesForCurrentFeature[k])
                 xCounts[k]++;
 
-
-    jsonToAppend2 = {clinical_data:null};
     console.log([xCounts, uniqueValuesForCurrentFeature, continuous])
 
     return [xCounts, uniqueValuesForCurrentFeature, continuous]
