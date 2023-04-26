@@ -437,7 +437,7 @@ function CacheInterface(nameOfDb) {
       let currentListOfBarcodes = await cacheBAR.fetchWrapperBAR(listOfCohorts = [cohort]);
       //Since we are only requesting one barcode at a time, we can index the first element to retrieve the desired barcodes array
       currentListOfBarcodes = currentListOfBarcodes[0].barcodes;
-      //Within a cohort, iterate over each gene that the caching interface has stored mRNA Seq data for 
+      //Within a cohort, iterate over each gene that the caching interface has stored mRNA_Seq data for 
       for (let gene of Object.keys(hasInterface[cohort])) {
         //Iterate over the complete set of barcodes for the cohort we are on
         for (let curBarcode of currentListOfBarcodes) {
@@ -450,19 +450,21 @@ function CacheInterface(nameOfDb) {
         }
       }
     }
-    //Retrieve non-cached gene expression data and store in cache
+    //Retrieve non-cached gene expression data with Firebrowse methods and store in cache
     await executeQueriesGE(missingInterface);
 
-    //Iterate over each cohort, gene combination
+    //Iterate over each cohort in missingInterface
     for (let cohort in missingInterface) {
       //Obtain Map object of gene expression data for cohort
       let interfaceData = await this.interface.get(cohort)
-      //Obtain list of barcodes for each cohort
+      //Obtain list of barcodes with cacheBAR
       let cacheBAR = await getCacheBAR();
+      //Retrieve an array of Maps linking cohorts to their set of TCGA barcodes
       let currentListOfBarcodes = await cacheBAR.fetchWrapperBAR([cohort]);
+      //Since we are only requesting one barcode at a time, we can index the first element to retrieve the desired barcodes array
       currentListOfBarcodes = currentListOfBarcodes[0].barcodes;
+      //Within a cohort, iterate over each gene that the caching interface retrieved mRNA_Seq data for with executeQueriesGE()
       for (let gene of Object.keys(missingInterface[cohort])) {
-        //let currentListOfBarcodes = missingInterface[cohort][gene]
         for (let curBarcode of currentListOfBarcodes) {
           //If there are specific barcodes we are requesting, then return only those barcodes' gene expression data
           if(listOfBarcodes && listOfBarcodes.includes(curBarcode))
