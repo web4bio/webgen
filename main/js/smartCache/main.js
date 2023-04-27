@@ -343,88 +343,164 @@ function CacheInterface(nameOfDb) {
   //     return promises
   //   }
 
-  this.executeQueriesGE = function (interface) {
-    let promises = []
-    for (let cohort in interface) {
-      for (let expr in interface[cohort]) {
-        promises.push(
-          firebrowse
-            .fetchmRNASeq({
-              cohorts: [cohort],
-              genes: [expr],
-              barcodes: interface[cohort][expr],
-            })
-            .then((res) => {
-              console.log(res)
-              return res.map((obj) => {
-                // Store the entire obj into the interface
-                this.add(obj.cohort, obj.tcga_participant_barcode, expr, obj)
-                this.saveToDB(
-                  obj.cohort,
-                  obj.tcga_participant_barcode,
-                  expr,
-                  obj
-                )
-                return obj
-              })
-            })
-            .catch((error) => {
-              console.error('Failed, skipping.', error)
-              return undefined
-            })
-        )
-      }
-    }
-    return promises
-  }
-
-  this.fetchWrapperGE = async function (
-    listOfCohorts,
-    listOfExpressions,
-    listOfBarcodes
-  ) {
-    let [missingInterface, hasInterface] = this.constructQueries(
-      listOfCohorts,
-      listOfExpressions,
-      listOfBarcodes
-    )
-    let promises = this.executeQueriesGE(missingInterface)
-    // console.log(hasInterface)
-    // RETURNS A 2-D ARRAY of size COHORT.len * GENE.len, each index contains an array for that combo
-    return (
-      await Promise.all(promises).then((allData) => {
-        this.db.saveDatabase((err) => {
-          if (err) {
-            console.error(err)
+  this.fetchWrapperGE = async function (listOfCohorts, listOfGenes, listOfBarcodes) {
+    findDiff = function (listOfBarcodes, cohort, expression, interface) {
+      let s = new Set()
+      let foundS = new Set()
+      if (interface.has(cohort) && interface.get(cohort).has(expression)) {
+        let map = interface.get(cohort).get(expression)
+        for (let barcode of listOfBarcodes) {
+          if (!map.has(barcode)) {
+            s.add(barcode)
           } else {
-            console.log('Saved to.', nameOfDb)
+            foundS.add(barcode)
           }
-        })
-        let tmp = []
-        // OPT 1: Fetches from DB.
-        // for (let cohort in hasInterface) {
-        //     let foundCohortCollection = this.db.getCollection(cohort)
-        //     let dynamicView = foundCohortCollection.addDynamicView('findExistingGenes')
-        //     let existingGenes = Object.keys(hasInterface[cohort])
-        //     // doc._id is the GENE_EXPR
-        //     dynamicView.applyWhere(function (doc) { return existingGenes.includes(doc._id) })
-        //     // REAL data is dv.data().map(data => data.barcodes)
-        //     tmp.push(dynamicView.data().map(data => Object.values(data.barcodes)))
-        // }
-        // OPT 2: Fetches from interface.
-        let hasListOfBarcodes;
-        for (let cohort in hasInterface) {
-          let interfaceData = this.interface.get(cohort) // Map([])
-          for (let gene of Object.keys(hasInterface[cohort])) {
-            hasListOfBarcodes = hasInterface[cohort][gene]
-            for (let barCode of hasListOfBarcodes) {
-              tmp.push(interfaceData.get(gene).get(barCode))
+        }
+      } else {
+        return [new Set(listOfBarcodes), foundS]
+      }
+      return [s, foundS]
+    }
+
+    /**
+     * 
+     * @param {Array} listOfCohorts 
+     * @param {Array} listOfGenes 
+     * @param {Array} listOfBarcodes 
+     * @param {Map} interface 
+     * @returns 
+     */
+    function constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes = [], interface) {
+      /*There is no scenario in which a subset of a cohort's gene expression data gets cached before the entire
+      cohort's gene expression data is cached.*/
+      let res = {}
+      let foundRes = {}
+      //Iterate over list of cohorts
+      for (let cohort of listOfCohorts) {
+        //Set cohort field for res, foundRes to shorten future logic
+        res[cohort] = {}
+        foundRes[cohort] = {}
+        //Iterate over list of genes (recall that the objects returned will be doubly-indexed)
+        for (let gene of listOfGenes) {
+          /*There is no instance where only a subset of a cohort has its gene expression cached, so we don't factor
+          in barcodes here*/
+          if (interface.has(cohort) && interface.get(cohort).has(gene)) {
+            //Within the empty JSON referenced by foundRes[cohort], append gene as a property that points to empty array
+            foundRes[cohort][gene] = [];
+          }
+          /*If cached data does not have a specific gene's expression data or has not cached the cohort,
+          then include this gene, cohort combination in res*/
+          else {
+            //Within the empty JSON referenced by res[cohort], append gene as a property that points to empty array
+            res[cohort][gene] = [];
+          }
+          /*If a listOfBarcodes contains data, then identify the barcodes that are not cached for a cohort, gene
+          combination and identify the barcodes that are cached for a cohort, gene combination. */
+          let [diff, alreadyHave] = findDiff(listOfBarcodes, cohort, gene, interface)
+          if (diff.size > 0) {
+            diff.forEach((val) => res[cohort][gene].push(val))
+          }
+          if (alreadyHave.size > 0) {
+            alreadyHave.forEach((val) => foundRes[cohort][gene].push(val))
+          }
+        }
+      }
+      //Remove the instances of empty array values from foundRes, res
+      for (let cohort in foundRes) {
+        //If no genes are cached for a certain cohort at all, then delete the JSON field for cohort from res
+        if(Object.keys(foundRes[cohort]).length === 0)
+          delete foundRes[cohort]
+      }
+      for (let cohort in res) {
+        //If no genes are cached for a certain cohort at all, then delete the JSON field for cohort from res
+        if(Object.keys(res[cohort]).length === 0)
+          delete res[cohort]
+      }
+      return [res, foundRes]
+    }
+
+    /**
+     * 
+     * @param {Array} interface 
+     * @returns 
+     */
+    async function executeQueriesGE(interface) {
+      //Iterate over each cohort, gene combination
+      for (let cohort in interface) {
+        for (let gene in interface[cohort]) {
+          //Fetch expression data for requested cohort, gene, and barcodes with Firebrowse fetch call
+          let expressionData = await firebrowse.fetchmRNASeq({cohorts: [cohort], genes: [gene]})  
+          for(let index = 0; index < expressionData.length; index++) {
+            let obj = expressionData[index];
+            try {
+              //Call add() and saveToDB() to cache the fetched data
+              await cacheGE.add(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+              await cacheGE.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+            } catch(err) {
+              //If an error occurred, print an error message and end execution
+              console.error('Failed, skipping for cohort.', err);
+              return undefined
             }
           }
         }
-        return allData.filter((lst) => lst.length !== 0).concat(...tmp)
-      })
-    ).flat()
+      }
+    }
+
+    //Identify missing gene expression records and retrieve currently-cached gene expression records
+    let [missingInterface, hasInterface] = constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes, this.interface)    
+    //tmp will store an array of JSONs
+    let tmp = []
+
+    //Iterate over each cohort in hasInterface
+    for (let cohort in hasInterface) {
+      //Obtain Map object of gene expression data for cohort
+      let interfaceData = await this.interface.get(cohort) 
+      //Obtain list of barcodes with cacheBAR
+      let cacheBAR = await getCacheBAR();
+      //Retrieve an array of Maps linking cohorts to their set of TCGA barcodes
+      let currentListOfBarcodes = await cacheBAR.fetchWrapperBAR(listOfCohorts = [cohort]);
+      //Since we are only requesting one barcode at a time, we can index the first element to retrieve the desired barcodes array
+      currentListOfBarcodes = currentListOfBarcodes[0].barcodes;
+      //Within a cohort, iterate over each gene that the caching interface has stored mRNA_Seq data for 
+      for (let gene of Object.keys(hasInterface[cohort])) {
+        //Iterate over the complete set of barcodes for the cohort we are on
+        for (let curBarcode of currentListOfBarcodes) {
+          //If there are specific barcodes we are requesting, then return only those barcodes' gene expression data
+          if(listOfBarcodes && listOfBarcodes.includes(curBarcode))
+              tmp.push(interfaceData.get(gene).get(curBarcode));
+          //If there are no specific barcodes we are requesting, then do not use filter 
+          else if(!listOfBarcodes)
+            tmp.push(interfaceData.get(gene).get(curBarcode));
+        }
+      }
+    }
+    //Retrieve non-cached gene expression data with Firebrowse methods and store in cache
+    await executeQueriesGE(missingInterface);
+
+    //Iterate over each cohort in missingInterface
+    for (let cohort in missingInterface) {
+      //Obtain Map object of gene expression data for cohort
+      let interfaceData = await this.interface.get(cohort)
+      //Obtain list of barcodes with cacheBAR
+      let cacheBAR = await getCacheBAR();
+      //Retrieve an array of Maps linking cohorts to their set of TCGA barcodes
+      let currentListOfBarcodes = await cacheBAR.fetchWrapperBAR([cohort]);
+      //Since we are only requesting one barcode at a time, we can index the first element to retrieve the desired barcodes array
+      currentListOfBarcodes = currentListOfBarcodes[0].barcodes;
+      //Within a cohort, iterate over each gene that the caching interface retrieved mRNA_Seq data for with executeQueriesGE()
+      for (let gene of Object.keys(missingInterface[cohort])) {
+        for (let curBarcode of currentListOfBarcodes) {
+          //If there are specific barcodes we are requesting, then return only those barcodes' gene expression data
+          if(listOfBarcodes && listOfBarcodes.includes(curBarcode))
+            tmp.push(interfaceData.get(gene).get(curBarcode));
+          //If there are no specific barcodes we are requesting, then do not use filter 
+          else if(!listOfBarcodes)
+            tmp.push(interfaceData.get(gene).get(curBarcode));
+        }
+      }
+    }
+    //Returned flattened result of tmp
+    return tmp.flat()
   }
 
   // Retrieves what is found in the cache, also returns what isn't found in the cache

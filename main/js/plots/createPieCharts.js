@@ -740,9 +740,6 @@ let buildDataExplorePlots = async function() {
     //Save mutation data to smartCache interface
     cacheMu = await getCacheMU();
 
-    // ********** error **********
-    // await cacheMu.saveToDBAndSaveToInterface(jsonToAppend);
-
     //Was the data cached?
     console.log("Cached Data after cacheMu.saveToDBAndSaveToInterface():")
     console.log(await cacheMu.db.getCollection('cohorts'))
