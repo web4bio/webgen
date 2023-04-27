@@ -189,7 +189,6 @@ let buildDataExplorePlots = async function() {
             else {
 
                 let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous);
-                console.log(clinicalFeaturesResults)
                 xCounts = clinicalFeaturesResults[0]
                 uniqueValuesForCurrentFeature = clinicalFeaturesResults[1]
                 continuous = clinicalFeaturesResults[2]
@@ -791,8 +790,6 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
         for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++)
             if(allClinicalData[i][currentClinicalFeatureSelected] == uniqueValuesForCurrentFeature[k])
                 xCounts[k]++;
-
-    console.log([xCounts, uniqueValuesForCurrentFeature, continuous])
 
     return [xCounts, uniqueValuesForCurrentFeature, continuous]
 

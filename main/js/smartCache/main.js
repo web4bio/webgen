@@ -569,64 +569,45 @@ function CacheInterface(nameOfDb) {
     return tmp.flat();
   }
 
-  this.fetchWrapperCLIN = async function (listOfCohorts, listOfClinicals, listOfBarcodes) {
+  this.fetchWrapperCLIN = async function (listOfCohorts, listOfBarcodes) {
 
-    // this.executeQueriesCLIN = function (interface) {
-    //   let promises = []
+    // async function executeQueriesCLIN(interface) {
+    //   //Harcode gene to query mRNASeq data for
+    //   let expr = "TP53"
+    //   //For each cohort, query the mRNASeq data for that cohort
     //   for (let cohort in interface) {
-    //     for (let expr in interface[cohort]) {
-    //       promises.push(
-    //         firebrowse
-    //           .fetchmRNASeq({
-    //             cohorts: [cohort],
-    //             genes: [expr],
-    //             barcodes: interface[cohort][expr],
-    //           })
-    //           .then((res) => {
-    //             console.log(res)
-    //             return res.map((obj) => {
-    //               // Store the entire obj into the interface
-    //               this.add(obj.cohort, obj.tcga_participant_barcode, expr, obj)
-    //               this.saveToDB(
-    //                 obj.cohort,
-    //                 obj.tcga_participant_barcode,
-    //                 expr,
-    //                 obj
-    //               )
-    //               return obj
-    //             })
-    //           })
-    //           .catch((error) => {
-    //             console.error('Failed, skipping.', error)
-    //             return undefined
-    //           })
-    //       )
+    //     //Get mRNASeq data with hardcoded gene
+    //     /*Currently uses low-level firebrowse function to fetch mRNASeq data;
+    //     replace with appropriate gene expression caching method!*/
+    //     let expressionData = await firebrowse.fetchmRNASeq({
+    //       cohorts: [cohort],
+    //       genes: [expr],
+    //     })
+    //     //Iterate over each JSON object in fetched expression data and save to cache
+    //     for(let index = 0; index < expressionData.length; index++) {
+    //       let obj = expressionData[index];
+    //       try {
+    //         //Call add() and saveToDB() to cache the fetched data
+    //         await cacheBAR.add(obj.cohort, obj.tcga_participant_barcode);
+    //         await cacheBAR.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj);
+    //       } catch(err) {
+    //         //If an error occurred, print an error message and end execution
+    //         console.error('Failed, skipping for cohort.', err);
+    //         return undefined
+    //       }
     //     }
     //   }
-    //   return promises
     // }
 
-    function constructQueriesCLIN(listOfCohorts, listOfClinicals, interface) {
+    function constructQueriesCLIN(listOfCohorts, interface) {
       let res = {}
       let foundRes = {}
       for (let cohort of listOfCohorts) {
-        if (!(cohort in res)) {
+        if (!(interface.has(cohort))) {
           res[cohort] = []
         }
-        if (!(cohort in foundRes)) {
+        else {
           foundRes[cohort] = []
-        }
-        for (let clinical of listOfClinicals) {
-          if (interface.has(cohort) && interface.get(cohort).has(clinical)) {
-            foundRes[cohort].push(clinical)
-          } else {
-            res[cohort].push(clinical)
-          }
-        }
-      }
-      for (let k in foundRes) {
-        if (foundRes[k].length === 0) {
-          delete foundRes[k]
         }
       }
       return [res, foundRes]
@@ -634,7 +615,6 @@ function CacheInterface(nameOfDb) {
 
     let [missingInterface, hasInterface] = constructQueriesCLIN(
       listOfCohorts,
-      listOfClinicals,
       this.interface
     )
     
@@ -648,7 +628,43 @@ function CacheInterface(nameOfDb) {
       tmp.push({cohort:cohort, clinical_data: emptyTmp})
     }
 
-    return [missingInterface, tmp.flat()]
+    // for (let cohort in hasInterface) {
+    //   let cachedBarcodes = await this.interface.get(cohort)
+    //   let emptyTmp = []
+    //   for (let k of cachedBarcodes) {
+    //     emptyTmp.push(k)
+    //   }
+    //   tmp.push({cohort:cohort, barcodes: emptyTmp})
+    // }
+
+    console.log(tmp)
+
+    // //tmp will be the aray that contains the requested barcodes and gets returned
+    // let tmp = []
+    // // Iterate through the cohorts whose barcodes have already been cached and retrieve those barcodes
+    // for (let cohort in hasInterface) {
+    //   let cachedBarcodes = await this.interface.get(cohort)
+    //   let emptyTmp = []
+    //   for (let k of cachedBarcodes) {
+    //     emptyTmp.push(k)
+    //   }
+    //   tmp.push({cohort:cohort, barcodes: emptyTmp})
+    // }
+    // //Execute queries for missing cohort barcodes
+    // await executeQueriesBAR(missingInterface);
+    // //Append missing data that was just queried to tmp
+    // for(let cohort in missingInterface) {
+    //   let newBarcodes = await this.interface.get(cohort)
+    //   let emptyTmp = []
+    //   for (let k of newBarcodes) {
+    //     emptyTmp.push(k)
+    //   }
+    //   tmp.push({cohort:cohort, barcodes: emptyTmp})
+    // }  
+    // //Return the data pushed to tmp
+    // return tmp.flat();
+
+    return 
   }
 }
 
