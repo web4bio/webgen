@@ -73,7 +73,7 @@ const buildPlots = async function() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // GET CLINICAL DATA:
-  // Get clinical data for either intsersected barcodes or entire cohort
+  // Get clinical data for either intersected barcodes or entire cohort
   let clinicalData;
   if (intersectedBarcodes && intersectedBarcodes.length) {
     clinicalData = await firebrowse.fetchClinicalFH({barcodes: intersectedBarcodes});

@@ -257,15 +257,19 @@ let getClinicalByCohortWithMrnaseq = async function () {
   for(let index = 0; index < barcodesByCohort.length; index++)
     allBarcodes = allBarcodes.concat(barcodesByCohort[index].barcodes);
 
-  console.log(barcodesByCohort)
-  console.log(allBarcodes)
-
   let cacheClin = await getCacheCLIN();
-  // let clinicalByCohort = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, allBarcodes);
+  let clinicalByCohort = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort);
 
-  results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: allBarcodes});
+  for (let k of clinicalByCohort) {
+    let clinicalData = k.clinical_data
+    for(let index = 0; index < clinicalData.length; index++) {
+      results.push(clinicalData[index])
+    }
+  }
 
   console.log(results)
+
+  // results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: allBarcodes});
 
   return results;
 };
