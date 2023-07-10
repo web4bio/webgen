@@ -7,7 +7,7 @@
  * @returns {Promise<Object.<string, Array>>} Fetched data.
  */
 const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
-  const base = "https://firebrowse.jonasalmeida.repl.co";
+  const base = "https://corsproxy.io";
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
   if (endpoint.startsWith("/")) {
