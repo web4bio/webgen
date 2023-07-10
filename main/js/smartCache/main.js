@@ -479,8 +479,16 @@ function CacheInterface(nameOfDb) {
     return tmp.flat()
   }
 
-  // Retrieves what is found in the cache, also returns what isn't found in the cache
-  this.fetchWrapperMU = async function (listOfCohorts, listOfExpressions) {
+  /**
+   * Retrieves requested mutation data from cache.
+   * If requested data is missing from cache, it is fetched via Firebrowse and cached.
+   * @param {Array} listOfCohorts An array of Strings representing the cohort(s) to fetch
+   * mutation data for
+   * @param {Array} listOfGenes An array of Strings representing the gene(s) to fetch
+   * mutation data for
+   * @returns Properly-categorized mutation data for specified cohorts, genes.
+   */
+  this.fetchWrapperMU = async function (listOfCohorts, listOfGenes) {
     function constructQueriesMU(listOfCohorts, listOfExpressions, interface) {
       let res = {}
       let foundRes = {}
@@ -508,9 +516,57 @@ function CacheInterface(nameOfDb) {
       return [res, foundRes]
     }
 
+    async function formatMutationData(cohort, gene, mutationData) {
+      //Instantiate barcode caching interface
+      let cacheBar = await getCacheBAR();
+      //Obtain barcodes for cohorts of interest
+      let barcodesByCohort = await cacheBar.fetchWrapperBAR([cohort]);
+      /*Since fetchWrapperBAR() returns an array of JSONs (one JSON containing an array for each cohort's barcodes),
+      we need to merge each array of barcodes into a single array*/
+      let cohortBarcodes = [];
+      for(let index = 0; index < barcodesByCohort.length; index++)
+        cohortBarcodes = cohortBarcodes.concat(barcodesByCohort[index].barcodes);
+      // If mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
+      if(rawMutationData != undefined) {
+        
+      }
+      // If mutations do NOT exist for this gene (i.e., if the gene is wild-type)
+      else {
+
+      }
+    }
+
+    /**
+     * 
+     * @param {Array} interface 
+     * @returns 
+     */
+    async function executeQueriesMU(interface) {
+      //Iterate over each cohort, gene combination
+      for (let cohort in interface) {
+        for (let gene in interface[cohort]) {
+          //Fetch expression data for requested cohort, gene, and barcodes with Firebrowse fetch call
+          let rawMutationData = await firebrowse.fetchMutationMAF({cohorts: [cohort], genes: [gene]})  
+          let mutationData = await formatMutationData(rawMutationData);
+          for(let index = 0; index < mutationData.length; index++) {
+            let obj = mutationData[index];
+            try {
+              //Call add() and saveToDB() to cache the fetched data
+              await cacheGE.add(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+              await cacheGE.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+            } catch(err) {
+              //If an error occurred, print an error message and end execution
+              console.error('Failed, skipping for cohort.', err);
+              return undefined
+            }
+          }
+        }
+      }
+    }
+
     let [missingInterface, hasInterface] = constructQueriesMU(
       listOfCohorts,
-      listOfExpressions,
+      listOfGenes,
       this.interface
     )
 
