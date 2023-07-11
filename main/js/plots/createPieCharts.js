@@ -121,7 +121,7 @@ function onlyUnique(value, index, self) {
  * 
  * @returns {undefined}
  */
-let buildDataExplorePlots = async function() {
+async function buildDataExplorePlots() {
     let mySelectedGenes = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.id);
     let mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
@@ -160,7 +160,7 @@ let buildDataExplorePlots = async function() {
 
         // get total number of barcodes for selected cancer type(s)
         let totalNumberBarcodes = 0;
-        for(let i = 0; i < numbersOfSamples.length; i++) {
+        for(let i = 0; i < numbersOfSamples.length; i++)
             totalNumberBarcodes += parseInt(numbersOfSamples[i].mrnaseq);
 
         // loop through each selected feature
@@ -373,13 +373,8 @@ let buildDataExplorePlots = async function() {
                 });
             }
         }
-        //Hard code for now
-        let testCacheFetch = await cacheMu.fetchWrapperMU("ACC",["TP53","ABL1","ACSL3"])
-        console.log("All cached data: ")
-        console.log(testCacheFetch)
-
     }
-}}
+}
 
 /** Compute gene mutation frequencies based on user's selected tumor type(s) and gene(s).
   *
