@@ -486,21 +486,25 @@ function CacheInterface(nameOfDb) {
           }
           else {
             if(barcodeMutations.has(mutationData[index].Tumor_Sample_Barcode)) {
-              let mutationsArr = barcodeMutations.get(mutationData[index].Tumor_Sample_Barcode); // Get current array of mutations for current barcode
-              mutationsArr.push(mutationData[index].Variant_Classification); // If current mutation data barcode is present, then append the variant classification to variants set
-              barcodeMutations.set(mutationData[index].Tumor_Sample_Barcode, mutationsArr); // Set current barcode's value to updated array of mutations 
+              let mutationsSet = barcodeMutations.get(mutationData[index].Tumor_Sample_Barcode); // Get current set of mutations for current barcode
+              mutationsSet.add(mutationData[index].Variant_Classification); // If current mutation data barcode is present, then append the mutation type to variants set
+              barcodeMutations.set(mutationData[index].Tumor_Sample_Barcode, mutationsSet); // Set current barcode's value to updated set of mutations
             }
-            else
-              barcodeMutations.set(mutationData[index].Tumor_Sample_Barcode, [mutationData[index].Variant_Classification]); // Initialize the array of mutations for current barcode
+            else {
+              let set = new Set(); // Instantiate new Set for new patient barcode
+              set.add(mutationData[index].Variant_Classification) // Add first mutation associated with a patient barcode
+              barcodeMutations.set(mutationData[index].Tumor_Sample_Barcode, set); // Initialize the set of mutations for current barcode
+            }
           }
         }
         let mutationDataToReturn = []; // Array of JSON objects to return from this function
         //Concatenate the mutations associated with each patient into a single String
-        barcodeMutations.forEach((mutations, barcode) => {
-          let mutationLabel = mutations[0];
-          if(mutations.length > 1) {
-            for(let index = 1; index < mutations.length; index++)
-              mutationLabel += "_&_" + mutations[index]; 
+        barcodeMutations.forEach((mutationsSet, barcode) => {
+          let mutationsArr = Array.from(mutationsSet);
+          let mutationLabel = mutationsArr[0];
+          if(mutationsArr.length > 1) {
+            for(let index = 1; index < mutationsArr.length; index++)
+              mutationLabel += "_&_" + mutationsArr[index]; 
           }
           mutationDataToReturn.push({"tcga_participant_barcode":barcode, "cohort":cohort, "gene":gene, "mutation_label":mutationLabel});
         });
