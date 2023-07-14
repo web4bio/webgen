@@ -500,7 +500,8 @@ function CacheInterface(nameOfDb) {
         let mutationDataToReturn = []; // Array of JSON objects to return from this function
         //Concatenate the mutations associated with each patient into a single String
         barcodeMutations.forEach((mutationsSet, barcode) => {
-          let mutationsArr = Array.from(mutationsSet);
+          let mutationsArr = Array.from(mutationsSet); // Convert set to array
+          mutationsArr.sort(); // Sort array in alphabetical order to avoid multiple distinct mutation labels from being formed from the same set of variant classifications
           let mutationLabel = mutationsArr[0];
           if(mutationsArr.length > 1) {
             for(let index = 1; index < mutationsArr.length; index++)

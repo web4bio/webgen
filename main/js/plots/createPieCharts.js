@@ -218,9 +218,6 @@ let buildDataExplorePlots = async function() {
 
                 // Add on click event for pie chart
                 if(!continuous) {
-                    //DEBUG
-                    console.log("Entered continuous branch!");
-                    //DEBUG
                     document.getElementById(currentFeature + 'Div').on('plotly_click', function(data) {
                         var pts = '';
                         var colore;
