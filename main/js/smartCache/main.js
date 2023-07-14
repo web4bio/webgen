@@ -266,59 +266,6 @@ function CacheInterface(nameOfDb) {
     return [res, foundRes]
   }
 
-  //   this.executeQueriesMU = function (interface) {
-  //     let promises = []
-  //     // Loop through each cancer type in interface
-  //     // {
-  //     //     "ACC": {
-  //     //         "ABI1": [
-  //     //             "TCGA-OR-A5J1", "TCGA-OR-A5J2", "TCGA-OR-A5J3"
-  //     //         ],
-  //     //          "ABI2": [
-  //     //             "XCGA-OR-A5J1", "XCGA-OR-A5J2", "XCGA-OR-A5J3"
-  //     //         ]
-  //     //     }
-  //     // }
-  //     for (let cohort in interface) {
-  //       for (let expr in interface[cohort]) {
-  //         promises.push(
-  //           new Promise((resolve, reject) =>
-  //             resolve({
-  //               cohort: 'ACC',
-  //               mutation_label: 'Missense',
-  //               patient_barcode: 'TCGA-asdf',
-  //             })
-  //           )
-  //           //   firebrowse
-  //           // .fetchmRNASeq({
-  //           //   cohorts: [cohort],
-  //           //   genes: [expr],
-  //           //   barcodes: interface[cohort][expr],
-  //           // })
-  //           // .then((res) => {
-  //           //   console.log(res)
-  //           //   return res.map((obj) => {
-  //           //     // Store the entire obj into the interface
-  //           //     this.add(obj.cohort, obj.tcga_participant_barcode, expr, obj)
-  //           //     this.saveToDB(
-  //           //       obj.cohort,
-  //           //       obj.tcga_participant_barcode,
-  //           //       expr,
-  //           //       obj
-  //           //     )
-  //           //     return obj
-  //           //   })
-  //           // })
-  //           // .catch((error) => {
-  //           //   console.error('Failed, skipping.', error)
-  //           //   return undefined
-  //           // })
-  //         )
-  //       }
-  //     }
-  //     return promises
-  //   }
-
   this.fetchWrapperGE = async function (listOfCohorts, listOfGenes, listOfBarcodes) {
     findDiff = function (listOfBarcodes, cohort, expression, interface) {
       let s = new Set()
@@ -455,14 +402,10 @@ function CacheInterface(nameOfDb) {
 
     //Iterate over each cohort in missingInterface
     for (let cohort in missingInterface) {
-      //Obtain Map object of gene expression data for cohort
-      let interfaceData = await this.interface.get(cohort)
-      //Obtain list of barcodes with cacheBAR
-      let cacheBAR = await getCacheBAR();
-      //Retrieve an array of Maps linking cohorts to their set of TCGA barcodes
-      let currentListOfBarcodes = await cacheBAR.fetchWrapperBAR([cohort]);
-      //Since we are only requesting one barcode at a time, we can index the first element to retrieve the desired barcodes array
-      currentListOfBarcodes = currentListOfBarcodes[0].barcodes;
+      let interfaceData = await this.interface.get(cohort) // Obtain Map object of gene expression data for cohort
+      let cacheBAR = await getCacheBAR(); // Obtain list of barcodes with cacheBAR
+      let currentListOfBarcodes = await cacheBAR.fetchWrapperBAR([cohort]); // Retrieve an array of Maps linking cohorts to their set of TCGA barcodes
+      currentListOfBarcodes = currentListOfBarcodes[0].barcodes; // Since we are only requesting one barcode at a time, we can index the first element to retrieve the desired barcodes array
       //Within a cohort, iterate over each gene that the caching interface retrieved mRNA_Seq data for with executeQueriesGE()
       for (let gene of Object.keys(missingInterface[cohort])) {
         for (let curBarcode of currentListOfBarcodes) {
@@ -486,9 +429,10 @@ function CacheInterface(nameOfDb) {
    * mutation data for
    * @param {Array} listOfGenes An array of Strings representing the gene(s) to fetch
    * mutation data for
+   * @param {Array} listOfMutationTypes An array of Strings representing the mutation types to retrieve data for
    * @returns Properly-categorized mutation data for specified cohorts, genes.
    */
-  this.fetchWrapperMU = async function (listOfCohorts, listOfGenes) {
+  this.fetchWrapperMU = async function (listOfCohorts, listOfGenes, listOfMutationTypes) {
     function constructQueriesMU(listOfCohorts, listOfExpressions, interface) {
       let res = {}
       let foundRes = {}
@@ -516,187 +460,69 @@ function CacheInterface(nameOfDb) {
       return [res, foundRes]
     }
 
+    /**
+     * 
+     * @param {*} cohort 
+     * @param {*} gene 
+     * @param {*} mutationData 
+     * @returns 
+     */
     async function formatMutationData(cohort, gene, mutationData) {
       //Instantiate barcode caching interface
       let cacheBar = await getCacheBAR();
       //Obtain barcodes for cohorts of interest
       let barcodesByCohort = await cacheBar.fetchWrapperBAR([cohort]);
-      /*Since fetchWrapperBAR() returns an array of JSONs (one JSON containing an array for each cohort's barcodes),
-      we need to merge each array of barcodes into a single array*/
-      let cohortBarcodes = [];
-      for(let index = 0; index < barcodesByCohort.length; index++)
-        cohortBarcodes = cohortBarcodes.concat(barcodesByCohort[index].barcodes);
-      //Create Set to track variant classifications in mutationData
-      let variantClassifications = new Set();
-      let allLabels = []; //Mutation labels for each barcode
+      //Since we are only fetching one cohort's worth of barcodes, our result will be an array with a single JSON, from which we want the barcodes property
+      let cohortBarcodes = barcodesByCohort[0].barcodes;
+      let barcodeMutations = new Map();
       // If mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
       if(mutationData != undefined) {
         // Substring barcodes to get TCGA Participant ID and save barcodes
         for(let index = 0; index < mutationData.length; index++) {
           // Loop over  to filter out barcodes unique to the mutation data
-          mutationData[index].Tumor_Sample_Barcode = mutationData[index].Tumor_Sample_Barcode.substring(0, 12);
-          let participantBarcode = mutationData[index].Tumor_Sample_Barcode;
-          let barcodeInCohort = cohortBarcodes.contains(participantBarcode); // Tracks whether current mutation data barcode is present in cohort's barcodes
-          // If current mutation data barcode is not present in cohort's barcodes, remove it from mutationData
+          mutationData[index].Tumor_Sample_Barcode = mutationData[index].Tumor_Sample_Barcode.substring(0, 12); // Get substring of tumor sample barcode to match TCGA participant barcode format
+          let barcodeInCohort = cohortBarcodes.includes(mutationData[index].Tumor_Sample_Barcode); // Track whether current mutation data barcode is present in cohort's barcodes
           if(!barcodeInCohort) {
-              mutationData.splice(index, 1);
-              index--; //Decrement index by 1 for indexing purposes
+            mutationData.splice(index, 1); // If current mutation data barcode is not present in cohort's barcodes, remove corresponding entry from mutationData
+            index--; //Decrement index by 1 for indexing purposes
           }
-          // If current mutation data barcode is present, then append the variant classification to variants set
-          else
-              variantClassifications.add(mutationData[index].Variant_Classification);
-        }
-        variantClassifications = Array.from(variantClassifications); //Convert from Set to array
-
-        // FINAL: create object with patient ids sorted by mutation types that they appear in
-        // create object with patient ids sorted by mutation types that they appear in
-        let barcodesByMutationType = [];
-        for(let i = 0; i < variantClassifications.length; i++) {
-            let obj = {};
-            obj[variantClassifications[i] + ''] = []
-            barcodesByMutationType.push(obj);
-            for(let j = 0; j < mutationData.length; j++) {
-                if(mutationData[j].Variant_Classification == variantClassifications[i]) 
-                    barcodesByMutationType[i][variantClassifications[i]].push(mutationDataForThisGene[j].Tumor_Sample_Barcode)
+          else {
+            if(barcodeMutations.has(mutationData[index].Tumor_Sample_Barcode)) {
+              let mutationsArr = barcodeMutations.get(mutationData[index].Tumor_Sample_Barcode); // Get current array of mutations for current barcode
+              mutationsArr.push(mutationData[index].Variant_Classification); // If current mutation data barcode is present, then append the variant classification to variants set
+              barcodeMutations.set(mutationData[index].Tumor_Sample_Barcode, mutationsArr); // Set current barcode's value to updated array of mutations 
             }
+            else
+              barcodeMutations.set(mutationData[index].Tumor_Sample_Barcode, [mutationData[index].Variant_Classification]); // Initialize the array of mutations for current barcode
+          }
         }
-        // Get rid of duplicate barcodes that may exist within a mutation type
-        for(let i = 0; i < barcodesByMutationType.length; i++) {
-            let temp = new Set(barcodesByMutationType[i][variantClassifications[i]])
-            barcodesByMutationType[i][variantClassifications[i]] = Array.from(temp);
-        }
-
-        // FINAL: get barcodes that appear in >1 mutation type
-        // Count number of occurrences of each unique barcode in each mutation type
-        let counter = [];
-        counter.length = cohortBarcodes.length;
-        for(let i = 0; i < counter.length; i++)
-            counter[i] = 0;
-        for(let i = 0; i < cohortBarcodes.length; i++) {
-            for(let j = 0; j < barcodesByMutationType.length; j++) 
-                if(barcodesByMutationType[j][variantClassifications[j]].includes(cohortBarcodes[i])) 
-                    counter[i]++;
-        }
-        // Get indices of barcodes that appear in >1 mutation type
-        let myIndices = [];
-        for(let i = 0; i < counter.length; i++)
-            if(counter[i] > 1)
-                myIndices.push(i)
-        // Get barcodes that appear in >1 mutation type
-        let barcodesWithMoreThanOneMutationForGene = []
-        for(let i = 0; i < myIndices.length; i++) {
-            if(myIndices[i] > 1) {
-                let barcode = cohortBarcodes[myIndices[i]];
-                let elToAppend = {cohort:cohort, tcga_participant_barcode:barcode};
-                barcodesWithMoreThanOneMutationForGene.push(elToAppend)
-            }
-        }
-
-        // FINAL: GET LABELS
-        // Get array of unique paired mutation types in which a single barcode appears
-        let poolWithBarcodes = [];
-        poolWithBarcodes.length = barcodesWithMoreThanOneMutationForGene.length;
-        for(let i = 0; i < poolWithBarcodes.length; i++) {
-            //Each element in poolWithBarcodes will have a cohort, mutation_label, and tcga_participant_barcode field to map patients to mutation labels
-            poolWithBarcodes[i] = {tcga_participant_barcode:"", cohort:cohort, mutation_label:""}
-        }
-        for(let i = 0; i < barcodesWithMoreThanOneMutationForGene.length; i++) {
-            for(let j = 0; j < barcodesByMutationType.length; j++) {
-                if(barcodesByMutationType[j][variantClassifications[j]].includes(
-                    barcodesWithMoreThanOneMutationForGene[i].tcga_participant_barcode)) {
-                    if(poolWithBarcodes[i]["mutation_label"].length > 1) {
-                        poolWithBarcodes[i].mutation_label += '_&_' + variantClassifications[j];
-                        poolWithBarcodes[i].tcga_participant_barcode = barcodesWithMoreThanOneMutationForGene[i].tcga_participant_barcode;
-                        poolWithBarcodes[i].cohort = barcodesWithMoreThanOneMutationForGene[i].cohort;
-                    } else {
-                        poolWithBarcodes[i].mutation_label = variantClassifications[j] + '';
-                        poolWithBarcodes[i].tcga_participant_barcode = barcodesWithMoreThanOneMutationForGene[i].tcga_participant_barcode;
-                        poolWithBarcodes[i].cohort = barcodesWithMoreThanOneMutationForGene[i].cohort;
-                    }
-                }
-            }
-        }
-        let swim = []
-        for(let i = 0; i < poolWithBarcodes.length; i++) {
-            if(!swim.includes(poolWithBarcodes[i].mutation_label))
-                swim.push(poolWithBarcodes[i].mutation_label)
-        }
-        allLabels = swim.concat(variantClassifications);
-
-        // FINAL: COMPUTE FREQUENCIES         
-        // Count how many occurrences there are for each mutation type for the given gene
-        // xCounts is an array that will be used to label number of occurrences of each mutation for the given gene
-        xCounts.length = allLabels.length;
-        for(let i = 0; i < xCounts.length; i++)
-            xCounts[i] = 0;
-
-        //Compute counts for multi-mutation labels
-        //Create array of multi-mutation barcodes
-        let multiMutationBarcodes = []
-        for(let i = 0; i < poolWithBarcodes.length; i++) {
-            //Increment xCounts value if allLabels contains the mutation_label field of poolWithBarcodes element
-            let j = allLabels.indexOf(poolWithBarcodes[i]["mutation_label"]);            
-            if(j > -1) {
-                xCounts[j] = xCounts[j] + 1;
-                multiMutationBarcodes.push(poolWithBarcodes[i].tcga_participant_barcode)
-            }
-        }
-
-        // Remove from mutationData any barcodes that are associated with >1 mutation
-        let indicesToRemove = [];
-        for(let i = 0; i < mutationData.length; i++)
-            if(multiMutationBarcodes.includes(mutationData[i].Tumor_Sample_Barcode))
-                indicesToRemove.push(i)
-
-        mutationData = mutationData.filter(function(value, index) {
-            return indicesToRemove.indexOf(index) == -1;
+        let mutationDataToReturn = []; // Array of JSONs to return from this function
+        //Concatenate the mutations associated with each patient into a single String
+        barcodeMutations.forEach((mutations, barcode) => {
+          let mutationLabel = mutations[0];
+          if(mutations.length > 1) {
+            for(let index = 1; index < mutations.length; index++)
+              mutationLabel += "_&_" + mutations[index]; 
+          }
+          mutationDataToReturn.push({"tcga_participant_barcode":barcode, "cohort":cohort, "gene":gene, "mutation_label":mutationLabel});
         });
-        //Create array to track the single-mutation patient barcodes and their mutation types
-        let singleMutationPatients = [];
-        // Count number of barcodes associated with single mutations
-        for(let i = 0; i < mutationData.length; i++) {
-            xCounts[allLabels.indexOf(mutationData[i].Variant_Classification)]++;
-            //Create JSON object that will get saved for a single-mutation patient
-            let obj = {"tcga_participant_barcode":mutationDataForThisGene[i].Tumor_Sample_Barcode, "cohort":cohort, "mutation_label":mutationData[i].Variant_Classification};
-            singleMutationPatients.push(obj);
-        }
-        let mergedMutationData = poolWithBarcodes.concat(singleMutationPatients); //Concatenate poolWithBarcodes and singleMutationPatients into a single array
-        //Loop over all patients with no mutation data and assign them "Wild_Type"
-        let mergedMutationBarcodes = [];
-        for(let i = 0; i < mergedMutationData.length; i++)
-            mergedMutationBarcodes.push(mergedMutationData[i].tcga_participant_barcode);
-        
-        let patientsWithNoMutation = Array.from(cohortBarcodes);
-        //Remove barcode from patientsWithNoMutation array if it has mutation data
-        for(let i = 0; i < mergedMutationBarcodes.length; i++) {
-          let indexToRemove = patientsWithNoMutation.indexOf(mergedMutationBarcodes[i]);
-          if(indexToRemove > -1)
-            patientsWithNoMutation.splice(indexToRemove, 1); //Remove element
-        }
 
-        //Append element to allLabels and xCounts for Wild_Type mutation
-        if(patientsWithNoMutation) {
-            allLabels.push("Wild_Type");
-            xCounts.push(0);
+        //Designate all barcodes without mutation data as "Wild_Type"
+        for(barcode of cohortBarcodes) {
+          if(!barcodeMutations.has(barcode)) {
+            mutationDataToReturn.push({"tcga_participant_barcode":barcode, "cohort":cohort, "gene":gene, "mutation_label":"Wild_Type"});
+          }
         }
-        let noMutationsData = [];
-        for(let i = 0; i < patientsWithNoMutation.length; i++) {
-            let obj = {"tcga_participant_barcode":patientsWithNoMutation[i], "cohort":cohort, "mutation_label":"Wild_Type"};
-            noMutationsData.push(obj);
-        }
-        mergedMutationData = mergedMutationData.concat(noMutationsData); // Concatenate noMutationsData and mergedMutationData
-        return mergedMutationData;
+        return mutationDataToReturn; // Return formatted data
       }
       // If mutations do NOT exist for this gene (i.e., if the gene is wild-type)
       else {
         //No mutation data means that we have only "Wild_Type" mutation values
-        let mutationData = [];
+        let mutationDataToReturn = [];
         //Loop over cohortBarcodes and create JSON element for each patient with "Wild_Type" mutation value
-        for(let index = 0; index < cohortBarcodes.length; index++) {
-            let obj = {"tcga_participant_barcode":cohortBarcodes[index], "cohort":cohort, "mutation_label":"Wild_Type"};
-            mutationData.push(obj);
-        }
-        return mutationData;
+        for(barcode of cohortBarcodes)
+            mutationDataToReturn.push({"tcga_participant_barcode":barcode, "cohort":cohort, "gene":gene, "mutation_label":"Wild_Type"});
+        return mutationDataToReturn; // Return formatted data
       }
     }
 
@@ -708,10 +534,10 @@ function CacheInterface(nameOfDb) {
     async function executeQueriesMU(interface) {
       //Iterate over each cohort, gene combination
       for (let cohort in interface) {
-        for (let gene in interface[cohort]) {
+        for (let gene of interface[cohort]) {
           //Fetch expression data for requested cohort, gene, and barcodes with Firebrowse fetch call
-          let rawMutationData = await firebrowse.fetchMutationMAF({cohorts: [cohort], genes: [gene]})  
-          let mutationData = await formatMutationData(rawMutationData);
+          let rawMutationData = await firebrowse.fetchMutationMAF({cohorts: [cohort], genes: [gene]});
+          let mutationData = await formatMutationData(cohort, gene, rawMutationData);
           for(let index = 0; index < mutationData.length; index++) {
             let obj = mutationData[index];
             try {
@@ -737,17 +563,43 @@ function CacheInterface(nameOfDb) {
     let tmp = []
     // It wants all the barcodes
     for (let cohort in hasInterface) {
-      let interfaceData = this.interface.get(cohort) // Map([])
+      let interfaceData = await this.interface.get(cohort) // Obtain Map object of mutation data for cohort
+      // Within a cohort, iterate over each gene that the caching interface has stored mutation data for
       for (let gene of hasInterface[cohort]) {
-        let emptyTmp = []
-        for (let [k, v] of interfaceData.get(gene)) {
-          emptyTmp.push({ barcode: k, mutation_label: v})//, gene: gene })
+        let mutationData = Array.from(interfaceData.get(gene).values()); // Use values() to get mutation data from Map
+        for (let index = 0; index < mutationData.length; index++) {
+          // If no mutation types to filter by have been specified, then append patient
+          if(!listOfMutationTypes) {
+            tmp.push(mutationData[index]); // Append patient to mutationData
+          }
+          else {
+            if(listOfMutationTypes.includes(mutationData[index].mutation_label))
+              tmp.push(mutationData[index]); // Append patient to mutationData
+          }
         }
-        tmp.push({gene:gene, cohort:cohort, "mutation_data": emptyTmp})
       }
     }
 
-    return [missingInterface, tmp.flat()]
+    await executeQueriesMU(missingInterface); // Query mutation data that is not cached
+
+    //Iterate over each cohort in missingInterface
+    for (let cohort in missingInterface) {
+      let interfaceData = await this.interface.get(cohort) // Obtain Map object of mutation data for cohort
+      //Within a cohort, iterate over each gene that the caching interface retrieved mutation data for with executeQueriesMU()
+      for (let gene of missingInterface[cohort]) {
+        let mutationData = Array.from(interfaceData.get(gene).values()); // Use values() to get mutation data from Map
+        for(let index = 0; index < mutationData.length; index++) {
+          // If no mutation types to filter by have been specified, then append patient
+          if(!listOfMutationTypes)
+            tmp.push(mutationData[index]); // Append patient to mutationData
+          else {          
+            if(listOfMutationTypes.includes(mutationData[index].mutation_label))
+              tmp.push(mutationData[index]); // Append patient to mutationData
+          }
+        }
+      }
+    }
+    return tmp.flat();
   }
 
   /**
