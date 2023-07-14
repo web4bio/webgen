@@ -425,14 +425,19 @@ function CacheInterface(nameOfDb) {
   /**
    * Retrieves requested mutation data from cache.
    * If requested data is missing from cache, it is fetched via Firebrowse and cached.
-   * @param {Array} listOfCohorts An array of Strings representing the cohort(s) to fetch
-   * mutation data for
-   * @param {Array} listOfGenes An array of Strings representing the gene(s) to fetch
-   * mutation data for
-   * @param {Array} listOfMutationTypes An array of Strings representing the mutation types to retrieve data for
+   * @param {String[]} listOfCohorts An array representing the cohort(s) to fetch mutation data for
+   * @param {String[]} listOfGenes An array representing the gene(s) to fetch mutation data for
+   * @param {String[]} listOfMutationTypes An array representing the mutation types to retrieve data for
    * @returns Properly-categorized mutation data for specified cohorts, genes.
    */
   this.fetchWrapperMU = async function (listOfCohorts, listOfGenes, listOfMutationTypes) {
+    /**
+     * 
+     * @param {String[]} listOfCohorts An array representing the cohort(s) to fetch mutation data for
+     * @param {String} listOfExpressions An array representing the gene(s) to fetch mutation data for
+     * @param {*} interface Caching interface for mutation data
+     * @returns 
+     */
     function constructQueriesMU(listOfCohorts, listOfExpressions, interface) {
       let res = {}
       let foundRes = {}
@@ -465,7 +470,7 @@ function CacheInterface(nameOfDb) {
      * which patients have no (classified as 'Wild_Type') mutations
      * @param {String} cohort The cohort the mutation data belongs to
      * @param {String} gene The gene the mutation data belongs to
-     * @param {Array} mutationData An array of JSON objects fetched from Firebrowse
+     * @param {JSON[]} mutationData An array fetched from Firebrowse
      * @returns An array of formatted JSON objects representing the mutation data for the specified cohort-gene combination
      */
     async function formatMutationData(cohort, gene, mutationData) {
@@ -531,8 +536,8 @@ function CacheInterface(nameOfDb) {
 
     /**
      * Executes Firebrowse API call(s) to fetch requested mutation data not stored in cache
-     * @param {Array} interface 2D array indexed by cohort and gene that represents the mutation data to fetch
-     * @returns {Array} An array of JSON objects for the mutation data requested by interface
+     * @param {String[][]} interface 2D array indexed by cohort and gene that represents the mutation data to fetch
+     * @returns {JSON[]} An array for the mutation data requested by interface
      */
     async function executeQueriesMU(interface) {
       //Iterate over each cohort, gene combination
@@ -563,8 +568,7 @@ function CacheInterface(nameOfDb) {
       this.interface
     )
 
-    let tmp = []
-    // It wants all the barcodes
+    let tmp = []; // Array to store mutation data in
     for (let cohort in hasInterface) {
       let interfaceData = await this.interface.get(cohort) // Obtain Map object of mutation data for cohort
       // Within a cohort, iterate over each gene that the caching interface has stored mutation data for
@@ -593,7 +597,7 @@ function CacheInterface(nameOfDb) {
           // If no mutation types to filter by have been specified, then append patient
           if(!listOfMutationTypes)
             tmp.push(mutationData[index]); // Append patient to mutationData
-          else {          
+          else {
             if(listOfMutationTypes.includes(mutationData[index].mutation_label))
               tmp.push(mutationData[index]); // Append patient to mutationData
           }

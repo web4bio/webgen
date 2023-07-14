@@ -371,19 +371,11 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
 }
 
 /**
- * Gets the sanitized mutation data with multiple mutation records for a patient merged into a single multi-mutation entry
- * @returns The sanitized mutation data that ensures patients with multiple mutations only account for one entry per gene
- */
-let getSanitizedMutationData = async function() {
-    return mutationDataForAllGenes;
-}
-
-/**
  * Helper function for buildDataExplorePlots()
- * @param {*} uniqueValuesForCurrentFeature 
- * @param {*} currentFeature 
- * @param {*} xCounts 
- * @param {*} continuous 
+ * @param {String[]} uniqueValuesForCurrentFeature 
+ * @param {String} currentFeature 
+ * @param {Number[]} xCounts 
+ * @param {Boolean} continuous 
  */
 let setChartDimsAndPlot = async function (uniqueValuesForCurrentFeature, currentFeature, xCounts, continuous) {
     let currentFeatureDiv = document.getElementById(currentFeature + "Div")
