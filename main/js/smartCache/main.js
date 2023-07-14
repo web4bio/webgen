@@ -371,7 +371,7 @@ function CacheInterface(nameOfDb) {
 
     //Identify missing gene expression records and retrieve currently-cached gene expression records
     let [missingInterface, hasInterface] = constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes, this.interface)    
-    //tmp will store an array of JSONs
+    //tmp will store an array of JSON objects
     let tmp = []
 
     //Iterate over each cohort in hasInterface
@@ -461,20 +461,18 @@ function CacheInterface(nameOfDb) {
     }
 
     /**
-     * 
-     * @param {*} cohort 
-     * @param {*} gene 
-     * @param {*} mutationData 
-     * @returns 
+     * Formats the mutation data fetched from Firebrowse by concatenating entries for the same patient and identifying 
+     * which patients have no (classified as 'Wild_Type') mutations
+     * @param {String} cohort The cohort the mutation data belongs to
+     * @param {String} gene The gene the mutation data belongs to
+     * @param {Array} mutationData An array of JSON objects fetched from Firebrowse
+     * @returns An array of formatted JSON objects representing the mutation data for the specified cohort-gene combination
      */
     async function formatMutationData(cohort, gene, mutationData) {
-      //Instantiate barcode caching interface
-      let cacheBar = await getCacheBAR();
-      //Obtain barcodes for cohorts of interest
-      let barcodesByCohort = await cacheBar.fetchWrapperBAR([cohort]);
-      //Since we are only fetching one cohort's worth of barcodes, our result will be an array with a single JSON, from which we want the barcodes property
-      let cohortBarcodes = barcodesByCohort[0].barcodes;
-      let barcodeMutations = new Map();
+      let cacheBar = await getCacheBAR(); // Instantiate barcode caching interface
+      let barcodesByCohort = await cacheBar.fetchWrapperBAR([cohort]); //Obtain barcodes for cohort of interest
+      let cohortBarcodes = barcodesByCohort[0].barcodes; //Since we are only fetching one cohort's worth of patient barcodes, our result will be an array with a single JSON, from which we want the barcodes property
+      let barcodeMutations = new Map(); //Instantiate Map to track which mutations are associated with which patient barcodes
       // If mutations DO exist for this gene (i.e., if the gene is NOT wild-type)
       if(mutationData != undefined) {
         // Substring barcodes to get TCGA Participant ID and save barcodes
@@ -496,7 +494,7 @@ function CacheInterface(nameOfDb) {
               barcodeMutations.set(mutationData[index].Tumor_Sample_Barcode, [mutationData[index].Variant_Classification]); // Initialize the array of mutations for current barcode
           }
         }
-        let mutationDataToReturn = []; // Array of JSONs to return from this function
+        let mutationDataToReturn = []; // Array of JSON objects to return from this function
         //Concatenate the mutations associated with each patient into a single String
         barcodeMutations.forEach((mutations, barcode) => {
           let mutationLabel = mutations[0];
@@ -517,9 +515,9 @@ function CacheInterface(nameOfDb) {
       }
       // If mutations do NOT exist for this gene (i.e., if the gene is wild-type)
       else {
-        //No mutation data means that we have only "Wild_Type" mutation values
+        // No mutation data means that we have only "Wild_Type" mutation values
         let mutationDataToReturn = [];
-        //Loop over cohortBarcodes and create JSON element for each patient with "Wild_Type" mutation value
+        // Loop over cohortBarcodes and create JSON element for each patient with "Wild_Type" mutation value
         for(barcode of cohortBarcodes)
             mutationDataToReturn.push({"tcga_participant_barcode":barcode, "cohort":cohort, "gene":gene, "mutation_label":"Wild_Type"});
         return mutationDataToReturn; // Return formatted data
@@ -527,9 +525,9 @@ function CacheInterface(nameOfDb) {
     }
 
     /**
-     * 
-     * @param {Array} interface 
-     * @returns 
+     * Executes Firebrowse API call(s) to fetch requested mutation data not stored in cache
+     * @param {Array} interface 2D array indexed by cohort and gene that represents the mutation data to fetch
+     * @returns {Array} An array of JSON objects for the mutation data requested by interface
      */
     async function executeQueriesMU(interface) {
       //Iterate over each cohort, gene combination
@@ -579,9 +577,7 @@ function CacheInterface(nameOfDb) {
         }
       }
     }
-
     await executeQueriesMU(missingInterface); // Query mutation data that is not cached
-
     //Iterate over each cohort in missingInterface
     for (let cohort in missingInterface) {
       let interfaceData = await this.interface.get(cohort) // Obtain Map object of mutation data for cohort
