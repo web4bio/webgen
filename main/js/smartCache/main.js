@@ -427,10 +427,10 @@ function CacheInterface(nameOfDb) {
    * If requested data is missing from cache, it is fetched via Firebrowse and cached.
    * @param {String[]} listOfCohorts An array representing the cohort(s) to fetch mutation data for
    * @param {String[]} listOfGenes An array representing the gene(s) to fetch mutation data for
-   * @param {String[]} listOfMutationTypes An array representing the mutation types to retrieve data for
+   * @param {String[]} listOfBarcodes An array representing the barcodes to retrieve data for
    * @returns Properly-categorized mutation data for specified cohorts, genes.
    */
-  this.fetchWrapperMU = async function (listOfCohorts, listOfGenes, listOfMutationTypes) {
+  this.fetchWrapperMU = async function (listOfCohorts, listOfGenes, listOfBarcodes) {
     /**
      * 
      * @param {String[]} listOfCohorts An array representing the cohort(s) to fetch mutation data for
@@ -575,12 +575,12 @@ function CacheInterface(nameOfDb) {
       for (let gene of hasInterface[cohort]) {
         let mutationData = Array.from(interfaceData.get(gene).values()); // Use values() to get mutation data from Map
         for (let index = 0; index < mutationData.length; index++) {
-          // If no mutation types to filter by have been specified, then append patient
-          if(!listOfMutationTypes) {
+          // If no barcodes to filter by have been specified, then append patient
+          if(!listOfBarcodes) {
             tmp.push(mutationData[index]); // Append patient to mutationData
           }
           else {
-            if(listOfMutationTypes.includes(mutationData[index].mutation_label))
+            if(listOfBarcodes.includes(mutationData[index].tcga_participant_barcode))
               tmp.push(mutationData[index]); // Append patient to mutationData
           }
         }
@@ -594,11 +594,11 @@ function CacheInterface(nameOfDb) {
       for (let gene of missingInterface[cohort]) {
         let mutationData = Array.from(interfaceData.get(gene).values()); // Use values() to get mutation data from Map
         for(let index = 0; index < mutationData.length; index++) {
-          // If no mutation types to filter by have been specified, then append patient
-          if(!listOfMutationTypes)
+          // If no barcodes to filter by have been specified, then append patient
+          if(!listOfBarcodes)
             tmp.push(mutationData[index]); // Append patient to mutationData
           else {
-            if(listOfMutationTypes.includes(mutationData[index].mutation_label))
+            if(listOfBarcodes.includes(mutationData[index].tcga_participant_barcode))
               tmp.push(mutationData[index]); // Append patient to mutationData
           }
         }
