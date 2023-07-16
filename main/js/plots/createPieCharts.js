@@ -145,15 +145,12 @@ let buildDataExplorePlots = async function() {
                 }
                 // if unselected feature is not a gene, set isSelected status to false
                 if(unselectedFeature[0] !== unselectedFeature[0].toUpperCase()) {
+                    //DEBUG
+                    console.log("Printing from buildDataExplorePlots() for clinical feature!");
+                    //DEBUG
                     let index = clinicalType.findIndex(x => x.name == unselectedFeature);
                     clinicalType[index].isSelected = false;
                 }
-                // if unselected feature is a gene, update mutationDataForAllGenesSelected
-                else if(unselectedFeature[0] === unselectedFeature[0].toUpperCase()) {
-                    let index = mutationDataForAllGenesSelected.findIndex(x => x[0].Hugo_Symbol == unselectedFeature);
-                    mutationDataForAllGenesSelected.splice(index, 1)
-                }
-                
             }
         }
         previouslySelectedFeatures = mySelectedFeatures;    

@@ -616,8 +616,7 @@ let rebuildViolinPlot = async function(partitionBoxId, geneQuery) {
         svgDiv.innerHTML = "";
         var violinDivId = "violinPlot" + index;
         let expressionData = await cache.get('rnaSeq', 'expressionData');
-        createViolinPlot(expressionData.expressionData,
-                        document.getElementById(violinDivId), geneQuery[index], selectedOptions);
+        createViolinPlot(expressionData.expressionData, document.getElementById(violinDivId), geneQuery[index], selectedOptions);
     }
 };
 
