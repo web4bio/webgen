@@ -666,22 +666,33 @@ function CacheInterface(nameOfDb) {
         let clinicalData = await firebrowse.fetchClinicalFH({
           cohorts: [cohort],
           barcodes: getBarcodesInACohort,
-        })
-        console.log(clinicalData)
+        }).then((clinicalData) => {
+          console.log(clinicalData)
 
-        for(let index = 0; index < clinicalData.length; index++) {
-          let obj = clinicalData[index];
-          console.log(obj)
-          try {
-            //Call add() and saveToDB() to cache the fetched data
-            await cacheCLIN.add(obj.cohort, obj);
-            await cacheCLIN.saveToDB(obj.cohort, obj);
-          } catch(err) {
-            //If an error occurred, print an error message and end execution
-            console.error('Failed, skipping for cohort.', err);
-            return undefined
+          for(let index = 0; index < clinicalData.length; index++) {
+              let obj = clinicalData[index];
+              //Call add() and saveToDB() to cache the fetched data
+              cacheCLIN.add(obj.cohort, null, null, obj);
+              cacheCLIN.saveToDB(obj.cohort, null, null, obj);
           }
-        }
+        }).catch(error => {
+          console.error('Failed, skipping for cohort.', error);
+          return undefined
+        });
+        
+
+        // for(let index = 0; index < clinicalData.length; index++) {
+        //   let obj = clinicalData[index];
+        //   console.log(obj)
+        //   try {
+        //     //Call add() and saveToDB() to cache the fetched data
+        //     await cacheCLIN.add(obj.cohort, obj);
+        //     await cacheCLIN.saveToDB(obj.cohort, obj);
+        //   } catch(err) {
+        //     //If an error occurred, print an error message and end execution
+            
+        //   }
+        // }
       }
     }
 
@@ -698,9 +709,12 @@ function CacheInterface(nameOfDb) {
     }
 
     await executeQueriesCLIN( barcodesByCohort, missingInterface);
+    console.log(missingInterface)
 
     for(let cohort in missingInterface) {
-      let newClinicalData = await this.interface.get(cohort)
+      console.log(cohort)
+      let newClinicalData = await this.interface.get(cohort).get(null).get(null)
+      console.log(newClinicalData)
       let emptyTmp = []
       for (let k of newClinicalData) {
         emptyTmp.push(k)
@@ -708,7 +722,6 @@ function CacheInterface(nameOfDb) {
       tmp.push({cohort:cohort, clinical_data: emptyTmp})
     } 
     return tmp.flat();
-    return
   }
 }
 
