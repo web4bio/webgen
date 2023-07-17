@@ -28,6 +28,7 @@ var cacheGE = undefined
 var cacheMU = undefined
 //Create undefined cache object for bardcode data
 var cacheBAR = undefined
+var cacheCLIN = undefined
 
 async function getCacheGE() {
   if (cacheGE) {
@@ -98,6 +99,29 @@ async function getCacheBAR() {
         }
         cacheBAR = new CacheInterface('smart-cache-bar.db')
         setTimeout(() => resolve(cacheBAR), 500)
+      })
+    })
+  }
+}
+
+async function getCacheCLIN() {
+  if(cacheCLIN) {
+    return cacheCLIN
+  }
+  else {
+    return new Promise((resolve, reject) => {
+      const db = new loki('smart-cache-clin.db', {
+        adapter: new LokiIndexedAdapter(),
+      })
+      db.loadDatabase({}, (err) => {
+        if (err) reject(err)
+        if (!db.getCollection('cohorts')) {
+          console.warn('db re-initialized')
+          db.addCollection('cohorts', { unique: '_id' })
+          db.saveDatabase()
+        }
+        cacheCLIN = new CacheInterface('smart-cache-clin.db')
+        setTimeout(() => resolve(cacheCLIN), 500)
       })
     })
   }
@@ -695,6 +719,66 @@ function CacheInterface(nameOfDb) {
       tmp.push({cohort:cohort, barcodes: emptyTmp})
     }  
     //Return the data pushed to tmp
+    return tmp.flat();
+  }
+
+  this.fetchWrapperCLIN = async function (listOfCohorts, barcodesByCohort) {
+    function constructQueriesCLIN(listOfCohorts, interface) {
+      let res = {}
+      let foundRes = {}
+      for (let cohort of listOfCohorts) {
+        if (!(interface.has(cohort))) {
+          res[cohort] = []
+        }
+        else {
+          foundRes[cohort] = []
+        }
+      }
+      return [res, foundRes]
+    }
+
+    async function executeQueriesCLIN(barcodesByCohort, interface) {
+      for (let cohort in interface) {
+        let getBarcodesInACohort = barcodesByCohort.filter(cohortEle => (cohortEle.cohort == cohort))[0].barcodes
+        let clinicalData = await firebrowse.fetchClinicalFH({
+          cohorts: [cohort],
+          barcodes: getBarcodesInACohort,
+        }).then((clinicalData) => {
+          // Iterate over each patient's clinical data
+          for(let index = 0; index < clinicalData.length; index++) {
+              let obj = clinicalData[index];
+              cacheCLIN.add(cohort=obj.cohort, barcode=obj); // Add clinical data to interface map by mimicking parameters for barcode caching
+              cacheCLIN.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj); // Save clinical data to interface
+          }
+        }).catch(error => {
+          console.error('Failed, skipping for cohort.', error);
+          return undefined
+        });
+      }
+    }
+
+    let [missingInterface, hasInterface] = constructQueriesCLIN(listOfCohorts, this.interface)
+
+    let tmp = []
+    for (let cohort in hasInterface) {
+      let cachedClinicalData = await this.interface.get(cohort)
+      let emptyTmp = []
+      for (let k of cachedClinicalData)
+        emptyTmp.push(k)
+      tmp.push({cohort:cohort, clinical_data: emptyTmp})
+    }
+
+    await executeQueriesCLIN( barcodesByCohort, missingInterface);
+    console.log(missingInterface)
+
+    for(let cohort in missingInterface) {
+      console.log(cohort)
+      let newClinicalData = await this.interface.get(cohort)//.get(null).get(null)
+      let emptyTmp = []
+      for (let k of newClinicalData)
+        emptyTmp.push(k)
+      tmp.push({cohort:cohort, clinical_data: emptyTmp})
+    } 
     return tmp.flat();
   }
 }

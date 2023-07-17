@@ -275,7 +275,7 @@ let computeMutationFrequencies = function(mutationData) {
   * @returns {Array} Contains values and labels to input to Plotly data object.
   */
 let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected, continuous) {
-    
+
     let allValuesForCurrentFeature = [];
     for(let i = 0; i < allClinicalData.length; i++)
         allValuesForCurrentFeature.push(allClinicalData[i][currentClinicalFeatureSelected]);

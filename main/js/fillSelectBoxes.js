@@ -256,7 +256,21 @@ let getClinicalByCohortWithMrnaseq = async function () {
   let allBarcodes = [];
   for(let index = 0; index < barcodesByCohort.length; index++)
     allBarcodes = allBarcodes.concat(barcodesByCohort[index].barcodes);
-  results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: allBarcodes});
+
+  let cacheClin = await getCacheCLIN();
+  let clinicalByCohort = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort);
+
+  for (let k of clinicalByCohort) {
+    let clinicalData = k.clinical_data
+    for(let index = 0; index < clinicalData.length; index++) {
+      results.push(clinicalData[index])
+    }
+  }
+
+  console.log(results)
+
+  // results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: allBarcodes});
+
   return results;
 };
 
@@ -303,6 +317,7 @@ let fillClinicalSelectBox = async function () {
     $('#clinicalMultipleSelection').val(null).trigger('change'); // clear any preexisting selections
     $('#clinicalMultipleSelection').empty(); // clear any preexisting options in dropdown
     let selectBox = document.getElementById("clinicalMultipleSelection");
+
     for (let i = 0; i < intersectedFeatures.length; i++) {
       let currentOption = document.createElement("option");
       currentOption.value = intersectedFeatures[i];
