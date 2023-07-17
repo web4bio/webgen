@@ -667,32 +667,16 @@ function CacheInterface(nameOfDb) {
           cohorts: [cohort],
           barcodes: getBarcodesInACohort,
         }).then((clinicalData) => {
-          console.log(clinicalData)
-
+          // Iterate over each patient's clinical data
           for(let index = 0; index < clinicalData.length; index++) {
               let obj = clinicalData[index];
-              //Call add() and saveToDB() to cache the fetched data
-              cacheCLIN.add(obj.cohort, null, null, obj);
-              cacheCLIN.saveToDB(obj.cohort, null, null, obj);
+              cacheCLIN.add(cohort=obj.cohort, barcode=obj); // Add clinical data to interface map by mimicking parameters for barcode caching
+              cacheCLIN.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj); // Save clinical data to interface
           }
         }).catch(error => {
           console.error('Failed, skipping for cohort.', error);
           return undefined
         });
-        
-
-        // for(let index = 0; index < clinicalData.length; index++) {
-        //   let obj = clinicalData[index];
-        //   console.log(obj)
-        //   try {
-        //     //Call add() and saveToDB() to cache the fetched data
-        //     await cacheCLIN.add(obj.cohort, obj);
-        //     await cacheCLIN.saveToDB(obj.cohort, obj);
-        //   } catch(err) {
-        //     //If an error occurred, print an error message and end execution
-            
-        //   }
-        // }
       }
     }
 
@@ -702,9 +686,8 @@ function CacheInterface(nameOfDb) {
     for (let cohort in hasInterface) {
       let cachedClinicalData = await this.interface.get(cohort)
       let emptyTmp = []
-      for (let k of cachedClinicalData) {
+      for (let k of cachedClinicalData)
         emptyTmp.push(k)
-      }
       tmp.push({cohort:cohort, clinical_data: emptyTmp})
     }
 
@@ -713,12 +696,10 @@ function CacheInterface(nameOfDb) {
 
     for(let cohort in missingInterface) {
       console.log(cohort)
-      let newClinicalData = await this.interface.get(cohort).get(null).get(null)
-      console.log(newClinicalData)
+      let newClinicalData = await this.interface.get(cohort)//.get(null).get(null)
       let emptyTmp = []
-      for (let k of newClinicalData) {
+      for (let k of newClinicalData)
         emptyTmp.push(k)
-      }
       tmp.push({cohort:cohort, clinical_data: emptyTmp})
     } 
     return tmp.flat();
