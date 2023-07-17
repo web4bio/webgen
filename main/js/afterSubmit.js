@@ -53,40 +53,45 @@ const buildPlots = async function() {
   document.getElementById("heatmapLoaderDiv").className = "loader";
   document.getElementById("violinLoaderDiv").className = "loader";
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   // GET EXPRESSION DATA:
 
   const selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((gene) => gene.text);
-
-  // Fetch expression data for selected cancer cohort(s) and gene(s) selected from first dropdown
-  //Hardcode 'genes' param to query one gene's worth of information
-  let expressionData_forMutationFetching = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: selectedGene1});
-
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
-  const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(expressionData_forMutationFetching, selectedTumorTypes);
+  const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(selectedTumorTypes);
 
   let cacheGe = await getCacheGE(); // Instantiate cache interface for gene expression
   const expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
   //const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, selectedTumorTypes, allSelectedGenes);
-  cache.set('rnaSeq', 'expressionData', expressionData)
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cache.set('rnaSeq', 'expressionData', expressionData); // Set localStorage entry for expression data
 
   // GET CLINICAL DATA:
   // Get clinical data for either intersected barcodes or entire cohort
+  
   let clinicalData;
+  let cacheBar = await getCacheBAR(); // Instantiate cache interface for barcodes
+  let barcodesByCohort = await cacheBar.fetchWrapperBAR(selectedTumorTypes); // Fetch all barcodes for selected cohorts
+  let cacheClin = await getCacheCLIN(); // Instantiate cache interface for clinical data
   if (intersectedBarcodes && intersectedBarcodes.length) {
-    clinicalData = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: intersectedBarcodes});
+    // If intersectedBarcodes is populated, then iterate over each cohort's barcodes and filter by the barcodes of interest
+    for(let index = 0; index < barcodesByCohort.length; index++) {
+      let obj = barcodesByCohort[index];
+      filteredCohortBarcodes = obj.barcodes.filter(barcode => intersectedBarcodes.includes(barcode)); // Filter out barcodes not present in intersectedBarcodes
+      barcodesByCohort[index].barcodes = filteredCohortBarcodes; // Set barcodesByCohort to filtered set of barcodes
+    }
+    clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
   } else {
     // Pass in barcodes from expressionData
-    let barcodesFromExpressionData = new Set();
+    /*let barcodesFromExpressionData = new Set();
     for(let index = 0; index < expressionData.length; index++)
       barcodesFromExpressionData.add(expressionData[index].tcga_participant_barcode);
-    barcodesFromExpressionData = Array.from(barcodesFromExpressionData);
-    clinicalData = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes,
-      barcodes: barcodesFromExpressionData});
+    barcodesFromExpressionData = Array.from(barcodesFromExpressionData);*/
+    //clinicalData = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes,
+    //  barcodes: barcodesFromExpressionData});
+    clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
   }
+
+  clinicalData = clinicalData.map(obj => obj.clinical_data); // Extract clinical_data property from each element
+  clinicalData = clinicalData.flat();   // Flatten clinicalData into a 1-D array
 
   cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
@@ -97,8 +102,6 @@ const buildPlots = async function() {
   localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
   buildHeatmap(expressionData, mutationAndClinicalData);
   buildViolinPlot(allSelectedGenes, expressionData);
   buildDownloadButtons(allSelectedGenes, expressionData, clinicalData);

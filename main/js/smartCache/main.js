@@ -760,22 +760,31 @@ function CacheInterface(nameOfDb) {
 
     let tmp = []
     for (let cohort in hasInterface) {
-      let cachedClinicalData = await this.interface.get(cohort)
-      let emptyTmp = []
-      for (let k of cachedClinicalData)
-        emptyTmp.push(k)
+      let cachedClinicalData = await this.interface.get(cohort); // Get entire cohort's clinical data
+      let cohortOfInterest = barcodesByCohort.find(obj => obj.cohort == cohort); 
+      let cohortBarcodes = cohortOfInterest.barcodes; // Get the barcodes of interest for each cohort
+      let emptyTmp = [];
+      for (let k of cachedClinicalData) {
+        // Append patient's clinical data to results
+        if(cohortBarcodes.includes(k.tcga_participant_barcode))
+          emptyTmp.push(k)
+      }
       tmp.push({cohort:cohort, clinical_data: emptyTmp})
     }
 
-    await executeQueriesCLIN( barcodesByCohort, missingInterface);
+    await executeQueriesCLIN(barcodesByCohort, missingInterface);
     console.log(missingInterface)
 
     for(let cohort in missingInterface) {
-      console.log(cohort)
-      let newClinicalData = await this.interface.get(cohort)//.get(null).get(null)
+      let newClinicalData = await this.interface.get(cohort);
+      let cohortOfInterest = barcodesByCohort.find(obj => obj.cohort == cohort); 
+      let cohortBarcodes = cohortOfInterest.barcodes; // Get the barcodes of interest for each cohort
       let emptyTmp = []
-      for (let k of newClinicalData)
-        emptyTmp.push(k)
+      for (let k of newClinicalData) {
+        // Append patient's clinical data to results
+        if(cohortBarcodes.includes(k.tcga_participant_barcode))
+          emptyTmp.push(k);
+      }
       tmp.push({cohort:cohort, clinical_data: emptyTmp})
     } 
     return tmp.flat();
