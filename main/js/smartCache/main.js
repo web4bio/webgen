@@ -378,8 +378,8 @@ function CacheInterface(nameOfDb) {
           //Fetch expression data for requested cohort, gene, and barcodes with Firebrowse fetch call
           let expressionData = await firebrowse.fetchmRNASeq({cohorts: [cohort], genes: [gene]})  
           for(let index = 0; index < expressionData.length; index++) {
-            let obj = expressionData[index];
             try {
+              let obj = expressionData[index];
               //Call add() and saveToDB() to cache the fetched data
               await cacheGE.add(obj.cohort, obj.tcga_participant_barcode, gene, obj);
               await cacheGE.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj);
@@ -571,11 +571,10 @@ function CacheInterface(nameOfDb) {
           let rawMutationData = await firebrowse.fetchMutationMAF({cohorts: [cohort], genes: [gene]});
           let mutationData = await formatMutationData(cohort, gene, rawMutationData);
           for(let index = 0; index < mutationData.length; index++) {
-            let obj = mutationData[index];
             try {
-              //Call add() and saveToDB() to cache the fetched data
-              await cacheMU.add(obj.cohort, obj.tcga_participant_barcode, gene, obj);
-              await cacheMU.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+              let obj = mutationData[index];
+              await cacheMU.add(obj.cohort, obj.tcga_participant_barcode, gene, obj); // Add patient to mutation data caching interface
+              await cacheMU.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj); // Save patient to caching interface database
             } catch(err) {
               //If an error occurred, print an error message and end execution
               console.error('Failed, skipping for cohort.', err);

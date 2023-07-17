@@ -336,7 +336,11 @@ let fillClinicalSelectBox = async function () {
 
       let checkIfClinicalFeatureArrayIsNumeric = async function() {
         var numbers = /^[0-9/.]+$/;
-        var continuousMap = allClinicalData.map(x => x[currentFeature].match(numbers));
+        var continuousMap = allClinicalData.map(x => {
+          try {
+            x[currentFeature].match(numbers)
+          } catch(error) {} // Ignore error
+        });
         var nullCount = continuousMap.filter(x => x == null).length;
         var totalCount = continuousMap.length;
         var percentContinuous = nullCount / totalCount;
