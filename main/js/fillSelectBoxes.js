@@ -135,7 +135,7 @@ let displayNumberSamples = async function () {
  */
 let getValidGeneList = async function () {
   let validGeneList = await fetch(
-    "https://web4bio.github.io/webgen/main/geneList.json"
+    "https://web4bio.github.io/webgen/main/validGeneList.json"
   ).then((response) => response.json());
   validGeneList = validGeneList.map((geneInfo) => geneInfo.hugoSymbol);
   return await validGeneList;
