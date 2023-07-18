@@ -34,6 +34,8 @@ const fillCancerTypeSelectBox = async function () {
     $(".cancerTypeMultipleSelection").trigger('change');
   }
 
+  return true;
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,47 +50,7 @@ const fillCancerTypeSelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-let fetchNumberSamples = async function () {
-  let myCohort = $(".cancerTypeMultipleSelection")
-    .select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const hosturl = "https://firebrowse.herokuapp.com";
-  const endpointurl = "http://firebrowse.org/api/v1/Metadata/Counts";
-  const endpointurl_presets = {
-    cohort: myCohort,
-    sample_type: "TP",
-    data_type: "mrnaseq",
-    totals: "true",
-  };
-  const endpointurl_fieldsWithValues =
-    "&cohort=" +
-    endpointurl_presets.cohort.toString() +
-    "&sample_type=" +
-    endpointurl_presets.sample_type +
-    "&data_type=" +
-    endpointurl_presets.data_type +
-    "&totals=" +
-    endpointurl_presets.totals;
-  var fetchedCountData = await fetch(
-    hosturl + "?" + endpointurl + "?" + endpointurl_fieldsWithValues
-  ).then(function (response) {
-    return response.json();
-  });
-  fetchedCountData = fetchedCountData.Counts;
-  fetchedCountData = fetchedCountData.map(x => {
-    const container = {};
-    container.cohort = x.cohort.substring(0, fetchedCountData[0].cohort.indexOf('-'));
-    container.mrnaseq = x.mrnaseq;
-    return container;
-  });
-
-  if (fetchedCountData == "")
-    return ["Error: Invalid Input Fields for Query.", 0];
-  else {
-    return fetchedCountData;
-  }
-};
-
+let numbersOfSamples;
 
 /** Creates and displays the "Number of samples" element that appears when a cohort is selected.
  * 
@@ -105,7 +67,13 @@ let displayNumberSamples = async function () {
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
     // get counts of samples for selected tumor types:
-    var countQuery = await fetchNumberSamples();
+    numbersOfSamples = await firebrowse.fetchCounts(myCohort);
+    let formatted_numbersOfSamples = numbersOfSamples.map(x => {
+      const container = {};
+      container.cohort = x.cohort.substring(0, numbersOfSamples[0].cohort.indexOf('-'));
+      container.mrnaseq = x.mrnaseq;
+      return container;
+    });
     // order counts array based on order in which tumor types were selected:
     function orderThings (array, order, key) {
       array.sort(function (a, b) {
@@ -118,7 +86,7 @@ let displayNumberSamples = async function () {
       });
       return array;
     };
-    orderedCountQuery = orderThings(countQuery, myCohort, 'cohort')
+    orderedCountQuery = orderThings(formatted_numbersOfSamples, myCohort, 'cohort')
     // build label:
     let string = "";
     let para;
@@ -167,7 +135,7 @@ let displayNumberSamples = async function () {
  */
 let getValidGeneList = async function () {
   let validGeneList = await fetch(
-    "https://raw.githubusercontent.com/web4bio/webgen/master/main/validGeneList.json"
+    "https://web4bio.github.io/webgen/main/geneList.json"
   ).then((response) => response.json());
   validGeneList = validGeneList.map((geneInfo) => geneInfo.hugoSymbol);
   return await validGeneList;
@@ -195,7 +163,7 @@ let getValidPathwaysList = async function () {
   //Note the specification of the 'preselectedGenes' branch name.
   //genePathwaysList.json needs to be uploaded to the branch running on the github.io link
   let validPathwaysList = await fetch(
-    "https://raw.githubusercontent.com/web4bio/webgen/development/main/genePathwaysList.json"
+    "https://web4bio.github.io/webgen/main/genePathwaysList.json"
   ).then((response) => response.json());
   validPathwaysList = Object.keys(validPathwaysList);
   localStorage.setItem("genePathways", validPathwaysList);
@@ -212,28 +180,25 @@ let getValidPathwaysList = async function () {
  * @returns {Promise<Array.<GenesByPathway>>} Array of JSONs, the genes associated with pathways.
  */
 let getGenesByPathway = async function () {
-  var pathwaySelectBoxLength = $(".pathwayMultipleSelection").select2("data").length;
-  var allGenesByPathways = {};
 
-  //would only run if an option from pathway select box is selected
-  if (pathwaySelectBoxLength > 0) {
-    let validPathwaysList = await fetch(
-      "https://raw.githubusercontent.com/web4bio/webgen/development/main/genePathwaysList.json"
-    ).then((response) => response.json());
+  let numberOfPathwaysSelected = $(".pathwayMultipleSelection").select2("data").length;
 
-    //Get the pathway(s) selected
-    let myPathway = $(".pathwayMultipleSelection")
-      .select2("data")
-      .map((curPathway) => curPathway.id);
+  let allGenesByPathways = {};
 
-    //Map all the genes from pathway(s) into an array
+  if (numberOfPathwaysSelected > 0) {
+
+    let validPathwaysList = await fetch("https://web4bio.github.io/webgen/main/genePathwaysList.json").then((response) => response.json());
+
+    let selectedPathways = $(".pathwayMultipleSelection").select2("data").map((curPathway) => curPathway.id);
+
+    // Map all the genes from pathway(s) into an array
     allGenesByPathways = _.map(
-      _.range(0, myPathway.length),
+      _.range(0, selectedPathways.length),
       function (i) {
         return {
           id: i,
-          pathway: String(myPathway[i]),
-          genes: validPathwaysList[String(myPathway[i])],
+          pathway: String(selectedPathways[i]),
+          genes: validPathwaysList[String(selectedPathways[i])],
         };
       }
     );
@@ -253,9 +218,6 @@ let getGenesByPathway = async function () {
 let fillPathwaySelectBox = async function () {
   validPathwaysList = await getValidPathwaysList();
   let selectBox = document.getElementById("pathwayMultipleSelection");
-
-  $("#geneOneMultipleSelection").val(null).trigger("change");
-
   for (let i = 0; i < validPathwaysList.length; i++) {
     let currentOption = document.createElement("option");
     currentOption.value = validPathwaysList[i];
@@ -279,71 +241,43 @@ let fillPathwaySelectBox = async function () {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** Gets barcodes for which expression data exists for the cancer types that were selected.
+/** Gets clinial data for which expression data exist for the cancer type(s) that was/were selected.
  * 
- * @returns {Promise<Array.<string>>} An array of strings, the barcodes from the selected cohorts.
+ * @returns {Promise<Array.<object>>} An array of objects.
  */
-let getBarcodesFromCohortForClinical = async function () {
-  let myCohort = $(".cancerTypeMultipleSelection")
-    .select2("data")
-    .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+let getClinicalByCohortWithMrnaseq = async function () {
   let results = [];
-  let barcodesArr = [];
-  let pageCount = 0;
-  do {
-    results = await firebrowse.fetchClinicalFH({cohorts: myCohort, /*genes: "bcl2",*/ 
-      pageNum: pageCount.toString()});
-    results.forEach((element) => barcodesArr.push(element.tcga_participant_barcode));
-    //Increment page count for fetchClinicalFH function call (retrieves next page of data)
-    pageCount++;
-  } while(results.length >= 250)
-  //Remove duplicate barcodes if necessary
-  let barcodesSet = new Set(barcodesArr);
-  const tpBarcodes = Array.from(barcodesSet);
-  return tpBarcodes;
-};
+  //Instantiate barcode caching interface
+  let cacheBar = await getCacheBAR();
+  //Obtain barcodes for cohorts of interest
+  let barcodesByCohort = await cacheBar.fetchWrapperBAR(selectedTumorTypes);
+  /*Since fetchWrapperBAR() returns an array of JSONs (one JSON containing an array for each cohort's barcodes),
+  we need to merge each array of barcodes into a single array*/
+  let allBarcodes = [];
+  for(let index = 0; index < barcodesByCohort.length; index++)
+    allBarcodes = allBarcodes.concat(barcodesByCohort[index].barcodes);
 
-/** Fetches CLINICAL data for those barcodes for which expression data exists 
- * for those cancer types that were selected.
- * 
- * @typedef {Object} CohortClinicalData
- * @property {string} cohort
- * @property {string} date
- * @property {string} date_to_initial_pathologic_diagnosis
- * @property {string} days_to_death
- * @property {string} days_to_last_followup
- * @property {string} days_to_last_known_alive
- * @property {string} ethnicity
- * @property {string} gender
- * @property {string} histological_type
- * @property {string} number_of_lymph_nodes
- * @property {string} pathologic_stage
- * @property {string} pathology_M_stage
- * @property {string} pathology_N_stage
- * @property {string} pathology_T_stage
- * @property {string} race
- * @property {string} radiation_therapy
- * @property {string} tcga_participant_barcode
- * @property {string} tool
- * @property {string} tumor_tissue_site
- * @property {string} vital_status
- * @property {string} years_to_birth
- * 
- * @returns {Promise<Array.<CohortClinicalData>>} Returns a promise for an array of JSONS
- * which contain clinical data for the cohort.
- */
-let fetchClinicalData = async function (myCohort) {
-  //let myCohort = $(".cancerTypeMultipleSelection")
-  //  .select2("data")
-  //  .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  const barcodes = await getBarcodesFromCohortForClinical();
-  let clinicalData = await firebrowse.fetchClinicalFH({cohorts: myCohort, barcodes: barcodes});
-  //clinicalData = clinicalData.filter(barcode => myCohort.includes(barcode.cohort));
-  return clinicalData;
+  let cacheClin = await getCacheCLIN();
+  let clinicalByCohort = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort);
+
+  for (let k of clinicalByCohort) {
+    let clinicalData = k.clinical_data
+    for(let index = 0; index < clinicalData.length; index++) {
+      results.push(clinicalData[index])
+    }
+  }
+
+  console.log(results)
+
+  // results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: allBarcodes});
+
+  return results;
 };
 
 let allClinicalData;
 let clinicalType = [];
+
+let selectedTumorTypes;
 
 /** Creates and fills the box to select clinical features.
  * Uses local storage if possible.
@@ -352,20 +286,18 @@ let clinicalType = [];
  */
 let fillClinicalSelectBox = async function () {
   document.getElementById('dataexploration').innerHTML = "" // clear previous pie charts
-  let myCohort = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-
-  if (myCohort.length != 0) {
-    let dataFetched = await fetchClinicalData(myCohort);
-    allClinicalData = dataFetched;
+  selectedTumorTypes = $(".cancerTypeMultipleSelection").select2("data").map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
+  if (selectedTumorTypes.length != 0) {
+    allClinicalData = await getClinicalByCohortWithMrnaseq();
 
     // ------------------------------------------------------------------------------------------------------------------------
 
     // if more than one cancer type is selected, the intersection of available clinical features between the two cancer types
     // is populated as options in the dropdown for clinical features
     let clinicalKeys = [];
-    for(i = 0; i < myCohort.length; i++) {
+    for(i = 0; i < selectedTumorTypes.length; i++) {
       for(j = 0; j < allClinicalData.length; j++) {
-        if(allClinicalData[j].cohort == myCohort[i]) {
+        if(allClinicalData[j].cohort == selectedTumorTypes[i]) {
           clinicalKeys.push(Object.keys(allClinicalData[j]));
           break;
         }
@@ -385,12 +317,14 @@ let fillClinicalSelectBox = async function () {
     $('#clinicalMultipleSelection').val(null).trigger('change'); // clear any preexisting selections
     $('#clinicalMultipleSelection').empty(); // clear any preexisting options in dropdown
     let selectBox = document.getElementById("clinicalMultipleSelection");
-    for (let i = 1; i < intersectedFeatures.length; i++) {
+
+    for (let i = 0; i < intersectedFeatures.length; i++) {
       let currentOption = document.createElement("option");
       currentOption.value = intersectedFeatures[i];
-      currentOption.text = intersectedFeatures[i];
+      currentOption.text = (intersectedFeatures[i]).replaceAll('_', ' ');
       currentOption.id = intersectedFeatures[i];
-      selectBox.appendChild(currentOption);
+      if(intersectedFeatures[i] != 'cohort')
+        selectBox.appendChild(currentOption);
     }
 
     // ------------------------------------------------------------------------------------------------------------------------
@@ -402,7 +336,11 @@ let fillClinicalSelectBox = async function () {
 
       let checkIfClinicalFeatureArrayIsNumeric = async function() {
         var numbers = /^[0-9/.]+$/;
-        var continuousMap = allClinicalData.map(x => x[currentFeature].match(numbers));
+        var continuousMap = allClinicalData.map(x => {
+          try {
+            x[currentFeature].match(numbers)
+          } catch(error) {} // Ignore error
+        });
         var nullCount = continuousMap.filter(x => x == null).length;
         var totalCount = continuousMap.length;
         var percentContinuous = nullCount / totalCount;
@@ -424,20 +362,14 @@ let fillClinicalSelectBox = async function () {
       $(".clinicalMultipleSelection").val(clinicalSelectedOptions);
     }
 
-    let mySelectedClinicalFeatures = $(".geneOneMultipleSelection")
-      .select2("data")
-      .map((clinicalInfo) => clinicalInfo.text);
-    let mySelectedClinicalFeatures2 = $(".clinicalMultipleSelection")
-      .select2("data")
-      .map((clinicalInfo) => clinicalInfo.text);
+    let selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((clinicalInfo) => clinicalInfo.text);
+    let selectedClinicalFeatures = $(".clinicalMultipleSelection").select2("data").map((clinicalInfo) => clinicalInfo.text);
 
-    if (
-      mySelectedClinicalFeatures.length >= 1 ||
-      mySelectedClinicalFeatures2 >= 1
-    ) {
+    if (selectedGene1.length >= 1 || selectedClinicalFeatures >= 1) {
       buildDataExplorePlots(allClinicalData);
     }
   }
+
 };
 
 /** Creates and populates the Violin Partion Box HTML element.
@@ -533,39 +465,6 @@ let fillViolinPartitionBox = async function(id)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// Fill Clinical Select Box (above) //////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////// Get Mutation Data (below) //////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/** Gets all variant classifications based on the cohort and provided genes
- * 
- * @typedef {Object} MutationMAF
- * @property {string} Hugo_Symbol
- * @property {string} Protein_Change
- * @property {string} SwissProt_entry_Id
- * @property {string} Tumor_Sample_Barcode
- * @property {string} Variant_Classification
- * @property {string} Variant_Type
- * @property {string} cohort
- * @property {string} tool
- * 
- * @param {Array.<String>} geneQuery The selected genes the function gets the mutations for
- * @returns {Promise<Array.<MutationMAF>>} An array of JSON objects specifying the mutations
- */
-let getAllVariantClassifications = async function (geneQuery) {
-  const myCohortQuery = $(".cancerTypeMultipleSelection").select2("data").map(
-    (cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
-  return await firebrowse.fetchMutationMAF({cohorts: myCohortQuery, genes: geneQuery});
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////// Get Mutation Data (above) //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

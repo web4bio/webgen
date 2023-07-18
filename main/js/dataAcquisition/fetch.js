@@ -7,7 +7,7 @@
  * @returns {Promise<Object.<string, Array>>} Fetched data.
  */
 const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
-  const base = "https://firebrowse.jonasalmeida.repl.co";
+  const base = "https://corsproxy.io";
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
   if (endpoint.startsWith("/")) {
@@ -23,12 +23,13 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
     console.error(`Fetching ${expectedKey} data was unsuccessful.`);
     return minimalJson;
   }
-  const json = await response.json();
-  if (!json) {
+  try {
+    const json = await response.json();
+    return json;
+  } catch(error) {
     console.log(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
     return minimalJson;
   }
-  return json;
 };
 
 
@@ -147,10 +148,6 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
   // browser support at this time.
   const splits = endpoint.split("/");
   const expectedKey = splits[splits.length - 1];
-  let pageSize = 2000;
-  if(params.page_size) {
-    pageSize = params.page_size;
-  }
 
   if (groupBy == null || groupBy.length === 0) {
     return await _fetchFromFireBrowse(endpoint, params, expectedKey);

@@ -1,92 +1,47 @@
 
 // ***** Get intersection of barcodes from selected pie sectors (below) *****
 
-getBarcodesFromSelectedPieSectors = async function(expressionData) {
-
+getBarcodesFromSelectedPieSectors = async function(selectedTumorTypes) {
   // a "field" is either a gene name or a clinical feature
-  let selectedFields = Object.keys(selectedData);
+  let selectedCategoricalFields = Object.keys(selectedCategoricalFeatures);
   let concatFilteredBarcodes = [];
-
+  let cacheMu = await getCacheMU(); // Instantiate caching interface for mutation data
+  let cacheBar = await getCacheBAR(); // Instantiate caching interface for barcode data
+  let cacheClin = await getCacheCLIN(); // Instantiate caching interface for clinical data
+  let barcodesByCohort = await cacheBar.fetchWrapperBAR(selectedTumorTypes); // Get all barcodes for the selected cohorts
+  let clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data for cohorts of interest
+  clinicalData = clinicalData.map(obj => obj.clinical_data); // Extract mutation_data property for each cohort
+  clinicalData = clinicalData.flat(); // Use flat() to make patients' clinical data a 1-D array
   // LOOP THRU ALL CLICKED FIELDS
-  for(let i = 0; i < selectedFields.length; i++) {
-
-    let currentField = selectedFields[i];
-
+  for(let i = 0; i < selectedCategoricalFields.length; i++) {
+    let currentField = selectedCategoricalFields[i];
     // if current selected sector belongs to a gene...
     if(currentField[i].toUpperCase() == currentField[i]) {
-
       let currentGene = currentField;
+      let mutationDataForThisGene = await cacheMu.fetchWrapperMU(selectedTumorTypes, [currentGene]); // Fetch mutation data for currentGene
+      concatFilteredBarcodes['' + currentGene] = []; // Initialize to empty array to use push()
+      let clickedMutations = selectedCategoricalFeatures[currentGene]; // Get array of selected mutations
+      // Iterate over mutation data for a specific gene to get patients with mutation types of interest
+      for(let index = 0; index < mutationDataForThisGene.length; index++) {
+        // If mutation_label property for current patient is in array of selected mutation types, then append to barcodes array
+        if(clickedMutations.includes(mutationDataForThisGene[index].mutation_label))
+          concatFilteredBarcodes['' + currentGene].push(mutationDataForThisGene[index]["tcga_participant_barcode"]); // Append patient barcode to concatFilteredBarcodes
+      // Perform AND logic with prior barcodes in concatFilteredBarcodes to get desired cohort of patients
+      }
 
-      await getAllVariantClassifications(currentGene).then(function(mutationData) { // get ALL mutation data for current gene of the selected genes
-
-        // LOOP THRU ALL CLICKED "MUTATIONS"
-        let clickedMutations = selectedData[currentGene];
-        for(let j = 0; j < clickedMutations.length; j++) {
-          let currentMutation = clickedMutations[j];
-          // IF CURRENT **"MUTATION" IS NOT WILD TYPE**, then get the associated barcodes from mutation api's data
-          if(currentMutation != "Wild_Type") {
-            let allData = mutationData.filter(person => (person.Variant_Classification == currentMutation));
-            let onlyBarcodes = allData.map(x => x.Tumor_Sample_Barcode);
-            let trimmedOnlyBarcodes = onlyBarcodes.map(x => x.slice(0,12));
-
-            // we need to perform filtering to get only unique barcodes because some genes with a given
-            // mutation type will result in more than one type of protein change... this will result in
-            // a barcode appearing more than once in the data
-            function onlyUnique(value, index, self) {
-              return self.indexOf(value) === index;
-            }
-            let uniqueTrimmedOnlyBarcodes = trimmedOnlyBarcodes.filter(onlyUnique);
-
-            if(concatFilteredBarcodes['' + currentGene] == undefined)
-              concatFilteredBarcodes['' + currentGene] = uniqueTrimmedOnlyBarcodes;
-            else
-              concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(uniqueTrimmedOnlyBarcodes);
-
-          // IF CURRENT **"MUTATION IS WILD TYPE"**, then get the associated barcodes
-          } else {
-
-            // IF NO MUTATIONS EXIST AT ALL FOR THE CURRENT GENE, then get the associated barcodes from mRNAseq api's data
-            if(mutationData == undefined) {
-              let allData = expressionData.filter(person => person.gene == currentGene);
-              let onlyBarcodes = allData.map(x => x.tcga_participant_barcode);
-              if(concatFilteredBarcodes['' + currentGene] == undefined)
-                concatFilteredBarcodes['' + currentGene] = onlyBarcodes;
-
-            // IF THE GENE HAS SOME MUTATIONS AND SOME WILD-TYPE, then get the associated barcodes by subtracting mutation data from expression data
-            } else {
-
-              let allData_1 = mutationData.filter(person => person.Hugo_Symbol == currentGene);
-              let onlyBarcodes_1 = allData_1.map(x => x.Tumor_Sample_Barcode);
-              let trimmedOnlyBarcodes_1 = onlyBarcodes_1.map(x => x.slice(0,12));
-
-              allData_2 = expressionData.filter(person => person.gene == currentGene);
-              onlyBarcodes_2 = allData_2.map(x => x.tcga_participant_barcode);
-
-              let barcodesForWildType = [];
-              for(let i = 0; i < onlyBarcodes_2.length; i++)
-                if(!trimmedOnlyBarcodes_1.includes(onlyBarcodes_2[i]))
-                  barcodesForWildType.push(onlyBarcodes_2[i]);
-              if(concatFilteredBarcodes['' + currentGene] == undefined)
-                concatFilteredBarcodes['' + currentGene] = barcodesForWildType;
-              else
-                concatFilteredBarcodes['' + currentGene] = concatFilteredBarcodes['' + currentGene].concat(barcodesForWildType);
-            }
-          }
-        }
-      })
     } else {
 
       let currentClinicalFeature = currentField;
       let filteredClinicalData = [];
       let uniqueBarcodes;
 
-      let clickedClinicalValues = selectedData[currentClinicalFeature];
+      let clickedClinicalValues = selectedCategoricalFeatures[currentClinicalFeature];
 
       for(let j = 0; j < clickedClinicalValues.length; j++) {
 
         let currentClinicalValue = clickedClinicalValues[j];
 
-        filteredClinicalData = allClinicalData.filter(person => (person[currentClinicalFeature] == currentClinicalValue))
+        filteredClinicalData = clinicalData.filter(person => (person[currentClinicalFeature] == currentClinicalValue))
 
         let onlyBarcodes = filteredClinicalData.map(x => x.tcga_participant_barcode);
 
@@ -102,17 +57,12 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
       }
     }
   }
-  let continuousRangeData = selectedRange;
   // loop through all range data
-  for(let i = 0; i < continuousRangeData.length; i++) {
-    let continuousFeature = continuousRangeData[i];
-    var div = document.getElementById(continuousFeature + 'Div');
-    let rangeValue = div.layout.xaxis.range;
-    console.log(continuousFeature);
-    console.log(rangeValue[0]);
-    console.log(rangeValue[1]);
+  for(let i = 0; i < selectedContinuousFeatures.length; i++) {
+    let continuousFeature = selectedContinuousFeatures[i];
+    let rangeValue = selectedRange;
 
-    filteredRangeData = allClinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
+    filteredRangeData = clinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
 
     let onlyBarcodes = filteredRangeData.map(x => x.tcga_participant_barcode);
 
@@ -149,18 +99,23 @@ getBarcodesFromSelectedPieSectors = async function(expressionData) {
     }
   }
 
+  //DEBUG
+  //console.log("Final Cohort Size: ");
+  //console.log(intersectedBarcodes.length)
+  //DEBUG
   return intersectedBarcodes
 }
 
 
-getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery){
-
-  // allData is used when no pie slices are chosen
-  let allData = allClinicalData;
+getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, cohortQuery, expressionQuery){
+  //let allData = allClinicalData;
+  let cacheBar = await getCacheBAR(); // Instantiate barcode caching interface
+  let barcodesByCohort = await cacheBar.fetchWrapperBAR(cohortQuery); // Get barcodes grouped by cohort to fetch clinical data
+  let cacheClin = await getCacheCLIN(); // Instantiate clinical data caching interface
+  let allData = await cacheClin.fetchWrapperCLIN(cohortQuery, barcodesByCohort); // allData is used when no pie slices are chosen
 
   // if no pie sectors were selected, return allData
   if(intersectedBarcodes === undefined) {
-    let expressionQuery = await getExpressionQuery();
 
     // Validation of user inputs should prevent allData from being undefined, but we
     // should not depend on state outside of the function to check our values here.
@@ -169,11 +124,12 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
       return
     }
     let allBarcodes = allData.map(x => x.tcga_participant_barcode);
-    return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: allBarcodes});
+    const smartCache = await getCacheGE();
+    let res = await smartCache.fetchWrapperGE(cohortQuery, expressionQuery, allBarcodes);
+    return res;
 
   // if there are NO barcodes at the intersection, we cannot build gene expression visualizations
   } else if(intersectedBarcodes.length == 0) {
-
     // Remove the loader
     document.getElementById('heatmapLoaderDiv').classList.remove('loader');
     document.getElementById('violinLoaderDiv').classList.remove('loader');
@@ -194,7 +150,7 @@ getExpressionDataFromIntersectedBarcodes = async function(intersectedBarcodes, c
     // The final data array may include a fewer number of barcodes than that contained in
     // the intersectedBarcodes array if RNAseq data is not available for all patient barcodes
     // contained in intersectedBarcodes
-    let expressionQuery = await getExpressionQuery();
-    return await firebrowse.fetchmRNASeq({cohorts: cohortQuery, genes: expressionQuery, barcodes: intersectedBarcodes});
+    const smartCache = await getCacheGE();
+    return await smartCache.fetchWrapperGE(cohortQuery, expressionQuery, intersectedBarcodes);
   }
 }
