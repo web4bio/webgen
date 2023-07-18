@@ -23,12 +23,13 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
     console.error(`Fetching ${expectedKey} data was unsuccessful.`);
     return minimalJson;
   }
-  const json = await response.json();
-  if (!json) {
+  try {
+    const json = await response.json();
+    return json;
+  } catch(error) {
     console.log(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
     return minimalJson;
   }
-  return json;
 };
 
 
