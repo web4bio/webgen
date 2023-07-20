@@ -68,7 +68,6 @@ let colorOutOfSpace = {
         let oldArrayCopy = [...oldArray]
         const oldDict = colorOutOfSpace.yellowAt[keyName]['Key']
         const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
-        // console.log({...newDict})
         const newKeys = Object.keys(newDict)
 
         // scenario occurs when newKeys has less keys than oldKeys
@@ -94,7 +93,6 @@ let colorOutOfSpace = {
             'YellowAt': oldArrayCopy.filter(ele => ele !== 'X'),
             'Key': {...newDict}
         }
-        // console.log({...colorOutOfSpace.yellowAt})
     },
     updateYellowAt: (keyName, sliceToChange) => {
         const geneDict = colorOutOfSpace.yellowAt[keyName]
@@ -157,9 +155,6 @@ let buildDataExplorePlots = async function() {
                 }
                 // if unselected feature is not a gene, set isSelected status to false
                 if(unselectedFeature[0] !== unselectedFeature[0].toUpperCase()) {
-                    //DEBUG
-                    console.log("Printing from buildDataExplorePlots() for clinical feature!");
-                    //DEBUG
                     let index = clinicalType.findIndex(x => x.name == unselectedFeature);
                     clinicalType[index].isSelected = false;
                 }
@@ -217,7 +212,6 @@ let buildDataExplorePlots = async function() {
                     if(selectedContinuousFeatures.findIndex(element => element == currentFeature) == -1){
                         if(currentFeature != "pathologic_stage")
                             selectedContinuousFeatures[currentFeature] = []; // Initialize to empty array
-                            //selectedContinuousFeatures.push(currentFeature);
                     }
                     if(eventData) {
                         selectedContinuousFeatures[currentFeature][0] = eventData.range.x[0];

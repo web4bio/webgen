@@ -77,7 +77,6 @@ getBarcodesFromSelectedPieSectors = async function(selectedTumorTypes) {
 
 
   // Get intersection of barcodes from selected pie sectors
-  // console.log(concatFilteredBarcodes)
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
   let intersectedBarcodes;
 
@@ -96,11 +95,6 @@ getBarcodesFromSelectedPieSectors = async function(selectedTumorTypes) {
       intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
     }
   }
-
-  //DEBUG
-  //console.log("Final Cohort Size: ");
-  //console.log(intersectedBarcodes.length)
-  //DEBUG
   return intersectedBarcodes
 }
 

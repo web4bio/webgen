@@ -266,11 +266,6 @@ let getClinicalByCohortWithMrnaseq = async function () {
       results.push(clinicalData[index])
     }
   }
-
-  console.log(results)
-
-  // results = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes, barcodes: allBarcodes});
-
   return results;
 };
 
@@ -384,7 +379,6 @@ let fillViolinPartitionBox = async function(id)
     div_box.append('text')
         .style("font-size", "20px")
         .text('Select variables to partition violin curves by:');
-    console.log(div_box);
     div_box.append('div')
         .attr('class','viewport')
         .style('overflow-y', 'scroll')
@@ -413,20 +407,7 @@ let fillViolinPartitionBox = async function(id)
   // function to create a pair of checkbox and text
     function renderCB(div_obj, data)
     {
-        /*
-        const label = div_obj.append('div').attr('id', data.id);
-        label.append('input')
-            .attr('type', 'checkbox')
-            .attr('class', 'myCheckbox')
-            .attr('value', data.id)
-            .on('change',update)
-            //.property('checked',true)
-        label.append('text')
-            .text(data.id);
-            */
-
         const label = div_obj.append('div').attr('id', data);
-
         label.append("label")
            .attr("class", "switch")
            .append("input")
@@ -438,7 +419,6 @@ let fillViolinPartitionBox = async function(id)
            .append("span")
            .attr("class", "slider round")
            .attr('value', data);
-
         label.append('text')
            .text(data);
     }
