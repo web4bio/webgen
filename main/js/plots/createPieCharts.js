@@ -126,11 +126,17 @@ let buildDataExplorePlots = async function() {
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.id);
     let mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
     // Remove fields from selectedCategoricalFeatures that were previously selected but now removed
-    // Iterate over mySelectedFeatures and remove outdated keys from selectedCategoricalFeatures
-    for(key of Object.keys(selectedCategoricalFeatures)) {
-        // If one of the keys in selectedCategoricalFeatures is not chosen in one of the select boxes, then remove the key from selectedCategoricalFeatures
+    // Iterate over keys of selectedCategoricalFeatures and remove outdated keys
+    for(let key of Object.keys(selectedCategoricalFeatures)) {
+        // If one of the keys in selectedCategoricalFeatures is not chosen in one of the select boxes, then remove the key
         if(!mySelectedFeatures.includes(key))
             delete selectedCategoricalFeatures[key]; // Delete key, value pair from selectedCategoricalFeatures
+    }
+    // Iterate over selectedContinuousFeatures and remove outdated keys
+    for(let key of Object.keys(selectedContinuousFeatures)) {
+        // If one of the keys in selectedContinuousFeatures is not chosen in one of the select boxes, then remove the key
+        if(!mySelectedFeatures.includes(key))
+            delete selectedContinuousFeatures[key]; // Delete key, value pair from selectedContinuousFeatures
     }
     // if no features are selected, do not display any pie charts
     if(mySelectedFeatures.length == 0) {
@@ -210,13 +216,14 @@ let buildDataExplorePlots = async function() {
                     // if continuous data range has not yet been added 
                     if(selectedContinuousFeatures.findIndex(element => element == currentFeature) == -1){
                         if(currentFeature != "pathologic_stage")
-                            selectedContinuousFeatures.push(currentFeature);
+                            selectedContinuousFeatures[currentFeature] = []; // Initialize to empty array
+                            //selectedContinuousFeatures.push(currentFeature);
                     }
                     if(eventData) {
-                        selectedRange[0] = eventData.range.x[0];
-                        selectedRange[1] = eventData.range.x[1];
+                        selectedContinuousFeatures[currentFeature][0] = eventData.range.x[0];
+                        selectedContinuousFeatures[currentFeature][1] = eventData.range.x[1];
                     } else
-                        selectedRange = (document.getElementById(currentFeature + 'Div')).layout.xaxis.range;
+                    selectedContinuousFeatures[currentFeature] = (document.getElementById(currentFeature + 'Div')).layout.xaxis.range;
                 });
 
                 // Add on click event for pie chart
