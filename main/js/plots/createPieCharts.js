@@ -125,7 +125,13 @@ let buildDataExplorePlots = async function() {
     let mySelectedGenes = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.id);
     let mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
-
+    // Remove fields from selectedCategoricalFeatures that were previously selected but now removed
+    // Iterate over mySelectedFeatures and remove outdated keys from selectedCategoricalFeatures
+    for(key of Object.keys(selectedCategoricalFeatures)) {
+        // If one of the keys in selectedCategoricalFeatures is not chosen in one of the select boxes, then remove the key from selectedCategoricalFeatures
+        if(!mySelectedFeatures.includes(key))
+            delete selectedCategoricalFeatures[key]; // Delete key, value pair from selectedCategoricalFeatures
+    }
     // if no features are selected, do not display any pie charts
     if(mySelectedFeatures.length == 0) {
         document.getElementById('dataexploration').innerHTML = ""
