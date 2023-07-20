@@ -68,7 +68,6 @@ let colorOutOfSpace = {
         let oldArrayCopy = [...oldArray]
         const oldDict = colorOutOfSpace.yellowAt[keyName]['Key']
         const newDict = colorOutOfSpace.createSliceKey(newListOfSlices)
-        // console.log({...newDict})
         const newKeys = Object.keys(newDict)
 
         // scenario occurs when newKeys has less keys than oldKeys
@@ -94,7 +93,6 @@ let colorOutOfSpace = {
             'YellowAt': oldArrayCopy.filter(ele => ele !== 'X'),
             'Key': {...newDict}
         }
-        // console.log({...colorOutOfSpace.yellowAt})
     },
     updateYellowAt: (keyName, sliceToChange) => {
         const geneDict = colorOutOfSpace.yellowAt[keyName]
@@ -125,7 +123,19 @@ let buildDataExplorePlots = async function() {
     let mySelectedGenes = $('.geneOneMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.text);
     let mySelectedClinicalFeatures = $('.clinicalMultipleSelection').select2('data').map(clinicalInfo => clinicalInfo.id);
     let mySelectedFeatures = mySelectedGenes.concat(mySelectedClinicalFeatures)
-
+    // Remove fields from selectedCategoricalFeatures that were previously selected but now removed
+    // Iterate over keys of selectedCategoricalFeatures and remove outdated keys
+    for(let key of Object.keys(selectedCategoricalFeatures)) {
+        // If one of the keys in selectedCategoricalFeatures is not chosen in one of the select boxes, then remove the key
+        if(!mySelectedFeatures.includes(key))
+            delete selectedCategoricalFeatures[key]; // Delete key, value pair from selectedCategoricalFeatures
+    }
+    // Iterate over selectedContinuousFeatures and remove outdated keys
+    for(let key of Object.keys(selectedContinuousFeatures)) {
+        // If one of the keys in selectedContinuousFeatures is not chosen in one of the select boxes, then remove the key
+        if(!mySelectedFeatures.includes(key))
+            delete selectedContinuousFeatures[key]; // Delete key, value pair from selectedContinuousFeatures
+    }
     // if no features are selected, do not display any pie charts
     if(mySelectedFeatures.length == 0) {
         document.getElementById('dataexploration').innerHTML = ""
@@ -145,9 +155,6 @@ let buildDataExplorePlots = async function() {
                 }
                 // if unselected feature is not a gene, set isSelected status to false
                 if(unselectedFeature[0] !== unselectedFeature[0].toUpperCase()) {
-                    //DEBUG
-                    console.log("Printing from buildDataExplorePlots() for clinical feature!");
-                    //DEBUG
                     let index = clinicalType.findIndex(x => x.name == unselectedFeature);
                     clinicalType[index].isSelected = false;
                 }
@@ -204,13 +211,13 @@ let buildDataExplorePlots = async function() {
                     // if continuous data range has not yet been added 
                     if(selectedContinuousFeatures.findIndex(element => element == currentFeature) == -1){
                         if(currentFeature != "pathologic_stage")
-                            selectedContinuousFeatures.push(currentFeature);
+                            selectedContinuousFeatures[currentFeature] = []; // Initialize to empty array
                     }
                     if(eventData) {
-                        selectedRange[0] = eventData.range.x[0];
-                        selectedRange[1] = eventData.range.x[1];
+                        selectedContinuousFeatures[currentFeature][0] = eventData.range.x[0];
+                        selectedContinuousFeatures[currentFeature][1] = eventData.range.x[1];
                     } else
-                        selectedRange = (document.getElementById(currentFeature + 'Div')).layout.xaxis.range;
+                    selectedContinuousFeatures[currentFeature] = (document.getElementById(currentFeature + 'Div')).layout.xaxis.range;
                 });
 
                 // Add on click event for pie chart

@@ -58,10 +58,8 @@ getBarcodesFromSelectedPieSectors = async function(selectedTumorTypes) {
     }
   }
   // loop through all range data
-  for(let i = 0; i < selectedContinuousFeatures.length; i++) {
-    let continuousFeature = selectedContinuousFeatures[i];
-    let rangeValue = selectedRange;
-
+  for(let continuousFeature of Object.keys(selectedContinuousFeatures)) {
+    let rangeValue = selectedContinuousFeatures[continuousFeature]; // Get range of data to filter clinicalData by
     filteredRangeData = clinicalData.filter(person => (person[continuousFeature] >= rangeValue[0] && person[continuousFeature] <= rangeValue[1]))
 
     let onlyBarcodes = filteredRangeData.map(x => x.tcga_participant_barcode);
@@ -79,7 +77,6 @@ getBarcodesFromSelectedPieSectors = async function(selectedTumorTypes) {
 
 
   // Get intersection of barcodes from selected pie sectors
-  // console.log(concatFilteredBarcodes)
   let clicked_gene_mutation = Object.keys(concatFilteredBarcodes);
   let intersectedBarcodes;
 
@@ -98,11 +95,6 @@ getBarcodesFromSelectedPieSectors = async function(selectedTumorTypes) {
       intersectedBarcodes = barcodesForCurrentGene.filter(x => barcodesForNextGene.includes(x));
     }
   }
-
-  //DEBUG
-  //console.log("Final Cohort Size: ");
-  //console.log(intersectedBarcodes.length)
-  //DEBUG
   return intersectedBarcodes
 }
 
