@@ -335,7 +335,8 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
 
     // set chart height and width
     if (windowWidth >= (1000)) {
-        chartHeight = 850;
+        //chartHeight = 850;
+        chartHeight = 400;
         chartWidth = 400;
     } else if (windowWidth >= (threeColLower)) {
         chartHeight = 0.8 * (windowWidth) + 80;
@@ -371,6 +372,8 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
         legend_location_x = 0;
         legend_location_y = 1;
     }
+    console.log("Legend X-Position:", legend_location_x);
+    console.log("Legend Y-Position: ", legend_location_y);
     return [chartHeight, chartWidth, legend_location_x, legend_location_y]
 }
 
