@@ -234,10 +234,12 @@ let buildDataExplorePlots = async function() {
                             slice = data.points[j].label;
                         }
                         if(selectedCategoricalFeatures[currentFeature] != null) {
-                            if(selectedCategoricalFeatures[currentFeature].findIndex(element => element == slice) != -1){
+                            // Obtain index of slice in array
+                            let sliceIndex = selectedCategoricalFeatures[currentFeature].findIndex(element => element == slice);
+                            if(sliceIndex != -1){
                                 let colorArray = colorOutOfSpace.buildColorCodeKeyArray(uniqueValuesForCurrentFeature)
                                 colore[pts] = colorArray[pts];
-                                selectedCategoricalFeatures[currentFeature].pop(slice);
+                                selectedCategoricalFeatures[currentFeature].splice(sliceIndex, 1); // Call splice() method to remove element
                             } else {
                                 selectedCategoricalFeatures[currentFeature].push(slice);
                                 colore[pts] = '#FFF34B';
