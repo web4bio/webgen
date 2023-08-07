@@ -339,7 +339,8 @@ let fillClinicalSelectBox = async function () {
         var nullCount = continuousMap.filter(x => x == null).length;
         var totalCount = continuousMap.length;
         var percentContinuous = nullCount / totalCount;
-        if((percentContinuous < 0.75 && (currentFeature != 'vital_status')) || currentFeature === "days_to_death" || currentFeature === "cervix_suv_results")
+        let continuousFeaturesArr = ["days_to_death", "cervix_suv_results", "days_to_last_followup", "date_of_initial_pathologic_diagnosis", "number_of_lymph_nodes", "years_to_birth", "karnofsky_performance_score"]; // Array of features that should be considered continuous
+        if((percentContinuous < 0.75 && (currentFeature != 'vital_status')) || continuousFeaturesArr.includes(currentFeature))
           temp.type = "continuous";
         else
           temp.type = "categorical";

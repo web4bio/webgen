@@ -337,7 +337,7 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
 
     // set chart height and width
     if (windowWidth >= (1000)) {
-        chartHeight = 850;
+        chartHeight = 400;
         chartWidth = 400;
     } else if (windowWidth >= (threeColLower)) {
         chartHeight = 0.8 * (windowWidth) + 80;
@@ -355,16 +355,6 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
         chartWidth *= 1.2;
         legend_location_x = 1.2;
         legend_location_y = 1;
-        for (let i = 0; i < uniqueValuesForCurrentFeature.length; i++) {
-            /*
-            if (uniqueValuesForCurrentFeature[i].length > 10) {
-                let shorten = ".."; // ellipses for shortening labels in the string
-                let stringLength = uniqueValuesForCurrentFeature[i].length;
-                //replaces the label with its shortened version
-                uniqueValuesForCurrentFeature[i] = shorten.concat(uniqueValuesForCurrentFeature[i].substring(stringLength-7,stringLength));
-            }
-            */
-        }
         if (windowWidth > threeColLower)
             windowWidth = 849 * dpr;
         else if (windowWidth > twoColLower)
