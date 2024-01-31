@@ -6,10 +6,10 @@ WebGen is hosted on GitHub Pages at [web4bio.github.io/webgen/main/html](https:/
 
 View our May 2020 interactive presentation at [web4bio.github.io/webgen/presentationPoster/](https://web4bio.github.io/webgen/presentationPoster/)
 
-Conference call via [Zoom](https://stonybrook.zoom.us/j/92985669090?pwd=dER6N0xnZHJxRlpHYmlNVzF6VUJrZz09) W 2:00 - 2:55 PM EST
+Conference call via [Zoom](https://stonybrook.zoom.us/j/92985669090?pwd=dER6N0xnZHJxRlpHYmlNVzF6VUJrZz09) W 2:30 - 3:23 PM EST
 Other weekly meetings [here](https://www.when2meet.com/?12629008-XMsjv)
 
-[Private folder](https://drive.google.com/drive/u/3/folders/1_9Met_rPigs-GvSKfcV2AH4fOJKW06Wl) for Fall 2023 student notebooks
+[Private folder](https://drive.google.com/drive/u/2/folders/1bEpJgpqKHLILIlRFF0ucvlOZr2vJ5knZ) for Spring 2024 student notebooks
 
 ## Background
 
