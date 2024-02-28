@@ -127,9 +127,9 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         heatHeight = 300,
         sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
-        frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-        xAxisHeight = frameHeight - 5
-        yAxisHeight = Math.round(frameHeight / 1.5)
+        frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom,
+        xAxisHeight = frameHeight - 5,
+        yAxisHeight = Math.round(frameHeight / 1.5);
     // Create svg object frame for the plots
     var heatmapCol = gridRow.append('div');
     heatmapCol.attr("class", "col s8");
