@@ -127,9 +127,9 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         heatHeight = 300,
         sampTrackHeight = 25,
         dendHeight = Math.round(heatHeight / 2),
-        frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
-        xAxisHeight = frameHeight - 5
-        yAxisHeight = Math.round(frameHeight / 1.5)
+        frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom,
+        xAxisHeight = frameHeight - 5,
+        yAxisHeight = Math.round(frameHeight / 1.5);
     // Create svg object frame for the plots
     var heatmapCol = gridRow.append('div');
     heatmapCol.attr("class", "col s8");
@@ -249,30 +249,62 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // true : sort by hierarchichal clustering
     var doCluster = false, clusterReady = false, clust_results, sortOrder, root;
     function sortGroups() {
-        if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
+        // Check if data_merge is undefined, null, or empty
+        if (!data_merge || data_merge.length === 0) {
+            console.error(
+                'data_merge is undefined, null, or empty. Cannot sort groups.'
+            );
+            return; 
+        }
+        if (doCluster && !clusterReady) {
+            ProgressBar.setPercentage(0, 'Beginning cluster');
+
+            // update the progress bar
+            const onClusteringProgress = (progress) => {
+                const overallProgress = progress * 100; // Since there are 2 phases, each contributes 50% to the total progress.
+                ProgressBar.setPercentage(overallProgress, "Clustering in progress...");
+            };
+
+            // do hierarchical clustering, if not already done (clusterReady)
             // call clustering function from hclust library
-            clust_results = clusterData({ data: data_merge, key: 'exps' });
+            clust_results = clusterData({
+                data: data_merge,
+                key: 'exps',
+                onProgress: onClusteringProgress,
+            });
+
             // re-sort clustering based on average expression within leaves
-            root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
-            sortOrder =  [].concat.apply([], root.leaves().map(el => el.data.indexes));
+            root = d3
+                .hierarchy(clust_results.clusters)
+                .sort((a, b) => d3.descending(branchMean(a), branchMean(b)));
+            sortOrder = [].concat.apply(
+                [],
+                root.leaves().map((el) => el.data.indexes)
+            );
 
             clust_results.order = sortOrder; // extract sort order from clust_results
             clusterReady = true;
-        } else if (doCluster && clusterReady) { // if clustering already done, no need to re-run
+            ProgressBar.cleanUp();
+        } else if (doCluster && clusterReady) {
+            // if clustering already done, no need to re-run
             sortOrder = clust_results.order;
-        }
-        else { // sort by mean expression
+        } else {
+            // sort by mean expression
             // compute expression means
             const ngene = data_merge[0].genes.length;
-            const means = data_merge.map(el => (el.exps.reduce((acc, val) => acc + val, 0)) / ngene);
+            const means = data_merge.map(
+                (el) => el.exps.reduce((acc, val) => acc + val, 0) / ngene
+            );
 
             // sort by mean value
             sortOrder = new Array(data_merge.length);
             for (var i = 0; i < data_merge.length; ++i) sortOrder[i] = i;
-            sortOrder.sort((a, b) => { return means[a] > means[b] ? -1 : 1; });
+            sortOrder.sort((a, b) => {
+                return means[a] > means[b] ? -1 : 1;
+            });
         }
         barcodes = unique_ids;
-        barcodes = sortOrder.map(i => barcodes[i]);
+        barcodes = sortOrder.map((i) => barcodes[i]);
     };
     sortGroups();
 

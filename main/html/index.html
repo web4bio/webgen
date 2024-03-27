@@ -93,7 +93,12 @@
                             name="cancerTypes[]"
                             multiple="multiple"
                             id="cancerTypeMultipleSelection"
-                            onchange="fillClinicalSelectBox(), displayNumberSamples(), saveInLocalStorage()"
+                            onchange="
+                                fillClinicalSelectBox(),
+                                displayNumberSamples(),
+                                saveInLocalStorage(),
+                                showOrHideGeneAndClinicalSelection()
+                            "
                         >
                             <!-- Filled by fillSelectBoxes.js -->
                         </select>
@@ -319,6 +324,8 @@
 
     <script>
         $(document).ready(function () {
+            $(".geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection")
+            .prop("disabled", true).trigger("change.select2");
             
             var cancerType = false;
 
@@ -352,7 +359,6 @@
                 placeholder: "Pathway(s)",
             });
             fillPathwaySelectBox();
-
         });
 
         validGeneListFetch = getValidGeneList();
@@ -398,6 +404,13 @@
                 fillGeneSelectBoxes(".geneTwoMultipleSelection");
             });
         });
+
+        const showOrHideGeneAndClinicalSelection = () => {
+            cohorts = $(".cancerTypeMultipleSelection").select2("data");
+            $(".geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection")
+            .prop("disabled", true).trigger("change.select2");
+            
+        }
     </script>
 
 </html>
