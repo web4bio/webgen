@@ -754,6 +754,8 @@ function CacheInterface(nameOfDb) {
           return undefined
         });
       }
+      $(".geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection")
+      .prop("disabled", false).trigger("change.select2");
     }
 
     let [missingInterface, hasInterface] = constructQueriesCLIN(listOfCohorts, this.interface)
