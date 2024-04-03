@@ -249,6 +249,12 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // true : sort by hierarchichal clustering
     var doCluster = false, clusterReady = false, clust_results, sortOrder, root;
     function sortGroups() {
+        if (!data_merge || data_merge.length === 0) {
+            console.error(
+                'data_merge is undefined, null, or empty. Cannot sort groups.'
+            );
+            return;
+        }
         if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
             // call clustering function from hclust library
             clust_results = clusterData({ data: data_merge, key: 'exps' });
