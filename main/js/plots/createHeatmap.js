@@ -255,15 +255,30 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             );
             return;
         }
-        if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
+        if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)\
+            ProgressBar.setPercentage(0, 'Beginning cluster');
+
+            // update the progress bar
+            const onClusteringProgress = (progress) => {
+                const overallProgress = progress * 100; // Since there are 2 phases, each contributes 50% to the total progress.
+                ProgressBar.setPercentage(
+                    overallProgress,
+                    'Clustering in progress...'
+                );
+            };
             // call clustering function from hclust library
-            clust_results = clusterData({ data: data_merge, key: 'exps' });
+            clust_results = clusterData({
+                data: data_merge,
+                key: 'exps',
+                onProgress: onClusteringProgress,
+            });
             // re-sort clustering based on average expression within leaves
             root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
             sortOrder =  [].concat.apply([], root.leaves().map(el => el.data.indexes));
 
             clust_results.order = sortOrder; // extract sort order from clust_results
             clusterReady = true;
+            ProgressBar.cleanUp();
         } else if (doCluster && clusterReady) { // if clustering already done, no need to re-run
             sortOrder = clust_results.order;
         }
