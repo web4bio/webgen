@@ -737,6 +737,11 @@ function CacheInterface(nameOfDb) {
     }
 
     async function executeQueriesCLIN(barcodesByCohort, interface) {
+      $(
+          '.geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection'
+      )
+          .prop('disabled', true)
+          .trigger('change.select2');
       for (let cohort in interface) {
         let getBarcodesInACohort = barcodesByCohort.filter(cohortEle => (cohortEle.cohort == cohort))[0].barcodes
         let clinicalData = await firebrowse.fetchClinicalFH({
@@ -749,16 +754,16 @@ function CacheInterface(nameOfDb) {
               cacheCLIN.add(cohort=obj.cohort, barcode=obj); // Add clinical data to interface map by mimicking parameters for barcode caching
               cacheCLIN.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj); // Save clinical data to interface
           }
-          $(
-              '.geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection'
-          )
-              .prop('disabled', false)
-              .trigger('change.select2');
         }).catch(error => {
           console.error('Failed, skipping for cohort.', error);
           return undefined
         });
       }
+      $(
+          '.geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection'
+      )
+          .prop('disabled', false)
+          .trigger('change.select2');
     }
 
     let [missingInterface, hasInterface] = constructQueriesCLIN(listOfCohorts, this.interface)

@@ -19,14 +19,12 @@ const ProgressBar = {
             this.percent = 0
         else
             this.percent = Math.round(newPercent)
-        console.log(this.percent);
         this.rerender()
     },
     cleanUp: function () {
         this.percent = 0
         document.getElementById("progress-bar").innerText = "";
         this.rerender()
-        console.log("Cleaned up")
     },
     rerender: function () {
         const ele = document.querySelector(`#${this.id}`)

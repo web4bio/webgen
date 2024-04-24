@@ -90,7 +90,8 @@
                         style="
                             text-align: center;
                             font-style: italic;
-                            font-family: Georgia, 'Times New Roman', Times, serif;
+                            font-family: Georgia, 'Times New Roman', Times,
+                                serif;
                         "
                     >
                         A tool for exploring data from The Cancer Genome Atlas
@@ -135,11 +136,10 @@
                             onchange="
                                 fillClinicalSelectBox(),
                                 displayNumberSamples(),
-                                saveInLocalStorage(),
-                                showOrHideGeneAndClinicalSelection()
+                                saveInLocalStorage()
                             "
                         >
-                        <!-- Filled by fillSelectBoxes.js -->
+                            <!-- Filled by fillSelectBoxes.js -->
                         </select>
                     </div>
                 </div>
@@ -193,7 +193,8 @@
                         style="
                             text-align: center;
                             color: lightcoral;
-                            font-family: Georgia, 'Times New Roman', Times, serif;
+                            font-family: Georgia, 'Times New Roman', Times,
+                                serif;
                         "
                     >
                         <strong>Explore Your Cohort:</strong>
@@ -249,7 +250,8 @@
                         style="
                             text-align: center;
                             color: lightcoral;
-                            font-family: Georgia, 'Times New Roman', Times, serif;
+                            font-family: Georgia, 'Times New Roman', Times,
+                                serif;
                         "
                     >
                         <strong>Download Data:</strong>
@@ -332,13 +334,13 @@
                     var instance = M.Tabs.init(elem, options);
                 </script>
             </div>
+            <!-- <br />
             <br />
             <br />
-            <br />
-            <br />
+            <br /> -->
             <!-- Footer: -->
             <footer class="page-footer" id="footer">
-                <div class="container">
+                <div class="footer container">
                     <div class="row">
                         <div class="col s12 m4 l8">
                             <h7 class="white-text">LINKS</h7>
@@ -410,11 +412,6 @@
 
     <script>
         $(document).ready(function () {
-            $(
-                '.geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection'
-            )
-                .prop('disabled', true)
-                .trigger('change.select2');
             var cancerType = false;
 
             // For Cancer Type Select2 Drop down:
@@ -506,13 +503,5 @@
                 fillGeneSelectBoxes('.geneTwoMultipleSelection');
             });
         });
-        const showOrHideGeneAndClinicalSelection = () => {
-            cohorts = $('.cancerTypeMultipleSelection').select2('data');
-            $(
-                '.geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection'
-            )
-                .prop('disabled', true)
-                .trigger('change.select2');
-        };
     </script>
 </html>
