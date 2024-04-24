@@ -515,15 +515,19 @@ function standardDeviation(mean, values)
 let createViolinPartitionBox = async function(partitionDivId, geneQuery)
 {
     var div_box = d3.select('#'+partitionDivId);
-    div_box.append('text')
-        .style("font-size", "20px")
+    div_box
+        .append('text')
+        .style('font-size', '20px')
+        .style('padding-left', '10px')
         .text('Select variables to partition violin curves by:');
     div_box.append('div')
         .attr('class','viewport')
         .attr("id", "partitionSelectViolinPlot")
-        .style('overflow-y', 'scroll')
-        .style('height', '300px')
+        // .style('overflow-y', 'scroll')
+        // .style('height', '460px')
         .style('width', '300px')
+        .style('text-align', 'left')
+        .style('padding-left', '20px')
         .append('div')
         .attr('class','body');
     var selectedText = div_box.append('text');
@@ -539,8 +543,8 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
             if(cb.property('checked')){ choices.push(cb.property('value')); };
         });
 
-        if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
-        else { selectedText.text('None selected'); };
+        // if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
+        // else { selectedText.text('None selected'); };
     }
 
   // function to create a pair of checkbox and text
@@ -564,7 +568,7 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
            .attr('value', data);
 
         label.append('text')
-           .text(data);
+           .text(' ' + data);
     }
 
     // data to input = clinical vars from query

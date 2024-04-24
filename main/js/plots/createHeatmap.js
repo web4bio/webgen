@@ -18,27 +18,31 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // Note that we are using the Grid system for Materialize
     var gridRow = divObject.append("div");
     gridRow.attr("id", "heatmapGridRow").attr("class", "row");
+    // var optionsPanel = getElementById('violinPlots');
+    // optionsPanel.style('margin-top', '0');
     //Append column for div options panel
     var div_optionsPanels = gridRow.append('div');
     div_optionsPanels.attr("id", "optionsPanels");
     div_optionsPanels.attr("class", "col s3");
-    div_optionsPanels.style("margin-top", "80px");
+    div_optionsPanels.style("margin-top", "30px");
     div_optionsPanels.style("margin-left", "20px");
     var div_clinSelect = div_optionsPanels.append('div');
     div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')
         .style('font-size', '20px')
         .text('Select clinical variables\nto display sample tracks:');
-    div_clinSelect.append('div')
-        .attr('class','viewport')
+    div_clinSelect
+        .append('div')
+        .attr('class', 'viewport')
         .style('overflow-y', 'scroll')
-        .style('height', '300px')
+        .style('height', '365px')
         .style('width', '300px')
-      .append('div')
-        .attr('class','clin_selector');
+        .style('text-align', 'left')
+        .append('div')
+        .attr('class', 'clin_selector');
     let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
-    var selectedText = div_clinSelect.append('text') // text to update what variables selected
-        .style('font-size', '16px');
+    // var selectedText = div_clinSelect.append('text') // text to update what variables selected
+    //     .style('font-size', '16px');
     // div_clinSelect.append('div')
     //     .append('button') // button to update heatmap, define update function below
     //     .attr('type', 'button')
@@ -70,13 +74,13 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             .attr('class', 'myCheckbox')
             .attr('value', id)
             .on('change', function () {
-                updateSelectedText();
+                // updateSelectedText();
                 sortGroups();
                 updateHeatmap();
             })
             .attr('style', 'opacity: 1; position: relative; pointer-events: all');
         label.append('text')
-            .text(id);
+            .text(' ' + id);
     };
     // populate clinical feature sample track variable selector
     // get unique clinical features
@@ -88,18 +92,18 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     sampTrackVars.forEach(id => {
         div_selectBody.select('#check'+id).property('checked', true);
     });
-    updateSelectedText();
+    // updateSelectedText();
 
     // Create div for sorting options (checkboxes)
     var sortOptionDiv = div_optionsPanels.append('div')
         .text('Sort options: ')
         .style('font-size', '20px');
-    var sortCurrentText = sortOptionDiv
-        .append('tspan')
-        .text('mean expression (default)');
+    // var sortCurrentText = sortOptionDiv
+    //     .append('tspan')
+    //     .text('mean expression (default)');
     var toggle_str =
         "<label class='switch'>" +
-        "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0Mean Expression" +
+        "Mean Expression" +
         "<input type='checkbox' id='toggleClust'>" +
         "<span class='lever'></span>" +
         "Hierarchical Clustering" +
@@ -112,7 +116,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     toggleClust = sortToggleDiv.select("#toggleClust")
     toggleClust.on('change', function () {
         // function to update state of sortCurrentText and doCluster
-        sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
+        // sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
         doCluster = (this.checked ? true : false);
         sortGroups();
         updateHeatmap();
@@ -255,17 +259,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             );
             return;
         }
-        if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)\
-            ProgressBar.setPercentage(0, 'Beginning cluster');
-
-            // update the progress bar
-            const onClusteringProgress = (progress) => {
-                const overallProgress = progress * 100; // Since there are 2 phases, each contributes 50% to the total progress.
-                ProgressBar.setPercentage(
-                    overallProgress,
-                    'Clustering in progress...'
-                );
-            };
+        if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
             // call clustering function from hclust library
             clust_results = clusterData({
                 data: data_merge,
@@ -278,7 +272,6 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
             clust_results.order = sortOrder; // extract sort order from clust_results
             clusterReady = true;
-            ProgressBar.cleanUp();
         } else if (doCluster && clusterReady) { // if clustering already done, no need to re-run
             sortOrder = clust_results.order;
         }
