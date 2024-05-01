@@ -738,7 +738,7 @@ function CacheInterface(nameOfDb) {
 
     async function executeQueriesCLIN(barcodesByCohort, interface) {
       $(
-          '.geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection'
+          '.clinicalMultipleSelection, .pathwayMultipleSelection'
       )
           .prop('disabled', true)
           .trigger('change.select2');
@@ -760,7 +760,7 @@ function CacheInterface(nameOfDb) {
         });
       }
       $(
-          '.geneOneMultipleSelection, .clinicalMultipleSelection, .geneTwoMultipleSelection, .pathwayMultipleSelection'
+          '.clinicalMultipleSelection, .pathwayMultipleSelection'
       )
           .prop('disabled', false)
           .trigger('change.select2');

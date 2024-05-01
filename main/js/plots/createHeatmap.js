@@ -264,7 +264,6 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             clust_results = clusterData({
                 data: data_merge,
                 key: 'exps',
-                onProgress: onClusteringProgress,
             });
             // re-sort clustering based on average expression within leaves
             root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
