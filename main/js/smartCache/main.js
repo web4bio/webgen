@@ -317,7 +317,7 @@ function CacheInterface(nameOfDb) {
      * @param {Map} interface 
      * @returns 
      */
-    function constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes = [], interface) {
+    async function constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes = [], interface) {
       /*There is no scenario in which a subset of a cohort's gene expression data gets cached before the entire
       cohort's gene expression data is cached.*/
       let res = {}
@@ -341,9 +341,15 @@ function CacheInterface(nameOfDb) {
             //Within the empty JSON referenced by res[cohort], append gene as a property that points to empty array
             res[cohort][gene] = [];
           }
+          //Obtain list of barcodes with cacheBAR
+          let cacheBAR = await getCacheBAR();
+          //Retrieve an array of Maps linking cohorts to their set of TCGA barcodes
+          let cohortBarcodes = (await cacheBAR.fetchWrapperBAR(listOfCohorts = [cohort]))[0].barcodes;
+          //Get the barcodes being requested for the current cohort
+          cohortBarcodesOfInterest = listOfBarcodes.filter(barcode => cohortBarcodes.includes(barcode));
           /*If a listOfBarcodes contains data, then identify the barcodes that are not cached for a cohort, gene
           combination and identify the barcodes that are cached for a cohort, gene combination. */
-          let [diff, alreadyHave] = findDiff(listOfBarcodes, cohort, gene, interface)
+          let [diff, alreadyHave] = findDiff(cohortBarcodesOfInterest, cohort, gene, interface)
           if (diff.size > 0) {
             diff.forEach((val) => res[cohort][gene].push(val))
           }
@@ -357,7 +363,7 @@ function CacheInterface(nameOfDb) {
         //If no genes are cached for a certain cohort at all, then delete the JSON field for cohort from res
         if(Object.keys(foundRes[cohort]).length === 0)
           delete foundRes[cohort]
-      }
+      }    
       for (let cohort in res) {
         //If no genes are cached for a certain cohort at all, then delete the JSON field for cohort from res
         if(Object.keys(res[cohort]).length === 0)
@@ -394,7 +400,7 @@ function CacheInterface(nameOfDb) {
     }
 
     //Identify missing gene expression records and retrieve currently-cached gene expression records
-    let [missingInterface, hasInterface] = constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes, this.interface)    
+    let [missingInterface, hasInterface] = await constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes, this.interface)    
     //tmp will store an array of JSON objects
     let tmp = []
 
