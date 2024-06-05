@@ -330,9 +330,9 @@ let setChartDimensions = async function(uniqueValuesForCurrentFeature, currentFe
     if (windowWidth > threeColLower) {
         currentFeatureDiv.setAttribute("class", "col s4");
     } else if (windowWidth > twoColLower) {
-        currentFeatureDiv.setAttribute("class", "col s5");
+        currentFeatureDiv.setAttribute("class", "col s4");
     } else {
-        currentFeatureDiv.setAttribute("class", "col s7");
+        currentFeatureDiv.setAttribute("class", "col s6");
     }
 
     // set chart height and width
