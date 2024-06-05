@@ -67,7 +67,6 @@
                         <div class="nav-wrapper">
                             <a
                                 href="index.html"
-                                style="font-style: bold; font-family: Arial, Helvetica, sans-serif; font-size: xx-large;"
                                 class="brand-logo center"
                             >
                                 WebGen
@@ -90,48 +89,10 @@
                 </div>
                 <div id="progress-bar"></div>
                 <!-- Set up subtitles -->
-                <div>
-                    <br />
-                    <br />
-                    <h5
-                        style="
-                            text-align: center;
-                            font-style: italic;
-                            font-family: Georgia, 'Times New Roman', Times,
-                                serif;
-                        "
-                    >
-                        A tool for exploring data from The Cancer Genome Atlas
-                    </h5>
-                    <p
-                        style="
-                            text-align: center;
-                            font-family: Georgia, 'Times New Roman', Times,
-                                serif;
-                        "
-                    >
-                        Currently, this tool enables visualization of gene
-                        expression (RNA-seq) data from primary solid tumor
-                        samples via heatmap and violin plot.
-                    </p>
-                    <br />
-                </div>
-                <div>
-                    <h5
-                        style="
-                            text-align: center;
-                            color: lightcoral;
-                            font-family: Georgia, 'Times New Roman', Times,
-                                serif;
-                        "
-                    >
-                        <strong>Customize Your Cohort:</strong>
-                    </h5>
-                    <br />
-                </div>
+                <br>
                 <div>
                     <p style="text-align: center">
-                        <b>1) Select tumor type(s)</b>
+                        <b>1) Select TCGA solid tumor type(s)</b>
                     </p>
                     <div id="cancerQuerySelectBox">
                         <select
@@ -150,10 +111,11 @@
                         </select>
                     </div>
                 </div>
+                <br>
                 <div class="row">
                     <p style="text-align: center">
                         <b>
-                            2) Filter data by gene mutation signature and/or by
+                            2) Filter by gene mutation signature and/or
                             metadata
                         </b>
                     </p>
@@ -194,24 +156,11 @@
                         src="../js/plots/createPieCharts.js"
                     ></script>
                 </div>
-                <br />
-                <div>
-                    <h5
-                        style="
-                            text-align: center;
-                            color: lightcoral;
-                            font-family: Georgia, 'Times New Roman', Times,
-                                serif;
-                        "
-                    >
-                        <strong>Explore Your Cohort:</strong>
-                    </h5>
-                    <br />
-                </div>
+
                 <div class="row">
                     <p style="text-align: center">
                         <b
-                            >3) Select genes and/or pathways that you would like
+                            >3) Select genes and/or pathways
                             to visualize
                         </b>
                     </p>
