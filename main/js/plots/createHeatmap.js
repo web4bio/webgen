@@ -34,14 +34,17 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     var div_clinSelect = div_optionsPanels.append('div');
     div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')
-        .style('font-size', '20px')
-        .text('Select sample tracks:');
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text('Select sample tracks');
+    div_clinSelect.append('br')
     div_clinSelect
         .append('div')
         .attr('class', 'viewport')
         .style('overflow-y', 'scroll')
         .style('height', '365px')
         .style('width', '300px')
+        .style('font-size', '14px')
         .style('text-align', 'left')
         .append('div')
         .attr('class', 'clin_selector');
@@ -73,7 +76,8 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // function to create a pair of checkbox and text
     function renderCB(div_obj, id) {
         const label = div_obj.append('div');
-        label.append('input')
+        const label2 = label.append('label')
+        label2.append('input')
             .attr('id', 'check' + id)
             .attr('type', 'checkbox')
             .attr('class', 'myCheckbox')
@@ -83,8 +87,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
                 sortGroups();
                 updateHeatmap();
             })
-            .attr('style', 'opacity: 1; position: relative; pointer-events: all');
-        label.append('text')
+        label2.append('span')
             .text(' ' + id);
     };
     // populate clinical feature sample track variable selector
@@ -112,7 +115,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     var toggle_str =
         "<label class='switch'>" +
         "<input type='checkbox' id='toggleClust'>" +
-        "<span class='myCheckbox'>Hierarchical Clustering</span>" +
+        "<span class='myCheckbox' style='color: black; font-weight:bold; font-size: 14px'>Hierarchical clustering</span>" +
         "</label>";
     sortToggleDiv = sortOptionDiv.append("div")
         .attr("align", "center")
