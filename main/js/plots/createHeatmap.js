@@ -14,6 +14,11 @@
 */
 const createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
     ///// BUILD SVG OBJECTS /////
+
+///////////////////////////////////
+// SAMPLE TRACK SELECTOR SETUP
+///////////////////////////////////
+
     // Create div for clinical feature sample track variable selector as scrolling check box list
     // Note that we are using the Grid system for Materialize
     var gridRow = divObject.append("div");
@@ -30,7 +35,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')
         .style('font-size', '20px')
-        .text('Select clinical variables\nto display sample tracks:');
+        .text('Select sample tracks:');
     div_clinSelect
         .append('div')
         .attr('class', 'viewport')
@@ -94,19 +99,20 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     });
     // updateSelectedText();
 
+///////////////////////////////////
+// SORT SELECTOR SETUP
+///////////////////////////////////
+
     // Create div for sorting options (checkboxes)
+    var sortOptionDiv = div_optionsPanels.append('br')
     var sortOptionDiv = div_optionsPanels.append('div')
-        .text('Sort options: ')
-        .style('font-size', '20px');
     // var sortCurrentText = sortOptionDiv
     //     .append('tspan')
     //     .text('mean expression (default)');
     var toggle_str =
         "<label class='switch'>" +
-        "Mean Expression" +
         "<input type='checkbox' id='toggleClust'>" +
-        "<span class='lever'></span>" +
-        "Hierarchical Clustering" +
+        "<span class='myCheckbox'>Hierarchical Clustering</span>" +
         "</label>";
     sortToggleDiv = sortOptionDiv.append("div")
         .attr("align", "center")
@@ -121,6 +127,11 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         sortGroups();
         updateHeatmap();
     });
+
+
+///////////////////////////////////
+// HEATMAP SETUP
+///////////////////////////////////
 
     ///// BUILD SVG OBJECTS /////
     // Set up dimensions for heatmap:
