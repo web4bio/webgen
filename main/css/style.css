@@ -21,11 +21,11 @@
 /* WebGen Title at top of app */
 
 .PageTitle {
-    font-family: 'Roboto', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     color: #4db6ac;
     text-align: center;
-    font-size: 45px;
-    font-style: italic;
+    font-size: 50px;
+    font-style: bold;
     margin-bottom: 28px;
     width: 100%;
 }
