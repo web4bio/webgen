@@ -6,12 +6,14 @@ WebGen is hosted on GitHub Pages at [web4bio.github.io/webgen/main/html](https:/
 
 View our May 2020 interactive presentation at [web4bio.github.io/webgen/presentationPoster/](https://web4bio.github.io/webgen/presentationPoster/)
 
-Conference call via [Zoom](https://sbubmi.page.link/vip) Fridays at 11:45AM EST
+Conference call via [Zoom](https://stonybrook.zoom.us/j/92985669090?pwd=dER6N0xnZHJxRlpHYmlNVzF6VUJrZz09) W 2:30 - 3:23 PM EST
 Other weekly meetings [here](https://www.when2meet.com/?12629008-XMsjv)
+
+[Private folder](https://drive.google.com/drive/u/2/folders/1bEpJgpqKHLILIlRFF0ucvlOZr2vJ5knZ) for Spring 2024 student notebooks
 
 ## Background
 
-Precision Medicine requires an ever-growing biomedical big data reference. This growth is particularly striking for pathologies with a genomic basis, like cancer. Accordingly, NIH/NCI has spearheaded the establishment of an interoperable multi-petabyte-sized [Genomic Data Commons](gdc.cancer.gov) ([PMC5683428](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5683428/)) as a data ecosystem that the scientific community, including the citizen-scientist, can populate with analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web applications (apps) that help find novel associations between genomic features and cancer phenotypes.
+There is an ever-growing Biomedical BigData reference, which is particularly striking for (1) pathologies with a genomic basis, like Cancer, and (2) observational studies from electronic health records. Accordingly, NIH has spearheaded the establishment of interoperable repositories such as the Genomic Data Commons (gdc.cancer.gov) & the National Covid Cohort Collaborative (covid.cd2h.org). These  data ecosystems allow the scientific community, including the citizen scientist, to generate complimentary analytical applications. The goal of this project is to explore this new data-rich landscape by developing nimble Web Applications (Apps) using these public data..
 
 ## How to Contribute
 
@@ -32,17 +34,19 @@ This is a public, open-source project, as well as a project that students may re
 | --- | --- | --- | --- |
 | [Richard Moffitt](https://github.com/rmoffitt) | [Folder](/archive/richard/), [js Sandbox](/archive/richard/richard.html) | [Notebook homepage](https://observablehq.com/@rmoffitt?tab=notebooks), [WebGen page](https://observablehq.com/@rmoffitt/webgen), [Simple GDC query tool](https://observablehq.com/@rmoffitt/tcgaplots) | [Faculty website](https://bmi.stonybrookmedicine.edu/people/moffitt_richard) |
 | [Jonas Almeida](http://www.github.com/jonasalmeida) | [Folder](https://github.com/web4bio/webgen/tree/master/archive/jonas), [js Sandbox](https://web4bio.github.io/webgen/archive/jonas/) | [Sandbox](https://beta.observablehq.com/@jonasalmeida/webgen)    | [Firebrowse](https://github.com/episphere/firebrowse) |
+| [Alisa Yurovsky](https://github.com/ayurovsky) |  | [Observable](https://observablehq.com/@ayurovsky) | [Faculty website](https://ayurovsky.github.io/) |
 | [Adit Anand](https://github.com/19aanand) | [Spring 2020 Log](https://docs.google.com/document/d/1K6yBJq7C4XOlkl4Hm5smnPiY-lj_lJ2miwV6pRl-KEU/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/1g1pkQcqoDTa40BUXveAWDokW_1Q-spkC_0n6xB5vTO8/edit), [Spring 2021 Log](https://docs.google.com/document/d/1UBOF3QSd02kix0n5uzxW3Eqs1lzMZXHmorj1T8GJ8Cw/edit?usp=sharing), [Fall 2021 Log](https://docs.google.com/document/d/13BsRrLdiGLRID1_ujppGLsEVq2g1U1ffXv8c4kDbia4/edit?usp=sharing) | [Observable](https://observablehq.com/@19aanand), [Spring 2022 Log](https://docs.google.com/document/d/1sAw29x8wT0yNvueq61pPnCzOpuv3ls3LPKOYm_D2UMM/edit?usp=sharing) |   |
-| [Eric Ruan](https://github.com/ericr491) | [Fall 2020 Log](https://docs.google.com/document/d/1RldOmYmN9yAjB2dhHcvPQdRe_WidyJhlccK51Nb8tL8/edit?usp=sharing) [Spring 2021 Log](https://docs.google.com/document/d/1E57BM8ln0ewCxISpZ9LQnRqD4SuqdmNj42SgI5eLKD4/edit?usp=sharing) [Fall 2021 Log](https://docs.google.com/document/d/1OpXK8qwvS5juWyJMlgKuINEAMhm28c85loT4u1oMrnc/edit?usp=sharing) [Spring 2022 Log](https://docs.google.com/document/d/1Q3xe8NNM8B3HeSc85a-9e3fAH4NEztp-zrs_Sj0x67o/edit?usp=sharing)| [Sandbox](https://observablehq.com/@ericr491/webgen) | |
 | [Purva Shenoy](https://github.com/prvshenoy01) |[Spring 2021 Log,](https://docs.google.com/document/d/1vo6JgeLybK2bQZVbIQKpvwXKHdMI1QGGGrPGXOzRIrA/edit?usp=sharing) [Fall 2021 Log,](https://docs.google.com/document/d/1Ku6s_Y_XVSa5IFjgfgdrf_9WD64o_77Q7NmDrRIk_FA/edit?usp=sharing) [Spring 2022 Log](https://docs.google.com/document/d/1Mpy5ksn_UF-2igpojq4JGo0o4BnprAND6CMBtpMlM9w/edit?usp=sharing)| |
-| [Jie Xi Li](https://github.com/jli0980) | [Spring 2022 Log](https://docs.google.com/document/d/1NPfO22X5CkfYnU697NwupE9xVAoyIRRuVZ5tCBRg3BI/edit?usp=sharing)  |[Observable](https://observablehq.com/@39a49c172bedfa3c/webgen-spring-2022)| |
-| [Amara Im](https://github.com/amaraim22) | [Spring 2021 Log](https://docs.google.com/document/d/1L9jJvpQX5DLRC43ajV3Sk4Cll0koJPJI6Uu3oediN1Y/edit?usp=sharing) [Fall 2021 Log](https://docs.google.com/document/d/19PlE5GM0VXGWPHi2ZcMEAkKjnqIVjut4E2i2n13-ghk/edit?usp=sharing) | [Sandbox](https://observablehq.com/@amaraim22/webgen) | |
-| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/18d5oB-Uft5nBskVxnZuEcaXHDPE291y2PBzQtcPZXVo/edit?usp=sharing), [Spring 2021 Log](https://docs.google.com/document/d/1aWkkX9PEcEZWaK37F5n0_LABoo1JIj8OS-mkj4k5Ras/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) | [Interactive Plots](https://episphere.github.io/mortalitytracker/board/) |
-| [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) | [Spring 2020 Log](https://docs.google.com/document/d/1x_UYj9iuYBXwfJBVzOtyGaZJc6LOymu_gvBZ-CIJt2U/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/1HMWPe9dYiMrsONfoxObnglpwDLDVDa-Hu2AnJ0bcJmE/edit?usp=sharing) | [Sandbox](https://observablehq.com/@zhenghaozhu/webgen) |   |
+| [Amara Im](https://github.com/amaraim22) | [Spring 2021 Log](https://docs.google.com/document/d/1L9jJvpQX5DLRC43ajV3Sk4Cll0koJPJI6Uu3oediN1Y/edit?usp=sharing) [Fall 2021 Log](https://docs.google.com/document/d/19PlE5GM0VXGWPHi2ZcMEAkKjnqIVjut4E2i2n13-ghk/edit?usp=sharing) [Fall 2022 Log](https://docs.google.com/document/d/1ZE97XnPLILWKoFeXxWmpxs0EThEESZzuF5_ljgCdLgs/edit?usp=sharing) [Spring 2023 Log](https://docs.google.com/document/d/1Z6aC6eDo7dA4lz5VcV2YX2gMvIp4f-e86RUH-0jaCxE/edit?usp=sharing) | [Observable](https://observablehq.com/@amaraim22/webgen) | |
+| [Erika Nemeth](http://www.github.com/enemeth19) | [Fall 2019 Log](https://docs.google.com/document/d/1yCoHM8SleFvwsuQzfcO19oCWE36EUJ482bX38X8a7xY/edit?usp=sharing), [Spring 2020 Log](https://docs.google.com/document/d/11f0B8j0gTE6leyFeDKHd6onu2LOnVyqPDmGc-vt5d_c/edit?usp=sharing), [Fall 2020 Log](https://docs.google.com/document/d/18d5oB-Uft5nBskVxnZuEcaXHDPE291y2PBzQtcPZXVo/edit?usp=sharing), [Spring 2021 Log](https://docs.google.com/document/d/1aWkkX9PEcEZWaK37F5n0_LABoo1JIj8OS-mkj4k5Ras/edit?usp=sharing) | [WebGen Background](https://observablehq.com/@enemeth19/webgen) | [Interactive Plots](https://episphere.github.io/mortalitytracker/board/) | |
+| [Uday Turakhia](http://www.github.com/udayVT) | [Fall 2023 Log](https://docs.google.com/document/d/1AbRlyMOsLEybLh_TA-AhgaU8z1NMaR_Rq93G8ZzAx8Y/edit?usp=sharing) | [NASA Events API](https://observablehq.com/d/c700b9b021e656ab), [State VS Covid](https://observablehq.com/d/e25947262687ee2d) |   | |
+
+
 
 #### Alumni
   * [Kevin Murgas](https://github.com/kevin-murgas)
   * [Luke Torre-Healy](https://github.com/lthealy)
+  * [Eric Ruan](https://github.com/ericr491) :[Sandbox](https://observablehq.com/@ericr491/webgen)
   * [Chowdhury An-Noor](https://github.com/chowdhuryannoor)
   * [Yuwei Zhang](https://github.com/Yuw-zhang)
   * [Soma Kobayashi](https://github.com/skobayashi0417)
@@ -67,7 +71,9 @@ This is a public, open-source project, as well as a project that students may re
   * [Kevin Chang](https://github.com/Xnonx14): [Sandbox](https://beta.observablehq.com/@xnonx14/kevin-changs-notebook)
   * [Jonathan Krog](https://github.com/Jonathan-Krog): [Sandbox](https://beta.observablehq.com/@jonathan-krog/webgen-fall-2019)
   * [Chantelle Dsilva](http://www.github.com/chantelle-dsilva): [Sandbox](https://beta.observablehq.com/@chantelle-dsilva/webgen)
-
+  * [Jie Xi Li](https://github.com/jli0980): [Observable](https://observablehq.com/@39a49c172bedfa3c/webgen-spring-2022)
+  * [Zhenghao (Kevin) Zhu](https://github.com/ZhenghaoZhu) : [Sandbox](https://observablehq.com/@zhenghaozhu/webgen)
+  
 ## APIs
 * GDC https://api.gdc.cancer.gov
   * [Documentation](https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/#api-endpoints)
@@ -92,12 +98,13 @@ ____
 - **Interests / Preparation by Major:** Pre-existing knowledge of programming, particularly JavaScript, will be favored as it indicates an innate interest in social coding (user-facing application development). This is applicable to all students, regardless of focus being on Mathematics or Molecular Biology.
 
 - **Faculty:**
-  - Richard Moffitt (Department of Biomedical Informatics)
-  - Jonas S Almeida (Department of Biomedical Informatics)
+  - Alisa Yurovsky (Biomedical Informatics, Stony Brook)
+  - Richard Moffitt (Hematology / Medical Oncology, Biomedical Informatics, Emory University)
+  - Jonas S Almeida (Naitonal Cancer Institute)
 
 - **Team Established:** Spring 2019
 
-- **Meeting Time:** Friday 11:45am-12:50pm
+- **Meeting Time:**  W 10:30 -11:25 AM EST
 
 - **Meeting Location:** [Zoom](https://sbubmi.page.link/vip)
 
