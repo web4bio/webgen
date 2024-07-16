@@ -58,15 +58,10 @@ const buildPlots = async function() {
   const selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((gene) => gene.text);
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(selectedTumorTypes);
-
   let cacheGe = await getCacheGE(); // Instantiate cache interface for gene expression
-  const expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
-  //const expressionData = await getExpressionDataFromIntersectedBarcodes(intersectedBarcodes, selectedTumorTypes, allSelectedGenes);
-  cache.set('rnaSeq', 'expressionData', expressionData); // Set localStorage entry for expression data
-
+  let expressionData; //= await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
   // GET CLINICAL DATA:
   // Get clinical data for either intersected barcodes or entire cohort
-  
   let clinicalData;
   let cacheBar = await getCacheBAR(); // Instantiate cache interface for barcodes
   let barcodesByCohort = await cacheBar.fetchWrapperBAR(selectedTumorTypes); // Fetch all barcodes for selected cohorts
@@ -79,20 +74,16 @@ const buildPlots = async function() {
       barcodesByCohort[index].barcodes = filteredCohortBarcodes; // Set barcodesByCohort to filtered set of barcodes
     }
     clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
-  } else {
+    expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
+  } 
+  else {
+    expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
     // Pass in barcodes from expressionData
-    /*let barcodesFromExpressionData = new Set();
-    for(let index = 0; index < expressionData.length; index++)
-      barcodesFromExpressionData.add(expressionData[index].tcga_participant_barcode);
-    barcodesFromExpressionData = Array.from(barcodesFromExpressionData);*/
-    //clinicalData = await firebrowse.fetchClinicalFH({cohorts: selectedTumorTypes,
-    //  barcodes: barcodesFromExpressionData});
     clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
   }
-
+  cache.set('rnaSeq', 'expressionData', expressionData); // Set localStorage entry for expression data
   clinicalData = clinicalData.map(obj => obj.clinical_data); // Extract clinical_data property from each element
   clinicalData = clinicalData.flat();   // Flatten clinicalData into a 1-D array
-
   cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 

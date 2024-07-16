@@ -564,12 +564,7 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
                 update();
                 rebuildViolinPlot(partitionDivId, geneQuery);
             });
-           //.attr("style", 'opacity: 1; position: relative; pointer-events: all')
-           //.append("span")
-           //.attr("class", "slider round")
-           //.attr('value', data);
 
-        //label.append('text')
         label2.append("span")
            .text(' ' + data)
            .style('font-weight', 'normal')
