@@ -514,23 +514,30 @@ function standardDeviation(mean, values)
  */
 let createViolinPartitionBox = async function(partitionDivId, geneQuery)
 {
-    var div_box = d3.select('#'+partitionDivId);
+    var div_box = d3.select(`#${partitionDivId}`);
     div_box
-        .append('text')
-        .style('font-size', '20px')
-        .style('padding-left', '10px')
-        .text('Select variables to partition violin curves by:');
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text('Select partition variables')
+        .attr("class", "col s3")
+        .style("margin-top", "30px")
+        .style("margin-left", "20px");
+        //.append('text')
+        //.style('font-size', '20px')
+        //.style('padding-left', '10px')
+        //.text('Select variables to partition violin curves by:');
+    div_box.append('br')
     div_box.append('div')
         .attr('class','viewport')
         .attr("id", "partitionSelectViolinPlot")
-        // .style('overflow-y', 'scroll')
-        // .style('height', '460px')
+        .style('overflow-y', 'scroll')
+        .style('height', '365px')
         .style('width', '300px')
         .style('text-align', 'left')
-        .style('padding-left', '20px')
+        .style("font-size", "14px")
+        //.style('padding-left', '20px')
         .append('div')
         .attr('class','body');
-    var selectedText = div_box.append('text');
     let div_body = div_box.select('.body');
 
     var choices;
@@ -542,33 +549,31 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
             let cb = d3.select(this);
             if(cb.property('checked')){ choices.push(cb.property('value')); };
         });
-
-        // if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
-        // else { selectedText.text('None selected'); };
     }
 
   // function to create a pair of checkbox and text
-    function renderCB(div_obj, data)
-    {
-        const label = div_obj.append('div').attr('id', data);
-
-        label.append("label")
-           .attr("class", "switch")
-           .append("input")
+    function renderCB(div_obj, data) {
+        const label = div_obj.append('div')
+        const label2 = label.append("label")
+        label2.append("input")
+            .attr('id', data)
            .attr("class", "myViolinCheckbox")
            .attr("value", data)
            .attr("type", "checkbox")
            .on('change', function () {
                 update();
                 rebuildViolinPlot(partitionDivId, geneQuery);
-            })
-           .attr("style", 'opacity: 1; position: relative; pointer-events: all')
-           .append("span")
-           .attr("class", "slider round")
-           .attr('value', data);
+            });
+           //.attr("style", 'opacity: 1; position: relative; pointer-events: all')
+           //.append("span")
+           //.attr("class", "slider round")
+           //.attr('value', data);
 
-        label.append('text')
-           .text(' ' + data);
+        //label.append('text')
+        label2.append("span")
+           .text(' ' + data)
+           .style('font-weight', 'normal')
+           .style("color", "#5f5f5f");
     }
 
     // data to input = clinical vars from query
