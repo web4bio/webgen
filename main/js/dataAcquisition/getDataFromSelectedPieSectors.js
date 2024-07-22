@@ -19,14 +19,22 @@ getBarcodesFromSelectedPieSectors = async function(selectedTumorTypes) {
     if(currentField[i].toUpperCase() == currentField[i]) {
       let currentGene = currentField;
       let mutationDataForThisGene = await cacheMu.fetchWrapperMU(selectedTumorTypes, [currentGene]); // Fetch mutation data for currentGene
-      concatFilteredBarcodes['' + currentGene] = []; // Initialize to empty array to use push()
       let clickedMutations = selectedCategoricalFeatures[currentGene]; // Get array of selected mutations
-      // Iterate over mutation data for a specific gene to get patients with mutation types of interest
-      for(let index = 0; index < mutationDataForThisGene.length; index++) {
-        // If mutation_label property for current patient is in array of selected mutation types, then append to barcodes array
-        if(clickedMutations.includes(mutationDataForThisGene[index].mutation_label))
-          concatFilteredBarcodes['' + currentGene].push(mutationDataForThisGene[index]["tcga_participant_barcode"]); // Append patient barcode to concatFilteredBarcodes
-      // Perform AND logic with prior barcodes in concatFilteredBarcodes to get desired cohort of patients
+      concatFilteredBarcodes[currentGene] = []; // Initialize to empty array to use push()
+      //If mutations have been selected, then append the relevant barcodes
+      if(clickedMutations.length > 0) {
+        // Iterate over mutation data for a specific gene to get patients with mutation types of interest
+        for(let index = 0; index < mutationDataForThisGene.length; index++) {
+          // If mutation_label property for current patient is in array of selected mutation types, then append to barcodes array
+          if(clickedMutations.includes(mutationDataForThisGene[index].mutation_label))
+            concatFilteredBarcodes[currentGene].push(mutationDataForThisGene[index]["tcga_participant_barcode"]); // Append patient barcode to concatFilteredBarcodes
+        }
+      }
+      //If no mutations have been selected, then we will append all the barcodes to the array
+      else {
+        for(let index = 0; index < mutationDataForThisGene.length; index++) {
+          concatFilteredBarcodes[currentGene].push(mutationDataForThisGene[index]["tcga_participant_barcode"]); // Apend patient barcode to concatFilteredBarcodes
+        } 
       }
 
     } else {

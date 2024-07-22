@@ -23,8 +23,6 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // Note that we are using the Grid system for Materialize
     var gridRow = divObject.append("div");
     gridRow.attr("id", "heatmapGridRow").attr("class", "row");
-    // var optionsPanel = getElementById('violinPlots');
-    // optionsPanel.style('margin-top', '0');
     //Append column for div options panel
     var div_optionsPanels = gridRow.append('div');
     div_optionsPanels.attr("id", "optionsPanels");
@@ -67,11 +65,6 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
           });
         return choices
     };
-    function updateSelectedText() {
-        choices = getClinvarSelection();
-        if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
-        else { selectedText.text('None selected'); };
-    };
 
     // function to create a pair of checkbox and text
     function renderCB(div_obj, id) {
@@ -83,12 +76,13 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             .attr('class', 'myCheckbox')
             .attr('value', id)
             .on('change', function () {
-                // updateSelectedText();
                 sortGroups();
                 updateHeatmap();
             })
         label2.append('span')
-            .text(' ' + id);
+            .text(' ' + id)
+            .style('font-weight', 'normal')
+            .style("color", "#5f5f5f");
     };
     // populate clinical feature sample track variable selector
     // get unique clinical features
@@ -100,7 +94,6 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     sampTrackVars.forEach(id => {
         div_selectBody.select('#check'+id).property('checked', true);
     });
-    // updateSelectedText();
 
 ///////////////////////////////////
 // SORT SELECTOR SETUP
