@@ -132,7 +132,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     ///// BUILD SVG OBJECTS /////
     // Set up dimensions for heatmap:
     var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
-        frameWidth = 1050,
+        frameWidth = 1200,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
@@ -167,6 +167,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
     svg_frame.append("text")
         .attr('id', 'heatmapYAxisLabel')
+        .attr("text-anchor", "start")
         .style("font-size", "14px")
         .attr("transform", `translate(15,${yAxisHeight}),rotate(-90)`)
         .text("Transcripts");    
