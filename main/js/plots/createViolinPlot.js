@@ -35,10 +35,9 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     var violinCurveColors = [];
 
     // Set up the figure dimensions:
-    //var margin = {top: 10, right: 30, bottom: 30, left: 40},
     var margin = {top: 10, right: 30, bottom: 10, left: 40},
         width = 505 - margin.left - margin.right,
-        height = 225 - margin.top - margin.bottom;
+        height = 200 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -179,14 +178,17 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     var y = d3.scaleLinear()
         .domain([minExpressionLevel, maxExpressionLevel])
         .range([height, 0]);
-    svgObject.append("g").call( d3.axisLeft(y));
+    svgObject.append("g").call( d3.axisLeft(y))
+        .style("font-size", "8px");
+
     //Append y-axis label
     svgObject.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left)
-      .attr("x",0 - (height / 1.6))
+      .attr("y", -margin.left)
+      .attr("x",-(height / 2.0))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
+      .style("font-size", "12px")
       .text("Expression Level");
 
     // Build and Show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
@@ -200,12 +202,13 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .call(d3.axisBottom(x))
         .selectAll(".tick text")
         .attr("transform", "rotate(-20), translate(-10, 5)")
-        .call(wrap, x.bandwidth());
+        .call(wrap, x.bandwidth())
+        .style("font-size", "8px");
 
     svgObject.append("text")
-        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 30) + ")")
-        //.style("text-anchor", "middle")
-        .text('Cohort');
+        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 50) + ")")
+        .text("Cohort")
+        .style("font-size", "12px");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -435,7 +438,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("x", 0)
         .attr("y", -25)
         .attr("text-anchor", "left")
-        .style("font-size", "22px")
+        .style("font-size", "12px")
         .text("Gene Expression Violin Plot for "+ curPlot);
 };
 
@@ -522,10 +525,6 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
         .attr("class", "col s3")
         .style("margin-top", "30px")
         .style("margin-left", "20px");
-        //.append('text')
-        //.style('font-size', '20px')
-        //.style('padding-left', '10px')
-        //.text('Select variables to partition violin curves by:');
     div_box.append('br')
     div_box.append('div')
         .attr('class','viewport')
@@ -535,7 +534,6 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
         .style('width', '300px')
         .style('text-align', 'left')
         .style("font-size", "14px")
-        //.style('padding-left', '20px')
         .append('div')
         .attr('class','body');
     let div_body = div_box.select('.body');

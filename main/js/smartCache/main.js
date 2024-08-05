@@ -436,15 +436,24 @@ function CacheInterface(nameOfDb) {
       let cacheBAR = await getCacheBAR(); // Obtain list of barcodes with cacheBAR
       let currentListOfBarcodes = await cacheBAR.fetchWrapperBAR([cohort]); // Retrieve an array of Maps linking cohorts to their set of TCGA barcodes
       currentListOfBarcodes = currentListOfBarcodes[0].barcodes; // Since we are only requesting one barcode at a time, we can index the first element to retrieve the desired barcodes array
-      //Within a cohort, iterate over each gene that the caching interface retrieved mRNA_Seq data for with executeQueriesGE()
-      for (let gene of Object.keys(missingInterface[cohort])) {
-        for (let curBarcode of currentListOfBarcodes) {
-          //If there are specific barcodes we are requesting, then return only those barcodes' gene expression data
-          if(listOfBarcodes && listOfBarcodes.includes(curBarcode))
-            tmp.push(interfaceData.get(gene).get(curBarcode));
-          //If there are no specific barcodes we are requesting, then do not use filter 
-          else if(!listOfBarcodes)
-            tmp.push(interfaceData.get(gene).get(curBarcode));
+      
+      for (geneObj of interfaceData) {
+        //First element in geneObj is the gene name
+        gene = geneObj[0]
+        //Second element in geneObj is map TCGA barcodes to TCGA expression records
+        expressionMap = geneObj[1]
+        for(expressionObj of expressionMap) {
+          //First element in expressionObj is patient's TCGA barcode
+          let barcode = expressionObj[0];
+          //If there is a subset of barcodes being requested, apply that filter
+          if(listOfBarcodes && listOfBarcodes.includes(barcode)) {
+            //Second element in expressionObj is the mRNA_Seq information for current patient
+            tmp.push(expressionObj[1]);
+          }
+          //If no subset of barcodes is being requested, then do not apply a filter
+          else if(!listOfBarcodes) {
+            tmp.push(expressionObj[1])
+          }
         }
       }
     }
@@ -789,7 +798,6 @@ function CacheInterface(nameOfDb) {
     }
 
     await executeQueriesCLIN(barcodesByCohort, missingInterface);
-    console.log(missingInterface)
 
     for(let cohort in missingInterface) {
       let newClinicalData = await this.interface.get(cohort);

@@ -132,7 +132,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     ///// BUILD SVG OBJECTS /////
     // Set up dimensions for heatmap:
     var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
-        frameWidth = 1050,
+        frameWidth = 1200,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
@@ -167,6 +167,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
     svg_frame.append("text")
         .attr('id', 'heatmapYAxisLabel')
+        .attr("text-anchor", "start")
         .style("font-size", "14px")
         .attr("transform", `translate(15,${yAxisHeight}),rotate(-90)`)
         .text("Transcripts");    
@@ -431,7 +432,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
     ///// Update function for creating plot with new order (clustering), new sample tracks
     function updateHeatmap() {
-        // Build new x scale based on borcodes (in case re-sorted)
+        // Build new x scale based on barcodes (in case re-sorted)
         x = x.domain(barcodes);
 
         // Re/build the heatmap (selecting by custom key 'tcga_id:gene'):
@@ -456,7 +457,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         let sampTrack_obj = sampTrackVars.map(v => {
             // get all values for variable v
             let domain = clinicalAndMutationData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
-            .map(d =>  d[v]).filter(el => el !== "NA").sort();
+            .map(d =>  d[v]).sort();
             domain = [...new Set(domain)]; // get unique values only
 
             // determine if variable categorical or continuous (numeric)
@@ -558,7 +559,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
                 .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space))
                 .attr("width", sampTrackHeight)
                 .attr("height", sampTrackHeight)
-                .style("fill", d => colorScale_all[v.varname](d))
+                .style("fill", d => {if (d == "NA") {return "lightgray"} else {return colorScale_all[v.varname](d)}})
                 .style("stroke", "black");
             svg_sampLegend.selectAll() // add label
                 .data(v.domain, d => v.varname + ":" + d + "_text")
