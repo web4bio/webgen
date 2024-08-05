@@ -59,7 +59,7 @@ const buildPlots = async function() {
   // Find intersecting barcodes based on Mutation/Clinical Pie Chart selections
   const intersectedBarcodes = await getBarcodesFromSelectedPieSectors(selectedTumorTypes);
   let cacheGe = await getCacheGE(); // Instantiate cache interface for gene expression
-  let expressionData; //= await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
+  let expressionData;
   // GET CLINICAL DATA:
   // Get clinical data for either intersected barcodes or entire cohort
   let clinicalData;
