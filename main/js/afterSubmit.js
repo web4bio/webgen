@@ -77,6 +77,9 @@ const buildPlots = async function() {
     expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
   } 
   else {
+    console.log(intersectedBarcodes)
+    //Give user alert that the pie chart filters produces an empty cohort
+    window.alert("The gene mutation and/or metadata filter(s) produced a cohort with no patients. No filters will be applied to the data visualized.")
     expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
     // Pass in barcodes from expressionData
     clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
