@@ -14,9 +14,39 @@
 */
 const createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
 
-///////////////////////////////////
-// 1) SAMPLE TRACK SELECTOR SETUP
-///////////////////////////////////
+    ///////////////////////////////////
+    // 0) DISPLAY NUMBER OF SAMPLES IN COHORT
+    ///////////////////////////////////
+
+    var numCohortBarcodes = divObject.append("div");
+    numCohortBarcodes.attr("id", "numCohortBarcodes").attr("class", "row");
+
+    var numCohortBarcodesElement = numCohortBarcodes.node();
+
+    let displayNumberSamplesInCohort = async function () {
+        let existingPara = document.getElementById("numSamplesInCohortText");
+        if (existingPara) {
+            existingPara.remove();
+        }
+        // build label:
+        let string = "";
+        let para;
+        string = (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length
+        para = document.createElement("P");
+        para.setAttribute(
+            "style",
+            'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
+        );
+        para.setAttribute("id", "numSamplesInCohortText");
+        para.innerText = "Number of samples in cohort: " + string;
+        numCohortBarcodesElement.appendChild(para);
+    };
+
+    displayNumberSamplesInCohort()
+
+    ///////////////////////////////////
+    // 1) SAMPLE TRACK SELECTOR SETUP
+    ///////////////////////////////////
 
     // Create div for clinical feature sample track variable selector as scrolling check box list
     // Note that we are using the Grid system for Materialize
@@ -128,7 +158,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     heatmapCol.attr("class", "col s9");
 
     // Define dimensions for setting up svgs
-    var margin = { top: 40, bottom: 30, left: 65, right: 30, space: 5},
+    var margin = { top: 10, bottom: 30, left: 65, right: 30, space: 5},
         frameWidth = 950,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
