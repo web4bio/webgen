@@ -35,10 +35,9 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     var violinCurveColors = [];
 
     // Set up the figure dimensions:
-    //var margin = {top: 10, right: 30, bottom: 30, left: 40},
     var margin = {top: 10, right: 30, bottom: 10, left: 40},
         width = 505 - margin.left - margin.right,
-        height = 225 - margin.top - margin.bottom;
+        height = 200 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -179,14 +178,17 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     var y = d3.scaleLinear()
         .domain([minExpressionLevel, maxExpressionLevel])
         .range([height, 0]);
-    svgObject.append("g").call( d3.axisLeft(y));
+    svgObject.append("g").call( d3.axisLeft(y))
+        .style("font-size", "8px");
+
     //Append y-axis label
     svgObject.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left)
-      .attr("x",0 - (height / 1.6))
+      .attr("y", -margin.left)
+      .attr("x",-(height / 2.0))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
+      .style("font-size", "12px")
       .text("Expression Level");
 
     // Build and Show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
@@ -200,12 +202,13 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .call(d3.axisBottom(x))
         .selectAll(".tick text")
         .attr("transform", "rotate(-20), translate(-10, 5)")
-        .call(wrap, x.bandwidth());
+        .call(wrap, x.bandwidth())
+        .style("font-size", "8px");
 
     svgObject.append("text")
-        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 30) + ")")
-        //.style("text-anchor", "middle")
-        .text('Cohort');
+        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 50) + ")")
+        .text("Cohort")
+        .style("font-size", "12px");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -435,7 +438,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("x", 0)
         .attr("y", -25)
         .attr("text-anchor", "left")
-        .style("font-size", "22px")
+        .style("font-size", "12px")
         .text("Gene Expression Violin Plot for "+ curPlot);
 };
 
@@ -514,19 +517,25 @@ function standardDeviation(mean, values)
  */
 let createViolinPartitionBox = async function(partitionDivId, geneQuery)
 {
-    var div_box = d3.select('#'+partitionDivId);
-    div_box.append('text')
-        .style("font-size", "20px")
-        .text('Select variables to partition violin curves by:');
+    var div_box = d3.select(`#${partitionDivId}`);
+    div_box
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text('Select partition variables')
+        .attr("class", "col s3")
+        .style("margin-top", "30px")
+        .style("margin-left", "20px");
+    div_box.append('br')
     div_box.append('div')
         .attr('class','viewport')
         .attr("id", "partitionSelectViolinPlot")
         .style('overflow-y', 'scroll')
-        .style('height', '300px')
+        .style('height', '365px')
         .style('width', '300px')
+        .style('text-align', 'left')
+        .style("font-size", "14px")
         .append('div')
         .attr('class','body');
-    var selectedText = div_box.append('text');
     let div_body = div_box.select('.body');
 
     var choices;
@@ -538,33 +547,26 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
             let cb = d3.select(this);
             if(cb.property('checked')){ choices.push(cb.property('value')); };
         });
-
-        if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
-        else { selectedText.text('None selected'); };
     }
 
   // function to create a pair of checkbox and text
-    function renderCB(div_obj, data)
-    {
-        const label = div_obj.append('div').attr('id', data);
-
-        label.append("label")
-           .attr("class", "switch")
-           .append("input")
+    function renderCB(div_obj, data) {
+        const label = div_obj.append('div')
+        const label2 = label.append("label")
+        label2.append("input")
+            .attr('id', data)
            .attr("class", "myViolinCheckbox")
            .attr("value", data)
            .attr("type", "checkbox")
            .on('change', function () {
                 update();
                 rebuildViolinPlot(partitionDivId, geneQuery);
-            })
-           .attr("style", 'opacity: 1; position: relative; pointer-events: all')
-           .append("span")
-           .attr("class", "slider round")
-           .attr('value', data);
+            });
 
-        label.append('text')
-           .text(data);
+        label2.append("span")
+           .text(' ' + data)
+           .style('font-weight', 'normal')
+           .style("color", "#5f5f5f");
     }
 
     // data to input = clinical vars from query

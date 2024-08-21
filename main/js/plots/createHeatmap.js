@@ -14,6 +14,11 @@
 */
 const createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
     ///// BUILD SVG OBJECTS /////
+
+///////////////////////////////////
+// SAMPLE TRACK SELECTOR SETUP
+///////////////////////////////////
+
     // Create div for clinical feature sample track variable selector as scrolling check box list
     // Note that we are using the Grid system for Materialize
     var gridRow = divObject.append("div");
@@ -22,23 +27,28 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     var div_optionsPanels = gridRow.append('div');
     div_optionsPanels.attr("id", "optionsPanels");
     div_optionsPanels.attr("class", "col s3");
-    div_optionsPanels.style("margin-top", "80px");
+    div_optionsPanels.style("margin-top", "30px");
     div_optionsPanels.style("margin-left", "20px");
     var div_clinSelect = div_optionsPanels.append('div');
     div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')
-        .style('font-size', '20px')
-        .text('Select clinical variables\nto display sample tracks:');
-    div_clinSelect.append('div')
-        .attr('class','viewport')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text('Select sample tracks');
+    div_clinSelect.append('br')
+    div_clinSelect
+        .append('div')
+        .attr('class', 'viewport')
         .style('overflow-y', 'scroll')
-        .style('height', '300px')
+        .style('height', '365px')
         .style('width', '300px')
-      .append('div')
-        .attr('class','clin_selector');
+        .style('font-size', '14px')
+        .style('text-align', 'left')
+        .append('div')
+        .attr('class', 'clin_selector');
     let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
-    var selectedText = div_clinSelect.append('text') // text to update what variables selected
-        .style('font-size', '16px');
+    // var selectedText = div_clinSelect.append('text') // text to update what variables selected
+    //     .style('font-size', '16px');
     // div_clinSelect.append('div')
     //     .append('button') // button to update heatmap, define update function below
     //     .attr('type', 'button')
@@ -55,28 +65,24 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
           });
         return choices
     };
-    function updateSelectedText() {
-        choices = getClinvarSelection();
-        if(choices.length > 0){ selectedText.text('Selected: ' + choices.join(', ')); }
-        else { selectedText.text('None selected'); };
-    };
 
     // function to create a pair of checkbox and text
     function renderCB(div_obj, id) {
         const label = div_obj.append('div');
-        label.append('input')
+        const label2 = label.append('label')
+        label2.append('input')
             .attr('id', 'check' + id)
             .attr('type', 'checkbox')
             .attr('class', 'myCheckbox')
             .attr('value', id)
             .on('change', function () {
-                updateSelectedText();
                 sortGroups();
                 updateHeatmap();
             })
-            .attr('style', 'opacity: 1; position: relative; pointer-events: all');
-        label.append('text')
-            .text(id);
+        label2.append('span')
+            .text(' ' + id)
+            .style('font-weight', 'normal')
+            .style("color", "#5f5f5f");
     };
     // populate clinical feature sample track variable selector
     // get unique clinical features
@@ -88,21 +94,21 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     sampTrackVars.forEach(id => {
         div_selectBody.select('#check'+id).property('checked', true);
     });
-    updateSelectedText();
+
+///////////////////////////////////
+// SORT SELECTOR SETUP
+///////////////////////////////////
 
     // Create div for sorting options (checkboxes)
+    var sortOptionDiv = div_optionsPanels.append('br')
     var sortOptionDiv = div_optionsPanels.append('div')
-        .text('Sort options: ')
-        .style('font-size', '20px');
-    var sortCurrentText = sortOptionDiv
-        .append('tspan')
-        .text('mean expression (default)');
+    // var sortCurrentText = sortOptionDiv
+    //     .append('tspan')
+    //     .text('mean expression (default)');
     var toggle_str =
         "<label class='switch'>" +
-        "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0Mean Expression" +
         "<input type='checkbox' id='toggleClust'>" +
-        "<span class='lever'></span>" +
-        "Hierarchical Clustering" +
+        "<span class='myCheckbox' style='color: black; font-weight:bold; font-size: 14px'>Hierarchical clustering</span>" +
         "</label>";
     sortToggleDiv = sortOptionDiv.append("div")
         .attr("align", "center")
@@ -112,16 +118,21 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     toggleClust = sortToggleDiv.select("#toggleClust")
     toggleClust.on('change', function () {
         // function to update state of sortCurrentText and doCluster
-        sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
+        // sortCurrentText.text(this.checked ? 'hierarchical clustering' : 'mean expression (default)');
         doCluster = (this.checked ? true : false);
         sortGroups();
         updateHeatmap();
     });
 
+
+///////////////////////////////////
+// HEATMAP SETUP
+///////////////////////////////////
+
     ///// BUILD SVG OBJECTS /////
     // Set up dimensions for heatmap:
     var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
-        frameWidth = 1050,
+        frameWidth = 1200,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
@@ -156,6 +167,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
     svg_frame.append("text")
         .attr('id', 'heatmapYAxisLabel')
+        .attr("text-anchor", "start")
         .style("font-size", "14px")
         .attr("transform", `translate(15,${yAxisHeight}),rotate(-90)`)
         .text("Transcripts");    
@@ -249,9 +261,18 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // true : sort by hierarchichal clustering
     var doCluster = false, clusterReady = false, clust_results, sortOrder, root;
     function sortGroups() {
+        if (!data_merge || data_merge.length === 0) {
+            console.error(
+                'data_merge is undefined, null, or empty. Cannot sort groups.'
+            );
+            return;
+        }
         if (doCluster && !clusterReady) { // do hierarchical clustering, if not already done (clusterReady)
             // call clustering function from hclust library
-            clust_results = clusterData({ data: data_merge, key: 'exps' });
+            clust_results = clusterData({
+                data: data_merge,
+                key: 'exps',
+            });
             // re-sort clustering based on average expression within leaves
             root = d3.hierarchy(clust_results.clusters).sort((a,b) => d3.descending(branchMean(a),branchMean(b)));
             sortOrder =  [].concat.apply([], root.leaves().map(el => el.data.indexes));
@@ -411,7 +432,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
     ///// Update function for creating plot with new order (clustering), new sample tracks
     function updateHeatmap() {
-        // Build new x scale based on borcodes (in case re-sorted)
+        // Build new x scale based on barcodes (in case re-sorted)
         x = x.domain(barcodes);
 
         // Re/build the heatmap (selecting by custom key 'tcga_id:gene'):
@@ -436,7 +457,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         let sampTrack_obj = sampTrackVars.map(v => {
             // get all values for variable v
             let domain = clinicalAndMutationData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
-            .map(d =>  d[v]).filter(el => el !== "NA").sort();
+            .map(d =>  d[v]).sort();
             domain = [...new Set(domain)]; // get unique values only
 
             // determine if variable categorical or continuous (numeric)
@@ -538,7 +559,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
                 .attr("y", (d, i) => 20 + i * (sampTrackHeight + margin.space))
                 .attr("width", sampTrackHeight)
                 .attr("height", sampTrackHeight)
-                .style("fill", d => colorScale_all[v.varname](d))
+                .style("fill", d => {if (d == "NA") {return "lightgray"} else {return colorScale_all[v.varname](d)}})
                 .style("stroke", "black");
             svg_sampLegend.selectAll() // add label
                 .data(v.domain, d => v.varname + ":" + d + "_text")
