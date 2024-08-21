@@ -17,6 +17,7 @@ let tooltipNum = 0;
  * @returns {undefined}
 */
 const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
+    
     //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
@@ -188,8 +189,8 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
       .attr("x",-(height / 2.0))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .style("font-size", "12px")
-      .text("Expression Level");
+      .style("font-size", "9px")
+      .text("Expression Level (log2)");
 
     // Build and Show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
     var x = d3.scaleBand()
@@ -205,10 +206,10 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .call(wrap, x.bandwidth())
         .style("font-size", "8px");
 
-    svgObject.append("text")
-        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 50) + ")")
-        .text("Cohort")
-        .style("font-size", "12px");
+    // svgObject.append("text")
+    //     .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 50) + ")")
+    //     .text("Cohort")
+    //     .style("font-size", "12px");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -433,13 +434,13 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             .attr("stroke-width", x.bandwidth()/500);
     }
 
-    // Add title to graph
+    //Add title to graph
     svgObject.append("text")
-        .attr("x", 0)
+        .attr("x", width/2)
         .attr("y", -25)
-        .attr("text-anchor", "left")
-        .style("font-size", "12px")
-        .text("Gene Expression Violin Plot for "+ curPlot);
+        .attr("text-anchor", "middle")
+        .style("font-size", "10px")
+        .text(curPlot);
 };
 
 
