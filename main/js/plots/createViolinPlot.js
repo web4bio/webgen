@@ -41,7 +41,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     // --------------------------------------------------------------
 
     // Set up the figure dimensions:
-    var margin = {top: 10, right: 30, bottom: 10, left: 40},
+    var margin = {top: 0, right: 30, bottom: 10, left: 40},
         width = 505 - margin.left - margin.right,
         height = 200 - margin.top - margin.bottom;
 
