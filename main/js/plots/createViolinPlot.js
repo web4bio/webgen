@@ -439,7 +439,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             .attr("stroke-width", x.bandwidth()/500);
     }
 
-    // Add title to graph
+    //Add title to graph
     svgObject.append("text")
         .attr("x", width/2)
         .attr("y", -25)
