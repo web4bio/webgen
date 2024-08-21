@@ -4,40 +4,26 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <title>Web Genomics</title>
+
         <!-- Critical resources are loaded early. Non-critical resources are deferred. -->
         <!-- jquery -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <!-- Load in loki -->
         <script src="../js/libraries/lokijs.min.js"></script>
         <script src="../js/libraries/loki-indexed-adapter.min.js"></script>
-        <script
-            type="text/javascript"
-            src="../js/dataAcquisition/lokiFetch.js"
-        ></script>
+        <script type="text/javascript" src="../js/dataAcquisition/lokiFetch.js"></script>
         <!-- materialize -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
-        />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
         <!-- FontAwesome icon library -->
         <script src="https://kit.fontawesome.com/9ab5261272.js" crossorigin="anonymous"></script>
         <!-- hclust for clustering -->
         <script src="../js/libraries/hclust.min.js" defer></script>
         <!-- Select2 -->
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"
-            defer
-        ></script>
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css"
-        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js" defer></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" />
         <!-- lodash for pagination -->
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
-            defer
-        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" defer></script>
         <!-- d3 -->
         <script src="https://d3js.org/d3.v4.min.js" defer></script>
         <!-- plotly -->
@@ -46,10 +32,7 @@
         <link rel="stylesheet" type="text/css" href="../css/style.css" />
         <script src="../js/fillSelectBoxes.js"></script>
         <script src="../js/dataAcquisition/fetch.js"></script>
-        <script
-            src="../js/dataAcquisition/getDataFromSelectedPieSectors.js"
-            defer
-        ></script>
+        <script src="../js/dataAcquisition/getDataFromSelectedPieSectors.js" defer></script>
         <script src="../js/dataProcessing/mergeExpression.js" defer></script>
         <script src="../js/plots/createHeatmap.js" defer></script>
         <script src="../js/plots/createViolinPlot.js" defer></script>
@@ -65,31 +48,27 @@
                 <div class="navbar-fixed">
                     <nav>
                         <div class="nav-wrapper">
-                            <a
-                                href="index.html"
-                                class="brand-logo center"
-                            >
-                                WebGen
-                            </a>
-                            <ul
-                                id="nav-mobile"
-                                class="right hide-on-med-and-down"
-                            >
+                            <a href="index.html" class="brand-logo center"> WebGen </a>
+                            <ul id="nav-mobile" class="right hide-on-med-and-down">
                                 <!-- <li class="active">
                                     <a href="about.html">About</a>
                                 </li> -->
                             </ul>
 
                             <ul class="right hide-on-med-and-down">
-                                <li><a href="https://github.com/web4bio/webgen"><i class="fab fa-github"></i></a></li>
-                                <li><a href=""><i class="fa-brands fa-youtube"></i></a></li>
+                                <li>
+                                    <a href="https://github.com/web4bio/webgen"><i class="fab fa-github"></i></a>
+                                </li>
+                                <li>
+                                    <a href=""><i class="fa-brands fa-youtube"></i></a>
+                                </li>
                             </ul>
                         </div>
                     </nav>
                 </div>
                 <div id="progress-bar"></div>
                 <!-- Set up subtitles -->
-                <br>
+                <br />
                 <div>
                     <p style="text-align: center">
                         <b>1) Select TCGA solid tumor type(s)</b>
@@ -111,13 +90,10 @@
                         </select>
                     </div>
                 </div>
-                <br>
+                <br />
                 <div class="row">
                     <p style="text-align: center">
-                        <b>
-                            2) Filter by gene mutation signature and/or
-                            metadata
-                        </b>
+                        <b> 2) Filter by gene mutation signature and/or metadata </b>
                     </p>
                     <div id="geneOneQuerySelectBox" class="col s6">
                         <input
@@ -151,18 +127,12 @@
 
                 <!-- Data exploration div -->
                 <div class="row" id="dataexploration">
-                    <script
-                        type="text/javascript"
-                        src="../js/plots/createPieCharts.js"
-                    ></script>
+                    <script type="text/javascript" src="../js/plots/createPieCharts.js"></script>
                 </div>
 
                 <div class="row">
                     <p style="text-align: center">
-                        <b
-                            >3) Select genes and/or pathways
-                            to visualize
-                        </b>
+                        <b>3) Select genes and/or pathways to visualize </b>
                     </p>
                     <div id="geneTwoQuerySelectBox" class="col s6">
                         <input
@@ -192,57 +162,32 @@
                 <br />
                 <!-- Setting up the buttons. -->
                 <div className="mainWindowButtons" id="mainWindowButtons">
-                    <button
-                        class="col s3 btn waves-effect waves-light"
-                        onclick="buildPlots()"
-                        id="submitButton"
-                    >
-                        Submit
-                    </button>
+                    <button class="col s3 btn waves-effect waves-light" onclick="buildPlots()" id="submitButton">Submit</button>
                 </div>
                 <!-- Space for download data buttons. -->
                 <div className="downloadDataButtons" id="downloadDataButtons">
-                    <h5
-                        style="
-                            text-align: center;
-                            color: lightcoral;
-                            font-family: Georgia, 'Times New Roman', Times,
-                                serif;
-                        "
-                    >
+                    <h5 style="text-align: center; color: lightcoral; font-family: Georgia, 'Times New Roman', Times, serif">
                         <strong>Download Data:</strong>
                     </h5>
                     <table id="buttonTable">
                         <tr>
                             <td>
-                                <button
-                                    class="col s3 btn waves-effect waves-light"
-                                    id="downloadAllButton"
-                                >
+                                <button class="col s3 btn waves-effect waves-light" id="downloadAllButton">
                                     All Data (JSON)
                                 </button>
                             </td>
                             <td>
-                                <button
-                                    class="col s3 btn waves-effect waves-light"
-                                    id="downloadExpressionZscoreButton"
-                                >
+                                <button class="col s3 btn waves-effect waves-light" id="downloadExpressionZscoreButton">
                                     Expression Z-Score (CSV)
                                 </button>
                             </td>
                             <td>
-                                <button
-                                    class="col s3 btn waves-effect waves-light"
-                                    id="downloadExpressionLog2Button"
-                                >
+                                <button class="col s3 btn waves-effect waves-light" id="downloadExpressionLog2Button">
                                     Expression Log2 (CSV)
                                 </button>
                             </td>
                             <td>
-                                <button
-                                    class="col s3 btn waves-effect waves-light"
-                                    id="downloadClinicalButton"
-                                >
+                                <button class="col s3 btn waves-effect waves-light" id="downloadClinicalButton">
                                     Clinical Data (CSV)
                                 </button>
                             </td>
@@ -252,10 +197,7 @@
                 <!-- Setting up the tabs. -->
                 <div>
                     <div class="col s36">
-                        <ul
-                            class="tabs tabs-fixed-width tab-demo z-depth-1"
-                            style="display: none"
-                        >
+                        <ul class="tabs tabs-fixed-width tab-demo z-depth-1" style="display: none">
                             <li class="tab col s12">
                                 <a class="active" href="#heatmapRef">Heatmap</a>
                             </li>
@@ -265,18 +207,10 @@
                         </ul>
                         <!-- Setting up the plots to go under each tab. -->
                         <div id="heatmapRef" class="col s12">
-                            <div
-                                id="heatmapLoaderDiv"
-                                style="margin-top: 25px"
-                                align="center"
-                            ></div>
+                            <div id="heatmapLoaderDiv" style="margin-top: 25px" align="center"></div>
                         </div>
                         <div id="violinPlotRef" class="col s12">
-                            <div
-                                id="violinLoaderDiv"
-                                style="margin-top: 25px"
-                                align="center"
-                            ></div>
+                            <div id="violinLoaderDiv" style="margin-top: 25px" align="center"></div>
                         </div>
                     </div>
                 </div>
@@ -285,7 +219,7 @@
 
                 <!-- Setting tabs: -->
                 <script>
-                    var elem = document.querySelector('.tabs');
+                    var elem = document.querySelector(".tabs");
                     var options = {};
                     var instance = M.Tabs.init(elem, options);
                 </script>
@@ -297,68 +231,37 @@
             <!-- Footer: -->
             <footer class="page-footer" id="footer">
                 <div class="footer container">
-                    <div class="row">
-                        <div class="col s12 m4 l8">
-                            <h7 class="white-text">LINKS</h7>
-                            <ul>
-                                <li>
-                                    <a
-                                        target="_blank"
-                                        rel="noopener"
-                                        class="grey-text text-lighten-3"
-                                        href="https://github.com/web4bio/webgen"
-                                    >
-                                        GitHub
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        target="_blank"
-                                        rel="noopener"
-                                        class="grey-text text-lighten-3"
-                                        href="http://firebrowse.org/api-docs/"
-                                    >
-                                        Firebrowse API
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        target="_blank"
-                                        rel="noopener"
-                                        class="grey-text text-lighten-3"
-                                        href="https://gdc.cancer.gov/"
-                                    >
-                                        NCI Genomic Data Commons
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        target="_blank"
-                                        rel="noopener"
-                                        class="grey-text text-lighten-3"
-                                        href="https://www.stonybrook.edu/commcms/vertically-integrated-projects/teams/_team_page/team_page.php?team=WebGen%20(Web%20Genomics)"
-                                    >
-                                        Stony Brook University VIP
-                                    </a>
-                                </li>
-                            </ul>
+                    <div class="flex-container">
+                        <div class="flex-child">
+                            <a
+                                target="_blank"
+                                rel="noopener"
+                                class="grey-text text-lighten-3"
+                                href="https://github.com/web4bio/webgen"
+                            >
+                                GitHub
+                            </a>
                         </div>
-
-                        <div class="col s12 m6 l3">
-                            <h7 class="white-text">CONTACT</h7>
-                            <ul>
-                                <li>
-                                    <a class="grey-text text-lighten-3">
-                                        richard.moffitt@stonybrookmedicine.edu
-                                    </a>
-                                </li>
-                            </ul>
+                        <div class="flex-child">
+                            <a
+                                target="_blank"
+                                rel="noopener"
+                                class="grey-text text-lighten-3"
+                                href="http://firebrowse.org/api-docs/"
+                            >
+                                Firebrowse API
+                            </a>
+                        </div>
+                        <div class="flex-child">
+                            <a target="_blank" rel="noopener" class="grey-text text-lighten-3" href="https://gdc.cancer.gov/">
+                                NCI Genomic Data Commons
+                            </a>
                         </div>
                     </div>
                 </div>
                 <div class="footer-copyright">
                     <div class="container">
-                        <div class="center-align">WebGen 2020</div>
+                        <div class="center-align">WebGen 2024</div>
                     </div>
                 </div>
             </footer>
@@ -371,32 +274,32 @@
             var cancerType = false;
 
             // For Cancer Type Select2 Drop down:
-            $('.cancerTypeMultipleSelection').select2({
-                placeholder: 'Tumor Type(s)',
+            $(".cancerTypeMultipleSelection").select2({
+                placeholder: "Tumor Type(s)",
             });
             cancerType = fillCancerTypeSelectBox();
 
-            if (!cancerType) $('#load').css('visibility', 'visible');
+            if (!cancerType) $("#load").css("visibility", "visible");
             else {
-                $('#load').css('visibility', 'hidden');
-                $('#contents').css('visibility', 'visible');
+                $("#load").css("visibility", "hidden");
+                $("#contents").css("visibility", "visible");
             }
 
-            $('#geneOneMultipleSelection').val(null).trigger('change.select2');
+            $("#geneOneMultipleSelection").val(null).trigger("change.select2");
 
-            $('#geneOneMultipleSelection').on('change', function () {
+            $("#geneOneMultipleSelection").on("change", function () {
                 buildDataExplorePlots(allClinicalData);
                 saveInLocalStorage();
             });
 
             // For Clinical feature Select2 Drop down:
-            $('.clinicalMultipleSelection').select2({
-                placeholder: 'Clinical Feature(s)',
+            $(".clinicalMultipleSelection").select2({
+                placeholder: "Clinical Feature(s)",
             });
 
             //For Pathways Select2 Drop down:
-            $('.pathwayMultipleSelection').select2({
-                placeholder: 'Pathway(s)',
+            $(".pathwayMultipleSelection").select2({
+                placeholder: "Pathway(s)",
             });
             fillPathwaySelectBox();
         });
@@ -405,22 +308,19 @@
         validGeneListFetch.then(function (validGeneList) {
             $(document).ready(function () {
                 // Map the array of geneList with attributes of id, text, and value
-                var geneListArray = _.map(
-                    _.range(0, validGeneList.length),
-                    function (i) {
-                        return {
-                            id: validGeneList[i],
-                            text: validGeneList[i],
-                            value: validGeneList[i],
-                        };
-                    }
-                );
+                var geneListArray = _.map(_.range(0, validGeneList.length), function (i) {
+                    return {
+                        id: validGeneList[i],
+                        text: validGeneList[i],
+                        value: validGeneList[i],
+                    };
+                });
                 // For Gene Select2 Dropdown:
                 var fillGeneSelectBoxes = (geneSelectionBox) => {
                     $(geneSelectionBox).select2({
                         data: geneListArray,
                         multiple: true,
-                        placeholder: 'Gene(s)',
+                        placeholder: "Gene(s)",
                         // creating query with pagination functionality.
                         query: function (data) {
                             var pageSize,
@@ -428,35 +328,23 @@
                                 thatQuery = this;
                             pageSize = 5; // Number of the option loads at a time
                             results = [];
-                            if (data.term && data.term !== '') {
+                            if (data.term && data.term !== "") {
                                 // HEADS UP; for the _.filter function I use underscore (actually lo-dash) here
-                                results = _.filter(
-                                    thatQuery.data,
-                                    function (e) {
-                                        return (
-                                            e.text
-                                                .toUpperCase()
-                                                .indexOf(
-                                                    data.term.toUpperCase()
-                                                ) >= 0
-                                        );
-                                    }
-                                );
+                                results = _.filter(thatQuery.data, function (e) {
+                                    return e.text.toUpperCase().indexOf(data.term.toUpperCase()) >= 0;
+                                });
                             } else {
                                 results = thatQuery.data;
                             }
                             data.callback({
-                                results: results.slice(
-                                    (data.page - 1) * pageSize,
-                                    data.page * pageSize
-                                ),
+                                results: results.slice((data.page - 1) * pageSize, data.page * pageSize),
                                 more: results.length >= data.page * pageSize,
                             });
                         },
                     });
                 };
-                fillGeneSelectBoxes('.geneOneMultipleSelection');
-                fillGeneSelectBoxes('.geneTwoMultipleSelection');
+                fillGeneSelectBoxes(".geneOneMultipleSelection");
+                fillGeneSelectBoxes(".geneTwoMultipleSelection");
             });
         });
     </script>
