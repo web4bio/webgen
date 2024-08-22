@@ -330,17 +330,39 @@ let fillClinicalSelectBox = async function () {
       let temp = {name: currentFeature, type: "", isSelected: false};
 
       let checkIfClinicalFeatureArrayIsNumeric = async function() {
-        var numbers = /^[0-9/.]+$/;
-        var continuousMap = allClinicalData.map(x => {
-          try {
-            x[currentFeature].match(numbers)
-          } catch(error) {} // Ignore error
-        });
-        var nullCount = continuousMap.filter(x => x == null).length;
-        var totalCount = continuousMap.length;
-        var percentContinuous = nullCount / totalCount;
-        let continuousFeaturesArr = ["days_to_death", "cervix_suv_results", "days_to_last_followup", "date_of_initial_pathologic_diagnosis", "number_of_lymph_nodes", "years_to_birth", "karnofsky_performance_score"]; // Array of features that should be considered continuous
-        if((percentContinuous < 0.75 && (currentFeature != 'vital_status')) || continuousFeaturesArr.includes(currentFeature))
+        let continuousFeaturesArr = [
+          "age_began_smoking_in_years",
+          "age_at_diagnosis",
+          "cervix_suv_results",
+          "date_of_initial_pathologic_diagnosis",
+          "days_to_death",
+          "days_to_last_followup", 
+          "days_to_last_known_alive",
+          "days_to_psa",
+          "days_to_submitted_specimen_dx",
+          "gleason_score",
+          "height_cm_at_diagnosis",
+          "initial_pathologic_dx_year",
+          "karnofsky_performance_score",
+          "lymph_nodes_examined",
+          "lymph_nodes_examined_he_count",
+          "number_of_lymph_nodes",
+          "number_pack_years_smoked",
+          "pregnancies_count_ectopic",
+          "pregnancies_count_live_birth",
+          "pregnancies_count_stillbirth",
+          "pregnancies_count_total",
+          "pregnancy_spontaneous_abortion_count",
+          "pregnancy_therapeutic_abortion_count",
+          "psa_value",
+          "tobacco_smoking_history",
+          "tobacco_smoking_pack_years_smoked",
+          "tobacco_smoking_year_stopped",
+          "weight_kg_at_diagnosis",
+          "years_to_birth",
+          "year_of_tobacco_smoking_onset"
+        ]; // Array of features that should be considered continuous
+        if(continuousFeaturesArr.includes(currentFeature))
           temp.type = "continuous";
         else
           temp.type = "categorical";
