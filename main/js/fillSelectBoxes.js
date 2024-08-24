@@ -12,7 +12,8 @@
  * @returns {undefined}
  */
 const fillCancerTypeSelectBox = async function () {
-  const cancerTypesQuery = await firebrowse.fetchCohorts();
+  const cancerTypesQuery_1 = await firebrowse.fetchCohorts();
+  const cancerTypesQuery = cancerTypesQuery_1.reduce((acc, item) => item.cohort !== 'FPPP' ? [...acc, item] : acc, []);
   cancerTypesQuery.sort();
   let selectBox = document.getElementById("cancerTypeMultipleSelection");
   for (let i = 0; i < cancerTypesQuery.length; i++) {
