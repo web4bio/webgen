@@ -299,7 +299,11 @@ let fillClinicalSelectBox = async function () {
         }
       }
     }
-    
+
+    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
+    clinicalKeys[0] = clinicalKeys[0].filter(item => !unwantedKeys.has(item));
+
+
     let intersectedFeatures;
     if(clinicalKeys.length > 1)
       for(let i = 0; i < clinicalKeys.length - 1; i++) {
