@@ -111,6 +111,10 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // populate clinical feature sample track variable selector
     // get unique clinical features
     var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
+
+    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
+    clin_vars = clin_vars.filter(item => !unwantedKeys.has(item));
+
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
     // automatically check off selected boxes from clinical query box

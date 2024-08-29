@@ -580,6 +580,10 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
     let var_opts = partitionVars;
 
     // make a checkbox for each option
+    
+    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
+    var_opts = var_opts.filter(item => !unwantedKeys.has(item));
+    
     var_opts.forEach(el => renderCB(div_body,el))
     update();
 
