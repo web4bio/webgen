@@ -581,7 +581,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         svg_sampletrack.select('#sampLabels').remove(); // first remove previous labels
         svg_sampletrack.append("g")
             .attr('id', 'sampLabels')
-            .style('font-size', 9.5)
+            .style('font-size', 10.5)
             .call(d3.axisRight(y_samp).tickSize(0))
             .attr("transform", "translate(" + (heatWidth-legendWidth) + ",0)")
             .select(".domain").remove();
