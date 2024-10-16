@@ -193,7 +193,40 @@ const buildViolinPlot = function(geneQuery, expressionData) {
   var violinLoaderDiv = document.getElementById("violinLoaderDiv");
   violinLoaderDiv.classList.remove("loader");
 
-  //Setup Materialize Grid
+  ///////////////////////////////////
+  // DISPLAY NUMBER OF SAMPLES IN COHORT
+  ///////////////////////////////////
+
+  var meme = document.getElementById("violinLoaderDiv");  
+
+  var numCohortBarcodes2 = document.createElement("div");
+  numCohortBarcodes2.id = "numCohortBarcodes2";
+  numCohortBarcodes2.className = "row";
+
+  meme.appendChild(numCohortBarcodes2);
+
+  let displayNumberSamplesInCohort2 = function () {
+      let existingPara = document.getElementById("numSamplesInCohortText2");
+      if (existingPara) {
+          existingPara.remove();
+      }
+      // build label:
+      let para = document.createElement("p");
+      // Style the paragraph
+      para.style.textAlign = 'center';
+      para.style.color = '#4db6ac';
+      para.style.fontFamily = 'Georgia, "Times New Roman", Times, serif';
+      para.id = "numSamplesInCohortText2";
+
+      para.innerText = "Number of samples in cohort: " + (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length;
+      numCohortBarcodes2.appendChild(para);
+  };
+
+  displayNumberSamplesInCohort2()
+
+  ///////////////////////////////////
+
+  // Setup Materialize Grid
   addDivInside("violinGridRow", violinLoaderDiv.id);
   var gridRow = document.getElementById("violinGridRow");
   gridRow.classList.add("row");
