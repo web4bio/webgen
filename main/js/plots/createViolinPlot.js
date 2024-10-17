@@ -18,18 +18,20 @@ let tooltipNum = 0;
 */
 const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
     
+    facetByFields = facetByFields.map(item => item === "tumor_type" ? "cohort" : item);
+
     // Get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
     let clinicalData = "";
+    
+    // if at least one facet field is selected, then get its clinical data from the cache
     if(facetByFields.length > 0) {
         clinicalData = await cache.get('rnaSeq', 'clinicalData');
         clinicalData = clinicalData.clinicalData;
     }
     
-    // --------------------------------------------------------------
-
-    // Set up violin curve colors
+    // Set up basis for violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                     "#ffff33","#a65628","#f781bf","#999999"];
     function shuffle(array) {
@@ -38,170 +40,99 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     shuffle(colors);
     var violinCurveColors = [];
 
-    // --------------------------------------------------------------
-
     // Set up the figure dimensions:
     var margin = {top: 0, right: 30, bottom: 10, left: 40},
         width = 505 - margin.left - margin.right,
         height = 200 - margin.top - margin.bottom;
 
-    // Filter out null values:
+    // Filter out patients with null expression values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
 
-    // Filter out data that does not belong to curPlot
+    // Filter out data that does not belong to curPlot (ie, for this gene)
     dataInput = dataInput.filter(patientData => patientData.gene == curPlot);
 
-    // Checking for filtered data length is greater than 0
+    // Checking that filtered data length is > 0
     if(dataInput.length <= 0) {
         return;
     }
 
-    var myGroups;
+    let myGroups = [];
 
-    // Add new field to data for purpose of creating keys and populating myGroups
+    // If user has selected fields to facet by
     if(facetByFields.length > 0) {
-        for(var i = 0; i < dataInput.length; i++) {
+        for(let i = 0; i < dataInput.length; i++) {
             // Get matching index in clinicalData for current patient index in dataInput
-            var patientIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
+            let patientIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
          
             if(patientIndex >= 0) {
-                // Add parentheses for formatting purposes
-                var keyToFacetBy = dataInput[i]['cohort'] + " (";
-                // Iterate over the clinical fields to facet by to create keyToFacetBy
-                for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++) {
-                    // Append additional JSON field to data for the purpose of creating a key to facet by
-                    let clinicalField = facetByFields[fieldIndex];
-                    keyToFacetBy += clinicalData[patientIndex][clinicalField] 
-                    if(fieldIndex < facetByFields.length-1) {
-                        keyToFacetBy += " ";
-                    }
-                }
-                keyToFacetBy += ")";
-                // We now create the 'facetByFieldKey' attribute in the JSON data
+                // Create keyToFacetBy for each patient
+                let keyToFacetBy = facetByFields.map(field => clinicalData[patientIndex][field]).join(" ");
                 dataInput[i]["facetByFieldKey"] = keyToFacetBy;
-            }
-
-            else {
+            } else {
                 // Handle edge case for 'NA'
-                dataInput[i]["facetByFieldKey"] = dataInput[i]['cohort'] + " (NA)";
+                dataInput[i]["facetByFieldKey"] = "(NA)";
             }
         }
 
-        myGroups = d3.map(dataInput, function(d){return d.facetByFieldKey;}).keys();
-    }
-    else {
-        myGroups = d3.map(dataInput, function(d){return d['cohort'];}).keys();
+        myGroups = d3.map(dataInput, d => d.facetByFieldKey).keys();
+    } else {
+        // Default to showing the whole cohort if no facet fields are selected
+        myGroups = ["My cohort"];
+        dataInput.forEach(d => {
+            d.facetByFieldKey = "My cohort"; // Set the facet key for all entries to "My cohort"
+        });
     }
 
-    // Compute counts for each violin curve group that will be generated
+    // Compute counts for each violin curve group
     let myGroupCounts = {};
-    for(let index = 0; index < myGroups.length; index++) {
-        let group = myGroups[index];
-        let dataFilteredByGroup;
-        if(facetByFields.length>0)
-            dataFilteredByGroup = dataInput.filter(d => d.facetByFieldKey==group);
-        else
-            dataFilteredByGroup = dataInput.filter(d => d['cohort']==group);
-        myGroupCounts[group] = dataFilteredByGroup.length;
+    for(let group of myGroups) {
+        myGroupCounts[group] = dataInput.filter(d => d.facetByFieldKey === group).length;
     }
-
-    // Helper function to sort groups by median expression:
-    function compareGeneExpressionMedian(a,b) {
-        var aArray = d3.map(dataInput.filter(x => x.cohort == a), function(d){return d.expression_log2;}).keys();
-        var bArray = d3.map(dataInput.filter(x => x.cohort == b), function(d){return d.expression_log2;}).keys();
-        var aMedian = d3.quantile(aArray.sort(function(a,b) {return a - b ;}), 0.5);
-        var bMedian = d3.quantile(bArray.sort(function(a,b) {return a - b ;}), 0.5);
-
-        return aMedian - bMedian;
-    };
-
-    // Sort myGroups by median expression:
-    if(facetByFields.length == 0){
-        myGroups.sort((a,b) => compareGeneExpressionMedian(a,b,'cohort'));
-    }
-    else
-        myGroups.sort();
-
 
     // Populate violinCurveColors
-    var colorsArrIndex = 0;
-    for(var index = 0; index < myGroups.length; index++)
-    {
-        violinCurveColors.push(colors[colorsArrIndex]);
-        colorsArrIndex++;
-
-        if(colorsArrIndex == colors.length)
-        {
-            colorsArrIndex = 0;
-        }
+    for (let index = 0; index < myGroups.length; index++) {
+        violinCurveColors.push(colors[index % colors.length]);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////// Build SVG Object Below //////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Spacing between plots
-    let ySpacing = margin.top;
-
-    // Matching the num of div to num of svg in the div
+    // Build SVG Object
     let svgID = "svgViolinPlot" + divNum;
     let svgDivId = `svgViolin${divNum}`;
 
-    // Create the svg element for the violin plot
-    // let svgObject = d3.select(violinDiv).append("svg")
     let svgObject = d3.select("#" + svgDivId).append("svg")
-      //.attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
-      .attr("viewBox", `0 -35 505 300`)  // This line makes the svg responsive
-      .attr("id", svgID)
-      .attr("indepVarType", "gene") //The attributes added on this line and the lines below are used when rebuilding the plot
-      .attr("cohort", curPlot)
-      .append("g")
-      .attr("id", (svgID + 'Position'))
-      .attr("transform",
-          "translate(" + (margin.left) + "," +
-                      (margin.top + ySpacing*0.25) + ")");
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////// Build SVG Object Above //////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////// Build the Axis and Color Scales Below ///////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        .attr("viewBox", `0 -35 505 300`)
+        .attr("id", svgID)
+        .attr("indepVarType", "gene")
+        .attr("cohort", curPlot)
+        .append("g")
+        .attr("id", (svgID + 'Position'))
+        .attr("transform", "translate(" + (margin.left) + "," + (margin.top) + ")");
 
     // Get min and max expression values for y axis:
-    var geneExpressionValues = d3.map(dataInput, function(d){return d.expression_log2}).keys();
-    let minExpressionLevel = Math.min(...geneExpressionValues);
-    let maxExpressionLevel = Math.max(...geneExpressionValues);
+    const geneExpressionValues = dataInput.map(d => d.expression_log2);
+    const minExpressionLevel = Math.min(...geneExpressionValues);
+    const maxExpressionLevel = Math.max(...geneExpressionValues);
 
-    // Build and Show the Y scale
-    var y = d3.scaleLinear()
-        .domain([minExpressionLevel-2, maxExpressionLevel+2])
+    // Build and show the Y scale
+    const y = d3.scaleLinear()
+        .domain([minExpressionLevel - 2, maxExpressionLevel + 2])
         .range([height, 0]);
-    svgObject.append("g").call( d3.axisLeft(y))
-        .style("font-size", "8px");
+    svgObject.append("g").call(d3.axisLeft(y)).style("font-size", "8px");
 
     // Append y-axis label
     svgObject.append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", -margin.left)
-      .attr("x",-(height / 2.0))
-      .attr("dy", "1em")
-      .style("text-anchor", "middle")
-      .style("font-size", "9px")
-      .text("Expression Level (log2)");
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left)
+        .attr("x", -(height / 2.0))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .style("font-size", "9px")
+        .text("Expression Level (log2)");
 
-    // Build and show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
-    var x = d3.scaleBand()
+    // Build and show the X scale
+    const x = d3.scaleBand()
         .range([0, width])
         .domain(myGroups)
-        .padding(0.01)     // This is important: it is the space between 2 groups. 0 means no padding. 1 is the maximum.
+        .padding(0.01);
 
     svgObject.append("g")
         .attr("transform", "translate(0," + height + ")")
@@ -211,80 +142,45 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .call(wrap, x.bandwidth())
         .style("font-size", "8px");
 
-    // svgObject.append("text")
-    //     .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 50) + ")")
-    //     .text("Cohort")
-    //     .style("font-size", "12px");
+    // Set up distributions and statistics info for each gene's expression
+    const kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50));
+    let sumstat;
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////// Build the Axis and Color Scales Above ///////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    if (facetByFields.length === 0) {
+        // Create a single entry for "My cohort" and compute density for the entire dataset
+        const input = dataInput.map(d => d.expression_log2);
+        sumstat = [{ key: "My cohort", value: kde(input) }];
+    } else {
+        // If facetByFields is not empty, proceed with nesting
+        sumstat = d3.nest()                                               
+            .key(d => d.facetByFieldKey)
+            .rollup(d => kde(d.map(g => g.expression_log2)))
+            .entries(dataInput);
+    }
 
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////// Set up Distributions and Statistics Info for Each Gene's Expression Below /////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Features density estimation:
-    // The value passed to kernelEpanechnikov determines smoothness:
-    var kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50))
-
-    // Compute the binning for each group of the dataset
-    var sumstat = d3.nest()                                                // nest function allows to group the calculation per level of a factor
-        .key(function(d)
-        {
-            if(facetByFields.length == 0)
-            {
-                return d['cohort'];
-            }
-            else
-            {
-                return d.facetByFieldKey;
-            }
-        })
-        .rollup(function(d) {                                              // For each key..
-            input = d.map(function(g) { return g.expression_log2;});
-            density = kde(input);                                          // Implement kernel density estimation
-            return(density);
-        })
-        .entries(dataInput)
-
-    // What is the biggest number of value in a bin? We need it cause this value will have a width of 100% of the bandwidth.
-    var maxNum = 0
-    for(i in sumstat) {
-
-        allBins = sumstat[i].value
-        lengths = allBins.map(function(a){return a.length;})
-        longest = d3.max(lengths)
+    // Calculate statistics for each group
+    let maxNum = 0;
+    for (let i in sumstat) {
+        const allBins = sumstat[i].value;
+        const lengths = allBins.map(a => a.length);
+        const longest = d3.max(lengths);
 
         if (longest > maxNum) {
             maxNum = longest;
         }
 
-        // Add statisitc info for each group:
-        var currentExpressionArray
-        if(facetByFields.length == 0)
-        {
-            currentExpressionArray = d3.map(dataInput.filter(x => x['cohort'] == sumstat[i].key), function(d){return d.expression_log2;}).keys();
-        }
-        else
-        {
-            currentExpressionArray = d3.map(dataInput.filter(x => x.facetByFieldKey == sumstat[i].key), function(d){return d.expression_log2;}).keys();
-        }
-        currentExpressionArray.sort(function(a,b) {return a - b ;});
+        let currentExpressionArray = dataInput.filter(x => x.facetByFieldKey === sumstat[i].key)
+            .map(d => d.expression_log2)
+            .sort((a, b) => a - b);
+
+        // Calculate statistics
         sumstat[i].median = d3.quantile(currentExpressionArray, 0.5);
         sumstat[i].Qthree = d3.quantile(currentExpressionArray, 0.75);
         sumstat[i].Qone = d3.quantile(currentExpressionArray, 0.25);
         sumstat[i].average = average(currentExpressionArray);
-        sumstat[i].standardDeviation = Number(standardDeviation(sumstat[i].average,
-            currentExpressionArray));
+        sumstat[i].standardDeviation = Number(standardDeviation(sumstat[i].average, currentExpressionArray));
         sumstat[i].min = Number(currentExpressionArray[0]);
-        sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length-1]);
+        sumstat[i].max = Number(currentExpressionArray[currentExpressionArray.length - 1]);
         sumstat[i].nSamples = Number(myGroupCounts[sumstat[i].key]);
     }
 
@@ -439,7 +335,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             .attr("stroke-width", x.bandwidth()/500);
     }
 
-    //Add title to graph
+    // Add title to graph
     svgObject.append("text")
         .attr("x", width/2)
         .attr("y", -25)
@@ -583,7 +479,9 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
     
     const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
     var_opts = var_opts.filter(item => !unwantedKeys.has(item));
-    
+    console.log(var_opts)
+    var_opts = var_opts.map(item => item === "cohort" ? "tumor_type" : item);
+    console.log(var_opts)
     var_opts.forEach(el => renderCB(div_body,el))
     update();
 
