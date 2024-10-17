@@ -479,9 +479,7 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
     
     const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
     var_opts = var_opts.filter(item => !unwantedKeys.has(item));
-    console.log(var_opts)
     var_opts = var_opts.map(item => item === "cohort" ? "tumor_type" : item);
-    console.log(var_opts)
     var_opts.forEach(el => renderCB(div_body,el))
     update();
 
