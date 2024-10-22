@@ -29,16 +29,16 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             existingPara.remove();
         }
         // build label:
-        let string = "";
+        let numSamplesLabel = "";
         let para;
-        string = (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length
+        numSamplesLabel = (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length
         para = document.createElement("P");
         para.setAttribute(
             "style",
             'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
         );
         para.setAttribute("id", "numSamplesInCohortText");
-        para.innerText = "Number of samples in cohort: " + string;
+        para.innerText = "Number of samples in cohort: " + numSamplesLabel;
         numCohortBarcodesElement.appendChild(para);
     };
 
@@ -58,7 +58,6 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     div_optionsPanels.attr("class", "col s3");
     div_optionsPanels.style("margin-top", "30px");
     div_optionsPanels.style("padding-left", "30px");
-    // div_optionsPanels.style("margin-left", "20px");
     var div_clinSelect = div_optionsPanels.append('div');
     div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')

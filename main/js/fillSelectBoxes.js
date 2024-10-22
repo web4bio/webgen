@@ -12,19 +12,19 @@
  * @returns {undefined}
  */
 const fillCancerTypeSelectBox = async function () {
-  const cancerTypesQuery_1 = await firebrowse.fetchCohorts();
-  const cancerTypesQuery = cancerTypesQuery_1.reduce((acc, item) => item.cohort !== 'FPPP' ? [...acc, item] : acc, []);
-  cancerTypesQuery.sort();
+  const cancerTypesQuery = await firebrowse.fetchCohorts();
+  const cancerTypesQueryNoFPPP = cancerTypesQuery.reduce((acc, item) => item.cohort !== 'FPPP' ? [...acc, item] : acc, []);
+  cancerTypesQueryNoFPPP.sort();
   let selectBox = document.getElementById("cancerTypeMultipleSelection");
-  for (let i = 0; i < cancerTypesQuery.length; i++) {
+  for (let i = 0; i < cancerTypesQueryNoFPPP.length; i++) {
     let currentOption = document.createElement("option");
-    currentOption.value = cancerTypesQuery[i]["cohort"];
+    currentOption.value = cancerTypesQueryNoFPPP[i]["cohort"];
     currentOption.text =
       "(" +
-      cancerTypesQuery[i]["cohort"] +
+      cancerTypesQueryNoFPPP[i]["cohort"] +
       ") " +
-      cancerTypesQuery[i]["description"];
-    currentOption.id = cancerTypesQuery[i]["cohort"];
+      cancerTypesQueryNoFPPP[i]["description"];
+    currentOption.id = cancerTypesQueryNoFPPP[i]["cohort"];
     selectBox.appendChild(currentOption);
   }
   let cancerTypeSelectedOptions = localStorage
@@ -89,29 +89,29 @@ let displayNumberSamples = async function () {
     };
     orderedCountQuery = orderThings(formatted_numbersOfSamples, myCohort, 'cohort')
     // build label:
-    let string = "";
+    let numSamplesLabel = "";
     let para;
     for (let i = 0; i < orderedCountQuery.length; i++) {
-      if (string == "") {
-        string += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
+      if (numSamplesLabel == "") {
+        numSamplesLabel += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
         para = document.createElement("P");
         para.setAttribute(
           "style",
           'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
         );
         para.setAttribute("id", "numSamplesText");
-        para.innerText = "Number of samples: " + string;
+        para.innerText = "Number of samples: " + numSamplesLabel;
         cancerQuerySelectBox.appendChild(para);
       } else {
         document.getElementById("numSamplesText").remove();
-        string += ", " + orderedCountQuery[i].cohort +
+        numSamplesLabel += ", " + orderedCountQuery[i].cohort +
                  ": " + orderedCountQuery[i].mrnaseq;
         para.setAttribute(
           "style",
           'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
         );
         para.setAttribute("id", "numSamplesText");
-        para.innerText = "Number of samples: " + string;
+        para.innerText = "Number of samples: " + numSamplesLabel;
         cancerQuerySelectBox.appendChild(para);
       }
     }
@@ -303,7 +303,6 @@ let fillClinicalSelectBox = async function () {
     const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
     clinicalKeys[0] = clinicalKeys[0].filter(item => !unwantedKeys.has(item));
 
-
     let intersectedFeatures;
     if(clinicalKeys.length > 1)
       for(let i = 0; i < clinicalKeys.length - 1; i++) {
@@ -335,7 +334,7 @@ let fillClinicalSelectBox = async function () {
       let temp = {name: currentFeature, type: "", isSelected: false};
 
       let checkIfClinicalFeatureArrayIsNumeric = async function() {
-        let continuousFeaturesArr = [
+        const CONTINUOUS_FEATURES = [
           "age_began_smoking_in_years",
           "age_at_diagnosis",
           "cervix_suv_results",
@@ -367,7 +366,7 @@ let fillClinicalSelectBox = async function () {
           "years_to_birth",
           "year_of_tobacco_smoking_onset"
         ]; // Array of features that should be considered continuous
-        if(continuousFeaturesArr.includes(currentFeature))
+        if(CONTINUOUS_FEATURES.includes(currentFeature))
           temp.type = "continuous";
         else
           temp.type = "categorical";

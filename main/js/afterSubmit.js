@@ -205,7 +205,7 @@ const buildViolinPlot = function(geneQuery, expressionData) {
 
   meme.appendChild(numCohortBarcodes2);
 
-  let displayNumberSamplesInCohort2 = function () {
+  let displayNumberSamplesInCohort = function () {
       let existingPara = document.getElementById("numSamplesInCohortText2");
       if (existingPara) {
           existingPara.remove();
@@ -222,7 +222,7 @@ const buildViolinPlot = function(geneQuery, expressionData) {
       numCohortBarcodes2.appendChild(para);
   };
 
-  displayNumberSamplesInCohort2()
+  displayNumberSamplesInCohort()
 
   ///////////////////////////////////
 
