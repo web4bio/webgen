@@ -13,17 +13,18 @@
  */
 const fillCancerTypeSelectBox = async function () {
   const cancerTypesQuery = await firebrowse.fetchCohorts();
-  cancerTypesQuery.sort();
+  const cancerTypesQueryNoFPPP = cancerTypesQuery.reduce((acc, item) => item.cohort !== 'FPPP' ? [...acc, item] : acc, []);
+  cancerTypesQueryNoFPPP.sort();
   let selectBox = document.getElementById("cancerTypeMultipleSelection");
-  for (let i = 0; i < cancerTypesQuery.length; i++) {
+  for (let i = 0; i < cancerTypesQueryNoFPPP.length; i++) {
     let currentOption = document.createElement("option");
-    currentOption.value = cancerTypesQuery[i]["cohort"];
+    currentOption.value = cancerTypesQueryNoFPPP[i]["cohort"];
     currentOption.text =
       "(" +
-      cancerTypesQuery[i]["cohort"] +
+      cancerTypesQueryNoFPPP[i]["cohort"] +
       ") " +
-      cancerTypesQuery[i]["description"];
-    currentOption.id = cancerTypesQuery[i]["cohort"];
+      cancerTypesQueryNoFPPP[i]["description"];
+    currentOption.id = cancerTypesQueryNoFPPP[i]["cohort"];
     selectBox.appendChild(currentOption);
   }
   let cancerTypeSelectedOptions = localStorage
@@ -88,29 +89,29 @@ let displayNumberSamples = async function () {
     };
     orderedCountQuery = orderThings(formatted_numbersOfSamples, myCohort, 'cohort')
     // build label:
-    let string = "";
+    let numSamplesLabel = "";
     let para;
     for (let i = 0; i < orderedCountQuery.length; i++) {
-      if (string == "") {
-        string += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
+      if (numSamplesLabel == "") {
+        numSamplesLabel += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
         para = document.createElement("P");
         para.setAttribute(
           "style",
           'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
         );
         para.setAttribute("id", "numSamplesText");
-        para.innerText = "Number of samples: " + string;
+        para.innerText = "Number of samples: " + numSamplesLabel;
         cancerQuerySelectBox.appendChild(para);
       } else {
         document.getElementById("numSamplesText").remove();
-        string += ", " + orderedCountQuery[i].cohort +
+        numSamplesLabel += ", " + orderedCountQuery[i].cohort +
                  ": " + orderedCountQuery[i].mrnaseq;
         para.setAttribute(
           "style",
           'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
         );
         para.setAttribute("id", "numSamplesText");
-        para.innerText = "Number of samples: " + string;
+        para.innerText = "Number of samples: " + numSamplesLabel;
         cancerQuerySelectBox.appendChild(para);
       }
     }
@@ -298,7 +299,10 @@ let fillClinicalSelectBox = async function () {
         }
       }
     }
-    
+
+    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
+    clinicalKeys[0] = clinicalKeys[0].filter(item => !unwantedKeys.has(item));
+
     let intersectedFeatures;
     if(clinicalKeys.length > 1)
       for(let i = 0; i < clinicalKeys.length - 1; i++) {
@@ -330,17 +334,39 @@ let fillClinicalSelectBox = async function () {
       let temp = {name: currentFeature, type: "", isSelected: false};
 
       let checkIfClinicalFeatureArrayIsNumeric = async function() {
-        var numbers = /^[0-9/.]+$/;
-        var continuousMap = allClinicalData.map(x => {
-          try {
-            x[currentFeature].match(numbers)
-          } catch(error) {} // Ignore error
-        });
-        var nullCount = continuousMap.filter(x => x == null).length;
-        var totalCount = continuousMap.length;
-        var percentContinuous = nullCount / totalCount;
-        let continuousFeaturesArr = ["days_to_death", "cervix_suv_results", "days_to_last_followup", "date_of_initial_pathologic_diagnosis", "number_of_lymph_nodes", "years_to_birth", "karnofsky_performance_score"]; // Array of features that should be considered continuous
-        if((percentContinuous < 0.75 && (currentFeature != 'vital_status')) || continuousFeaturesArr.includes(currentFeature))
+        const CONTINUOUS_FEATURES = [
+          "age_began_smoking_in_years",
+          "age_at_diagnosis",
+          "cervix_suv_results",
+          "date_of_initial_pathologic_diagnosis",
+          "days_to_death",
+          "days_to_last_followup", 
+          "days_to_last_known_alive",
+          "days_to_psa",
+          "days_to_submitted_specimen_dx",
+          "gleason_score",
+          "height_cm_at_diagnosis",
+          "initial_pathologic_dx_year",
+          "karnofsky_performance_score",
+          "lymph_nodes_examined",
+          "lymph_nodes_examined_he_count",
+          "number_of_lymph_nodes",
+          "number_pack_years_smoked",
+          "pregnancies_count_ectopic",
+          "pregnancies_count_live_birth",
+          "pregnancies_count_stillbirth",
+          "pregnancies_count_total",
+          "pregnancy_spontaneous_abortion_count",
+          "pregnancy_therapeutic_abortion_count",
+          "psa_value",
+          "tobacco_smoking_history",
+          "tobacco_smoking_pack_years_smoked",
+          "tobacco_smoking_year_stopped",
+          "weight_kg_at_diagnosis",
+          "years_to_birth",
+          "year_of_tobacco_smoking_onset"
+        ]; // Array of features that should be considered continuous
+        if(CONTINUOUS_FEATURES.includes(currentFeature))
           temp.type = "continuous";
         else
           temp.type = "categorical";

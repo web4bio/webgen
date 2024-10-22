@@ -13,11 +13,40 @@
  * @returns {undefined}
 */
 const createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
-    ///// BUILD SVG OBJECTS /////
 
-///////////////////////////////////
-// SAMPLE TRACK SELECTOR SETUP
-///////////////////////////////////
+    ///////////////////////////////////
+    // 0) DISPLAY NUMBER OF SAMPLES IN COHORT
+    ///////////////////////////////////
+
+    var numCohortBarcodes = divObject.append("div");
+    numCohortBarcodes.attr("id", "numCohortBarcodes").attr("class", "row");
+
+    var numCohortBarcodesElement = numCohortBarcodes.node();
+
+    let displayNumberSamplesInCohort = async function () {
+        let existingPara = document.getElementById("numSamplesInCohortText");
+        if (existingPara) {
+            existingPara.remove();
+        }
+        // build label:
+        let numSamplesLabel = "";
+        let para;
+        numSamplesLabel = (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length
+        para = document.createElement("P");
+        para.setAttribute(
+            "style",
+            'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
+        );
+        para.setAttribute("id", "numSamplesInCohortText");
+        para.innerText = "Number of samples in cohort: " + numSamplesLabel;
+        numCohortBarcodesElement.appendChild(para);
+    };
+
+    displayNumberSamplesInCohort()
+
+    ///////////////////////////////////
+    // 1) SAMPLE TRACK SELECTOR SETUP
+    ///////////////////////////////////
 
     // Create div for clinical feature sample track variable selector as scrolling check box list
     // Note that we are using the Grid system for Materialize
@@ -28,13 +57,13 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     div_optionsPanels.attr("id", "optionsPanels");
     div_optionsPanels.attr("class", "col s3");
     div_optionsPanels.style("margin-top", "30px");
-    div_optionsPanels.style("margin-left", "20px");
+    div_optionsPanels.style("padding-left", "30px");
     var div_clinSelect = div_optionsPanels.append('div');
     div_clinSelect.attr("id", "heatmapPartitionSelector");
     div_clinSelect.append('text')
         .style('font-size', '14px')
         .style('font-weight', 'bold')
-        .text('Select sample tracks');
+        .text('Select column annotations');
     div_clinSelect.append('br')
     div_clinSelect
         .append('div')
@@ -47,13 +76,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         .append('div')
         .attr('class', 'clin_selector');
     let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
-    // var selectedText = div_clinSelect.append('text') // text to update what variables selected
-    //     .style('font-size', '16px');
-    // div_clinSelect.append('div')
-    //     .append('button') // button to update heatmap, define update function below
-    //     .attr('type', 'button')
-    //     .attr('class', 'updateHeatmapButton')
-    //     .text('Update heatmap');
+
 
     // functions to get check box selection and update text
     var choices;
@@ -87,6 +110,10 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // populate clinical feature sample track variable selector
     // get unique clinical features
     var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
+
+    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
+    clin_vars = clin_vars.filter(item => !unwantedKeys.has(item));
+
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
     // automatically check off selected boxes from clinical query box
@@ -96,7 +123,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     });
 
 ///////////////////////////////////
-// SORT SELECTOR SETUP
+// 2) SORT SELECTOR SETUP
 ///////////////////////////////////
 
     // Create div for sorting options (checkboxes)
@@ -126,13 +153,16 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
 
 ///////////////////////////////////
-// HEATMAP SETUP
+// 3) HEATMAP SETUP
 ///////////////////////////////////
 
-    ///// BUILD SVG OBJECTS /////
-    // Set up dimensions for heatmap:
-    var margin = { top: 80, right: 20, space: 5, bottom: 30, left: 50},//100 },
-        frameWidth = 1200,
+    // Create div for ALL components of the heatmap
+    var heatmapCol = gridRow.append('div');
+    heatmapCol.attr("class", "col s9");
+
+    // Define dimensions for setting up svgs
+    var margin = { top: 10, bottom: 30, left: 65, right: 30, space: 5},
+        frameWidth = 950,
         heatWidth = frameWidth - margin.left - margin.right,
         legendWidth = 50,
         heatHeight = 300,
@@ -141,38 +171,44 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         frameHeight = margin.top + heatHeight + margin.space + dendHeight + margin.bottom;
         xAxisHeight = frameHeight - 5
         yAxisHeight = Math.round(frameHeight / 1.5)
-    // Create svg object frame for the plots
-    var heatmapCol = gridRow.append('div');
-    heatmapCol.attr("class", "col s8");
-    //Place heatmap in right-hand column
+
+    // Create svg for ALL components of the heatmap
     var svg_frame = heatmapCol.append('svg')
-        .attr('width', frameWidth)
+        .attr('width', '100%')
         .attr('height', frameHeight);
 
-    // Add title listing cohorts
-    // Get unique cohort IDs (for title)
-    const cohortIDs = d3.map(expressionData, d => d.cohort).keys();
-    svg_frame.append("text")
-        .attr('id', 'heatmapTitle')
-        .attr("x", margin.left)
-        .attr("y", margin.top - 25)
-        .style("font-size", "26px")
-        .text("Gene Expression Heatmap for " + cohortIDs.join(' and '));
+    ///////////////////////////////////
 
-    svg_frame.append("text")
-        .attr('id', 'heatmapXAxisLabel')
-        .style("font-size", "14px")
-        .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
-        .text("Patient Samples");
+    // Set up x-axis label
+    // Function to update text position based on SVG width
+    var updateTextPosition = async function() {
+        const svgWidth = svg_frame.node().getBoundingClientRect().width; // Get the actual width of the SVG
+        svg_frame.select('#heatmapXAxisLabel')
+            .attr("x", svgWidth / 2) // Center text horizontally
+            .attr("y", frameHeight-5) // Position text vertically
+            .attr("text-anchor", "middle") // Center text horizontally
+            .text("Patient Barcode");
+    }
+    // Append text to SVG (only if it doesn't exist yet)
+    if (svg_frame.select('#heatmapXAxisLabel').empty()) {
+        svg_frame.append("text")
+            .attr('id', 'heatmapXAxisLabel')
+            .style("font-size", "14px")
+            .attr("text-anchor", "middle") // Center text horizontally
+            .text("Patient Samples");
+    }
 
+    // Set up y-axis label
     svg_frame.append("text")
         .attr('id', 'heatmapYAxisLabel')
         .attr("text-anchor", "start")
         .style("font-size", "14px")
         .attr("transform", `translate(15,${yAxisHeight}),rotate(-90)`)
-        .text("Transcripts");    
+        .text("Gene");    
 
-    // Add nested svg for dendrogram
+    ///////////////////////////////////
+
+    // Add nested svg for dendrogram (is only created on toggle though)
     var svg_dendrogram = svg_frame
         .append("svg")
         .attr("class", "dendrogram")
@@ -181,11 +217,11 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         .attr("x", margin.left)
         .attr("y", margin.top);
 
-    // Add nested svg for sampletrack
+    // Add nested svg for sampletrack (is only created on check of boxes though)
     var svg_sampletrack = svg_frame
         .append("svg")
         .attr("class", "sampletrack")
-        .attr("width", frameWidth)
+        .attr("width", '100%')
         .attr("height", margin.space + sampTrackHeight)
         .attr("y", margin.top + dendHeight + margin.space)
         .append("g")
@@ -195,7 +231,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     var svg_heatmap = svg_frame
         .append("svg")
         .attr("class", "heatmap")
-        .attr("width", frameWidth)
+        .attr("width", '100%')
         .attr("height", heatHeight + margin.space + margin.bottom)
         .attr("y", margin.top + dendHeight + margin.space + sampTrackHeight + margin.space)
         .append("g")
@@ -209,8 +245,12 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
-        .style('width', frameWidth + 'px');
+        .style('width', '100%');
     div_tooltip.html("\xa0\xa0Hover over an element to use tooltip.");
+
+    var spacer = heatmapCol
+        .append("div")
+        .style("height", "20px")
 
     // Add div for sample track legend
     var div_sampLegend = heatmapCol
@@ -220,12 +260,13 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         .style("border-width", "2px")
         .style("border-radius", "5px")
         .style("padding", "5px")
-        .style('width', frameWidth + 'px')
+        .style('width', heatWidth)
         .style('height', frameHeight/2);
     div_sampLegend
         .append("text")
-        .style("font-size", "18px")
-        .text("Clinical Feature Sample Tracks Legend:");
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("Column Annotations Legend");
     var svg_sampLegend = div_sampLegend
         .append("div")
         .attr('id', 'legend')
@@ -233,13 +274,15 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         .style('overflow', 'scroll')
         .append("svg")
         .attr("class", "sampLegend")
-        .attr("width", frameWidth)
+        .attr("width", '100%')
         .attr("height", sampTrackHeight + 2 * margin.space)
         .append("g")
-        .attr("transform", "translate(" + margin.space + "," + margin.space*3 + ")");
+        .attr("transform", "translate(" + margin.space + "," + margin.space*3 + ")");    
 
-
-    ///// DATA PROCESSING /////
+    ///////////////////////////////////
+    // 4) PROCESSING OF HEATMAP VALUES
+    ///////////////////////////////////
+    
     // Set the columns to be the set of TCGA participant barcodes 'barcodes' and the rows to be the set of genes called 'geneID'
     // Get unique TCGA IDs
     var unique_ids = d3.map(expressionData, d => d.tcga_participant_barcode).keys();
@@ -296,7 +339,6 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         barcodes = sortOrder.map(i => barcodes[i]);
     };
     sortGroups();
-
 
     ///// Build the Axis and Color Scales Below /////
     // Build x scale for heatmap
@@ -355,9 +397,10 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         };
     }
 
+    ///////////////////////////////////
+    // 5) CREATE TOOLTIP
+    ///////////////////////////////////
 
-
-    ///// Build the Mouseover Tool Functions /////
     // Three functions that change the tooltip when user hover / move / leave a cell
     let mouseover = function (d) {
         // Make tooltip appear and color heatmap object black
@@ -409,11 +452,13 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
 
 
     ///// Build the Heatmap, Legend, and Dendrogram Below /////
+
     // Append the y-axis to the heatmap:
     svg_heatmap.append("g")
         .style("font-size", 9.5)
         .call(d3.axisLeft(y).tickSize(0))
         .select(".domain").remove();
+
     // Build the Legend:
     svg_heatmap.selectAll()
         .data(zArr)
@@ -424,13 +469,14 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         .attr("width", legendWidth / 2)
         .attr("height", 1 + (heatHeight / zArr.length))
         .style("fill", d => colorScale_exp(d));
+
     // Append the z-axis to the legend:
     svg_heatmap.append("g")
         .style("font-size", 10)
         .attr("transform", "translate(" + heatWidth + ",0)")
         .call(d3.axisRight().scale(zScale).tickSize(5).ticks(5));
 
-    ///// Update function for creating plot with new order (clustering), new sample tracks
+    // Update function for creating plot with new order (clustering), new sample tracks
     function updateHeatmap() {
         // Build new x scale based on barcodes (in case re-sorted)
         x = x.domain(barcodes);
@@ -534,7 +580,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         svg_sampletrack.select('#sampLabels').remove(); // first remove previous labels
         svg_sampletrack.append("g")
             .attr('id', 'sampLabels')
-            .style('font-size', 9.5)
+            .style('font-size', 10.5)
             .call(d3.axisRight(y_samp).tickSize(0))
             .attr("transform", "translate(" + (heatWidth-legendWidth) + ",0)")
             .select(".domain").remove();
@@ -547,7 +593,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
                 .append("text")
                 .attr("x", v.x)
                 .attr("alignment-baseline", "hanging")
-                .style("font-size", "15px")
+                .style("font-size", "14px")
                 .attr("text-decoration", "underline")
                 .text(v.varname + ":");
             if (v.vartype == "categorical" ) { // if categorical, then make boxes for categorical labels
@@ -665,12 +711,25 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
             yAxisHeight = Math.round(frameHeight / 1.5)
             xAxisHeight = frameHeight - 5
         }
+        const svgWidth = svg_frame.node().getBoundingClientRect().width; // Get the actual width of the SVG
+
         svg_frame.select("#heatmapYAxisLabel")
             .attr("transform", `translate(15,${yAxisHeight}),rotate(-90)`)
         svg_frame.select("#heatmapXAxisLabel")
-            .attr("transform", `translate(${Math.round(frameWidth / 2)},${xAxisHeight})`)
+            .attr("x", svgWidth / 2) // Center text horizontally
+            .attr("y", frameHeight-5) // Position text vertically
         // apply new frameHeight (adjusting for dendrogram and # sample tracks)
         svg_frame.attr('height', frameHeight);
     };
     updateHeatmap();
+
+    updateTextPosition();
+
+     // Optionally, update text position on window resize
+     window.addEventListener('resize', updateTextPosition);
+
 };
+
+
+
+   
