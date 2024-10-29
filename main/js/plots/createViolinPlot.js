@@ -17,7 +17,8 @@ let tooltipNum = 0;
  * @returns {undefined}
 */
 const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
-    //get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
+    
+    // Get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
     let divNum = violinDiv.id[violinDiv.id.length - 1];
 
     let clinicalData = "";
@@ -25,7 +26,10 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         clinicalData = await cache.get('rnaSeq', 'clinicalData');
         clinicalData = clinicalData.clinicalData;
     }
-    //Set up violin curve colors
+    
+    // --------------------------------------------------------------
+
+    // Set up violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                     "#ffff33","#a65628","#f781bf","#999999"];
     function shuffle(array) {
@@ -34,36 +38,38 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     shuffle(colors);
     var violinCurveColors = [];
 
+    // --------------------------------------------------------------
+
     // Set up the figure dimensions:
-    var margin = {top: 10, right: 30, bottom: 10, left: 40},
+    var margin = {top: 0, right: 30, bottom: 10, left: 40},
         width = 505 - margin.left - margin.right,
         height = 200 - margin.top - margin.bottom;
 
     // Filter out null values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
 
-    //Filter out data that does not belong to curPlot
+    // Filter out data that does not belong to curPlot
     dataInput = dataInput.filter(patientData => patientData.gene == curPlot);
 
-    //checking for filtered data length is greater than 0
+    // Checking for filtered data length is greater than 0
     if(dataInput.length <= 0) {
         return;
     }
 
     var myGroups;
 
-    //Add new field to data for purpose of creating keys and populating myGroups
+    // Add new field to data for purpose of creating keys and populating myGroups
     if(facetByFields.length > 0) {
         for(var i = 0; i < dataInput.length; i++) {
-            //Get matching index in clinicalData for current patient index in dataInput
+            // Get matching index in clinicalData for current patient index in dataInput
             var patientIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
          
             if(patientIndex >= 0) {
-                //Add parentheses for formatting purposes
+                // Add parentheses for formatting purposes
                 var keyToFacetBy = dataInput[i]['cohort'] + " (";
-                //Iterate over the clinical fields to facet by to create keyToFacetBy
+                // Iterate over the clinical fields to facet by to create keyToFacetBy
                 for(var fieldIndex = 0; fieldIndex < facetByFields.length; fieldIndex++) {
-                    //Append additional JSON field to data for the purpose of creating a key to facet by
+                    // Append additional JSON field to data for the purpose of creating a key to facet by
                     let clinicalField = facetByFields[fieldIndex];
                     keyToFacetBy += clinicalData[patientIndex][clinicalField] 
                     if(fieldIndex < facetByFields.length-1) {
@@ -71,12 +77,12 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
                     }
                 }
                 keyToFacetBy += ")";
-                //We now create the 'facetByFieldKey' attribute in the JSON data
+                // We now create the 'facetByFieldKey' attribute in the JSON data
                 dataInput[i]["facetByFieldKey"] = keyToFacetBy;
             }
 
             else {
-                //Handle edge case for 'NA'
+                // Handle edge case for 'NA'
                 dataInput[i]["facetByFieldKey"] = dataInput[i]['cohort'] + " (NA)";
             }
         }
@@ -87,7 +93,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         myGroups = d3.map(dataInput, function(d){return d['cohort'];}).keys();
     }
 
-    //Compute counts for each violin curve group that will be generated
+    // Compute counts for each violin curve group that will be generated
     let myGroupCounts = {};
     for(let index = 0; index < myGroups.length; index++) {
         let group = myGroups[index];
@@ -117,7 +123,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         myGroups.sort();
 
 
-    //Populate violinCurveColors
+    // Populate violinCurveColors
     var colorsArrIndex = 0;
     for(var index = 0; index < myGroups.length; index++)
     {
@@ -136,15 +142,15 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //Spacing between plots
+    // Spacing between plots
     let ySpacing = margin.top;
 
-    //matching the num of div to num of svg in the div
+    // Matching the num of div to num of svg in the div
     let svgID = "svgViolinPlot" + divNum;
     let svgDivId = `svgViolin${divNum}`;
 
-    //create the svg element for the violin plot
-    //let svgObject = d3.select(violinDiv).append("svg")
+    // Create the svg element for the violin plot
+    // let svgObject = d3.select(violinDiv).append("svg")
     let svgObject = d3.select("#" + svgDivId).append("svg")
       //.attr("viewBox", `0 -50 1250 475`)  // This line makes the svg responsive
       .attr("viewBox", `0 -35 505 300`)  // This line makes the svg responsive
@@ -176,22 +182,22 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
 
     // Build and Show the Y scale
     var y = d3.scaleLinear()
-        .domain([minExpressionLevel, maxExpressionLevel])
+        .domain([minExpressionLevel-2, maxExpressionLevel+2])
         .range([height, 0]);
     svgObject.append("g").call( d3.axisLeft(y))
         .style("font-size", "8px");
 
-    //Append y-axis label
+    // Append y-axis label
     svgObject.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", -margin.left)
       .attr("x",-(height / 2.0))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .style("font-size", "12px")
-      .text("Expression Level");
+      .style("font-size", "9px")
+      .text("Expression Level (log2)");
 
-    // Build and Show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
+    // Build and show the X scale. It is a band scale like for a boxplot: each group has an dedicated RANGE on the axis. This range has a length of x.bandwidth
     var x = d3.scaleBand()
         .range([0, width])
         .domain(myGroups)
@@ -204,11 +210,6 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("transform", "rotate(-20), translate(-10, 5)")
         .call(wrap, x.bandwidth())
         .style("font-size", "8px");
-
-    svgObject.append("text")
-        .attr("transform", "translate(" + width/2 + ", " + (height + margin.top + 50) + ")")
-        .text("Cohort")
-        .style("font-size", "12px");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -366,7 +367,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     .range([0, x.bandwidth()])
     .domain([-maxNum ,maxNum])
 
-    //xVals will store the specific x-coordinates to place the box-and-whisker plots for each violin curve
+    // xVals will store the specific x-coordinates to place the box-and-whisker plots for each violin curve
     var xVals = [];
     //colorsIndex is used to cycle through violinCurveColors to assign each violin curve a color
     var colorsIndex = 0;
@@ -400,10 +401,10 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             .y(function(d){ return(y(d[0])) } )
             .curve(d3.curveCatmullRom))  // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
 
-    //Embed box-and-whisker plot inside of each violin curve
+    // Embed box-and-whisker plot inside of each violin curve
     for(var index = 0; index < sumstat.length; index++)
     {
-        //Adding whisker on the box-and-whisker plot
+        // Adding whisker on the box-and-whisker plot
         svgObject.append("line")
             .attr("x1", xVals[index])
             .attr("x2", xVals[index])
@@ -412,7 +413,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             .attr("stroke", "black")
             .attr("stroke-width", x.bandwidth()/500);
 
-        //Adding rectangle for each box-and-whisker plot
+        // Adding rectangle for each box-and-whisker plot
         var rectWidth = x.bandwidth()/25;
         svgObject.append("rect")
             .attr("x", xVals[index] - rectWidth/2)
@@ -423,7 +424,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             .style("stroke-width", x.bandwidth()/500)
             .attr("fill", "none");
 
-        //Median line for box-and-whisker plot
+        // Median line for box-and-whisker plot
         svgObject.append("line")
             .attr("x1", xVals[index] - rectWidth/2)
             .attr("x2", xVals[index] + rectWidth/2)
@@ -433,13 +434,13 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             .attr("stroke-width", x.bandwidth()/500);
     }
 
-    // Add title to graph
+    //Add title to graph
     svgObject.append("text")
-        .attr("x", 0)
+        .attr("x", width/2)
         .attr("y", -25)
-        .attr("text-anchor", "left")
-        .style("font-size", "12px")
-        .text("Gene Expression Violin Plot for "+ curPlot);
+        .attr("text-anchor", "middle")
+        .style("font-size", "10px")
+        .text(curPlot);
 };
 
 
@@ -574,6 +575,10 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
     let var_opts = partitionVars;
 
     // make a checkbox for each option
+    
+    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
+    var_opts = var_opts.filter(item => !unwantedKeys.has(item));
+    
     var_opts.forEach(el => renderCB(div_body,el))
     update();
 
