@@ -95,6 +95,7 @@ const buildPlots = async function() {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   buildHeatmap(expressionData, mutationAndClinicalData);
   buildViolinPlot(allSelectedGenes, expressionData);
+  createCoexpressionPlot(expressionData, mutationAndClinicalData);
   buildDownloadButtons(allSelectedGenes, expressionData, clinicalData);
   return null;
 };
@@ -258,6 +259,8 @@ const buildViolinPlot = function(geneQuery, expressionData) {
 
   }
 };
+
+
 
 
 /** Save an object to a file and prompt user to download the file.
