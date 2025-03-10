@@ -71,28 +71,40 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     async function updatePlot() {
         const selectedX = document.getElementById("xGeneDropdown")?.value;
         const selectedY = document.getElementById("yGeneDropdown")?.value;
-
+    
         if (!selectedX || !selectedY) return;
-
+    
         let selectedX_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedX]});
         let selectedY_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedY]});
-
+    
         const xValues = selectedX_expression.filter(d => d.gene === selectedX).map(d => d.expression_log2);
         const yValues = selectedY_expression.filter(d => d.gene === selectedY).map(d => d.expression_log2);
-
+    
+        // Compute Pearson correlation coefficient
+        function pearsonCorrelation(x, y) {
+            const n = x.length;
+            const meanX = d3.mean(x);
+            const meanY = d3.mean(y);
+            const numerator = d3.sum(x.map((xi, i) => (xi - meanX) * (y[i] - meanY)));
+            const denominator = Math.sqrt(d3.sum(x.map(xi => (xi - meanX) ** 2)) * d3.sum(y.map(yi => (yi - meanY) ** 2)));
+            return denominator === 0 ? 0 : (numerator / denominator).toFixed(3);
+        }
+    
+        const rValue = pearsonCorrelation(xValues, yValues);
+    
         const selectedClinicalVar = document.querySelector('.myCheckbox:checked')?.value;
-
+    
         const clinicalData = clinicalAndMutationData.map(sample => ({
             x: sample[selectedX],
             y: sample[selectedY],
             clinicalValue: selectedClinicalVar ? sample[selectedClinicalVar] : "None"
         }));
-
+    
         const uniqueClinicalValues = [...new Set(clinicalData.map(d => d.clinicalValue))];
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(uniqueClinicalValues);
-
+    
         const colors = clinicalData.map(d => colorScale(d.clinicalValue));
-
+    
         const trace = {
             x: xValues,
             y: yValues,
@@ -100,14 +112,18 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
             type: 'scatter',
             name: 'Gene Expression (log2)',
             marker: { size: 12, color: colors },
-            text: clinicalData.map(d => `Clinical Feature: ${d.clinicalValue}`)
+            text: clinicalData.map(d => `${selectedClinicalVar || "Clinical Feature"}: ${d.clinicalValue}`)
         };
-
-        const layout = { xaxis: { title: selectedX }, yaxis: { title: selectedY }, title: { text: 'Gene Expression Scatterplot' } };
-
+    
+        const layout = { 
+            xaxis: { title: selectedX }, 
+            yaxis: { title: selectedY }, 
+            title: { text: `Gene Expression (Log2) | r = ${rValue}` }
+        };
+    
         Plotly.newPlot("coexpressionPanel", [trace], layout);
     }
-
+    
     ///////////////////////////////////
     // 3) DROPDOWNS FOR GENE SELECTION
     ///////////////////////////////////
