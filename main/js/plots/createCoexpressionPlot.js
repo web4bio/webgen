@@ -143,8 +143,9 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         document.getElementById("xGeneDropdown").addEventListener("change", updatePlot);
         document.getElementById("yGeneDropdown").addEventListener("change", updatePlot);
 
+        gridRow.append('div').attr("id", "coexpressionPanel").attr("class", "col s7").style('height', '550px');
+
         updatePlot(); // Initial plot
     });
 
-    var div_plot = gridRow.append('div').attr("id", "coexpressionPanel").attr("class", "col s7");
 };
