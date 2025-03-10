@@ -65,85 +65,69 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
     ///////////////////////////////////
-    // 2) DROPDOWNS FOR GENE SELECTION
+    // 2) FUNCTION TO UPDATE PLOT
     ///////////////////////////////////
 
-    // Fetch the valid gene list and populate dropdowns
-    getValidGeneList().then((validGeneList) => {
+    async function updatePlot() {
+        const selectedX = document.getElementById("xGeneDropdown")?.value;
+        const selectedY = document.getElementById("yGeneDropdown")?.value;
 
-        // Dropdown for X-Axis selection
+        if (!selectedX || !selectedY) return;
+
+        let selectedX_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedX]});
+        let selectedY_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedY]});
+
+        const xValues = selectedX_expression.filter(d => d.gene === selectedX).map(d => d.expression_log2);
+        const yValues = selectedY_expression.filter(d => d.gene === selectedY).map(d => d.expression_log2);
+
+        const selectedClinicalVar = document.querySelector('.myCheckbox:checked')?.value;
+
+        const clinicalData = clinicalAndMutationData.map(sample => ({
+            x: sample[selectedX],
+            y: sample[selectedY],
+            clinicalValue: selectedClinicalVar ? sample[selectedClinicalVar] : "None"
+        }));
+
+        const uniqueClinicalValues = [...new Set(clinicalData.map(d => d.clinicalValue))];
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(uniqueClinicalValues);
+
+        const colors = clinicalData.map(d => colorScale(d.clinicalValue));
+
+        const trace = {
+            x: xValues,
+            y: yValues,
+            mode: 'markers',
+            type: 'scatter',
+            name: 'Gene Expression (log2)',
+            marker: { size: 12, color: colors },
+            text: clinicalData.map(d => `Clinical Feature: ${d.clinicalValue}`)
+        };
+
+        const layout = { xaxis: { title: selectedX }, yaxis: { title: selectedY }, title: { text: 'Gene Expression Scatterplot' } };
+
+        Plotly.newPlot("coexpressionPanel", [trace], layout);
+    }
+
+    ///////////////////////////////////
+    // 3) DROPDOWNS FOR GENE SELECTION
+    ///////////////////////////////////
+
+    getValidGeneList().then((validGeneList) => {
         div_optionsPanels.append('label').text("Select X-Axis Gene:");
         var xDropdown = div_optionsPanels.append("select").attr("id", "xGeneDropdown").style("display", "block");
         validGeneList.forEach(gene => xDropdown.append("option").attr("value", gene).text(gene));
 
-        // Dropdown for Y-Axis selection
         div_optionsPanels.append('label').text("Select Y-Axis Gene:");
         var yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
         validGeneList.forEach(gene => yDropdown.append("option").attr("value", gene).text(gene));
 
-        // Set initial values
         document.getElementById("xGeneDropdown").value = "TP53";
         document.getElementById("yGeneDropdown").value = "KRAS";
 
-        ///////////////////////////////////
-        // 3) FUNCTION TO UPDATE PLOT
-        ///////////////////////////////////
-
-        async function updatePlot() {
-            const selectedX = document.getElementById("xGeneDropdown").value;
-            const selectedY = document.getElementById("yGeneDropdown").value;
-
-            // Fetch the expression data for selected genes
-            let selectedX_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedX]});
-            let selectedY_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedY]});
-
-            // Extract log2 expression values for selected genes
-            const xValues = selectedX_expression.filter(d => d.gene === selectedX).map(d => d.expression_log2);
-            const yValues = selectedY_expression.filter(d => d.gene === selectedY).map(d => d.expression_log2);
-
-            // Get the clinical variable selected in the checkboxes
-            const selectedClinicalVar = [];
-            document.querySelectorAll('.myCheckbox:checked').forEach(checkbox => {
-                selectedClinicalVar.push(checkbox.value);
-            });
-
-            // Create a mapping of clinical feature values for each sample
-            const clinicalData = clinicalAndMutationData.map(sample => {
-                const clinicalValues = selectedClinicalVar.map(variable => sample[variable]);
-                return { x: sample[selectedX], y: sample[selectedY], clinicalValues };
-            });
-
-            // Color points based on the clinical variable(s)
-            const colorMap = d3.scaleOrdinal(d3.schemeCategory10); // You can adjust the color scheme
-
-            const trace = {
-                x: xValues,
-                y: yValues,
-        mode: 'markers',
-        type: 'scatter',
-                name: 'Gene Expression (log2)',
-                marker: {
-                    size: 12,
-                    color: clinicalData.map(d => colorMap(d.clinicalValues.join("-"))), // Color based on the clinical variable(s)
-                }
-            };
-
-            const layout = {
-                xaxis: { title: selectedX },
-                yaxis: { title: selectedY },
-                title: { text: 'Gene Expression Scatterplot' },
-            };
-
-            // Render the plot
-            Plotly.newPlot("coexpressionPanel", [trace], layout);
-        }
-
-        // Add event listeners to dropdowns to update the plot on change
         document.getElementById("xGeneDropdown").addEventListener("change", updatePlot);
         document.getElementById("yGeneDropdown").addEventListener("change", updatePlot);
 
-        // Set initial plot using first two genes
-        updatePlot();
+        updatePlot(); // Initial plot
     });
 
     var div_plot = gridRow.append('div').attr("id", "coexpressionPanel").attr("class", "col s7");
