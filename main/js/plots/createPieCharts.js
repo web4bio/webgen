@@ -182,15 +182,17 @@ let buildDataExplorePlots = async function() {
                 // if current feature is a gene,
                 // get values and labels for this feature
                 if(currentFeature[0] === currentFeature[0].toUpperCase()) {
-                    let cacheMu = await getCacheMU(); //Instantiate mutation cache object
+                    let cacheMu = await getCacheMU(); // Instantiate mutation cache object
                     let mutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes, [currentFeature]); // Retrieve mutation data from cache
                     let mutationCounts = computeMutationFrequencies(mutationData); // Obtain map of mutation types and their respective counts
                     uniqueValuesForCurrentFeature = Array.from(mutationCounts.keys()); // Get mutation types from keys()
-                    xCounts = Array.from(mutationCounts.values()); // Get corresponding coutns from values()
-                }
+                    xCounts = Array.from(mutationCounts.values()); // Get corresponding counts from values()
+                    let cacheGe = await getCacheGE();
+                    let geneMutationExpression = await cacheGe.fetchWrapperGE(selectedTumorTypes, [currentFeature]);
+                    await createGeneExpressionHistogram(geneMutationExpression, mutationData, currentFeature);
                 // if current feature is clinical (i.e., not a gene)
                 // get values and labels for this feature 
-                else {
+                } else {
                     let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous);
                     xCounts = clinicalFeaturesResults[0]
                     uniqueValuesForCurrentFeature = clinicalFeaturesResults[1]
@@ -286,11 +288,13 @@ let computeMutationFrequencies = function(mutationData) {
 let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected, continuous) {
 
     let allValuesForCurrentFeature = [];
+    console.log(allClinicalData)
     for(let i = 0; i < allClinicalData.length; i++)
         allValuesForCurrentFeature.push(allClinicalData[i][currentClinicalFeatureSelected]);
     
     let index = clinicalType.findIndex(x => x.name == currentClinicalFeatureSelected);
     clinicalType[index].isSelected = true;
+    console.log(clinicalType[index])
     if (clinicalType[index].type === "continuous") {
         continuous = true;
         uniqueValuesForCurrentFeature = allValuesForCurrentFeature; // changed from uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
@@ -405,6 +409,8 @@ let setChartDimsAndPlot = async function (uniqueValuesForCurrentFeature, current
                            '<b>Frequency:</b> %{y}',
             type: 'histogram'
         }];
+        console.log(histo_data)
+
 
         // set colors of pie sectors:
         if (!continuous) {
@@ -488,4 +494,166 @@ let setChartDimsAndPlot = async function (uniqueValuesForCurrentFeature, current
         }
 
     }
+}
+
+/**
+ * Creates histograms to visualize gene expression distribution by mutation status
+ * 
+ * @param {Array} geneMutationExpression - Array of objects containing gene expression data
+ * @param {Array} mutationData - Array of objects containing mutation data
+ * @param {String} currentFeature - The gene being analyzed
+ * @returns {undefined}
+ */
+async function createGeneExpressionHistogram(geneMutationExpression, mutationData, currentFeature) {
+    // Exit if no data is provided
+    if (!geneMutationExpression || geneMutationExpression.length === 0) {
+        console.log("No expression data available for this gene");
+        return;
+    }
+
+    // Create a lookup map for mutation data by patient barcode
+    const mutationLookup = new Map();
+    for (const patient of mutationData) {
+        mutationLookup.set(patient.tcga_participant_barcode, patient.mutation_label);
+    }
+
+    // Group expression data by mutation status
+    const expressionByMutation = new Map();
+    expressionByMutation.set("No Mutation", []);
+    
+    // Process each gene expression record
+    for (const record of geneMutationExpression) {
+        const patientBarcode = record.tcga_participant_barcode;
+        const expressionValue = record.expression_log2;
+        const zScore = record["z-score"];
+        
+        // Only include tumor samples (TP)
+        if (record.sample_type !== "TP") continue;
+        
+        // Get mutation status for this patient
+        const mutationStatus = mutationLookup.get(patientBarcode) || "No Mutation";
+        
+        // Initialize array for this mutation type if it doesn't exist
+        if (!expressionByMutation.has(mutationStatus)) {
+            expressionByMutation.set(mutationStatus, []);
+        }
+        
+        // Add expression value to the appropriate group
+        expressionByMutation.get(mutationStatus).push(expressionValue);
+    }
+
+    // Create histogram traces for each mutation type
+    const histogramTraces = [];
+    const mutationTypes = Array.from(expressionByMutation.keys());
+    
+    // Use consistent colors from the sliceColors array
+    for (let i = 0; i < mutationTypes.length; i++) {
+        const mutationType = mutationTypes[i];
+        const expressionValues = expressionByMutation.get(mutationType);
+        
+        // Skip if no data for this mutation type
+        if (expressionValues.length === 0) continue;
+        
+        histogramTraces.push({
+            x: expressionValues,
+            type: 'histogram',
+            name: mutationType,
+            opacity: 0.7,
+            marker: {
+                color: sliceColors[i % sliceColors.length],
+                line: {
+                    color: 'black',
+                    width: 1
+                }
+            },
+            xbins: {
+                // Auto-calculate appropriate bin size
+                size: calculateBinSize(expressionValues)
+            },
+            hovertemplate: 'Expression: %{x}<br>Count: %{y}<extra>' + mutationType + '</extra>'
+        });
+    }
+
+    // Create histogram layout
+    const histogramLayout = {
+        title: `${currentFeature} Expression by Mutation Status`,
+        xaxis: {
+            title: 'Expression Level (log2)',
+            tickfont: { size: 12 }
+        },
+        yaxis: {
+            title: 'Frequency',
+            tickfont: { size: 12 }
+        },
+        barmode: 'overlay',
+        bargap: 0.05,
+        height: 400,
+        width: 600,
+        font: {
+            family: 'Arial, Helvetica, sans-serif'
+        },
+        legend: {
+            x: 1,
+            y: 1,
+            bgcolor: 'rgba(255, 255, 255, 0.7)',
+            bordercolor: 'rgba(0, 0, 0, 0.2)',
+            borderwidth: 1
+        }
+    };
+
+    // Create a div for the histogram if it doesn't exist
+    const parentDiv = document.getElementById("dataexploration");
+    let histogramDiv = document.getElementById(currentFeature + "ExpressionDiv");
+    
+    if (!histogramDiv) {
+        histogramDiv = document.createElement("div");
+        histogramDiv.setAttribute("id", currentFeature + "ExpressionDiv");
+        histogramDiv.setAttribute("style", "float:left;");
+        histogramDiv.setAttribute("class", "col s6");
+        parentDiv.appendChild(histogramDiv);
+    }
+
+    // Plot the histogram
+    Plotly.newPlot(currentFeature + "ExpressionDiv", histogramTraces, histogramLayout, {
+        responsive: true,
+        displayModeBar: false,
+        scrollZoom: true
+    });
+}
+
+/**
+ * Helper function to calculate appropriate bin size based on data distribution
+ * 
+ * @param {Array} data - Array of expression values
+ * @returns {Number} - Appropriate bin size
+ */
+function calculateBinSize(data) {
+    // Calculate IQR (Interquartile Range) based bin size using Freedman-Diaconis rule
+    if (data.length < 2) return 0.5; // Default if not enough data
+    
+    // Sort the data
+    const sortedData = [...data].sort((a, b) => a - b);
+    
+    // Find min and max
+    const min = sortedData[0];
+    const max = sortedData[sortedData.length - 1];
+    
+    // If range is too small, use a default bin size
+    if (max - min < 0.1) return 0.1;
+    
+    // Calculate quartiles
+    const q1Index = Math.floor(sortedData.length * 0.25);
+    const q3Index = Math.floor(sortedData.length * 0.75);
+    const q1 = sortedData[q1Index];
+    const q3 = sortedData[q3Index];
+    const iqr = q3 - q1;
+    
+    // Freedman-Diaconis rule: 2 * IQR * n^(-1/3)
+    const binSize = 2 * iqr * Math.pow(data.length, -1/3);
+    
+    // If calculated bin size is too small or too large, use reasonable defaults
+    if (binSize < 0.1 || isNaN(binSize)) return 0.5;
+    if (binSize > 5) return 2;
+    
+    return binSize;
 }

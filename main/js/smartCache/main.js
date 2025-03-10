@@ -400,7 +400,7 @@ function CacheInterface(nameOfDb) {
     }
 
     //Identify missing gene expression records and retrieve currently-cached gene expression records
-    let [missingInterface, hasInterface] = await constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes, this.interface)    
+    let [missingInterface, hasInterface] = await constructQueriesGE(listOfCohorts, listOfGenes, listOfBarcodes, this.interface)
     //tmp will store an array of JSON objects
     let tmp = []
 

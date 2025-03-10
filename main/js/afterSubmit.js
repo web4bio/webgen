@@ -29,7 +29,7 @@ const buildPlots = async function() {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  const allSelectedGenes = await getAllSelectedGenes();
+  const allSelectedGenes = await getAllSelectedGenes("geneTwoMultipleSelection");
 
   const isEmpty = (x) => {
     return x === undefined || x === null || x.length === 0;
@@ -104,9 +104,9 @@ const buildPlots = async function() {
  *
  * @returns {Promise<string[]>} Promise that return array of gene names.
  */
-const getAllSelectedGenes = async function() {
+const getAllSelectedGenes = async function(geneSelectionBox) {
 
-  let selectedGenes = $(".geneTwoMultipleSelection").select2("data").map((gene) => gene.text);
+  let selectedGenes = $(`.${geneSelectionBox}`).select2("data").map((gene) => gene.text);
   
   const genesFromSelectedPathways = await getGenesByPathway();
 
