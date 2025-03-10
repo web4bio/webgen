@@ -29,111 +29,122 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         .style('font-size', '14px')
         .style('font-weight', 'bold')
         .text('Select column annotations');
-    div_clinSelect.append('br')
-    div_clinSelect
-        .append('div')
+    div_clinSelect.append('br');
+
+    // Scrollable box for checkboxes
+    var div_checklist = div_clinSelect.append('div')
         .attr('class', 'viewport')
         .style('overflow-y', 'scroll')
         .style('height', '365px')
-        .style('width', '300px')
+        .style('width', '100%')
         .style('font-size', '14px')
-        .style('text-align', 'left')
-        .append('div')
-        .attr('class', 'clin_selector');
-    let div_selectBody = div_clinSelect.select('.clin_selector'); // body for check vbox list
+        .style('text-align', 'left');
 
+    var div_selectBody = div_checklist.append('div').attr('class', 'clin_selector'); // This is where checkboxes go
 
-    // functions to get check box selection and update text
-    var choices;
-    function getClinvarSelection() {
-        choices = [];
-        div_selectBody.selectAll('.myCheckbox').each(function(d){
-            let cb = d3.select(this);
-            if(cb.property('checked')){ choices.push(cb.property('value')); };
-          });
-        return choices
-    };
-
-    // function to create a pair of checkbox and text
     function renderCB(div_obj, id) {
-        const label = div_obj.append('div');
-        const label2 = label.append('label')
+        const label = div_obj.append('div').attr("class", "checkbox-container");
+        const label2 = label.append('label');
         label2.append('input')
-            .attr('id', 'check' + id)
             .attr('type', 'checkbox')
             .attr('class', 'myCheckbox')
             .attr('value', id)
             .on('change', function () {
-                sortGroups();
-                updateHeatmap();
-            })
+                updatePlot(); // Update plot when checkbox is changed
+            });
         label2.append('span')
             .text(' ' + id)
             .style('font-weight', 'normal')
             .style("color", "#5f5f5f");
-    };
-    // populate clinical feature sample track variable selector
-    // get unique clinical features
-    var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
+    }
 
+    // Populate clinical feature selection checkboxes
+    var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
     const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
     clin_vars = clin_vars.filter(item => !unwantedKeys.has(item));
-
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
-    // automatically check off selected boxes from clinical query box
-    sampTrackVars = $('.clinicalMultipleSelection').select2('data').map((el) => el.id);
-    sampTrackVars.forEach(id => {
-        div_selectBody.select('#check'+id).property('checked', true);
+    ///////////////////////////////////
+    // 2) DROPDOWNS FOR GENE SELECTION
+    ///////////////////////////////////
+
+    // Fetch the valid gene list and populate dropdowns
+    getValidGeneList().then((validGeneList) => {
+
+        // Dropdown for X-Axis selection
+        div_optionsPanels.append('label').text("Select X-Axis Gene:");
+        var xDropdown = div_optionsPanels.append("select").attr("id", "xGeneDropdown").style("display", "block");
+        validGeneList.forEach(gene => xDropdown.append("option").attr("value", gene).text(gene));
+
+        // Dropdown for Y-Axis selection
+        div_optionsPanels.append('label').text("Select Y-Axis Gene:");
+        var yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
+        validGeneList.forEach(gene => yDropdown.append("option").attr("value", gene).text(gene));
+
+        // Set initial values
+        document.getElementById("xGeneDropdown").value = "TP53";
+        document.getElementById("yGeneDropdown").value = "KRAS";
+
+        ///////////////////////////////////
+        // 3) FUNCTION TO UPDATE PLOT
+        ///////////////////////////////////
+
+        async function updatePlot() {
+            const selectedX = document.getElementById("xGeneDropdown").value;
+            const selectedY = document.getElementById("yGeneDropdown").value;
+
+            // Fetch the expression data for selected genes
+            let selectedX_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedX]});
+            let selectedY_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedY]});
+
+            // Extract log2 expression values for selected genes
+            const xValues = selectedX_expression.filter(d => d.gene === selectedX).map(d => d.expression_log2);
+            const yValues = selectedY_expression.filter(d => d.gene === selectedY).map(d => d.expression_log2);
+
+            // Get the clinical variable selected in the checkboxes
+            const selectedClinicalVar = [];
+            document.querySelectorAll('.myCheckbox:checked').forEach(checkbox => {
+                selectedClinicalVar.push(checkbox.value);
+            });
+
+            // Create a mapping of clinical feature values for each sample
+            const clinicalData = clinicalAndMutationData.map(sample => {
+                const clinicalValues = selectedClinicalVar.map(variable => sample[variable]);
+                return { x: sample[selectedX], y: sample[selectedY], clinicalValues };
+            });
+
+            // Color points based on the clinical variable(s)
+            const colorMap = d3.scaleOrdinal(d3.schemeCategory10); // You can adjust the color scheme
+
+            const trace = {
+                x: xValues,
+                y: yValues,
+        mode: 'markers',
+        type: 'scatter',
+                name: 'Gene Expression (log2)',
+                marker: {
+                    size: 12,
+                    color: clinicalData.map(d => colorMap(d.clinicalValues.join("-"))), // Color based on the clinical variable(s)
+                }
+            };
+
+            const layout = {
+                xaxis: { title: selectedX },
+                yaxis: { title: selectedY },
+                title: { text: 'Gene Expression Scatterplot' },
+            };
+
+            // Render the plot
+            Plotly.newPlot("coexpressionPanel", [trace], layout);
+        }
+
+        // Add event listeners to dropdowns to update the plot on change
+        document.getElementById("xGeneDropdown").addEventListener("change", updatePlot);
+        document.getElementById("yGeneDropdown").addEventListener("change", updatePlot);
+
+        // Set initial plot using first two genes
+        updatePlot();
     });
 
-
-    var div_plot = gridRow.append('div');
-    div_plot.attr("id", "coexpressionPanel");
-    div_plot.attr("class", "col s7");
-
-
-    ///////////////////////////////////
-    // 2) PLOTLY GROUPED SCATTERPLOT
-    ///////////////////////////////////
-
-    console.log(expressionData)
-
-    var trace1 = {
-        x: [1, 2, 3, 4, 5],
-        y: [1, 6, 3, 6, 1],
-        mode: 'markers',
-        type: 'scatter',
-        name: 'Team A',
-        text: ['A-1', 'A-2', 'A-3', 'A-4', 'A-5'],
-        marker: { size: 12 }
-      };
-      
-      var trace2 = {
-        x: [1.5, 2.5, 3.5, 4.5, 5.5],
-        y: [4, 1, 7, 1, 4],
-        mode: 'markers',
-        type: 'scatter',
-        name: 'Team B',
-        text: ['B-a', 'B-b', 'B-c', 'B-d', 'B-e'],
-        marker: { size: 12 }
-      };
-      
-      var data = [ trace1, trace2 ];
-      
-      var layout = {
-        xaxis: {
-          range: [ 0.75, 5.25 ]
-        },
-        yaxis: {
-          range: [0, 8]
-        },
-        title: {text: ''}
-      };
-      
-      Plotly.newPlot('coexpressionPanel', data, layout);
-      
-
-
-
-}
+    var div_plot = gridRow.append('div').attr("id", "coexpressionPanel").attr("class", "col s7");
+};
