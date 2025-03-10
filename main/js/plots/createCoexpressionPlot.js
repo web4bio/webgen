@@ -129,37 +129,26 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     ///////////////////////////////////
 
     getValidGeneList().then((validGeneList) => {
+
         let submittedGenes = [...new Set(expressionData.map(item => item.gene))];
-    
-        div_optionsPanels.append("br"); // Line break
 
-        div_optionsPanels.append('label').attr("for", "xGeneDropdown").text("Select X-Axis Gene:");
-        var xDropdown = div_optionsPanels.append("select")
-            .attr("id", "xGeneDropdown")
-            // .attr("class", "browser-default"); // Apply Materialize styling
+        div_optionsPanels.append('label').text("Select X-Axis Gene:");
+        var xDropdown = div_optionsPanels.append("select").attr("id", "xGeneDropdown").style("display", "block");
         submittedGenes.forEach(gene => xDropdown.append("option").attr("value", gene).text(gene));
-    
-        div_optionsPanels.append("br"); // Line break
 
-        div_optionsPanels.append('label').attr("for", "yGeneDropdown").text("Select Y-Axis Gene:");
-        var yDropdown = div_optionsPanels.append("select")
-            .attr("id", "yGeneDropdown")
-            // .attr("class", "browser-default"); // Apply Materialize styling
+        div_optionsPanels.append('label').text("Select Y-Axis Gene:");
+        var yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
         submittedGenes.forEach(gene => yDropdown.append("option").attr("value", gene).text(gene));
-    
+
         document.getElementById("xGeneDropdown").value = submittedGenes[0];
         document.getElementById("yGeneDropdown").value = submittedGenes[1];
-    
+
         document.getElementById("xGeneDropdown").addEventListener("change", updatePlot);
         document.getElementById("yGeneDropdown").addEventListener("change", updatePlot);
-    
-        // Initialize Materialize Select
-        M.FormSelect.init(document.querySelectorAll('select'));
-    
+
         gridRow.append('div').attr("id", "coexpressionPanel").attr("class", "col s7").style('height', '550px');
-    
+
         updatePlot(); // Initial plot
     });
-    
 
 };
