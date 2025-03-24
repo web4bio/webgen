@@ -74,8 +74,8 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     
         if (!selectedX || !selectedY) return;
     
-        let selectedX_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedX]});
-        let selectedY_expression = await firebrowse.fetchmRNASeq({cohorts: selectedTumorTypes, genes: [selectedY]});
+        let selectedX_expression = expressionData.filter(item => item.gene === selectedX);
+        let selectedY_expression = expressionData.filter(item => item.gene === selectedY);
     
         const xValues = selectedX_expression.filter(d => d.gene === selectedX).map(d => d.expression_log2);
         const yValues = selectedY_expression.filter(d => d.gene === selectedY).map(d => d.expression_log2);
@@ -130,6 +130,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
 
     getValidGeneList().then((validGeneList) => {
 
+        // get unique gene names from genes user selected in gene 2 select box
         let submittedGenes = [...new Set(expressionData.map(item => item.gene))];
 
         div_optionsPanels.append('label').text("Select X-Axis Gene:");
@@ -140,6 +141,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         var yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
         submittedGenes.forEach(gene => yDropdown.append("option").attr("value", gene).text(gene));
 
+        // default values for scatterplot are the first two that the user selected
         document.getElementById("xGeneDropdown").value = submittedGenes[0];
         document.getElementById("yGeneDropdown").value = submittedGenes[1];
 
