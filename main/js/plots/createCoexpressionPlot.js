@@ -42,27 +42,44 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
 
     var div_selectBody = div_checklist.append('div').attr('class', 'clin_selector'); // This is where checkboxes go
 
-    function renderCB(div_obj, id) {
-        const label = div_obj.append('div').attr("class", "checkbox-container");
+    // function renderCB(div_obj, id) {
+    //     const label = div_obj.append('div').attr("class", "checkbox-container");
+    //     const label2 = label.append('label');
+    //     label2.append('input')
+    //         .attr('type', 'checkbox')
+    //         .attr('class', 'myCheckbox')
+    //         .attr('value', id)
+    //         .on('change', function () {
+    //             updatePlot(); // Update plot when checkbox is changed
+    //         });
+    //     label2.append('span')
+    //         .text(' ' + id)
+    //         .style('font-weight', 'normal')
+    //         .style("color", "#5f5f5f");
+    // }
+
+    function renderRadioButton(div_obj, id) {
+        const label = div_obj.append('div').attr("class", "radio-container");
         const label2 = label.append('label');
         label2.append('input')
-            .attr('type', 'checkbox')
-            .attr('class', 'myCheckbox')
+            .attr('type', 'radio')
+            .attr('class', 'myRadioButton')
+            .attr('name', 'clinicalFeature') // Ensures only one selection
             .attr('value', id)
             .on('change', function () {
-                updatePlot(); // Update plot when checkbox is changed
+                updatePlot(); // Update plot when radio button is changed
             });
         label2.append('span')
             .text(' ' + id)
             .style('font-weight', 'normal')
             .style("color", "#5f5f5f");
     }
-
-    // Populate clinical feature selection checkboxes
+    
+    // Populate clinical feature selection radio buttons
     var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
     const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
     clin_vars = clin_vars.filter(item => !unwantedKeys.has(item));
-    clin_vars.forEach(el => renderCB(div_selectBody, el));
+    clin_vars.forEach(el => renderRadioButton(div_selectBody, el));
 
     ///////////////////////////////////
     // 2) FUNCTION TO UPDATE PLOT
@@ -77,10 +94,9 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         let selectedX_expression = expressionData.filter(item => item.gene === selectedX);
         let selectedY_expression = expressionData.filter(item => item.gene === selectedY);
     
-        const xValues = selectedX_expression.filter(d => d.gene === selectedX).map(d => d.expression_log2);
-        const yValues = selectedY_expression.filter(d => d.gene === selectedY).map(d => d.expression_log2);
+        const xValues = selectedX_expression.map(d => d.expression_log2);
+        const yValues = selectedY_expression.map(d => d.expression_log2);
     
-        // Compute Pearson correlation coefficient
         function pearsonCorrelation(x, y) {
             const n = x.length;
             const meanX = d3.mean(x);
@@ -92,7 +108,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     
         const rValue = pearsonCorrelation(xValues, yValues);
     
-        const selectedClinicalVar = document.querySelector('.myCheckbox:checked')?.value;
+        const selectedClinicalVar = document.querySelector('.myRadioButton:checked')?.value;
     
         const clinicalData = clinicalAndMutationData.map(sample => ({
             x: sample[selectedX],
