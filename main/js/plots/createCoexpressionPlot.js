@@ -34,7 +34,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     div_clinSelect.append('text')
         .style('font-size', '14px')
         .style('font-weight', 'bold')
-        .text('Select column annotations');
+        .text('Color Plot by Feature');
     div_clinSelect.append('br');
 
     const div_checklist = div_clinSelect.append('div')
@@ -177,11 +177,11 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     getValidGeneList().then(() => {
         let submittedGenes = [...new Set(expressionData.map(item => item.gene))];
 
-        div_optionsPanels.append('label').text("Select X-Axis Gene:");
+        div_optionsPanels.append('label').text("X-Axis Gene:");
         const xDropdown = div_optionsPanels.append("select").attr("id", "xGeneDropdown").style("display", "block");
         submittedGenes.forEach(gene => xDropdown.append("option").attr("value", gene).text(gene));
 
-        div_optionsPanels.append('label').text("Select Y-Axis Gene:");
+        div_optionsPanels.append('label').text("Y-Axis Gene:");
         const yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
         submittedGenes.forEach(gene => yDropdown.append("option").attr("value", gene).text(gene));
 
