@@ -11,23 +11,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         .attr("id", "optionsPanels")
         .attr("class", "col s3")
         .style("margin-top", "30px")
-        .style("padding-left", "30px");
-
-        const toggleContainer = div_optionsPanels.append('div')
-        .attr('class', 'switch')
-        .style('margin-bottom', '20px');
-    
-        toggleContainer.html(`
-            <label style="font-weight:bold;font-size:14px;">
-                Raw
-                <input type="checkbox" id="logToggle" checked>
-                <span class="lever"></span>
-                Log2
-            </label>
-        `);
-        
-        d3.select('#logToggle').on('change', updatePlot);
-    
+        .style("padding-left", "30px");    
 
     // Clinical variable selector
     const div_clinSelect = div_optionsPanels.append('div').attr("id", "coexpressionPartitionSelector");
@@ -35,7 +19,6 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         .style('font-size', '14px')
         .style('font-weight', 'bold')
         .text('Color Plot by Feature');
-    div_clinSelect.append('br');
 
     const div_checklist = div_clinSelect.append('div')
         .attr('class', 'viewport')
@@ -66,6 +49,23 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         .filter(k => !['date', 'tcga_participant_barcode', 'tool'].includes(k))
         .sort();
     clin_vars.forEach(el => renderRadioButton(div_selectBody, el));
+
+    div_optionsPanels.append('br');
+
+    const toggleContainer = div_optionsPanels.append('div')
+    .attr('class', 'switch')
+    .style('margin-bottom', '20px');
+
+    toggleContainer.html(`
+        <label style="font-weight:bold;font-size:14px;">
+            Raw
+            <input type="checkbox" id="logToggle" checked>
+            <span class="lever"></span>
+            Log2
+        </label>
+    `);
+    
+    d3.select('#logToggle').on('change', updatePlot);
 
     ///////////////////////////////////
     // 2) PLOTTING FUNCTION
@@ -179,7 +179,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
 
         // —— X‑Axis Gene selector —————————————————————————
 
-        div_optionsPanels.append('br');
+        // div_optionsPanels.append('br');
 
         const xRow = div_optionsPanels.append('div')
             .style('display', 'flex')
