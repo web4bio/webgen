@@ -165,7 +165,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         const layout = {
             xaxis: { title: selectedX },
             yaxis: { title: selectedY },
-            title: { text: `Gene Expression (${useLog ? "Log2" : "Raw"})` }
+            title: ''
         };
 
         Plotly.newPlot("coexpressionPanel", traces, layout);
