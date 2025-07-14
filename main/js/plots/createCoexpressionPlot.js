@@ -1,37 +1,43 @@
-
-
 const createCoexpressionPlot = async function (expressionData, clinicalAndMutationData) {
-
     document.getElementById("coexpressionLoaderDiv").classList.remove("loader");
-
-    // Create div object for heatmap and clear
 
     const divObject = d3.select("#coexpressionLoaderDiv").html("");
 
     ///////////////////////////////////
-    // 1) SAMPLE TRACK SELECTOR SETUP
+    // 1) LAYOUT + TOGGLE SWITCH
     ///////////////////////////////////
+    const gridRow = divObject.append("div").attr("id", "coexpressionGridRow").attr("class", "row");
+    const div_optionsPanels = gridRow.append('div')
+        .attr("id", "optionsPanels")
+        .attr("class", "col s3")
+        .style("margin-top", "30px")
+        .style("padding-left", "30px");
 
-    // Create div for clinical feature sample track variable selector as scrolling check box list
-    // Note that we are using the Grid system for Materialize
-    var gridRow = divObject.append("div");
-    gridRow.attr("id", "coexpressionGridRow").attr("class", "row");
-    //Append column for div options panel
-    var div_optionsPanels = gridRow.append('div');
-    div_optionsPanels.attr("id", "optionsPanels");
-    div_optionsPanels.attr("class", "col s3");
-    div_optionsPanels.style("margin-top", "30px");
-    div_optionsPanels.style("padding-left", "30px");
-    var div_clinSelect = div_optionsPanels.append('div');
-    div_clinSelect.attr("id", "coexpressionPartitionSelector");
+        const toggleContainer = div_optionsPanels.append('div')
+        .attr('class', 'switch')
+        .style('margin-bottom', '20px');
+    
+        toggleContainer.html(`
+            <label style="font-weight:bold;font-size:14px;">
+                Raw
+                <input type="checkbox" id="logToggle" checked>
+                <span class="lever"></span>
+                Log2
+            </label>
+        `);
+        
+        d3.select('#logToggle').on('change', updatePlot);
+    
+
+    // Clinical variable selector
+    const div_clinSelect = div_optionsPanels.append('div').attr("id", "coexpressionPartitionSelector");
     div_clinSelect.append('text')
         .style('font-size', '14px')
         .style('font-weight', 'bold')
         .text('Select column annotations');
     div_clinSelect.append('br');
 
-    // Scrollable box for checkboxes
-    var div_checklist = div_clinSelect.append('div')
+    const div_checklist = div_clinSelect.append('div')
         .attr('class', 'viewport')
         .style('overflow-y', 'scroll')
         .style('height', '365px')
@@ -39,7 +45,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         .style('font-size', '14px')
         .style('text-align', 'left');
 
-    var div_selectBody = div_checklist.append('div').attr('class', 'clin_selector'); // This is where checkboxes go
+    const div_selectBody = div_checklist.append('div').attr('class', 'clin_selector');
 
     function renderRadioButton(div_obj, id) {
         const label = div_obj.append('div').attr("class", "radio-container");
@@ -47,75 +53,56 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
         label2.append('input')
             .attr('type', 'radio')
             .attr('class', 'myRadioButton')
-            .attr('name', 'clinicalFeature') // Ensures only one selection
+            .attr('name', 'clinicalFeature')
             .attr('value', id)
-            .on('change', function () {
-                updatePlot(); // Update plot when radio button is changed
-            });
+            .on('change', () => updatePlot());
         label2.append('span')
             .text(' ' + id)
             .style('font-weight', 'normal')
             .style("color", "#5f5f5f");
     }
-    
-    // Populate clinical feature selection radio buttons
-    var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
-    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
-    clin_vars = clin_vars.filter(item => !unwantedKeys.has(item));
+
+    const clin_vars = Object.keys(clinicalAndMutationData[0])
+        .filter(k => !['date', 'tcga_participant_barcode', 'tool'].includes(k))
+        .sort();
     clin_vars.forEach(el => renderRadioButton(div_selectBody, el));
 
     ///////////////////////////////////
-    // 2) FUNCTION TO UPDATE PLOT
+    // 2) PLOTTING FUNCTION
     ///////////////////////////////////
-
     async function updatePlot() {
         const selectedX = document.getElementById("xGeneDropdown")?.value;
         const selectedY = document.getElementById("yGeneDropdown")?.value;
-    
+        const useLog = document.getElementById("logToggle")?.checked ?? true;
         if (!selectedX || !selectedY) return;
-    
-        let selectedX_expression = expressionData.filter(item => item.gene === selectedX);
-        let selectedY_expression = expressionData.filter(item => item.gene === selectedY);
-    
-        const xValues = selectedX_expression.map(d => d.expression_log2);
-        const yValues = selectedY_expression.map(d => d.expression_log2);
-    
-        function pearsonCorrelation(x, y) {
-            const n = x.length;
-            const meanX = d3.mean(x);
-            const meanY = d3.mean(y);
-            const numerator = d3.sum(x.map((xi, i) => (xi - meanX) * (y[i] - meanY)));
-            const denominator = Math.sqrt(d3.sum(x.map(xi => (xi - meanX) ** 2)) * d3.sum(y.map(yi => (yi - meanY) ** 2)));
-            return denominator === 0 ? 0 : (numerator / denominator).toFixed(3);
-        }
-    
-        const rValue = pearsonCorrelation(xValues, yValues);
+
+        const selectedX_expression = expressionData.filter(item => item.gene === selectedX);
+        const selectedY_expression = expressionData.filter(item => item.gene === selectedY);
         const selectedClinicalVar = document.querySelector('.myRadioButton:checked')?.value;
-    
-        // Join by TCGA participant barcode
+
         const clinicalMap = new Map(clinicalAndMutationData.map(d => [d.tcga_participant_barcode, d]));
 
-        const combinedData = selectedX_expression.map((xObj, i) => {
+        const combinedData = selectedX_expression.map(xObj => {
             const barcode = xObj.sample || xObj.tcga_participant_barcode;
             const yObj = selectedY_expression.find(y => y.sample === barcode || y.tcga_participant_barcode === barcode);
             const clinical = clinicalMap.get(barcode);
-
             if (!yObj || !clinical) return null;
 
+            const rawX = Math.pow(2, xObj.expression_log2);
+            const rawY = Math.pow(2, yObj.expression_log2);
+
             return {
-                x: xObj.expression_log2,
-                y: yObj.expression_log2,
+                x: useLog ? xObj.expression_log2 : rawX,
+                y: useLog ? yObj.expression_log2 : rawY,
                 clinicalValue: selectedClinicalVar ? clinical[selectedClinicalVar] ?? "NA" : "All"
             };
         }).filter(d => d !== null);
 
-    
         const uniqueGroups = [...new Set(combinedData.map(d => d.clinicalValue))];
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(uniqueGroups);
-    
         const traces = [];
-    
-        // Scatter points
+
+        // Scatter plot
         traces.push({
             x: combinedData.map(d => d.x),
             y: combinedData.map(d => d.y),
@@ -129,76 +116,75 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
             name: '',
             showlegend: false
         });
-    
-        // Regression lines
+
+        function pearsonCorrelationAndPValue(x, y) {
+            const n = x.length;
+            const meanX = d3.mean(x);
+            const meanY = d3.mean(y);
+            const covXY = d3.sum(x.map((xi, i) => (xi - meanX) * (y[i] - meanY)));
+            const stdX = Math.sqrt(d3.sum(x.map(xi => (xi - meanX) ** 2)));
+            const stdY = Math.sqrt(d3.sum(y.map(yi => (yi - meanY) ** 2)));
+            const r = covXY / (stdX * stdY);
+            const t = r * Math.sqrt((n - 2) / (1 - r * r));
+            const df = n - 2;
+            const p = jStat.ttest(t, df, 2);  // requires jStat.js
+            return { r: r.toFixed(3), p: p.toExponential(2) };
+        }
+
         if (selectedClinicalVar) {
             for (const group of uniqueGroups) {
                 const groupData = combinedData.filter(d => d.clinicalValue === group);
                 if (groupData.length < 2) continue;
-    
-                const regression = d3.regressionLinear()
-                    .x(d => d.x)
-                    .y(d => d.y)(groupData);
-    
-                const lineX = regression.map(d => d[0]);
-                const lineY = regression.map(d => d[1]);
-    
+
+                const { r, p } = pearsonCorrelationAndPValue(groupData.map(d => d.x), groupData.map(d => d.y));
+                const regression = d3.regressionLinear().x(d => d.x).y(d => d.y)(groupData);
+
                 traces.push({
-                    x: lineX,
-                    y: lineY,
+                    x: regression.map(d => d[0]),
+                    y: regression.map(d => d[1]),
                     mode: 'lines',
                     type: 'scatter',
-                    name: `Fit: ${group}`,
-                    line: { color: colorScale(group), width: 2, dash: 'solid' }
+                    name: `Fit: ${group} (r=${r}, p=${p})`,
+                    line: { color: colorScale(group), width: 2 }
                 });
             }
         } else {
-            // Single global regression
-            const regression = d3.regressionLinear()
-                .x(d => d.x)
-                .y(d => d.y)(combinedData);
-    
-            const lineX = regression.map(d => d[0]);
-            const lineY = regression.map(d => d[1]);
-    
+            const { r, p } = pearsonCorrelationAndPValue(combinedData.map(d => d.x), combinedData.map(d => d.y));
+            const regression = d3.regressionLinear().x(d => d.x).y(d => d.y)(combinedData);
+
             traces.push({
-                x: lineX,
-                y: lineY,
+                x: regression.map(d => d[0]),
+                y: regression.map(d => d[1]),
                 mode: 'lines',
                 type: 'scatter',
-                name: 'Fit (all data)',
+                name: `Fit (all) (r=${r}, p=${p})`,
                 line: { color: 'black', width: 2, dash: 'dot' }
             });
         }
-    
+
         const layout = {
             xaxis: { title: selectedX },
             yaxis: { title: selectedY },
-            title: { text: `Gene Expression (Log2) | r = ${rValue}` }
+            title: { text: `Gene Expression (${useLog ? "Log2" : "Raw"})` }
         };
-    
+
         Plotly.newPlot("coexpressionPanel", traces, layout);
     }
-    
-    
-    ///////////////////////////////////
-    // 3) DROPDOWNS FOR GENE SELECTION
-    ///////////////////////////////////
 
-    getValidGeneList().then((validGeneList) => {
-
-        // get unique gene names from genes user selected in gene 2 select box
+    ///////////////////////////////////
+    // 3) GENE DROPDOWNS
+    ///////////////////////////////////
+    getValidGeneList().then(() => {
         let submittedGenes = [...new Set(expressionData.map(item => item.gene))];
 
         div_optionsPanels.append('label').text("Select X-Axis Gene:");
-        var xDropdown = div_optionsPanels.append("select").attr("id", "xGeneDropdown").style("display", "block");
+        const xDropdown = div_optionsPanels.append("select").attr("id", "xGeneDropdown").style("display", "block");
         submittedGenes.forEach(gene => xDropdown.append("option").attr("value", gene).text(gene));
 
         div_optionsPanels.append('label').text("Select Y-Axis Gene:");
-        var yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
+        const yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
         submittedGenes.forEach(gene => yDropdown.append("option").attr("value", gene).text(gene));
 
-        // default values for scatterplot are the first two that the user selected
         document.getElementById("xGeneDropdown").value = submittedGenes[0];
         document.getElementById("yGeneDropdown").value = submittedGenes[1];
 
@@ -207,7 +193,6 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
 
         gridRow.append('div').attr("id", "coexpressionPanel").attr("class", "col s7").style('height', '550px');
 
-        updatePlot(); // Initial plot
+        updatePlot(); // Initial render
     });
-
 };
