@@ -177,13 +177,58 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
     getValidGeneList().then(() => {
         let submittedGenes = [...new Set(expressionData.map(item => item.gene))];
 
-        div_optionsPanels.append('label').text("X-Axis Gene:");
-        const xDropdown = div_optionsPanels.append("select").attr("id", "xGeneDropdown").style("display", "block");
-        submittedGenes.forEach(gene => xDropdown.append("option").attr("value", gene).text(gene));
+        // —— X‑Axis Gene selector —————————————————————————
 
-        div_optionsPanels.append('label').text("Y-Axis Gene:");
-        const yDropdown = div_optionsPanels.append("select").attr("id", "yGeneDropdown").style("display", "block");
-        submittedGenes.forEach(gene => yDropdown.append("option").attr("value", gene).text(gene));
+        div_optionsPanels.append('br');
+
+        const xRow = div_optionsPanels.append('div')
+            .style('display', 'flex')
+            .style('align-items', 'center')
+            .style('gap', '8px')
+            .style('margin-bottom', '12px')
+            .style('width', '100%');
+
+        xRow.append('label')
+            .text("X-Axis Gene:")
+            .attr('for', 'xGeneDropdown')
+            .style('white-space', 'nowrap')
+            .style('font-weight', 'bold')
+            .style('margin', 0);
+
+        const xDropdown = xRow.append("select")
+            .attr("id", "xGeneDropdown")
+            .attr("class", "browser-default")
+            .style("flex", "1")
+            .style("min-width", "120px");
+
+        submittedGenes.forEach(gene =>
+            xDropdown.append("option").attr("value", gene).text(gene)
+        );
+
+        // —— Y‑Axis Gene selector —————————————————————————
+        const yRow = div_optionsPanels.append('div')
+            .style('display', 'flex')
+            .style('align-items', 'center')
+            .style('gap', '8px')
+            .style('margin-bottom', '10px')
+            .style('width', '100%');
+
+        yRow.append('label')
+            .text("Y-Axis Gene:")
+            .attr('for', 'yGeneDropdown')
+            .style('white-space', 'nowrap')
+            .style('font-weight', 'bold')
+            .style('margin', 0);
+
+        const yDropdown = yRow.append("select")
+            .attr("id", "yGeneDropdown")
+            .attr("class", "browser-default")
+            .style("flex", "1")
+            .style("min-width", "120px");
+
+        submittedGenes.forEach(gene =>
+            yDropdown.append("option").attr("value", gene).text(gene)
+        );
 
         document.getElementById("xGeneDropdown").value = submittedGenes[0];
         document.getElementById("yGeneDropdown").value = submittedGenes[1];
