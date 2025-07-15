@@ -189,7 +189,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
             .style('width', '100%');
 
         xRow.append('label')
-            .text("X-Axis Gene:")
+            .text("X-Axis:")
             .attr('for', 'xGeneDropdown')
             .style('white-space', 'nowrap')
             .style('font-weight', 'bold')
@@ -214,7 +214,7 @@ const createCoexpressionPlot = async function (expressionData, clinicalAndMutati
             .style('width', '100%');
 
         yRow.append('label')
-            .text("Y-Axis Gene:")
+            .text("Y-Axis:")
             .attr('for', 'yGeneDropdown')
             .style('white-space', 'nowrap')
             .style('font-weight', 'bold')
