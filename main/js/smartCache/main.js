@@ -440,19 +440,18 @@ function CacheInterface(nameOfDb) {
       for (geneObj of interfaceData) {
         //First element in geneObj is the gene name
         gene = geneObj[0]
-        //Second element in geneObj is map TCGA barcodes to TCGA expression records
-        expressionMap = geneObj[1]
-        for(expressionObj of expressionMap) {
-          //First element in expressionObj is patient's TCGA barcode
-          let barcode = expressionObj[0];
-          //If there is a subset of barcodes being requested, apply that filter
-          if(listOfBarcodes && listOfBarcodes.includes(barcode)) {
-            //Second element in expressionObj is the mRNA_Seq information for current patient
-            tmp.push(expressionObj[1]);
-          }
-          //If no subset of barcodes is being requested, then do not apply a filter
-          else if(!listOfBarcodes) {
-            tmp.push(expressionObj[1])
+        //Only append expression data if a certain gene is being requested
+        if(listOfGenes.includes(gene)) {
+          //Second element in geneObj is map TCGA barcodes to TCGA expression records
+          expressionMap = geneObj[1]
+          for(expressionObj of expressionMap) {
+            //First element in expressionObj is patient's TCGA barcode
+            let barcode = expressionObj[0];
+            //Append patient's expression data if barcode is in the requested subset or if no barcode filter is applied
+            if((listOfBarcodes && listOfBarcodes.includes(barcode)) || (!listOfBarcodes)) {
+              //Second element in expressionObj is the mRNA_Seq information for current patient
+              tmp.push(expressionObj[1]);
+            }
           }
         }
       }
