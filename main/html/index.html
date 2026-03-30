@@ -36,6 +36,7 @@
         <script src="../js/dataProcessing/mergeExpression.js" defer></script>
         <script src="../js/plots/createHeatmap.js" defer></script>
         <script src="../js/plots/createViolinPlot.js" defer></script>
+        <script src = "../js/plots/createSurvivalPlot.js" defer></script>
         <script src="../js/afterSubmit.js" defer></script>
         <script src="../js/smartCache/main.js"></script>
         <script defer src="../js/progressBar.js"></script>
@@ -204,6 +205,9 @@
                             <li class="tab col s12">
                                 <a href="#violinPlotRef">Violin Plot</a>
                             </li>
+                            <li class = "tab col s12">
+                                <a href = "#survivalCurveRef">Survival Curve</a>
+                            </li>
                         </ul>
                         <!-- Setting up the plots to go under each tab. -->
                         <div id="heatmapRef" class="col s12">
@@ -211,6 +215,12 @@
                         </div>
                         <div id="violinPlotRef" class="col s12">
                             <div id="violinLoaderDiv" style="margin-top: 25px" align="center"></div>
+                        </div>
+                        <div id = "survivalCurveRef" class = "col s12">
+                            <div id="survivalLoaderDiv"
+                                style="margin-top: 25px;"
+                                align="center"
+                            ></div>
                         </div>
                     </div>
                 </div>

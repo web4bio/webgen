@@ -56,7 +56,6 @@ const buildPlots = async function() {
   // GET EXPRESSION DATA:
 
   const selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((gene) => gene.text);
-
   let cacheGe = await getCacheGE(); // Instantiate cache interface for gene expression
   let expressionData;
 
@@ -80,10 +79,15 @@ const buildPlots = async function() {
     clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
     expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
   } 
-  else {
+  else if(intersectedBarcodes == null) {
     expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
     // Pass in barcodes from expressionData
     clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
+  }
+  else {
+    //Set screen text to indicate that no plots were generated due to lack of patient barcodes
+    handleEmptyCohort();
+    return null;
   }
   expressionData = (expressionData || []).filter(
     r => r && allSelectedGenes.includes(r.gene)
@@ -104,6 +108,8 @@ const buildPlots = async function() {
   buildHeatmap(expressionData, mutationAndClinicalData);
   buildViolinPlot(allSelectedGenes, expressionData);
   buildDownloadButtons(allSelectedGenes, expressionData, clinicalData);
+  //Construct survival curve
+  buildSurvivalCurvesByStrata(clinicalData)
   return null;
 };
 
@@ -526,3 +532,15 @@ let downloadClinicalData = function(cohortID, clinicalData, barcodes_clin) {
     saveFile(csv_string_clin, "WebGen_clinical.csv");
   }
 }
+
+let handleEmptyCohort = function () {
+  let empty_cohort_message = "The gene mutation and/or metadata filter(s) produced a cohort with no patients. To see figures, please change the gene mutation and/or metadata filter(s)."
+  // Remove the loaders from heatmap, violin, and survival tabs
+  document.getElementById("heatmapLoaderDiv").classList.remove("loader");
+  document.getElementById("violinLoaderDiv").classList.remove("loader");
+  document.getElementById("survivalLoaderDiv").classList.remove("loader");
+  // Set text of each plot tab
+  d3.select("#heatmapLoaderDiv").html(empty_cohort_message);
+  d3.select("#violinLoaderDiv").html(empty_cohort_message);
+  d3.select("#survivalLoaderDiv").html(empty_cohort_message);
+};
