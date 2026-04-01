@@ -1,3 +1,5 @@
+// const { max } = require("simple-statistics");
+
 /**
  * Format survival data using Kaplan-Meier method
  * @param {Array} clinicalData - Clinical data array
@@ -112,11 +114,46 @@ const calculateSurvivalValuesByCohort = function(cohortGroups) {
 const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
   // Clear any existing plot
   d3.select("#survivalPlot").html("");
+
+  d3.select('#survivalPlot').style('overflow-x', 'auto');
+
+  const cohorts=Object.keys(survivalCurvesByCohort);
   
   // Set up dimensions and margins
   const margin = {top: 50, right: 200, bottom: 50, left: 100};
   const width = 800 - margin.left - margin.right;
   const height = 500 - margin.top - margin.bottom;
+
+  //text wrapper
+  const wrapLabel=(label,maxChars=28)=>{
+    const norm=String(label).replaceAll('_',', ');
+    const words=norm.split(/\s+/).filter(Boolean);
+    const lines=[];
+    let line='';
+
+    words.forEach((w)=>{
+        const test=line ? `${line} ${w}` : w;
+        if(test.length>maxChars){
+            if(line) lines.push(line);
+            line=w;
+        } else {
+            line=test;
+        }
+    });
+    if(line) lines.push(line);
+    return lines.length ? lines : [norm];
+  }
+
+  //precompute legend layout such that wrapped text never gets clipped
+  const legendItems=cohorts.map((c)=>{
+    const label=`${c} (n=${Math.max(0,survivalCurvesByCohort[c].length-1)})`;
+    const lines=wrapLabel(label);
+    const itemHeight=lines.length*14+4; //14px line height + 4px padding
+    return {c,lines,itemHeight};
+  })
+
+  const legendHeight = legendItems.reduce((a, b) => a + b.itemHeight, 0);
+  const totalSvgHeight = Math.max(height + margin.top + margin.bottom, legendHeight + margin.top + 20);
   
   // Create SVG element
   const svg = d3.select("#survivalPlot")
@@ -273,21 +310,45 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
   const legend = svg.append("g")
       .attr("class", "legend")
       .attr("transform", `translate(${width + 20}, 0)`);
+
+  let yOffset=0;
+  legendItems.forEach((item, i)=>{
+    const lg = legend.append("g")
+        .attr("transform", `translate(0, ${yOffset})`);
+
+    lg.append("rect")
+        .attr("width", 10)
+        .attr("height", 10)
+        .attr('y',2)
+        .attr("fill", colorScale(i));
+
+    const text = lg.append("text")
+      .attr("x", 15)
+      .attr("y", 12)
+      .style("font-size", "12px");
+
+    item.lines.forEach((line, idx) => {
+      text.append("tspan")
+        .attr("x", 15)
+        .attr("dy", idx === 0 ? 0 : 14)
+        .text(line);
+    });
+    yOffset+=item.itemHeight;
   
-  Object.keys(survivalCurvesByCohort).forEach((cohort, i) => {
-      const lg = legend.append("g")
-          .attr("transform", `translate(0, ${i * 20})`);
+//   Object.keys(survivalCurvesByCohort).forEach((cohort, i) => {
+//       const lg = legend.append("g")
+//           .attr("transform", `translate(0, ${i * 20})`);
       
-      lg.append("rect")
-          .attr("width", 10)
-          .attr("height", 10)
-          .attr("fill", colorScale(i));
+//       lg.append("rect")
+//           .attr("width", 10)
+//           .attr("height", 10)
+//           .attr("fill", colorScale(i));
       
-      lg.append("text")
-          .attr("x", 15)
-          .attr("y", 10)
-          .text(`${cohort} (n=${survivalCurvesByCohort[cohort].length-1})`)
-          .style("font-size", "12px");
+//       lg.append("text")
+//           .attr("x", 15)
+//           .attr("y", 10)
+//           .text(`${cohort} (n=${survivalCurvesByCohort[cohort].length-1})`)
+//           .style("font-size", "12px");
   });
   
 };
