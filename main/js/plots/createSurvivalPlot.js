@@ -278,7 +278,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
           .attr("d", line)
 
       // Render invisible data points that form the path to create a tooltip for
-      svg.selectAll(`${cohort}`)
+      svg.selectAll(null)
           .data(curveData)
           .enter()
           .append("circle")
@@ -293,7 +293,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
           .on("mouseleave", mouseleave);
       
        // Add censored data points (small circles)
-       svg.selectAll(`.censored-${cohort}`)
+       svg.selectAll(null)
            .data(curveData.filter(d => d.censored))
            .enter()
            .append("circle")
