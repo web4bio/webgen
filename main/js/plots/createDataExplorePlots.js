@@ -146,19 +146,33 @@ let buildDataExplorePlots = async function() {
         // If feature was unselected
         if (previouslySelectedFeatures !== undefined) {
             // get any features that were previously selected that are no longer selected
-            let unselectedFeature = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
-            if(unselectedFeature.length > 0) {
-                let temp = document.getElementById(unselectedFeature + 'Div');
-                if (temp) {
-                    // remove associated div/plot
-                    temp.remove();
+            const unselectedFeatures = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
+            
+            unselectedFeatures.forEach((feature) => {
+                //remove mutation signature plot container
+                const mainPlot=document.getElementById(feature + 'Div');
+                if(mainPlot) {
+                    mainPlot.remove();
                 }
+
+                //remove gene expression histogram container
+                const exprPlot=document.getElementById(feature + 'ExpressionDiv');
+                if(exprPlot) {
+                    exprPlot.remove();
+                }
+
+                //sync with UI
+                delete selectedCategoricalFeatures[feature];
+                delete selectedContinuousFeatures[feature];
+                
                 // if unselected feature is not a gene, set isSelected status to false
-                if(unselectedFeature[0] !== unselectedFeature[0].toUpperCase()) {
-                    let index = clinicalType.findIndex(x => x.name == unselectedFeature);
+                if(feature[0] !== feature[0].toUpperCase()) {
+                    let index = clinicalType.findIndex(x => x.name == feature);
                     clinicalType[index].isSelected = false;
                 }
-            }
+
+            })
+                
         }
         previouslySelectedFeatures = mySelectedFeatures;    
 
