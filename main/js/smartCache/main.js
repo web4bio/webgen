@@ -739,8 +739,12 @@ function CacheInterface(nameOfDb) {
     for (let cohort in hasInterface) {
       let cachedBarcodes = await this.interface.get(cohort)
       let emptyTmp = []
-      for (let k of cachedBarcodes) {
-        emptyTmp.push(k)
+      if(cachedBarcodes && typeof cachedBarcodes !== 'undefined') { //debug
+        for (let k of cachedBarcodes) {
+          emptyTmp.push(k)
+        }
+      }else{
+        console.warn(`No barcodes found for cohort ${cohort}`);
       }
       tmp.push({cohort:cohort, barcodes: emptyTmp})
     }
@@ -750,8 +754,13 @@ function CacheInterface(nameOfDb) {
     for(let cohort in missingInterface) {
       let newBarcodes = await this.interface.get(cohort)
       let emptyTmp = []
-      for (let k of newBarcodes) {
-        emptyTmp.push(k)
+
+      if(newBarcodes && typeof newBarcodes !== 'undefined') { //debug
+        for (let k of newBarcodes) {
+          emptyTmp.push(k)
+        }
+      }else{
+        console.warn(`No barcodes found for cohort ${cohort}`);
       }
       tmp.push({cohort:cohort, barcodes: emptyTmp})
     }  
