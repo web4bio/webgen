@@ -7,7 +7,7 @@
  * @returns {Promise<Object.<string, Array>>} Fetched data.
  */
 const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
-  const base = "https://cors-proxy-webgen.vercel.app";
+  const base = "https://webgen.gteref.workers.dev/?url="
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
   if (endpoint.startsWith("/")) {
@@ -16,7 +16,7 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
   endpoint = `http://firebrowse.org/api/v1/${endpoint}`;
   params = new URLSearchParams(params);
   const encodedUri = encodeURIComponent(`${endpoint}?${params.toString()}`)
-  const url = `${base}/api/proxy?url=${encodedUri}`;
+  const url = `${base}${encodedUri}`
   const minimalJson = { [expectedKey]: [] };
 
   const response = await fetch(url);
@@ -26,7 +26,7 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
   }
   try {
     const json = await response.json();
-    return json.data;
+    return json;
   } catch(error) {
     console.log(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
     return minimalJson;
