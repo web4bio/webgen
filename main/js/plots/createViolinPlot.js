@@ -7,6 +7,8 @@
 
 let tooltipNum = 0;
 
+const normalizeCategoryLabel=(label)=>String(label).replaceAll("_", " ")
+
 /** Create violin plots;
  *
  * @param {ExpressionData[]} dataInput - Array of expression data objects.
@@ -138,7 +140,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
 
     svgObject.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x))
+        .call(d3.axisBottom(x).tickFormat(normalizeCategoryLabel))
         .selectAll(".tick text")
         .attr("transform", "rotate(-20), translate(-10, 5)")
         .call(wrap, x.bandwidth())
@@ -228,7 +230,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         for (prop in this) {
             const spacing = "\xa0\xa0\xa0\xa0|\xa0\xa0\xa0\xa0";
             var tooltipstring = "\xa0\xa0" +
-                                "Cohort: " + d.key + spacing +
+                                "Cohort: " + normalizeCategoryLabel(d.key) + spacing +
                                 "Min: " + String(d.min.toFixed(4)) + spacing +
                                 "Q1: " + String(d.Qone.toFixed(4)) + spacing +
                                 "Median: " + String(d.median.toFixed(4)) + spacing +
