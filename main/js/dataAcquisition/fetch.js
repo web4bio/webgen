@@ -163,7 +163,11 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
       ProgressBar.setPercentage(i/paramsMatrix.length*100, "Fetching " + expectedKey);
       // Run a fetch and then collect the data into one common object.
       await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-        .then(x => {results[expectedKey].push(...x[expectedKey])});
+        .then(x => {
+          // Verify retrieved data has expectedKey as a field
+          if(expectedKey in x)
+            results[expectedKey].push(...x[expectedKey])
+        });
     }
     ProgressBar.cleanUp();
     return results;
@@ -205,7 +209,12 @@ firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum})
     groupBy.push({key: "tcga_participant_barcode", length: 50});
   }
   const data = await firebrowse.fetch("/Samples/Clinical_FH", params, groupBy);
-  return data.Clinical_FH;
+  // Check that firebrowse.fetch() returned properly formatted data
+  let data_field = "Clinical_FH"
+  if(data_field in data_field)
+    return data[data_field];
+  else
+    throw new Error("Clinical data could not be fetched from Firebrowse");
 };
 
 
@@ -242,8 +251,12 @@ firebrowse.fetchCounts = async function(cohorts) {
     data_type: "mrnaseq",
     totals: "true",
   };
-  const fetchResponse = await firebrowse.fetch("/Metadata/Counts", params);
-  return fetchResponse.Counts;
+  const data = await firebrowse.fetch("/Metadata/Counts", params);
+  let data_field = "Counts"
+  if(data_field in data_field)
+    return data[data_field];
+  else
+    window.alert("Could not fetch cohort counts data");
 };
 
 firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
