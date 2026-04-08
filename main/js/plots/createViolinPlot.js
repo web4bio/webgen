@@ -46,7 +46,8 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
 
     // Set up the figure dimensions:
     var margin = {top: 0, right: 30, bottom: 10, left: 40},
-        width = 505 - margin.left - margin.right,
+        baseInnerWidth = 505 - margin.left - margin.right
+        const minBandWidth=65; //min horizontal space per group before enabling horizontal scroll
         height = 200 - margin.top - margin.bottom;
 
     // Filter out patients with null expression values:
@@ -98,12 +99,23 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         violinCurveColors.push(colors[index % colors.length]);
     }
 
+    //expand plot width when many groups are selected
+    const width=Math.max(baseInnerWidth, myGroups.length*minBandWidth);
+    const svgWidth = width + margin.left + margin.right;
+
     // Build SVG Object
     let svgID = "svgViolinPlot" + divNum;
     let svgDivId = `svgViolin${divNum}`;
 
-    let svgObject = d3.select("#" + svgDivId).append("svg")
-        .attr("viewBox", `0 -35 505 300`)
+    const svgContainer=d3.select("#" + svgDivId)
+        .style('overflow-x','auto')
+        .style('overflow-y','hidden')
+        .style('max-width', '100%')
+
+    let svgObject = svgContainer.append("svg")
+        .attr("width", svgWidth)
+        .attr("height", 300)
+        .attr("viewBox", `0 -35 ${svgWidth} 300`)
         .attr("id", svgID)
         .attr("indepVarType", "gene")
         .attr("cohort", curPlot)
