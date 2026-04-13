@@ -383,26 +383,22 @@ function CacheInterface(nameOfDb) {
         for (let gene in interface[cohort]) {
           try {
             //Fetch expression data for requested cohort, gene, and barcodes with Firebrowse fetch call
-            await firebrowse.fetchmRNASeq({
-              cohorts: [cohort], 
-              genes: [gene]}
-            ).then((expressionData) => {  
-              for(let index = 0; index < expressionData.length; index++) {
-                try {
-                  let obj = expressionData[index];
-                  //Call add() and saveToDB() to cache the fetched data
-                  cacheGE.add(obj.cohort, obj.tcga_participant_barcode, gene, obj);
-                  cacheGE.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj);
-                } catch(err) {
-                  //If an error occurred, print an error message and end execution
-                  console.error('Failed, skipping for cohort.', err);
-                  return undefined
-                }
+            let expressionData = await firebrowse.fetchmRNASeq({cohorts: [cohort], genes: [gene]})  
+            for(let index = 0; index < expressionData.length; index++) {
+              try {
+                let obj = expressionData[index];
+                //Call add() and saveToDB() to cache the fetched data
+                await cacheGE.add(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+                await cacheGE.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj);
+              } catch(err) {
+                //If an error occurred, print an error message and end execution
+                console.error('Failed, skipping for cohort.', err);
+                return undefined
               }
-            })
+            }
           } catch(err) {
-            error_message = `${err.message} for ${cohort} cohort and ${gene} gene`
-            handleDataFetchError(error_message);
+            message = `Could not fetch/store genetic data from Firebrowse for cohort ${cohort} and gene ${gene}`;
+            handleDataFetchError(message);
           }
         }
       }
@@ -449,18 +445,19 @@ function CacheInterface(nameOfDb) {
       for (geneObj of interfaceData) {
         //First element in geneObj is the gene name
         gene = geneObj[0]
-        //Only append expression data if a certain gene is being requested
-        if(listOfGenes.includes(gene)) {
-          //Second element in geneObj is map TCGA barcodes to TCGA expression records
-          expressionMap = geneObj[1]
-          for(expressionObj of expressionMap) {
-            //First element in expressionObj is patient's TCGA barcode
-            let barcode = expressionObj[0];
-            //Append patient's expression data if barcode is in the requested subset or if no barcode filter is applied
-            if((listOfBarcodes && listOfBarcodes.includes(barcode)) || (!listOfBarcodes)) {
-              //Second element in expressionObj is the mRNA_Seq information for current patient
-              tmp.push(expressionObj[1]);
-            }
+        //Second element in geneObj is map TCGA barcodes to TCGA expression records
+        expressionMap = geneObj[1]
+        for(expressionObj of expressionMap) {
+          //First element in expressionObj is patient's TCGA barcode
+          let barcode = expressionObj[0];
+          //If there is a subset of barcodes being requested, apply that filter
+          if(listOfBarcodes && listOfBarcodes.includes(barcode)) {
+            //Second element in expressionObj is the mRNA_Seq information for current patient
+            tmp.push(expressionObj[1]);
+          }
+          //If no subset of barcodes is being requested, then do not apply a filter
+          else if(!listOfBarcodes) {
+            tmp.push(expressionObj[1])
           }
         }
       }
@@ -592,26 +589,22 @@ function CacheInterface(nameOfDb) {
         for (let gene of interface[cohort]) {
           try {
             //Fetch expression data for requested cohort, gene, and barcodes with Firebrowse fetch call
-            firebrowse.fetchMutationMAF({
-              cohorts: [cohort], 
-              genes: [gene]}
-            ).then((raw_mutation_data) => {
-              let mutationData = formatMutationData(cohort, gene, raw_mutation_data);
-              for(let index = 0; index < mutationData.length; index++) {
-                try {
-                  let obj = mutationData[index];
-                  cacheMU.add(obj.cohort, obj.tcga_participant_barcode, gene, obj); // Add patient to mutation data caching interface
-                  cacheMU.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj); // Save patient to caching interface database
-                } catch(err) {
-                  //If an error occurred, print an error message and end execution
-                  console.error('Failed, skipping for cohort.', err);
-                  return undefined;
-                }
+            let rawMutationData = await firebrowse.fetchMutationMAF({cohorts: [cohort], genes: [gene]});
+            let mutationData = await formatMutationData(cohort, gene, rawMutationData);
+            for(let index = 0; index < mutationData.length; index++) {
+              try {
+                let obj = mutationData[index];
+                await cacheMU.add(obj.cohort, obj.tcga_participant_barcode, gene, obj); // Add patient to mutation data caching interface
+                await cacheMU.saveToDB(obj.cohort, obj.tcga_participant_barcode, gene, obj); // Save patient to caching interface database
+              } catch(err) {
+                //If an error occurred, print an error message and end execution
+                console.error('Failed, skipping for cohort.', err);
+                return undefined
               }
-            });
+            }
           } catch(err) {
-            error_message = `${err.message} for ${cohort} cohort and ${gene} gene`
-            handleDataFetchError(error_message);
+            message = `Could not fetch/store mutation data from Firebrowse for cohort ${cohort} and gene ${gene}`;
+            handleDataFetchError(message)
           }
         }
       }
@@ -696,35 +689,33 @@ function CacheInterface(nameOfDb) {
     async function executeQueriesBAR(interface) {
       //Harcode gene to query mRNASeq data for
       let expr = "TP53"
-      //For each cohort, query the mRNASeq data for that cohort
-      for (let cohort in interface) {
-        try {
+        //For each cohort, query the mRNASeq data for that cohort
+        for (let cohort in interface) {
+          try {
           //Get mRNASeq data with hardcoded gene
           /*Currently uses low-level firebrowse function to fetch mRNASeq data;
           replace with appropriate gene expression caching method!*/
-          firebrowse.fetchmRNASeq({
+          let expressionData = await firebrowse.fetchmRNASeq({
             cohorts: [cohort],
-            genes: [expr]
-          }).then((expression_data) => {
-            //Iterate over each JSON object in fetched expression data and save to cache
-            for(let index = 0; index < expression_data.length; index++) {
-              let obj = expression_data[index];
-              try {
-                //Call add() and saveToDB() to cache the fetched data
-                cacheBAR.add(obj.cohort, obj.tcga_participant_barcode);
-                cacheBAR.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj);
-              } catch(err) {
-                //If an error occurred, print an error message and end execution
-                console.error('Failed, skipping for cohort.', err);
-                return undefined
-              }
-            }
+            genes: [expr],
           })
-        } catch(err) {
-          error_message = `${err.message} for ${cohort} cohort` 
-          handleDataFetchError(error_message)
+          //Iterate over each JSON object in fetched expression data and save to cache
+          for(let index = 0; index < expressionData.length; index++) {
+            let obj = expressionData[index];
+            try {
+              //Call add() and saveToDB() to cache the fetched data
+              await cacheBAR.add(obj.cohort, obj.tcga_participant_barcode);
+              await cacheBAR.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj);
+            } catch(err) {
+              //If an error occurred, print an error message and end execution
+              console.error('Failed, skipping for cohort.', err);
+              return undefined
+            }
+          }} catch(err) {
+            message = `Could not fetch/store barcode data from Firebrowse for cohort ${cohort}`;
+            handleDataFetchError(message);
+          }
         }
-      }
     }
 
     //missingInterface is an array of cohorts whose barcodes have not yet been cached
@@ -789,26 +780,27 @@ function CacheInterface(nameOfDb) {
       )
           .prop('disabled', true)
           .trigger('change.select2');
-      for (let cohort in interface) {
-        let getBarcodesInACohort = barcodesByCohort.filter(cohortEle => (cohortEle.cohort == cohort))[0].barcodes
-        try {
-          await firebrowse.fetchClinicalFH({
+      
+        for (let cohort in interface) {
+          try {
+          let getBarcodesInACohort = barcodesByCohort.filter(cohortEle => (cohortEle.cohort == cohort))[0].barcodes
+          let clinicalData = await firebrowse.fetchClinicalFH({
             cohorts: [cohort],
-            barcodes: getBarcodesInACohort
-          }).then((clinicalData) => {
-            // Iterate over each patient's clinical data
-            for(let index = 0; index < clinicalData.length; index++) {
-                let obj = clinicalData[index];
-                cacheCLIN.add(cohort=obj.cohort, barcode=obj); // Add clinical data to interface map by mimicking parameters for barcode caching
-                cacheCLIN.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj); // Save clinical data to interface
-            }
-          }).catch(error => {
+            barcodes: getBarcodesInACohort,
+          })
+          // Iterate over each patient's clinical data
+          for(let index = 0; index < clinicalData.length; index++) {
+            try {
+              let obj = clinicalData[index];
+              cacheCLIN.add(cohort = obj.cohort, barcode = obj); // Add clinical data to interface map by mimicking parameters for barcode caching
+              cacheCLIN.saveToDB(obj.cohort, obj.tcga_participant_barcode, obj); // Save clinical data to interface
+            } catch(err) {
             console.error('Failed, skipping for cohort.', error);
             return undefined
-          });
-        } catch(err) {
-          error_message = `${err.message} for ${cohort} cohort` 
-          handleDataFetchError(error_message)
+          };
+        }} catch(err) {
+          message = `Could not fetch/store clinical data from Firebrowse for cohort ${cohort}`;
+          handleDataFetchError(message);
         }
       }
       $(
@@ -816,7 +808,7 @@ function CacheInterface(nameOfDb) {
       )
           .prop('disabled', false)
           .trigger('change.select2');
-    }
+  }
 
     let [missingInterface, hasInterface] = constructQueriesCLIN(listOfCohorts, this.interface)
 

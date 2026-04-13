@@ -28,7 +28,7 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
     const json = await response.json();
     return json;
   } catch(error) {
-    console.log(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
+    console.warn(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
     return minimalJson;
   }
 };
@@ -211,7 +211,7 @@ firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum})
   const data = await firebrowse.fetch("/Samples/Clinical_FH", params, groupBy);
   // Check that firebrowse.fetch() returned properly formatted data
   let data_field = "Clinical_FH"
-  if(data_field in data_field)
+  if(data_field in data)
     return data[data_field];
   else
     throw new Error("Clinical data could not be fetched from Firebrowse");
@@ -253,10 +253,10 @@ firebrowse.fetchCounts = async function(cohorts) {
   };
   const data = await firebrowse.fetch("/Metadata/Counts", params);
   let data_field = "Counts"
-  if(data_field in data_field)
+  if(data_field in data)
     return data[data_field];
   else
-    window.alert("Could not fetch cohort counts data");
+    throw new Error("Cohort counts could not be fetched from Firebrowse");
 };
 
 firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
@@ -288,7 +288,11 @@ firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
   else {
     data = await firebrowse.fetch("/Analyses/Mutation/MAF", params, groupBy);
   }
-  return data.MAF;
+  let data_field = "MAF"
+  if(data_field in data)
+    return data[data_field];
+  else
+    throw new Error("Could not fetch MAF mutation data from Firehose");
 };
 
 
@@ -337,7 +341,13 @@ firebrowse.fetchmRNASeq = async function({cohorts, genes, barcodes}) {
     groupBy.push({key: "tcga_participant_barcode", length: 400});
   }
   const data = await firebrowse.fetch("/Samples/mRNASeq", params, groupBy);
-  return data.mRNASeq;
+  //let data_field = "mRNASeq"
+  let data_field = "test"
+  if(data_field in data)
+    return data[data_field];
+  else
+    throw new Error("Could not fetch mRNASeq expression data from Firehose");
+
 };
 
 // Prevent any changes to this object.
