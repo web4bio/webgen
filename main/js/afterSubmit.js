@@ -68,7 +68,13 @@ const buildPlots = async function() {
 
   let intersectedBarcodes = await getBarcodesFromSelectedFeatures(selectedTumorTypes);
 
-  if (intersectedBarcodes.length > 0) {
+
+  if(intersectedBarcodes == null) {
+    expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
+    // Pass in barcodes from expressionData
+    clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
+  }
+  else if (intersectedBarcodes.length > 0) {
 
     // If intersectedBarcodes is populated, then iterate over each cohort's barcodes and filter by the barcodes of interest
     for(let index = 0; index < barcodesByCohort.length; index++) {
@@ -79,11 +85,7 @@ const buildPlots = async function() {
     clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
     expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
   } 
-  else if(intersectedBarcodes == null) {
-    expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
-    // Pass in barcodes from expressionData
-    clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
-  }
+  
   else {
     //Set screen text to indicate that no plots were generated due to lack of patient barcodes
     handleEmptyCohort();
