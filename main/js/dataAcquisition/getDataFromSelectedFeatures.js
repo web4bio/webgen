@@ -23,9 +23,16 @@ getBarcodesFromSelectedFeatures = async function(selectedTumorTypes) {
   for(let i = 0; i < selectedCategoricalFields.length; i++) {
 
     let currentField = selectedCategoricalFields[i];
+    let clickedValues=selectedCategoricalFeatures[currentField]; //get array of selected vals for this field
+
+    // if no slices are selected, treat it as ALL slices selected
+    if (!Array.isArray(clickedValues) || clickedValues.length === 0) {
+      continue;
+    }
+
 
     // if current selected sector belongs to a gene...
-    if(currentField[i].toUpperCase() == currentField[i]) {
+    if(currentField[0].toUpperCase() == currentField[0]) {
 
       let currentGene = currentField;
 
@@ -162,7 +169,9 @@ getBarcodesFromSelectedFeatures = async function(selectedTumorTypes) {
       return [];
     }
   
-    if (!arrays.length || arrays.some(a => a.length === 0)) return [];
+    // if (!arrays.length || arrays.some(a => a.length === 0)) return [];
+    if (!arrays.length) return null; // no filters active means all selected
+    if (arrays.some(a => a.length === 0)) return []; // if any filter has no barcodes, intersection is empty
   
     // Dedupe each, start with smallest, intersect via Sets
     const deduped = arrays.map(a => {
