@@ -37,7 +37,9 @@ const buildPlots = async function() {
 
   if (isEmpty(selectedTumorTypes) || isEmpty(allSelectedGenes) ) {
     console.log("user did not provide enough information for query");
-    window.alert("Please select at least one tumor type and gene.");
+    // window.alert("Please select at least one tumor type and gene.");
+    let message = "Please select at least one tumor type and gene to generate plots.";
+    handleDataFetchError(message);
     return null;
   }
 
