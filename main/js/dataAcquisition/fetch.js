@@ -228,8 +228,13 @@ firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum})
  */
 firebrowse.fetchCohorts = async function() {
   const params = { format: "json" };
+  //Check that Firebrowse fetch returned properly formatted data
   const fetchResponse = await firebrowse.fetch("/Metadata/Cohorts", params);
-  return fetchResponse.Cohorts;
+  let data_field = "Cohorts";
+  if(data_field in fetchResponse)
+    return fetchResponse[data_field];
+  else
+    throw new Error("Cohort names could not be fetched from Firebrowse");
 };
 
 /** Get the number of mRNASeq samples per cohort.
