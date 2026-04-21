@@ -210,7 +210,7 @@ firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum})
   }
   const data = await firebrowse.fetch("/Samples/Clinical_FH", params, groupBy);
   // Check that firebrowse.fetch() returned properly formatted data
-  let data_field = "Clinical_FH"
+  let data_field = "Clinical_FH";
   if(data_field in data)
     return data[data_field];
   else

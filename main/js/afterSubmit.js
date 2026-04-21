@@ -37,7 +37,6 @@ const buildPlots = async function() {
 
   if (isEmpty(selectedTumorTypes) || isEmpty(allSelectedGenes) ) {
     console.log("user did not provide enough information for query");
-    // window.alert("Please select at least one tumor type and gene.");
     let message = "Please select at least one tumor type and gene to generate plots.";
     handleDataFetchError(message);
     return null;
@@ -542,7 +541,7 @@ let handleDataFetchError = function (message) {
   document.getElementById("violinLoaderDiv").classList.remove("loader");
   document.getElementById("survivalLoaderDiv").classList.remove("loader");
   // Set text of each plot tab
-  d3.select("#heatmapLoaderDiv").html(message);
-  d3.select("#violinLoaderDiv").html(message);
-  d3.select("#survivalLoaderDiv").html(message);
+  d3.select("#heatmapLoaderDiv").html(message).style("color", "#8B0000").style("font-size", "16px");
+  d3.select("#violinLoaderDiv").html(message).style("color", "#8B0000").style("font-size", "16px");
+  d3.select("#survivalLoaderDiv").html(message).style("color", "#8B0000").style("font-size", "16px");
 };
