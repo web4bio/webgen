@@ -541,7 +541,9 @@ let handleDataFetchError = function (message) {
   document.getElementById("violinLoaderDiv").classList.remove("loader");
   document.getElementById("survivalLoaderDiv").classList.remove("loader");
   // Set text of each plot tab
-  d3.select("#heatmapLoaderDiv").html(message).style("color", "#8B0000").style("font-size", "16px");
-  d3.select("#violinLoaderDiv").html(message).style("color", "#8B0000").style("font-size", "16px");
-  d3.select("#survivalLoaderDiv").html(message).style("color", "#8B0000").style("font-size", "16px");
+  error_message_font_size = "16px";
+  error_message_font_color = "#8B0000";
+  d3.select("#heatmapLoaderDiv").html(message).style("color", error_message_font_color).style("font-size", error_message_font_size);
+  d3.select("#violinLoaderDiv").html(message).style("color", error_message_font_color).style("font-size", error_message_font_size);
+  d3.select("#survivalLoaderDiv").html(message).style("color", error_message_font_color).style("font-size", error_message_font_size);
 };
