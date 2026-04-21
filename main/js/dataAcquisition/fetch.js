@@ -341,8 +341,7 @@ firebrowse.fetchmRNASeq = async function({cohorts, genes, barcodes}) {
     groupBy.push({key: "tcga_participant_barcode", length: 400});
   }
   const data = await firebrowse.fetch("/Samples/mRNASeq", params, groupBy);
-  //let data_field = "mRNASeq"
-  let data_field = "test"
+  let data_field = "mRNASeq"
   if(data_field in data)
     return data[data_field];
   else
