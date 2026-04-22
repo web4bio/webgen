@@ -111,8 +111,21 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     // get unique clinical features
     var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
 
-    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
-    clin_vars = clin_vars.filter(item => !unwantedKeys.has(item));
+    // const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
+    clin_vars = clin_vars.filter(key=>{
+        if (key.includes('barcode') || key.includes('date') || key==='tool') {
+            return false;
+        }
+
+        const uniqueVals=new Set();
+        clinicalAndMutationData.forEach(patient=>{
+            const value=patient[key];
+            if (value!=='NA' && value!==null && value!==undefined) {
+                uniqueVals.add(value);
+            }
+        });
+        return uniqueVals.size>=2 && uniqueVals.size<=10;
+    });
 
     clin_vars.forEach(el => renderCB(div_selectBody, el));
 
