@@ -37,7 +37,8 @@ const buildPlots = async function() {
 
   if (isEmpty(selectedTumorTypes) || isEmpty(allSelectedGenes) ) {
     console.log("user did not provide enough information for query");
-    window.alert("Please select at least one tumor type and gene.");
+    let message = "Please select at least one tumor type and gene to generate plots.";
+    handleDataFetchError(message);
     return null;
   }
 
@@ -86,7 +87,8 @@ const buildPlots = async function() {
   }
   else {
     //Set screen text to indicate that no plots were generated due to lack of patient barcodes
-    handleEmptyCohort();
+    message = "The gene mutation and/or metadata filter(s) produced a cohort with no patients. To see figures, please change the gene mutation and/or metadata filter(s).";
+    handleDataFetchError(message);
     return null;
   }
   expressionData = (expressionData || []).filter(
@@ -533,14 +535,15 @@ let downloadClinicalData = function(cohortID, clinicalData, barcodes_clin) {
   }
 }
 
-let handleEmptyCohort = function () {
-  let empty_cohort_message = "The gene mutation and/or metadata filter(s) produced a cohort with no patients. To see figures, please change the gene mutation and/or metadata filter(s)."
+let handleDataFetchError = function (message) {
   // Remove the loaders from heatmap, violin, and survival tabs
   document.getElementById("heatmapLoaderDiv").classList.remove("loader");
   document.getElementById("violinLoaderDiv").classList.remove("loader");
   document.getElementById("survivalLoaderDiv").classList.remove("loader");
   // Set text of each plot tab
-  d3.select("#heatmapLoaderDiv").html(empty_cohort_message);
-  d3.select("#violinLoaderDiv").html(empty_cohort_message);
-  d3.select("#survivalLoaderDiv").html(empty_cohort_message);
+  error_message_font_size = "16px";
+  error_message_font_color = "#8B0000";
+  d3.select("#heatmapLoaderDiv").html(message).style("color", error_message_font_color).style("font-size", error_message_font_size);
+  d3.select("#violinLoaderDiv").html(message).style("color", error_message_font_color).style("font-size", error_message_font_size);
+  d3.select("#survivalLoaderDiv").html(message).style("color", error_message_font_color).style("font-size", error_message_font_size);
 };
