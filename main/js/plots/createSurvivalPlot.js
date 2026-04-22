@@ -43,67 +43,66 @@ const formatSurvivalDate = function(clinicalData) {
 * @returns {Object} Survival curves by cohort
 */
 const calculateSurvivalValuesByCohort = function(cohortGroups) {
-  const survivalCurvesByCohort = {};
-  
-  for (const [cohort, deathCounts] of Object.entries(cohortGroups)) {
-      // Sort by days (ascending)
-      deathCounts.sort((a, b) => a.days - b.days);
-      
-      // Calculate survival curve points
-      const survivalCurve = [];
-      let totalPatients = deathCounts.length;
-      let cumulativeSurvival = 1.0;
-      
-      // Add starting point
-      survivalCurve.push({
-          time: 0,
-          survival: cumulativeSurvival,
-          std_error: 0,
-          upper: 1.0,
-          lower: 1.0,
-          sample_size: totalPatients
-      });
-      
-      // Calculate Kaplan-Meier estimate
-      let atRiskCount = totalPatients;
-      let cumulativeEvents = 0;
-      
-      deathCounts.forEach((point, i) => {
-          if (point.status === 1) {
-              // Only update survival at actual death events
-              cumulativeSurvival *= (atRiskCount - 1) / atRiskCount;
-              cumulativeEvents += 1;
-              
-              // Calculate confidence interval (simplified)
-              const std_error = Math.sqrt(cumulativeEvents / (atRiskCount * (atRiskCount - cumulativeEvents)));
-              const z = 1.96; // 95% confidence
-              const upper = Math.min(1, cumulativeSurvival + z * std_error);
-              const lower = Math.max(0, cumulativeSurvival - z * std_error);
-              
-              survivalCurve.push({
-                  time: point.days,
-                  survival: cumulativeSurvival,
-                  std_error: std_error,
-                  upper: upper,
-                  lower: lower,
-                  sample_size: totalPatients
-              });
-          } else {
-              // For censored data points, add a marker without changing survival
-              survivalCurve.push({
-                  time: point.days,
-                  survival: cumulativeSurvival,
-                  censored: true,
-                  sample_size: totalPatients
-              });
-          }
-          
-          atRiskCount--;
-      });
-      
-      survivalCurvesByCohort[cohort] = survivalCurve;
-  }
-  
+    const survivalCurvesByCohort = {};
+    
+    for (const [cohort, deathCounts] of Object.entries(cohortGroups)) {
+        // Sort by days (ascending)
+        deathCounts.sort((a, b) => a.days - b.days);
+        // Calculate survival curve points
+        const survivalCurve = [];
+        let totalPatients = deathCounts.length;
+        let cumulativeSurvival = 1.0;
+        // Add starting point
+        survivalCurve.push({
+            time: 0,
+            survival: cumulativeSurvival,
+            std_error: 0,
+            upper: 1.0,
+            lower: 1.0,
+            sample_size: totalPatients
+        });
+        // Calculate Kaplan-Meier estimate
+        let atRiskCount = totalPatients;
+        let cumulativeEvents = 0;
+        // Iterate over death counts over time
+        deathCounts.forEach((point, i) => {
+            if (point.status === 1) {
+                // Add point with time and old cumulative survival to prevent diagonal lines
+                survivalCurve.push({
+                    time: point.days,
+                    survival: cumulativeSurvival
+                });
+                // Only update survival at actual death events
+                cumulativeSurvival *= (atRiskCount - 1) / atRiskCount;
+                cumulativeEvents += 1;
+                // Calculate confidence interval (simplified)
+                const std_error = Math.sqrt(cumulativeEvents / (atRiskCount * (atRiskCount - cumulativeEvents)));
+                const z = 1.96; // 95% confidence
+                const upper = Math.min(1, cumulativeSurvival + z * std_error);
+                const lower = Math.max(0, cumulativeSurvival - z * std_error);
+                // Append death data point with lower cumulative survival
+                survivalCurve.push({
+                    time: point.days,
+                    survival: cumulativeSurvival,
+                    std_error: std_error,
+                    upper: upper,
+                    lower: lower,
+                    known_death: true,
+                    sample_size: totalPatients
+                });
+            } else {
+                // For censored data points, add a marker without changing survival
+                survivalCurve.push({
+                    time: point.days,
+                    survival: cumulativeSurvival,
+                    censored: true,
+                    sample_size: totalPatients
+                });
+            }
+            atRiskCount--;
+        });  
+        survivalCurvesByCohort[cohort] = survivalCurve;
+    }
   return survivalCurvesByCohort;
 };
 
@@ -212,9 +211,9 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
     };
   }
   let mouseleave = function(d) {
-        tooltip
+    tooltip
         .style("opacity", 0)
-        d3.select(this)
+    d3.select(this)
         .style("stroke", "none")
   }
   // Set up scales
@@ -279,7 +278,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
 
       // Render invisible data points that form the path to create a tooltip for
       svg.selectAll(null)
-          .data(curveData)
+          .data(curveData.filter(d => d.known_death))
           .enter()
           .append("circle")
           .attr("cx", d => x(d.time))
@@ -291,20 +290,35 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
           .on("mouseover", mouseover)
           .on("mousemove", mousemove)
           .on("mouseleave", mouseleave);
-      
-       // Add censored data points (small circles)
+          
+       // Add censored data points as hollow small circles
        svg.selectAll(null)
            .data(curveData.filter(d => d.censored))
            .enter()
            .append("circle")
            .attr("cx", d => x(d.time))
            .attr("cy", d => y(d.survival))
+           .style("fill", "none")
+           .style("stroke", "none")
            .attr("r", 4)
            .attr("fill", curveColor)
+            .style("pointer-events", "all")
            .on("mouseover", mouseover)
            .on("mousemove", mousemove)
            .on("mouseleave", mouseleave);
-  });
+
+       // Add lines to indicate censored data points
+       svg.selectAll(null)
+           .data(curveData.filter(d => d.censored))
+           .enter()
+           .append("line")
+           .attr("x1", d => x(d.time))
+           .attr("y1", d => y(d.survival-0.01))
+           .attr("x2", d => x(d.time))
+           .attr("y2", d => y(d.survival + 0.01))
+           .style("stroke", curveColor)
+           .style("stroke-width", 1.25);
+});
   
   // Add legend
   const legend = svg.append("g")
@@ -334,21 +348,6 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
         .text(line);
     });
     yOffset+=item.itemHeight;
-  
-//   Object.keys(survivalCurvesByCohort).forEach((cohort, i) => {
-//       const lg = legend.append("g")
-//           .attr("transform", `translate(0, ${i * 20})`);
-      
-//       lg.append("rect")
-//           .attr("width", 10)
-//           .attr("height", 10)
-//           .attr("fill", colorScale(i));
-      
-//       lg.append("text")
-//           .attr("x", 15)
-//           .attr("y", 10)
-//           .text(`${cohort} (n=${survivalCurvesByCohort[cohort].length-1})`)
-//           .style("font-size", "12px");
   });
   
 };
