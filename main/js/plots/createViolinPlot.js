@@ -488,8 +488,34 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
     }
 
     // data to input = clinical vars from query
-    let partitionVars = localStorage.getItem("mutationAndClinicalFeatureKeys").split(",");
-    let var_opts = partitionVars;
+    const rawPartitionVars = (localStorage.getItem("mutationAndClinicalFeatureKeys") || '').split(",").map(v=>v.trim()).filter(Boolean);
+    let partitionVars = Array.from(new Set(rawPartitionVars.map(v => v==='tumor_type' ? 'cohort' : v))); // Remove duplicates
+
+    let clinicalRows=[];
+    const clinicalPayload=await cache.get('rnaSeq', 'clinicalData');
+    if(clinicalPayload && Array.isArray(clinicalPayload.clinicalData)) {
+        clinicalRows=clinicalPayload.clinicalData;
+    }
+
+    let var_opts = partitionVars.filter(key=>{
+        if (key.includes('barcode') || key.includes('date') || key==='tool') {
+            return false;
+        }
+
+        if (clinicalRows.length === 0) {
+            return true;
+        }
+
+        const uniqueVals=new Set();
+        clinicalRows.forEach(patient=>{
+            const value=patient[key];
+            if (value!=='NA' && value!==null && value!==undefined) {
+                uniqueVals.add(value);
+            }
+        });
+
+        return uniqueVals.size>=2 && uniqueVals.size<=10; 
+    });
 
     // make a checkbox for each option
     
