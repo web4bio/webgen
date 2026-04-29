@@ -237,7 +237,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
   // Add X and Y axes
   svg.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).ticks(5))
+      .call(d3.axisBottom(x).tickFormat(normalizeCategoryLabel))
       .append("text")
       .attr("x", width / 2)
       .attr("y", 40)

@@ -45,7 +45,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     // --------------------------------------------------------------
 
     // Set up the figure dimensions:
-    var margin = {top: 0, right: 30, bottom: 10, left: 40};
+    var margin = {top: 40, right: 30, bottom: 80, left: 40};
      // baseInnerWidth = 505 - margin.left - margin.right
     const minBandWidth=65; //min horizontal space per group before enabling horizontal scroll
     // const height = 200 - margin.top - margin.bottom;
@@ -133,7 +133,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     let svgObject = svgContainer.append("svg")
         .attr("width", svgWidth)
         .attr("height", svgHeight)
-        .attr("viewBox", `0 -35 ${svgWidth} ${svgHeight}`)
+        .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
         .attr("id", svgID)
         .attr("indepVarType", "gene")
         .attr("cohort", curPlot)
@@ -613,8 +613,8 @@ function wrap(text, width) {
             line = [],
             lineNumber = 0,
             lineHeight = 1.1, // ems
-            y = text.attr("y"),
-            dy = parseFloat(text.attr("dy")),
+            y = text.attr("y") || 0,
+            dy = parseFloat(text.attr("dy")) || 0,
             tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
         while (word = words.pop()) {
             line.push(word);
