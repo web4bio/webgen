@@ -12,31 +12,35 @@
  * @returns {undefined}
  */
 const fillCancerTypeSelectBox = async function () {
-  const cancerTypesQuery = await firebrowse.fetchCohorts();
-  const cancerTypesQueryNoFPPP = cancerTypesQuery.reduce((acc, item) => item.cohort !== 'FPPP' ? [...acc, item] : acc, []);
-  cancerTypesQueryNoFPPP.sort();
-  let selectBox = document.getElementById("cancerTypeMultipleSelection");
-  for (let i = 0; i < cancerTypesQueryNoFPPP.length; i++) {
-    let currentOption = document.createElement("option");
-    currentOption.value = cancerTypesQueryNoFPPP[i]["cohort"];
-    currentOption.text =
-      "(" +
-      cancerTypesQueryNoFPPP[i]["cohort"] +
-      ") " +
-      cancerTypesQueryNoFPPP[i]["description"];
-    currentOption.id = cancerTypesQueryNoFPPP[i]["cohort"];
-    selectBox.appendChild(currentOption);
-  }
-  let cancerTypeSelectedOptions = localStorage
-    .getItem("cancerTypeSelectedOptions") || null
-  if (cancerTypeSelectedOptions) {
-    cancerTypeSelectedOptions = cancerTypeSelectedOptions.split(",");
-    $(".cancerTypeMultipleSelection").val(cancerTypeSelectedOptions);
-    $(".cancerTypeMultipleSelection").trigger('change');
-  }
+  try {
+    const cancerTypesQuery = await firebrowse.fetchCohorts();
+    const cancerTypesQueryNoFPPP = cancerTypesQuery.reduce((acc, item) => item.cohort !== 'FPPP' ? [...acc, item] : acc, []);
+    cancerTypesQueryNoFPPP.sort();
+    let selectBox = document.getElementById("cancerTypeMultipleSelection");
+    for (let i = 0; i < cancerTypesQueryNoFPPP.length; i++) {
+      let currentOption = document.createElement("option");
+      currentOption.value = cancerTypesQueryNoFPPP[i]["cohort"];
+      currentOption.text =
+        "(" +
+        cancerTypesQueryNoFPPP[i]["cohort"] +
+        ") " +
+        cancerTypesQueryNoFPPP[i]["description"];
+      currentOption.id = cancerTypesQueryNoFPPP[i]["cohort"];
+      selectBox.appendChild(currentOption);
+    }
+    let cancerTypeSelectedOptions = localStorage
+      .getItem("cancerTypeSelectedOptions") || null
+    if (cancerTypeSelectedOptions) {
+      cancerTypeSelectedOptions = cancerTypeSelectedOptions.split(",");
+      $(".cancerTypeMultipleSelection").val(cancerTypeSelectedOptions);
+      $(".cancerTypeMultipleSelection").trigger('change');
+    }
 
-  return true;
-
+    return true;
+  } catch (err) {
+    message = "Could not fetch the cancer types from Firebrowse";
+    handleDataFetchError(message);
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,53 +71,58 @@ let displayNumberSamples = async function () {
     .select2("data")
     .map((cohortInfo) => cohortInfo.text.match(/\(([^)]+)\)/)[1]);
   if (myCohort.length != 0) {
-    // get counts of samples for selected tumor types:
-    numbersOfSamples = await firebrowse.fetchCounts(myCohort);
-    let formatted_numbersOfSamples = numbersOfSamples.map(x => {
-      const container = {};
-      container.cohort = x.cohort.substring(0, numbersOfSamples[0].cohort.indexOf('-'));
-      container.mrnaseq = x.mrnaseq;
-      return container;
-    });
-    // order counts array based on order in which tumor types were selected:
-    function orderThings (array, order, key) {
-      array.sort(function (a, b) {
-        var A = a[key], B = b[key];
-        if (order.indexOf(A) > order.indexOf(B)) {
-          return 1;
-        } else {
-          return -1;
-        }
+    try {
+      // get counts of samples for selected tumor types:
+      numbersOfSamples = await firebrowse.fetchCounts(myCohort);
+      let formatted_numbersOfSamples = numbersOfSamples.map(x => {
+        const container = {};
+        container.cohort = x.cohort.substring(0, numbersOfSamples[0].cohort.indexOf('-'));
+        container.mrnaseq = x.mrnaseq;
+        return container;
       });
-      return array;
-    };
-    orderedCountQuery = orderThings(formatted_numbersOfSamples, myCohort, 'cohort')
-    // build label:
-    let numSamplesLabel = "";
-    let para;
-    for (let i = 0; i < orderedCountQuery.length; i++) {
-      if (numSamplesLabel == "") {
-        numSamplesLabel += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
-        para = document.createElement("P");
-        para.setAttribute(
-          "style",
-          'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
-        );
-        para.setAttribute("id", "numSamplesText");
-        para.innerText = "Number of samples: " + numSamplesLabel;
-        cancerQuerySelectBox.appendChild(para);
-      } else {
-        document.getElementById("numSamplesText").remove();
-        numSamplesLabel += ", " + orderedCountQuery[i].cohort +
-                 ": " + orderedCountQuery[i].mrnaseq;
-        para.setAttribute(
-          "style",
-          'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
-        );
-        para.setAttribute("id", "numSamplesText");
-        para.innerText = "Number of samples: " + numSamplesLabel;
-        cancerQuerySelectBox.appendChild(para);
+      // order counts array based on order in which tumor types were selected:
+      function orderThings (array, order, key) {
+        array.sort(function (a, b) {
+          var A = a[key], B = b[key];
+          if (order.indexOf(A) > order.indexOf(B)) {
+            return 1;
+          } else {
+            return -1;
+          }
+        });
+        return array;
+      };
+      orderedCountQuery = orderThings(formatted_numbersOfSamples, myCohort, 'cohort')
+      // build label:
+      let numSamplesLabel = "";
+      let para;
+      for (let i = 0; i < orderedCountQuery.length; i++) {
+        if (numSamplesLabel == "") {
+          numSamplesLabel += orderedCountQuery[i].cohort + ": " + orderedCountQuery[i].mrnaseq;
+          para = document.createElement("P");
+          para.setAttribute(
+            "style",
+            'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
+          );
+          para.setAttribute("id", "numSamplesText");
+          para.innerText = "Number of samples: " + numSamplesLabel;
+          cancerQuerySelectBox.appendChild(para);
+        } else {
+          document.getElementById("numSamplesText").remove();
+          numSamplesLabel += ", " + orderedCountQuery[i].cohort +
+                  ": " + orderedCountQuery[i].mrnaseq;
+          para.setAttribute(
+            "style",
+            'text-align: center; color: #4db6ac; font-family: Georgia, "Times New Roman", Times, serif'
+          );
+          para.setAttribute("id", "numSamplesText");
+          para.innerText = "Number of samples: " + numSamplesLabel;
+          cancerQuerySelectBox.appendChild(para);
+        }
       }
+    } catch(err) {
+      message = "Could not fetch the cancer type counts from Firebrowse";
+      handleDataFetchError(message);
     }
   }
 };
