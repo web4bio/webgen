@@ -512,8 +512,8 @@ const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
           
           // Clean up value for display
           value = value.toString().toLowerCase().replace(/na/i, 'NA');
-          if (value === '0') value = 'No';
-          if (value === '1') value = 'Yes';
+          if (value === '1') value = 'No';
+          if (value === '0') value = 'Yes';
           
           strataValues.push(`${variable}-${value}`); // Using dash instead of colon for CSS safety
       });

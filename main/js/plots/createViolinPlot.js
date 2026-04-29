@@ -23,7 +23,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     facetByFields = facetByFields.map(item => item === "tumor_type" ? "cohort" : item);
 
     // Get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
-    let divNum = violinDiv.id[violinDiv.id.length - 1];
+    let divNum = violinDiv.id.replace(/\D/g, '');
 
     let clinicalData = "";
     
@@ -45,10 +45,10 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     // --------------------------------------------------------------
 
     // Set up the figure dimensions:
-    var margin = {top: 0, right: 30, bottom: 10, left: 40},
-        baseInnerWidth = 505 - margin.left - margin.right
-        const minBandWidth=65; //min horizontal space per group before enabling horizontal scroll
-        height = 200 - margin.top - margin.bottom;
+    var margin = {top: 0, right: 30, bottom: 10, left: 40};
+     // baseInnerWidth = 505 - margin.left - margin.right
+    const minBandWidth=65; //min horizontal space per group before enabling horizontal scroll
+    // const height = 200 - margin.top - margin.bottom;
 
     // Filter out patients with null expression values:
     dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
@@ -99,23 +99,41 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         violinCurveColors.push(colors[index % colors.length]);
     }
 
-    //expand plot width when many groups are selected
-    const width=Math.max(baseInnerWidth, myGroups.length*minBandWidth);
-    const svgWidth = width + margin.left + margin.right;
+    
 
     // Build SVG Object
     let svgID = "svgViolinPlot" + divNum;
     let svgDivId = `svgViolin${divNum}`;
 
     const svgContainer=d3.select("#" + svgDivId)
+        .style("width", "100%")
         .style('overflow-x','auto')
         .style('overflow-y','hidden')
         .style('max-width', '100%')
+        
+    
+    const fallbackInnerWidth=505-margin.left-margin.right;
+    const containerNode=svgContainer.node();
+    const containerPixelWidth = containerNode?.clientWidth || Math.min(window.innerWidth * 0.8, 1200);
+    const availablePixelWidth=Math.max(0, Math.floor(containerPixelWidth) - margin.left - margin.right);
+
+    // const baseInnerWidth=Math.max(fallbackInnerWidth, availablePixelWidth);
+    const visibleGroupCount = 2;
+    const minVisibleWidth = Math.max(visibleGroupCount * minBandWidth, availablePixelWidth);
+    //expand plot width when many groups are selected
+    const width=Math.max(minVisibleWidth, myGroups.length*minBandWidth);
+    const svgWidth = width + margin.left + margin.right;
+
+    const containerHeight = containerNode?.clientHeight || Math.min(window.innerHeight * 0.6, 600);
+    const availableHeight = Math.max(200, Math.floor(containerHeight) - margin.top - margin.bottom);
+    const svgHeight = availableHeight + margin.top + margin.bottom;
+
+    const height = availableHeight;
 
     let svgObject = svgContainer.append("svg")
         .attr("width", svgWidth)
-        .attr("height", 300)
-        .attr("viewBox", `0 -35 ${svgWidth} 300`)
+        .attr("height", svgHeight)
+        .attr("viewBox", `0 -35 ${svgWidth} ${svgHeight}`)
         .attr("id", svgID)
         .attr("indepVarType", "gene")
         .attr("cohort", curPlot)
@@ -132,7 +150,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     const y = d3.scaleLinear()
         .domain([minExpressionLevel - 2, maxExpressionLevel + 2])
         .range([height, 0]);
-    svgObject.append("g").call(d3.axisLeft(y)).style("font-size", "8px");
+    svgObject.append("g").call(d3.axisLeft(y)).style("font-size", "12px");
 
     // Append y-axis label
     svgObject.append("text")
@@ -141,7 +159,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("x", -(height / 2.0))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .style("font-size", "9px")
+        .style("font-size", "13px")
         .text("Expression Level (log2)");
 
     // Build and show the X scale
@@ -156,7 +174,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .selectAll(".tick text")
         .attr("transform", "rotate(-20), translate(-10, 5)")
         .call(wrap, x.bandwidth())
-        .style("font-size", "8px");
+        .style("font-size", "12px");
 
     // Set up distributions and statistics info for each gene's expression
     const kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50));
@@ -356,7 +374,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("x", width/2)
         .attr("y", -25)
         .attr("text-anchor", "middle")
-        .style("font-size", "10px")
+        .style("font-size", "14px")
         .text(curPlot);
 };
 
