@@ -358,7 +358,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
 * @param {Array} clinical_and_mutation_data - Clinical and mutation data array
 * @returns {string[]} list of choices for the partition box
 */
-const createSurvivalPartitionBox = function(partitionDivId, clinical_and_mutation_data) {
+const createSurvivalPartitionBox = function(partitionDivId, clinical_and_mutation_data, mutation_genes) {
   // Get the div to place the partition selector
   var div_box = d3.select(`#${partitionDivId}`);
   
@@ -455,6 +455,9 @@ const createSurvivalPartitionBox = function(partitionDivId, clinical_and_mutatio
                 key.includes('days')) {
                     return false;
           }
+          // Skip genes not selected in mutations data explore
+          if (key.includes("Mutation") && !mutation_genes.includes(key.split("_")[0]))
+            return false
           
           // Count distinct values for this key
           const distinctValues = new Set();
@@ -466,17 +469,13 @@ const createSurvivalPartitionBox = function(partitionDivId, clinical_and_mutatio
           // Only use variables with 2-10 distinct values (categorical)
           return distinctValues.size >= 2 && distinctValues.size <= 25;
       });
-  }
-  
+  }  
   // Sort variables alphabetically
   stratificationVars.sort();
-  
   // Create radio button for each stratification variable
   stratificationVars.forEach(el => renderRadioButton(div_body, el));
-  
   // Initialize choices array
   update();
-  
   return choices;
 };
 
@@ -593,9 +592,9 @@ const buildSurvivalCurvesByStrata = async function(selected_tumor_types, barcode
         listOfBarcodes = cohort_barcodes);
     // Merge clinical and mutation data into one data structure
     clinical_and_mutation_data = mergeClinicalAndMutationData(
-        mutationGenes = mutation_genes, 
-        mutationData = mutation_data,
-        clinicalData = clinical_data);
+        mutation_genes = mutation_genes, 
+        mutation_data = mutation_data,
+        clinical_data = clinical_data);
         
     // Clear contents of survival curve loader div
     d3.select("#survivalLoaderDiv").html("");
@@ -626,7 +625,7 @@ const buildSurvivalCurvesByStrata = async function(selected_tumor_types, barcode
       .style("flex", "1");
   
   // Create the partition selection box
-  createSurvivalPartitionBox("survivalPartition", clinical_and_mutation_data);
+  createSurvivalPartitionBox("survivalPartition", clinical_and_mutation_data, mutation_genes);
   
   // Create initial plot for all patients (default)
   const formatted_survival_data = formatSurvivalDate(clinical_and_mutation_data)

@@ -115,7 +115,6 @@ const buildPlots = async function() {
     selected_tumor_types = selectedTumorTypes, 
     barcodes_by_tumor = barcodesByCohort,
     mutation_genes = selectedGene1);
-  //buildSurvivalCurvesByStrata(mutationAndClinicalData);
   return null;
 };
 
@@ -297,25 +296,24 @@ const saveFile = function(x, fileName) {
 };
 
 
-let mergeClinicalAndMutationData = function(mutationGenes, mutationData, clinicalData) {
-  let dataToReturn = Array.from(clinicalData);  
+let mergeClinicalAndMutationData = function(mutation_genes, mutation_data, clinical_data) {
+  let dataToReturn = Array.from(clinical_data);
   for(let index = 0; index < dataToReturn.length; index++) {
     let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
-    for(let geneIndex = 0; geneIndex < mutationGenes.length; geneIndex++) {
-        let curGeneMutation = mutationGenes[geneIndex] + "_Mutation";
-        let mutationValue = getVariantClassification(mutationData, curParticipantBarcode, mutationGenes[geneIndex]);
+    for(let geneIndex = 0; geneIndex < mutation_genes.length; geneIndex++) {
+        let curGeneMutation = mutation_genes[geneIndex] + "_Mutation";
+        let mutationValue = getVariantClassification(mutation_data, curParticipantBarcode, mutation_genes[geneIndex]);
         //Append feature to JSON object
-        dataToReturn[index][curGeneMutation] = `${mutationGenes[geneIndex]}_${mutationValue}`;
+        dataToReturn[index][curGeneMutation] = `${mutation_genes[geneIndex]}_${mutationValue}`;
     }  
   }
   return dataToReturn;
 };
 
-let getVariantClassification = function (mutationData, barcode, 
-  curGene) {
-    for(let index = 0; index < mutationData.length; index++) {
-      if(mutationData[index]["tcga_participant_barcode"] == barcode && mutationData[index]["gene"] == curGene)
-          return(mutationData[index]["mutation_label"]);
+let getVariantClassification = function (mutation_data, barcode, cur_gene) {
+    for(let index = 0; index < mutation_data.length; index++) {
+      if(mutation_data[index]["tcga_participant_barcode"] == barcode && mutation_data[index]["gene"] == cur_gene)
+          return(mutation_data[index]["mutation_label"]);
   }
   return undefined; // If we have no hits for a participant barcode and gene combination, then return undefined
 };
