@@ -107,7 +107,11 @@ const buildPlots = async function() {
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  buildHeatmap(expressionData, mutationAndClinicalData);
+  buildHeatmap(expressionData, 
+    selected_tumor_types = selectedTumorTypes, 
+    barcodes_by_tumor = barcodesByCohort,
+    mutation_genes = selectedGene1
+  );
   buildViolinPlot(allSelectedGenes, expressionData);
   buildDownloadButtons(allSelectedGenes, expressionData, clinicalData);
   //Construct survival curve
@@ -187,7 +191,7 @@ const getAllSelectedGenes = async function(geneSelectionBox) {
  *
  * @returns {undefined}
  */
-const buildHeatmap = function(expData, clinAndMutationData) {
+const buildHeatmap = function(expData, selected_tumor_types, barcodes_by_tumor, mutation_genes) {
   // Remove the loader
   document.getElementById("heatmapLoaderDiv").classList.remove("loader");
 
@@ -196,7 +200,7 @@ const buildHeatmap = function(expData, clinAndMutationData) {
   const divHeatMap = d3.select("#heatmapLoaderDiv").html("");
 
   // Create the heatmap
-  createHeatmap(expData, clinAndMutationData, divHeatMap);
+  createHeatmap(expData, divHeatMap, selected_tumor_types, barcodes_by_tumor, mutation_genes);
 };
 
 
