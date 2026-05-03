@@ -69,7 +69,6 @@ const buildPlots = async function() {
 
   let intersectedBarcodes = await getBarcodesFromSelectedFeatures(selectedTumorTypes);
 
-
   if(intersectedBarcodes == null) {
     expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
     // Pass in barcodes from expressionData
@@ -105,7 +104,6 @@ const buildPlots = async function() {
   let cacheMu = await getCacheMU(); // Instantiate cache interface for mutation data
   let mutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes, selectedGene1); // Fetch mutation data for selected tumor types and genes
   let mutationAndClinicalData = mergeClinicalAndMutationData(selectedGene1, mutationData, clinicalData); // Combine mutation data and clinical data into single array of JSON objects
-  localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +111,11 @@ const buildPlots = async function() {
   buildViolinPlot(allSelectedGenes, expressionData);
   buildDownloadButtons(allSelectedGenes, expressionData, clinicalData);
   //Construct survival curve
-  buildSurvivalCurvesByStrata(clinicalData)
+  buildSurvivalCurvesByStrata(
+    selected_tumor_types = selectedTumorTypes, 
+    barcodes_by_tumor = barcodesByCohort,
+    mutation_genes = selectedGene1);
+  //buildSurvivalCurvesByStrata(mutationAndClinicalData);
   return null;
 };
 
@@ -273,7 +275,6 @@ const buildViolinPlot = function(geneQuery, expressionData) {
     addDivInside(`svgViolin${index}`, `violinPlot${index}`);
     const violinDiv = document.getElementById(`violinPlot${index}`);
     createViolinPlot(expressionData, violinDiv, curGene, []);
-
   }
 };
 

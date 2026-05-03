@@ -2,17 +2,16 @@
 
 /**
  * Format survival data using Kaplan-Meier method
- * @param {Array} clinicalData - Clinical data array
+ * @param {Array} clinical_and_mutation_data - Clinical and mutation data array
  * @returns {Object} Object with a single key and a corresponding array of survival data as the value
  */
-const formatSurvivalDate = function(clinicalData) {
+const formatSurvivalDate = function(clinical_and_mutation_data) {
   let group_name = "All Patients";
-    
   // Group data into "All Patients" category
   const grouped_data = {};
   // Process each patient in this cohort
   const deathCounts = [];
-  clinicalData.forEach(patient => {
+  clinical_and_mutation_data.forEach(patient => {
     const barcode = patient.tcga_participant_barcode;
     let daysValue, status;
           
@@ -356,10 +355,10 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
 * Creates the partition selector for survival curves
 *
 * @param {string} partitionDivId - the html id passed over for the partitions div
-* @param {Array} clinicalData - Clinical data array
+* @param {Array} clinical_and_mutation_data - Clinical and mutation data array
 * @returns {string[]} list of choices for the partition box
 */
-const createSurvivalPartitionBox = function(partitionDivId, clinicalData) {
+const createSurvivalPartitionBox = function(partitionDivId, clinical_and_mutation_data) {
   // Get the div to place the partition selector
   var div_box = d3.select(`#${partitionDivId}`);
   
@@ -407,14 +406,14 @@ const createSurvivalPartitionBox = function(partitionDivId, clinicalData) {
       // Don't stratify if no variables are selected
       if (choices.length === 0) {
           // Use regular all patients survival curves
-          const formatted_survival_data = formatSurvivalDate(clinicalData);
+          const formatted_survival_data = formatSurvivalDate(clinical_and_mutation_data);
           const survival_curve = calculateSurvivalValuesByCohort(formatted_survival_data);
           createSurvivalPlotByCohort(survival_curve);
           return;
       }
       
       // Otherwise, stratify by the selected variables
-      const stratifiedGroups = formatSurvivalDateByStrata(clinicalData, choices);
+      const stratifiedGroups = formatSurvivalDateByStrata(clinical_and_mutation_data, choices);
       const survivalCurvesByStrata = calculateSurvivalValuesByCohort(stratifiedGroups);
       createSurvivalPlotByCohort(survivalCurvesByStrata);
   }
@@ -444,28 +443,28 @@ const createSurvivalPartitionBox = function(partitionDivId, clinicalData) {
   // We need to filter to clinical variables that are suitable for stratification
   let stratificationVars = [];
   
-  if (clinicalData && clinicalData.length > 0) {
-      // Get all keys from the clinical data
-      const allKeys = Object.keys(clinicalData[0]);
-      
+  if (clinical_and_mutation_data && clinical_and_mutation_data.length > 0) {
+      // Get all keys from the clinical and mutation data
+      const allKeys = Object.keys(clinical_and_mutation_data[0]);
       // Filter to variables that make sense for stratification
       stratificationVars = allKeys.filter(key => {
           // Skip technical IDs and dates
-          if (key.includes('barcode') || key.includes('date') || 
-              key === 'tool') {
-              return false;
+          if (key.includes('barcode') || 
+                key.includes('date') || 
+                key === 'tool' ||
+                key.includes('days')) {
+                    return false;
           }
           
           // Count distinct values for this key
           const distinctValues = new Set();
-          clinicalData.forEach(patient => {
+          clinical_and_mutation_data.forEach(patient => {
               if (patient[key] !== 'NA' && patient[key] !== null && patient[key] !== undefined) {
                   distinctValues.add(patient[key]);
               }
           });
-          
           // Only use variables with 2-10 distinct values (categorical)
-          return distinctValues.size >= 2 && distinctValues.size <= 10;
+          return distinctValues.size >= 2 && distinctValues.size <= 25;
       });
   }
   
@@ -483,21 +482,21 @@ const createSurvivalPartitionBox = function(partitionDivId, clinicalData) {
 
 /**
 * Format survival data by selected stratification variables
-* @param {Array} clinicalData - Clinical data array
+* @param {Array} clinical_and_mutation_data - Clinical and mutation data array
 * @param {Array} stratificationVars - Array of variable names to stratify by
 * @returns {Object} Object with strata names as keys and arrays of survival data as values
 */
-const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
+const formatSurvivalDateByStrata = function(clinical_and_mutation_data, stratificationVars) {
   // If no stratification variables, fall back to all patients
   if (!stratificationVars || stratificationVars.length === 0) {
-      return formatSurvivalDate(clinicalData);
+      return formatSurvivalDate(clinical_and_mutation_data);
   }
   
   // Create strata
   const strataGroups = {};
   
   // Process each patient
-  clinicalData.forEach(patient => {
+  clinical_and_mutation_data.forEach(patient => {
       // Create a strata label based on selected variables
       const strataValues = [];
       
@@ -563,7 +562,7 @@ const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
   // If all strata were filtered out, return all patients instead
   if (Object.keys(filteredGroups).length === 0) {
       console.warn("All strata had fewer than 3 patients. Falling back to all patients.");
-      return formatSurvivalDate(clinicalData);
+      return formatSurvivalDate(clinical_and_mutation_data);
   }
   
   return filteredGroups;
@@ -571,14 +570,37 @@ const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
 
 /**
 * Modified buildSurvivalCurves function to include partition selector
-* @param {Array} clinicalData - Clinical data array
+* @param {Array} clinical_data - Clinical data array
 */
-const buildSurvivalCurvesByStrata = function(clinicalData) {
-  // Clear contents of survival curve loader div
-  d3.select("#survivalLoaderDiv").html("");
-  
-  // Clear and set up the survival plot container
-  const loaderDiv = d3.select("#survivalLoaderDiv");
+const buildSurvivalCurvesByStrata = async function(selected_tumor_types, barcodes_by_tumor, mutation_genes) {
+    // Retrieve clinical data and barcodes per cohort
+    let cache_clin = await getCacheCLIN();
+    let clinical_data = await cache_clin.fetchWrapperCLIN(
+        listOfCohorts = selected_tumor_types, 
+        barcodesByCohort = barcodes_by_tumor);
+    // Extract clinical_data property from each element
+    clinical_data = clinical_data.map(obj => obj.clinical_data);
+    // Flatten clinical_data into a 1-D array
+    clinical_data = clinical_data.flat();
+    // Flatten barcodes into a 1-D array
+    let cohort_barcodes = barcodes_by_tumor.map(obj => obj.barcodes);
+    cohort_barcodes = cohort_barcodes.flat()
+    // Retrieve mutation data for cohort
+    let cache_mu = await getCacheMU();
+    let mutation_data = await cache_mu.fetchWrapperMU(
+        listOfCohorts = selected_tumor_types,
+        listOfGenes = mutation_genes,
+        listOfBarcodes = cohort_barcodes);
+    // Merge clinical and mutation data into one data structure
+    clinical_and_mutation_data = mergeClinicalAndMutationData(
+        mutationGenes = mutation_genes, 
+        mutationData = mutation_data,
+        clinicalData = clinical_data);
+        
+    // Clear contents of survival curve loader div
+    d3.select("#survivalLoaderDiv").html("");
+    // Clear and set up the survival plot container
+    const loaderDiv = d3.select("#survivalLoaderDiv");
   
   // Create a flex container to place elements side by side
   loaderDiv.append("div")
@@ -604,10 +626,10 @@ const buildSurvivalCurvesByStrata = function(clinicalData) {
       .style("flex", "1");
   
   // Create the partition selection box
-  createSurvivalPartitionBox("survivalPartition", clinicalData);
+  createSurvivalPartitionBox("survivalPartition", clinical_and_mutation_data);
   
   // Create initial plot for all patients (default)
-  const formatted_survival_data = formatSurvivalDate(clinicalData)
+  const formatted_survival_data = formatSurvivalDate(clinical_and_mutation_data)
   const survival_curve_all_patients = calculateSurvivalValuesByCohort(formatted_survival_data);
   
   // Only create plot if we have valid data
