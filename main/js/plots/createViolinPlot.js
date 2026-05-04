@@ -48,6 +48,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     var margin = {top: 40, right: 30, bottom: 80, left: 40};
      // baseInnerWidth = 505 - margin.left - margin.right
     const minBandWidth=65; //min horizontal space per group before enabling horizontal scroll
+    const shouldExpandRight = facetByFields.length>=2; // expand plot right if more than 2 partition vars are selected
     // const height = 200 - margin.top - margin.bottom;
 
     // Filter out patients with null expression values:
@@ -112,16 +113,30 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .style('max-width', '100%')
         
     
-    const fallbackInnerWidth=505-margin.left-margin.right;
+    // const fallbackInnerWidth=505-margin.left-margin.right;
     const containerNode=svgContainer.node();
     const containerPixelWidth = containerNode?.clientWidth || Math.min(window.innerWidth * 0.8, 1200);
     const availablePixelWidth=Math.max(0, Math.floor(containerPixelWidth) - margin.left - margin.right);
 
+    // container-visible baseline width (no expansion case)
+    const baseVisibleInnerWidth = Math.max(
+        505 - margin.left - margin.right,
+        availablePixelWidth
+    );
+
+    // width required to keep violin spacing constant
+    const requiredInnerWidth = myGroups.length * minBandWidth;
+
+    // only expand right after threshold is met
+    const width = shouldExpandRight
+        ? Math.max(baseVisibleInnerWidth, requiredInnerWidth)
+        : baseVisibleInnerWidth;
+
     // const baseInnerWidth=Math.max(fallbackInnerWidth, availablePixelWidth);
-    const visibleGroupCount = 2;
-    const minVisibleWidth = Math.max(visibleGroupCount * minBandWidth, availablePixelWidth);
-    //expand plot width when many groups are selected
-    const width=Math.max(minVisibleWidth, myGroups.length*minBandWidth);
+    // const visibleGroupCount = 2;
+    // const minVisibleWidth = Math.max(visibleGroupCount * minBandWidth, availablePixelWidth);
+    // //expand plot width when many groups are selected
+    // const width=Math.max(minVisibleWidth, myGroups.length*minBandWidth);
     const svgWidth = width + margin.left + margin.right;
 
     const containerHeight = containerNode?.clientHeight || Math.min(window.innerHeight * 0.6, 600);
