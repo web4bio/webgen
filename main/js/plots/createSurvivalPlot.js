@@ -144,7 +144,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
 
   //precompute legend layout such that wrapped text never gets clipped
   const legendItems=cohorts.map((c)=>{
-    const label=`${c} (n=${Math.max(0,survivalCurvesByCohort[c].length-1)})`;
+    const label=`${c} (n=${Math.max(0,survivalCurvesByCohort[c][0].sample_size)})`;
     const lines=wrapLabel(label);
     const itemHeight=lines.length*14+4; //14px line height + 4px padding
     return {c,lines,itemHeight};
@@ -462,12 +462,12 @@ const createSurvivalPartitionBox = function(partitionDivId, clinical_and_mutatio
           // Count distinct values for this key
           const distinctValues = new Set();
           clinical_and_mutation_data.forEach(patient => {
-              if (patient[key] !== 'NA' && patient[key] !== null && patient[key] !== undefined) {
+              if (patient[key] !== 'NA' && patient[key] !== null && patient[key] !== undefined && patient[key] !== "(NA)") {
                   distinctValues.add(patient[key]);
               }
           });
           // Only use variables with 2-10 distinct values (categorical)
-          return distinctValues.size >= 2 && distinctValues.size <= 25;
+          return distinctValues.size >= 2 && distinctValues.size <= 10;
       });
   }  
   // Sort variables alphabetically
@@ -503,7 +503,7 @@ const formatSurvivalDateByStrata = function(clinical_and_mutation_data, stratifi
           let value = patient[variable];
           
           // Skip patients with missing values for stratification variables
-          if (value === 'NA' || value === null || value === undefined) {
+          if (value === 'NA' || value === null || value === undefined || value === "(NA)") {
               return;
           }
           
@@ -571,64 +571,55 @@ const formatSurvivalDateByStrata = function(clinical_and_mutation_data, stratifi
 * Modified buildSurvivalCurves function to include partition selector
 * @param {Array} clinical_data - Clinical data array
 */
-const buildSurvivalCurvesByStrata = async function(selected_tumor_types, barcodes_by_tumor, mutation_genes) {
-    // Retrieve clinical data and barcodes per cohort
-    let cache_clin = await getCacheCLIN();
-    let clinical_data = await cache_clin.fetchWrapperCLIN(
-        listOfCohorts = selected_tumor_types, 
-        barcodesByCohort = barcodes_by_tumor);
-    // Extract clinical_data property from each element
-    clinical_data = clinical_data.map(obj => obj.clinical_data);
-    // Flatten clinical_data into a 1-D array
-    clinical_data = clinical_data.flat();
-    // Flatten barcodes into a 1-D array
-    let cohort_barcodes = barcodes_by_tumor.map(obj => obj.barcodes);
-    cohort_barcodes = cohort_barcodes.flat()
-    // Retrieve mutation data for cohort
-    let cache_mu = await getCacheMU();
-    let mutation_data = await cache_mu.fetchWrapperMU(
-        listOfCohorts = selected_tumor_types,
-        listOfGenes = mutation_genes,
-        listOfBarcodes = cohort_barcodes);
-    // Merge clinical and mutation data into one data structure
-    clinical_and_mutation_data = mergeClinicalAndMutationData(
-        mutation_genes = mutation_genes, 
-        mutation_data = mutation_data,
-        clinical_data = clinical_data);
-        
+const buildSurvivalCurvesByStrata = async function(clinical_and_mutation_data, mutation_genes, cohort_barcodes) {
     // Clear contents of survival curve loader div
     d3.select("#survivalLoaderDiv").html("");
     // Clear and set up the survival plot container
     const loaderDiv = d3.select("#survivalLoaderDiv");
-  
-  // Create a flex container to place elements side by side
-  loaderDiv.append("div")
-      .attr("id", "survivalGridRow")
-      .attr("class", "row")
-      .style("display", "flex")
-      .style("flex-direction", "row")
-      .style("align-items", "flex-start")
-      .style("width", "100%");
-  
-  // Add div for the partition selector (fixed width)
-  loaderDiv.select("#survivalGridRow")
-      .append("div")
-      .attr("id", "survivalPartition")
-      .attr("class", "col s3")
-      .style("flex", "0 0 300px");
-  
-  // Add div for the survival plot (flexible width)
-  loaderDiv.select("#survivalGridRow")
-      .append("div")
-      .attr("id", "survivalPlot")
-      .attr("class", "col s9")
-      .style("flex", "1");
-  
+    // Display number of patients in the cohort as text
+    let cohort_size_element = loaderDiv.node();
+    let displayNumberSamplesInCohort = function () {
+        let existingPara = d3.select("#survival_curve_cohort_size");
+        if(existingPara)
+            existingPara.remove();
+        // build label:
+        let para = document.createElement("p");
+        // Style the paragraph
+        para.style.textAlign = 'center';
+        para.style.color = '#4db6ac';
+        para.style.fontFamily = 'Georgia, "Times New Roman", Times, serif';
+        para.id = "cohort_size";
+        para.innerText = "Number of samples in cohort: " + cohort_barcodes.length;
+        cohort_size_element.appendChild(para);
+    };
+    displayNumberSamplesInCohort();
+    // Create a flex container to place elements side by side
+    loaderDiv.append("div")
+        .attr("id", "survivalGridRow")
+        .attr("class", "row")
+        .style("display", "flex")
+        .style("flex-direction", "row")
+        .style("align-items", "flex-start")
+        .style("width", "100%");
+
+    // Add div for the partition selector (fixed width)
+    loaderDiv.select("#survivalGridRow")
+        .append("div")
+        .attr("id", "survivalPartition")
+        .attr("class", "col s3")
+        .style("flex", "0 0 300px");
+    // Add div for the survival plot (flexible width)
+    loaderDiv.select("#survivalGridRow")
+        .append("div")
+        .attr("id", "survivalPlot")
+        .attr("class", "col s9")
+        .style("flex", "1");
+
   // Create the partition selection box
   createSurvivalPartitionBox("survivalPartition", clinical_and_mutation_data, mutation_genes);
   
   // Create initial plot for all patients (default)
-  const formatted_survival_data = formatSurvivalDate(clinical_and_mutation_data)
+  const formatted_survival_data = formatSurvivalDate(clinical_and_mutation_data);
   const survival_curve_all_patients = calculateSurvivalValuesByCohort(formatted_survival_data);
   
   // Only create plot if we have valid data

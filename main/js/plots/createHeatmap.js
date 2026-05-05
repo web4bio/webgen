@@ -12,30 +12,7 @@
  *
  * @returns {undefined}
 */
-const createHeatmap = async function (expressionData, divObject, selected_tumor_types, barcodes_by_tumor, mutation_genes) {
-    // Retrieve clinical data and barcodes per cohort
-    let cache_clin = await getCacheCLIN();
-    let clinical_data = await cache_clin.fetchWrapperCLIN(
-        listOfCohorts = selected_tumor_types, 
-        barcodesByCohort = barcodes_by_tumor);
-    // Extract clinical_data property from each element
-    clinical_data = clinical_data.map(obj => obj.clinical_data);
-    // Flatten clinical_data into a 1-D array
-    clinical_data = clinical_data.flat();
-    // Flatten barcodes into a 1-D array
-    let cohort_barcodes = barcodes_by_tumor.map(obj => obj.barcodes);
-    cohort_barcodes = cohort_barcodes.flat()
-    // Retrieve mutation data for cohort
-    let cache_mu = await getCacheMU();
-    let mutation_data = await cache_mu.fetchWrapperMU(
-        listOfCohorts = selected_tumor_types,
-        listOfGenes = mutation_genes,
-        listOfBarcodes = cohort_barcodes);
-    // Merge clinical and mutation data into one data structure
-    clinical_and_mutation_data = mergeClinicalAndMutationData(
-        mutation_genes = mutation_genes, 
-        mutation_data = mutation_data,
-        clinical_data = clinical_data);
+const createHeatmap = async function (expressionData, divObject, clinical_and_mutation_data, cohort_barcodes, mutation_genes) {
     ///////////////////////////////////
     // 0) DISPLAY NUMBER OF SAMPLES IN COHORT
     ///////////////////////////////////
@@ -53,7 +30,7 @@ const createHeatmap = async function (expressionData, divObject, selected_tumor_
         // build label:
         let numSamplesLabel = "";
         let para;
-        numSamplesLabel = (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length
+        numSamplesLabel = cohort_barcodes.length
         para = document.createElement("P");
         para.setAttribute(
             "style",
@@ -159,7 +136,7 @@ const createHeatmap = async function (expressionData, divObject, selected_tumor_
                 }
             });
             // Only use variables with 2-10 distinct values (categorical)
-            return distinctValues.size >= 2 && distinctValues.size <= 25;
+            return distinctValues.size >= 2 && distinctValues.size <= 10;
         });
     }  
     // Sort variables alphabetically
