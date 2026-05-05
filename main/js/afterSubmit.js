@@ -98,10 +98,8 @@ const buildPlots = async function() {
   expression_data = (expression_data || []).filter(
     r => r && allSelectedGenes.includes(r.gene)
   );
-  cache.set('rnaSeq', 'expression_data', expression_data); // Set localStorage entry for expression data
   clinicalData = clinicalData.map(obj => obj.clinical_data); // Extract clinical_data property from each element
   clinicalData = clinicalData.flat();   // Flatten clinicalData into a 1-D array
-  cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   let cacheMu = await getCacheMU(); // Instantiate cache interface for mutation data
