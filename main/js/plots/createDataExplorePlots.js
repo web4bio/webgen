@@ -112,6 +112,29 @@ function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
 }
 
+// utility function to remove plot divs of unselected features and purge corresponding data from global state
+function purgeAndRemovePlotDiv(divId) {
+    const el=document.getElementById(divId);
+    if(!el) {
+        return;
+    }
+    try {
+        Plotly.purge(el);
+    } catch (error) {
+        console.error(`Error purging plot for ${divId}:`, error);
+    }
+    el.remove();
+}
+
+// utility function to either render new plot or update existing plot with new data
+async function renderOrUpdatePlot(gd, traces, layout, config) {
+    const hasExistingPlot=Array.isArray(gd?.data) && gd.data.length > 0 && gd?.layout;
+    if (hasExistingPlot) {
+        return Plotly.react(gd, traces, layout, config);
+    }
+    return Plotly.newPlot(gd, traces, layout, config);
+}
+
 /** Build and display data explore plots i.e. pie charts and histograms
  *
  * This function fetches the necessary data, builds the pie charts to display discrete data
@@ -146,19 +169,33 @@ let buildDataExplorePlots = async function() {
         // If feature was unselected
         if (previouslySelectedFeatures !== undefined) {
             // get any features that were previously selected that are no longer selected
-            let unselectedFeature = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
-            if(unselectedFeature.length > 0) {
-                let temp = document.getElementById(unselectedFeature + 'Div');
-                if (temp) {
-                    // remove associated div/plot
-                    temp.remove();
+            const unselectedFeatures = previouslySelectedFeatures.filter(x => !mySelectedFeatures.includes(x));
+            
+            unselectedFeatures.forEach((feature) => {
+                //remove mutation signature plot container
+                const mainPlot=document.getElementById(feature + 'Div');
+                if(mainPlot) {
+                    purgeAndRemovePlotDiv(feature + 'Div');
                 }
+
+                //remove gene expression histogram container
+                const exprPlot=document.getElementById(feature + 'ExpressionDiv');
+                if(exprPlot) {
+                    purgeAndRemovePlotDiv(feature + 'ExpressionDiv');
+                }
+
+                //sync with UI
+                delete selectedCategoricalFeatures[feature];
+                delete selectedContinuousFeatures[feature];
+                
                 // if unselected feature is not a gene, set isSelected status to false
-                if(unselectedFeature[0] !== unselectedFeature[0].toUpperCase()) {
-                    let index = clinicalType.findIndex(x => x.name == unselectedFeature);
+                if(feature[0] !== feature[0].toUpperCase()) {
+                    let index = clinicalType.findIndex(x => x.name == feature);
                     clinicalType[index].isSelected = false;
                 }
-            }
+
+            })
+                
         }
         previouslySelectedFeatures = mySelectedFeatures;    
 
@@ -182,15 +219,18 @@ let buildDataExplorePlots = async function() {
                 // if current feature is a gene,
                 // get values and labels for this feature
                 if(currentFeature[0] === currentFeature[0].toUpperCase()) {
-                    let cacheMu = await getCacheMU(); //Instantiate mutation cache object
+                    let cacheMu = await getCacheMU(); // Instantiate mutation cache object
                     let mutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes, [currentFeature]); // Retrieve mutation data from cache
                     let mutationCounts = computeMutationFrequencies(mutationData); // Obtain map of mutation types and their respective counts
                     uniqueValuesForCurrentFeature = Array.from(mutationCounts.keys()); // Get mutation types from keys()
-                    xCounts = Array.from(mutationCounts.values()); // Get corresponding coutns from values()
-                }
+                    xCounts = Array.from(mutationCounts.values()); // Get corresponding counts from values()
+                    let cacheGe = await getCacheGE();
+                    let geneMutationExpression = await cacheGe.fetchWrapperGE(selectedTumorTypes, [currentFeature]);                
+                    await createGeneExpressionHistogram(geneMutationExpression, mutationData, currentFeature);
+
                 // if current feature is clinical (i.e., not a gene)
                 // get values and labels for this feature 
-                else {
+                } else {
                     let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous);
                     xCounts = clinicalFeaturesResults[0]
                     uniqueValuesForCurrentFeature = clinicalFeaturesResults[1]
@@ -293,7 +333,7 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
     clinicalType[index].isSelected = true;
     if (clinicalType[index].type === "continuous") {
         continuous = true;
-        uniqueValuesForCurrentFeature = allValuesForCurrentFeature; // changed from uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
+        uniqueValuesForCurrentFeature = allValuesForCurrentFeature;
     } else {
         continuous = false;
         uniqueValuesForCurrentFeature = allValuesForCurrentFeature.filter(onlyUnique);
@@ -457,7 +497,6 @@ let setChartDimsAndPlot = async function (uniqueValuesForCurrentFeature, current
             bargap: 0.05,
             height: 400,
             width: 500,
-            // title: (currentFeature + "").replaceAll('_', ' '),
             showlegend: false,
             font: {
                 family: 'Arial, Helvetica, sans-serif'
@@ -481,11 +520,237 @@ let setChartDimsAndPlot = async function (uniqueValuesForCurrentFeature, current
             displayModeBar: false
         }
 
+        const gd = document.getElementById(currentFeature + 'Div');
+
         if (continuous) {
-            Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
+            // Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
+            await renderOrUpdatePlot(gd, histo_data, histo_layout, config);
         } else {
-            Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
+            await renderOrUpdatePlot(gd, data, layout, config);
         }
 
     }
+}
+
+/**
+ * Creates histograms to visualize gene expression distribution with filtering capability
+ * 
+ * @param {Array} geneMutationExpression - Array of objects containing gene expression data
+ * @param {Array} mutationData - Array of objects containing mutation data
+ * @param {String} currentFeature - The gene being analyzed
+ * @returns {undefined}
+ */
+async function createGeneExpressionHistogram(geneMutationExpression, mutationData, currentFeature) {
+    // Exit if no data is provided
+    if (!geneMutationExpression || geneMutationExpression.length === 0) {
+        console.log("No expression data available for this gene");
+        return;
+    }
+
+    // Extract expression values for tumor samples only
+    const expressionValues = [];
+    const patientBarcodes = [];
+    
+    for (const record of geneMutationExpression) {
+        // Only include tumor samples (TP)
+        if (record.sample_type !== "TP") continue;
+        
+        const expressionValue = record.expression_log2;
+        if (expressionValue !== null && expressionValue !== undefined && !isNaN(expressionValue)) {
+            expressionValues.push(expressionValue);
+            patientBarcodes.push(record.tcga_participant_barcode);
+        }
+    }
+
+    if (expressionValues.length === 0) {
+        console.log("No valid expression data available for this gene");
+        return;
+    }
+
+    // Create single histogram trace (no mutation stratification)
+    const histogramTrace = {
+        x: expressionValues,
+        type: 'histogram',
+        name: `${currentFeature} Expression`,
+        xbins: {
+            size: calculateBinSize(expressionValues)
+        },
+        hovertemplate: 'Expression: %{x}<br>Count: %{y}<extra></extra>'
+    };
+
+    // Create histogram layout with native range selection
+    const histogramLayout = {
+        bargap: 0.05,
+        height: 400,
+        width: 500,
+        dragmode: 'select',
+        selectdirection: 'h',
+        title: `${currentFeature} Expression Distribution`,
+        xaxis: {
+            title: 'Expression Level (log2)',
+            tickfont: { size: 12 },
+            rangeslider: {
+                visible: false,
+                thickness: 0.1
+            },
+            rangeselector: {
+                buttons: [
+                    {
+                        count: 1,
+                        label: 'Reset',
+                        step: 'all'
+                    }
+                ],
+                y: -0.2,
+                x: 0
+            }
+        },
+        yaxis: {
+            title: 'Frequency',
+            tickfont: { size: 12 }
+        },
+        font: {
+            family: 'Arial, Helvetica, sans-serif'
+        }
+    };
+
+    // Create a div for the histogram if it doesn't exist
+    const parentDiv = document.getElementById("dataexploration");
+    let histogramDiv = document.getElementById(currentFeature + "ExpressionDiv");
+    
+    if (!histogramDiv) {
+        histogramDiv = document.createElement("div");
+        histogramDiv.setAttribute("id", currentFeature + "ExpressionDiv");
+        histogramDiv.setAttribute("style", "float:left;");
+        histogramDiv.setAttribute("class", "col s6");
+        parentDiv.appendChild(histogramDiv);
+    }
+    // Plot the histogram
+    const divId = currentFeature + "ExpressionDiv";
+    const gd = document.getElementById(divId);
+    
+    const plotConfig = {
+      responsive: true,
+      displayModeBar: true,
+      modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d', 'autoScale2d'],
+      scrollZoom: false
+    };
+
+    const plotGd=await renderOrUpdatePlot(gd, [histogramTrace], histogramLayout, plotConfig);
+
+    //TODO: listener removal
+    
+    
+    const dataMin = Math.min(...expressionValues);
+    const dataMax = Math.max(...expressionValues);
+    
+    const updateStateAndUI = (minVal, maxVal, isReset=false) => {
+        // 1) Update global state FIRST
+        const isFullRange = Math.abs(minVal - dataMin) < 0.01 && Math.abs(maxVal - dataMax) < 0.01;
+        if (isFullRange || isReset) {
+        getExpressionRangeValues(currentFeature, null);
+        } else {
+        getExpressionRangeValues(currentFeature, { min: minVal, max: maxVal });
+        }
+    
+        // 2) Then update UI (guard null)
+        const rangeDisplay = document.getElementById(currentFeature + "RangeDisplay");
+        if (rangeDisplay) {
+        if (isFullRange || isReset) {
+            rangeDisplay.textContent = `All patients (${expressionValues.length})`;
+        } else {
+            const filteredCount = expressionValues.filter(v => v >= minVal && v <= maxVal).length;
+            rangeDisplay.textContent =
+            `Range: ${minVal.toFixed(2)} to ${maxVal.toFixed(2)} (${filteredCount} patients)`;
+        }
+        }
+    };
+    
+    // Selection (drag box)
+    plotGd.on('plotly_selected', ev => {
+        const [minVal, maxVal] = ev?.range?.x ?? [dataMin, dataMax];
+        updateStateAndUI(minVal, maxVal);
+    });
+    
+    // Deselection (click empty space)
+    plotGd.on('plotly_deselect', () => updateStateAndUI(dataMin, dataMax, true));
+    
+    // Zoom/pan/range changes
+    plotGd.on('plotly_relayout', ev => {
+        const r0 = ev['xaxis.range[0]'] ?? ev['xaxis.range']?.[0];
+        const r1 = ev['xaxis.range[1]'] ?? ev['xaxis.range']?.[1];
+    
+        if (r0 !== undefined && r1 !== undefined) {
+        updateStateAndUI(r0, r1);
+        }
+        if (ev['xaxis.autorange'] === true) {
+        updateStateAndUI(dataMin, dataMax, true);
+        }
+    });
+
+    /**
+     * Apply expression level filter to the patient cohort
+     * This function integrates with the existing filtering system used by pie charts
+     * 
+     * @param {String} gene - The gene being filtered
+     * @param {Object|null} range - The expression range {min, max} or null to clear filter
+     */
+    function getExpressionRangeValues(gene, range) {
+        if (range) {
+            console.log(`Applying expression filter for ${gene}: ${range.min.toFixed(2)} to ${range.max.toFixed(2)}`);
+
+            // Store the range in selectedContinuousFeatures following the same pattern as pie charts
+            selectedContinuousFeatures[gene] = [range.min, range.max];
+            
+            console.log('Updated selectedContinuousFeatures:', selectedContinuousFeatures);
+            
+        } else {
+            console.log(`Clearing expression filter for ${gene}`);
+            
+            // Remove the filter from selectedContinuousFeatures
+            if (selectedContinuousFeatures[gene]) {
+                delete selectedContinuousFeatures[gene];
+            }
+            
+            console.log('Updated selectedContinuousFeatures:', selectedContinuousFeatures);
+        }
+    }
+
+    /**
+     * Helper function to calculate appropriate bin size based on data distribution
+     * 
+     * @param {Array} data - Array of expression values
+     * @returns {Number} - Appropriate bin size
+     */
+    function calculateBinSize(data) {
+        // Calculate IQR (Interquartile Range) based bin size using Freedman-Diaconis rule
+        if (data.length < 2) return 0.5; // Default if not enough data
+        
+        // Sort the data
+        const sortedData = [...data].sort((a, b) => a - b);
+        
+        // Find min and max
+        const min = sortedData[0];
+        const max = sortedData[sortedData.length - 1];
+        
+        // If range is too small, use a default bin size
+        if (max - min < 0.1) return 0.1;
+        
+        // Calculate quartiles
+        const q1Index = Math.floor(sortedData.length * 0.25);
+        const q3Index = Math.floor(sortedData.length * 0.75);
+        const q1 = sortedData[q1Index];
+        const q3 = sortedData[q3Index];
+        const iqr = q3 - q1;
+        
+        // Freedman-Diaconis rule: 2 * IQR * n^(-1/3)
+        const binSize = 2 * iqr * Math.pow(data.length, -1/3);
+        
+        // If calculated bin size is too small or too large, use reasonable defaults
+        if (binSize < 0.1 || isNaN(binSize)) return 0.5;
+        if (binSize > 5) return 2;
+        
+        return binSize;
+    }
+
 }

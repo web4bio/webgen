@@ -7,7 +7,7 @@
  * @returns {Promise<Object.<string, Array>>} Fetched data.
  */
 const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
-  const base = "https://corsproxy.io";
+  const base = "https://webgen.gteref.workers.dev/?url="; // cloudflare proxy
   // Remove a leading / in the endpoint so we don't have duplicate / in
   // the url. Using // in a url is valid but it feels dirty.
   if (endpoint.startsWith("/")) {
@@ -15,7 +15,8 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
   }
   endpoint = `http://firebrowse.org/api/v1/${endpoint}`;
   params = new URLSearchParams(params);
-  const url = `${base}?${endpoint}?${params.toString()}`;
+  const encodedUri = encodeURIComponent(`${endpoint}?${params.toString()}`)
+  const url = `${base}${encodedUri}`
   const minimalJson = { [expectedKey]: [] };
 
   const response = await fetch(url);
@@ -27,7 +28,7 @@ const _fetchFromFireBrowse = async function(endpoint, params, expectedKey) {
     const json = await response.json();
     return json;
   } catch(error) {
-    console.log(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
+    console.warn(`${expectedKey} is empty, returning an object with empty ${expectedKey} `);
     return minimalJson;
   }
 };
@@ -162,7 +163,11 @@ firebrowse.fetch = async function(endpoint, params, groupBy) {
       ProgressBar.setPercentage(i/paramsMatrix.length*100, "Fetching " + expectedKey);
       // Run a fetch and then collect the data into one common object.
       await _fetchFromFireBrowse(endpoint, paramsForThisCall, expectedKey)
-        .then(x => {results[expectedKey].push(...x[expectedKey])});
+        .then(x => {
+          // Verify retrieved data has expectedKey as a field
+          if(expectedKey in x)
+            results[expectedKey].push(...x[expectedKey])
+        });
     }
     ProgressBar.cleanUp();
     return results;
@@ -204,7 +209,12 @@ firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum})
     groupBy.push({key: "tcga_participant_barcode", length: 50});
   }
   const data = await firebrowse.fetch("/Samples/Clinical_FH", params, groupBy);
-  return data.Clinical_FH;
+  // Check that firebrowse.fetch() returned properly formatted data
+  let data_field = "Clinical_FH";
+  if(data_field in data)
+    return data[data_field];
+  else
+    throw new Error("Clinical data could not be fetched from Firebrowse");
 };
 
 
@@ -218,8 +228,13 @@ firebrowse.fetchClinicalFH = async function({cohorts, genes, barcodes, pageNum})
  */
 firebrowse.fetchCohorts = async function() {
   const params = { format: "json" };
-  const data = await firebrowse.fetch("/Metadata/Cohorts", params);
-  return data.Cohorts;
+  //Check that Firebrowse fetch returned properly formatted data
+  const fetchResponse = await firebrowse.fetch("/Metadata/Cohorts", params);
+  let data_field = "Cohorts";
+  if(data_field in fetchResponse)
+    return fetchResponse[data_field];
+  else
+    throw new Error("Cohort names could not be fetched from Firebrowse");
 };
 
 /** Get the number of mRNASeq samples per cohort.
@@ -242,7 +257,11 @@ firebrowse.fetchCounts = async function(cohorts) {
     totals: "true",
   };
   const data = await firebrowse.fetch("/Metadata/Counts", params);
-  return data.Counts;
+  let data_field = "Counts"
+  if(data_field in data)
+    return data[data_field];
+  else
+    throw new Error("Cohort counts could not be fetched from Firebrowse");
 };
 
 firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
@@ -274,7 +293,11 @@ firebrowse.fetchMutationMAF = async function ({cohorts, genes}) {
   else {
     data = await firebrowse.fetch("/Analyses/Mutation/MAF", params, groupBy);
   }
-  return data.MAF;
+  let data_field = "MAF"
+  if(data_field in data)
+    return data[data_field];
+  else
+    throw new Error("Could not fetch MAF mutation data from Firehose");
 };
 
 
@@ -323,7 +346,12 @@ firebrowse.fetchmRNASeq = async function({cohorts, genes, barcodes}) {
     groupBy.push({key: "tcga_participant_barcode", length: 400});
   }
   const data = await firebrowse.fetch("/Samples/mRNASeq", params, groupBy);
-  return data.mRNASeq;
+  let data_field = "mRNASeq"
+  if(data_field in data)
+    return data[data_field];
+  else
+    throw new Error("Could not fetch mRNASeq expression data from Firehose");
+
 };
 
 // Prevent any changes to this object.
