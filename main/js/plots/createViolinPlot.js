@@ -46,7 +46,7 @@ const createViolinPlot = async function(expression_data,
     var margin = {top: 40, right: 30, bottom: 80, left: 40};
      // baseInnerWidth = 505 - margin.left - margin.right
     const minBandWidth=65; //min horizontal space per group before enabling horizontal scroll
-    const shouldExpandRight = facetByFields.length>=2; // expand plot right if more than 2 partition vars are selected
+    const shouldExpandRight = facet_by_fields.length>=2; // expand plot right if more than 2 partition vars are selected
     // const height = 200 - margin.top - margin.bottom;
 
     // Filter out patients with null expression values:
