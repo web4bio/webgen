@@ -1,9 +1,9 @@
 // Async function to create a d3 violin plot for a given independent variable and a set of genes
 
-// dataInput is the array os JSONs of gene expression data to visualize
-// violinDiv is the name of the object on the html page to build the plot
+// expression_data is the array os JSONs of gene expression data to visualize
+// violin_div is the name of the object on the html page to build the plot
 // curPlot is the name of the Expression vs. indeptVarType plot we are generating
-// facetByFields are the clinical fields selected in the partition selection box
+// facet_by_fields are the clinical fields selected in the partition selection box
 
 let tooltipNum = 0;
 
@@ -11,28 +11,26 @@ const normalizeCategoryLabel=(label)=>String(label).replaceAll("_", " ")
 
 /** Create violin plots;
  *
- * @param {ExpressionData[]} dataInput - Array of expression data objects.
- * @param {HTMLDivElement} violinDiv - Div element in which to put violin plot.
+ * @param {ExpressionData[]} expression_data - Array of expression data objects.
+ * @param {HTMLDivElement} violin_div - Div element in which to put violin plot.
  * @param {string} curPlot - Gene for this plot.
- * @param {string[]} facetByFields - Variables to partition violin curves by.
+ * @param {string[]} facet_by_fields - Variables to partition violin curves by.
  *
  * @returns {undefined}
 */
-const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFields) {
+const createViolinPlot = async function(expression_data, 
+    violin_div,
+    curPlot, 
+    facet_by_fields = [],
+    clinical_and_mutation_data, 
+    mutation_genes) {
     
-    facetByFields = facetByFields.map(item => item === "tumor_type" ? "cohort" : item);
+    facet_by_fields = facet_by_fields.map(item => item === "tumor_type" ? "cohort" : item);
 
     // Get the num of the div so that the id of everything else matches. Will be used later when creating svg and tooltip
-    let divNum = violinDiv.id.replace(/\D/g, '');
-
-    let clinicalData = "";
-    
-    // if at least one facet field is selected, then get its clinical data from the cache
-    if(facetByFields.length > 0) {
-        clinicalData = await cache.get('rnaSeq', 'clinicalData');
-        clinicalData = clinicalData.clinicalData;
-    }
-    
+    let divNum = violin_div.id.replace(/\D/g, '');
+    // Flatten barcodes into a 1-D array
+    let cohort_barcodes = expression_data.map(obj => obj.tcga_participant_barcode);
     // Set up basis for violin curve colors
     var colors = ["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00",
                     "#ffff33","#a65628","#f781bf","#999999"];
@@ -52,39 +50,36 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     // const height = 200 - margin.top - margin.bottom;
 
     // Filter out patients with null expression values:
-    dataInput = dataInput.filter(patientData => patientData.expression_log2 != null);
-
+    expression_data = expression_data.filter(patientData => patientData.expression_log2 != null);
     //  Filter out data that does not belong to curPlot (ie, for this gene)
-    dataInput = dataInput.filter(patientData => patientData.gene == curPlot);
-
+    expression_data = expression_data.filter(patientData => patientData.gene == curPlot);
     // Checking that filtered data length is > 0
-    if(dataInput.length <= 0) {
+    if(expression_data.length <= 0) {
         return;
     }
 
     let myGroups = [];
 
     // If user has selected fields to facet by
-    if(facetByFields.length > 0) {
-        for(let i = 0; i < dataInput.length; i++) {
-            // Get matching index in clinicalData for current patient index in dataInput
-            let patientIndex = findMatchByTCGABarcode(dataInput[i], clinicalData);
-         
+    if(facet_by_fields.length > 0) {
+        for(let i = 0; i < expression_data.length; i++) {
+            // Get matching index in clinical_and_mutation_data for current patient index in expression_data
+            let patientIndex = findMatchByTCGABarcode(expression_data[i], clinical_and_mutation_data);
             if(patientIndex >= 0) {
                 // Create keyToFacetBy for each patient
-                let keyToFacetBy = facetByFields.map(field => clinicalData[patientIndex][field]).join(" ");
-                dataInput[i]["facetByFieldKey"] = keyToFacetBy;
+                let keyToFacetBy = facet_by_fields.map(field => clinical_and_mutation_data[patientIndex][field]).join(" ");
+                expression_data[i]["facetByFieldKey"] = keyToFacetBy;
             } else {
                 // Handle edge case for 'NA'
-                dataInput[i]["facetByFieldKey"] = "(NA)";
+                expression_data[i]["facetByFieldKey"] = "(NA)";
             }
         }
 
-        myGroups = d3.map(dataInput, d => d.facetByFieldKey).keys();
+        myGroups = d3.map(expression_data, d => d.facetByFieldKey).keys();
     } else {
         // Default to showing the whole cohort if no facet fields are selected
         myGroups = ["My cohort"];
-        dataInput.forEach(d => {
+        expression_data.forEach(d => {
             d.facetByFieldKey = "My cohort"; // Set the facet key for all entries to "My cohort"
         });
     }
@@ -92,7 +87,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     // Compute counts for each violin curve group
     let myGroupCounts = {};
     for(let group of myGroups) {
-        myGroupCounts[group] = dataInput.filter(d => d.facetByFieldKey === group).length;
+        myGroupCounts[group] = expression_data.filter(d => d.facetByFieldKey === group).length;
     }
 
     // Populate violinCurveColors
@@ -157,7 +152,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
         .attr("transform", "translate(" + (margin.left) + "," + (margin.top) + ")");
 
     // Get min and max expression values for y axis:
-    const geneExpressionValues = dataInput.map(d => d.expression_log2);
+    const geneExpressionValues = expression_data.map(d => d.expression_log2);
     const minExpressionLevel = Math.min(...geneExpressionValues);
     const maxExpressionLevel = Math.max(...geneExpressionValues);
 
@@ -195,16 +190,16 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
     const kde = kernelDensityEstimator(kernelEpanechnikov(0.7), y.ticks(50));
     let sumstat;
 
-    if (facetByFields.length === 0) {
+    if (facet_by_fields.length === 0) {
         // Create a single entry for "My cohort" and compute density for the entire dataset
-        const input = dataInput.map(d => d.expression_log2);
+        const input = expression_data.map(d => d.expression_log2);
         sumstat = [{ key: "My cohort", value: kde(input) }];
     } else {
-        // If facetByFields is not empty, proceed with nesting
+        // If facet_by_fields is not empty, proceed with nesting
         sumstat = d3.nest()                                               
             .key(d => d.facetByFieldKey)
             .rollup(d => kde(d.map(g => g.expression_log2)))
-            .entries(dataInput);
+            .entries(expression_data);
     }
 
     // Calculate statistics for each group
@@ -218,7 +213,7 @@ const createViolinPlot = async function(dataInput, violinDiv, curPlot, facetByFi
             maxNum = longest;
         }
 
-        let currentExpressionArray = dataInput.filter(x => x.facetByFieldKey === sumstat[i].key)
+        let currentExpressionArray = expression_data.filter(x => x.facetByFieldKey === sumstat[i].key)
             .map(d => d.expression_log2)
             .sort((a, b) => a - b);
 
@@ -462,13 +457,12 @@ function standardDeviation(mean, values)
 
 /** Creates the partition selector for the violin plots
  * 
- * @param {?HTMLDivElement} partitionDivId - the html id passed over for the violinsDiv
+ * @param {?HTMLDivElement} partition_div_id - the html id passed over for the violinsDiv
  * @param {string[]} geneQuery - Array of gene names
  * @returns {string[]} list of choices for the partition box
  */
-let createViolinPartitionBox = async function(partitionDivId, geneQuery)
-{
-    var div_box = d3.select(`#${partitionDivId}`);
+let createViolinPartitionBox = async function(expression_data, partition_div_id, geneQuery, clinical_and_mutation_data, mutation_genes) {
+    var div_box = d3.select(`#${partition_div_id}`);
     div_box
         .style('font-size', '14px')
         .style('font-weight', 'bold')
@@ -511,7 +505,11 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
            .attr("type", "checkbox")
            .on('change', function () {
                 update();
-                rebuildViolinPlot(partitionDivId, geneQuery);
+                rebuildViolinPlot(expression_data = expression_data,
+                    partitionBoxId = partition_div_id, 
+                    geneQuery = geneQuery, 
+                    clinical_and_mutation_data = clinical_and_mutation_data, 
+                    mutation_genes = mutation_genes);
             });
 
         label2.append("span")
@@ -520,46 +518,44 @@ let createViolinPartitionBox = async function(partitionDivId, geneQuery)
            .style("color", "#5f5f5f");
     }
 
-    // data to input = clinical vars from query
-    const rawPartitionVars = (localStorage.getItem("mutationAndClinicalFeatureKeys") || '').split(",").map(v=>v.trim()).filter(Boolean);
-    let partitionVars = Array.from(new Set(rawPartitionVars.map(v => v==='tumor_type' ? 'cohort' : v))); // Remove duplicates
-
-    let clinicalRows=[];
-    const clinicalPayload=await cache.get('rnaSeq', 'clinicalData');
-    if(clinicalPayload && Array.isArray(clinicalPayload.clinicalData)) {
-        clinicalRows=clinicalPayload.clinicalData;
-    }
-
-    let var_opts = partitionVars.filter(key=>{
-        if (key.includes('barcode') || key.includes('date') || key==='tool') {
-            return false;
-        }
-
-        if (clinicalRows.length === 0) {
-            return true;
-        }
-
-        const uniqueVals=new Set();
-        clinicalRows.forEach(patient=>{
-            const value=patient[key];
-            if (value!=='NA' && value!==null && value!==undefined) {
-                uniqueVals.add(value);
+    // Get potential stratification variables
+    // We need to filter to clinical variables that are suitable for stratification
+    let stratification_vars = [];
+    if (clinical_and_mutation_data && clinical_and_mutation_data.length > 0) {
+        // Get all keys from the clinical and mutation data
+        const allKeys = Object.keys(clinical_and_mutation_data[0]);
+        // Filter to variables that make sense for stratification
+        stratification_vars = allKeys.filter(key => {
+            // Skip technical IDs and dates
+            if (key.includes('barcode') || 
+                    key.includes('date') || 
+                    key === 'tool' ||
+                    key.includes('days')) {
+                        return false;
             }
+            // Skip genes not selected in mutations data explore
+            if (key.includes("Mutation") && !mutation_genes.includes(key.split("_")[0]))
+                return false
+            
+            // Count distinct values for this key
+            const distinctValues = new Set();
+            clinical_and_mutation_data.forEach(patient => {
+                if (patient[key] !== 'NA' && patient[key] !== null && patient[key] !== undefined && patient[key] !== "(NA)") {
+                    distinctValues.add(patient[key]);
+                }
+            });
+            // Only use variables with 2-10 distinct values (categorical)
+            return distinctValues.size >= 2 && distinctValues.size <= 10;
         });
-
-        return uniqueVals.size>=2 && uniqueVals.size<=10; 
-    });
-
-    // make a checkbox for each option
-    
-    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
-    var_opts = var_opts.filter(item => !unwantedKeys.has(item));
-    var_opts = var_opts.map(item => item === "cohort" ? "tumor_type" : item);
-    var_opts.forEach(el => renderCB(div_body,el))
+    }  
+    // Sort variables alphabetically
+    stratification_vars.sort();
+    // Make a checkbox for each option
+    stratification_vars.forEach(el => renderCB(div_body,el))
     update();
 
     var choices = [];
-    d3.select('#'+partitionDivId).selectAll(".myViolinCheckbox").each(function(d)
+    d3.select('#'+partition_div_id).selectAll(".myViolinCheckbox").each(function(d)
     {
         let cb = d3.select(this);
         if(cb.property('checked')){ choices.push(cb.property('value')); };
@@ -590,7 +586,7 @@ let getPartitionBoxSelections = function(violinsDivId)
  * @param {string[]} geneQuery - Array of gene names
  * @returns {undefined} 
  */
-let rebuildViolinPlot = async function(partitionBoxId, geneQuery) {
+let rebuildViolinPlot = async function(expression_data, partitionBoxId, geneQuery, clinical_and_mutation_data, mutation_genes) {
     var selectedOptions = getPartitionBoxSelections(partitionBoxId);
 
     for(var index = 0; index < geneQuery.length; index++) {
@@ -598,22 +594,27 @@ let rebuildViolinPlot = async function(partitionBoxId, geneQuery) {
         var svgDiv = document.getElementById(svgDivId);
         svgDiv.innerHTML = "";
         var violinDivId = "violinPlot" + index;
-        let expressionData = await cache.get('rnaSeq', 'expressionData');
-        createViolinPlot(expressionData.expressionData, document.getElementById(violinDivId), geneQuery[index], selectedOptions);
+        createViolinPlot(
+            expression_data = expression_data, 
+            violin_div = document.getElementById(violinDivId), 
+            curPlot = geneQuery[index], 
+            facet_by_fields = selectedOptions,
+            clinical_and_mutation_data = clinical_and_mutation_data,
+            mutation_genes = mutation_genes);
     }
 };
 
 /** Helper function to acquire the index of a patient's clinical data based on their tcga_participant_barcode
  * 
  * @param {ExpressionData[]} patient - expression data objects.
- * @param {clinicalData[]} clinicalData - Array of clinical data objects.
+ * @param {clinical_and_mutation_data[]} clinical_and_mutation_data - Array of clinical and mutation data objects.
  * @returns {number} index of tcga_participant_barcode of patient in the clinical data 
  */
-function findMatchByTCGABarcode(patient, clinicalData)
+function findMatchByTCGABarcode(patient, clinical_and_mutation_data)
 {
-    for(var index = 0; index < clinicalData.length; index++)
+    for(var index = 0; index < clinical_and_mutation_data.length; index++)
     {
-        if(clinicalData[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
+        if(clinical_and_mutation_data[index]["tcga_participant_barcode"] == (patient["tcga_participant_barcode"]))
             return index;
     }
 
