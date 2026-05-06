@@ -2,17 +2,16 @@
 
 /**
  * Format survival data using Kaplan-Meier method
- * @param {Array} clinicalData - Clinical data array
+ * @param {Array} clinical_and_mutation_data - Clinical and mutation data array
  * @returns {Object} Object with a single key and a corresponding array of survival data as the value
  */
-const formatSurvivalDate = function(clinicalData) {
+const formatSurvivalDate = function(clinical_and_mutation_data) {
   let group_name = "All Patients";
-    
   // Group data into "All Patients" category
   const grouped_data = {};
   // Process each patient in this cohort
   const deathCounts = [];
-  clinicalData.forEach(patient => {
+  clinical_and_mutation_data.forEach(patient => {
     const barcode = patient.tcga_participant_barcode;
     let daysValue, status;
           
@@ -145,7 +144,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
 
   //precompute legend layout such that wrapped text never gets clipped
   const legendItems=cohorts.map((c)=>{
-    const label=`${c} (n=${Math.max(0,survivalCurvesByCohort[c].length-1)})`;
+    const label=`${c} (n=${Math.max(0,survivalCurvesByCohort[c][0].sample_size)})`;
     const lines=wrapLabel(label);
     const itemHeight=lines.length*14+4; //14px line height + 4px padding
     return {c,lines,itemHeight};
@@ -236,7 +235,7 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
   // Add X and Y axes
   svg.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).ticks(5))
+      .call(d3.axisBottom(x).tickFormat(normalizeCategoryLabel))
       .append("text")
       .attr("x", width / 2)
       .attr("y", 40)
@@ -356,10 +355,10 @@ const createSurvivalPlotByCohort = function(survivalCurvesByCohort) {
 * Creates the partition selector for survival curves
 *
 * @param {string} partitionDivId - the html id passed over for the partitions div
-* @param {Array} clinicalData - Clinical data array
+* @param {Array} clinical_and_mutation_data - Clinical and mutation data array
 * @returns {string[]} list of choices for the partition box
 */
-const createSurvivalPartitionBox = function(partitionDivId, clinicalData) {
+const createSurvivalPartitionBox = function(partitionDivId, clinical_and_mutation_data, mutation_genes) {
   // Get the div to place the partition selector
   var div_box = d3.select(`#${partitionDivId}`);
   
@@ -407,14 +406,14 @@ const createSurvivalPartitionBox = function(partitionDivId, clinicalData) {
       // Don't stratify if no variables are selected
       if (choices.length === 0) {
           // Use regular all patients survival curves
-          const formatted_survival_data = formatSurvivalDate(clinicalData);
+          const formatted_survival_data = formatSurvivalDate(clinical_and_mutation_data);
           const survival_curve = calculateSurvivalValuesByCohort(formatted_survival_data);
           createSurvivalPlotByCohort(survival_curve);
           return;
       }
       
       // Otherwise, stratify by the selected variables
-      const stratifiedGroups = formatSurvivalDateByStrata(clinicalData, choices);
+      const stratifiedGroups = formatSurvivalDateByStrata(clinical_and_mutation_data, choices);
       const survivalCurvesByStrata = calculateSurvivalValuesByCohort(stratifiedGroups);
       createSurvivalPlotByCohort(survivalCurvesByStrata);
   }
@@ -444,60 +443,59 @@ const createSurvivalPartitionBox = function(partitionDivId, clinicalData) {
   // We need to filter to clinical variables that are suitable for stratification
   let stratificationVars = [];
   
-  if (clinicalData && clinicalData.length > 0) {
-      // Get all keys from the clinical data
-      const allKeys = Object.keys(clinicalData[0]);
-      
+  if (clinical_and_mutation_data && clinical_and_mutation_data.length > 0) {
+      // Get all keys from the clinical and mutation data
+      const allKeys = Object.keys(clinical_and_mutation_data[0]);
       // Filter to variables that make sense for stratification
       stratificationVars = allKeys.filter(key => {
           // Skip technical IDs and dates
-          if (key.includes('barcode') || key.includes('date') || 
-              key === 'tool') {
-              return false;
+          if (key.includes('barcode') || 
+                key.includes('date') || 
+                key === 'tool' ||
+                key.includes('days')) {
+                    return false;
           }
+          // Skip genes not selected in mutations data explore
+          if (key.includes("Mutation") && !mutation_genes.includes(key.split("_")[0]))
+            return false
           
           // Count distinct values for this key
           const distinctValues = new Set();
-          clinicalData.forEach(patient => {
-              if (patient[key] !== 'NA' && patient[key] !== null && patient[key] !== undefined) {
+          clinical_and_mutation_data.forEach(patient => {
+              if (patient[key] !== 'NA' && patient[key] !== null && patient[key] !== undefined && patient[key] !== "(NA)") {
                   distinctValues.add(patient[key]);
               }
           });
-          
           // Only use variables with 2-10 distinct values (categorical)
           return distinctValues.size >= 2 && distinctValues.size <= 10;
       });
-  }
-  
+  }  
   // Sort variables alphabetically
   stratificationVars.sort();
-  
   // Create radio button for each stratification variable
   stratificationVars.forEach(el => renderRadioButton(div_body, el));
-  
   // Initialize choices array
   update();
-  
   return choices;
 };
 
 /**
 * Format survival data by selected stratification variables
-* @param {Array} clinicalData - Clinical data array
+* @param {Array} clinical_and_mutation_data - Clinical and mutation data array
 * @param {Array} stratificationVars - Array of variable names to stratify by
 * @returns {Object} Object with strata names as keys and arrays of survival data as values
 */
-const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
+const formatSurvivalDateByStrata = function(clinical_and_mutation_data, stratificationVars) {
   // If no stratification variables, fall back to all patients
   if (!stratificationVars || stratificationVars.length === 0) {
-      return formatSurvivalDate(clinicalData);
+      return formatSurvivalDate(clinical_and_mutation_data);
   }
   
   // Create strata
   const strataGroups = {};
   
   // Process each patient
-  clinicalData.forEach(patient => {
+  clinical_and_mutation_data.forEach(patient => {
       // Create a strata label based on selected variables
       const strataValues = [];
       
@@ -505,14 +503,14 @@ const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
           let value = patient[variable];
           
           // Skip patients with missing values for stratification variables
-          if (value === 'NA' || value === null || value === undefined) {
+          if (value === 'NA' || value === null || value === undefined || value === "(NA)") {
               return;
           }
           
           // Clean up value for display
           value = value.toString().toLowerCase().replace(/na/i, 'NA');
-          if (value === '0') value = 'No';
-          if (value === '1') value = 'Yes';
+          if (value === '1') value = 'No';
+          if (value === '0') value = 'Yes';
           
           strataValues.push(`${variable}-${value}`); // Using dash instead of colon for CSS safety
       });
@@ -563,7 +561,7 @@ const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
   // If all strata were filtered out, return all patients instead
   if (Object.keys(filteredGroups).length === 0) {
       console.warn("All strata had fewer than 3 patients. Falling back to all patients.");
-      return formatSurvivalDate(clinicalData);
+      return formatSurvivalDate(clinical_and_mutation_data);
   }
   
   return filteredGroups;
@@ -571,43 +569,57 @@ const formatSurvivalDateByStrata = function(clinicalData, stratificationVars) {
 
 /**
 * Modified buildSurvivalCurves function to include partition selector
-* @param {Array} clinicalData - Clinical data array
+* @param {Array} clinical_data - Clinical data array
 */
-const buildSurvivalCurvesByStrata = function(clinicalData) {
-  // Clear contents of survival curve loader div
-  d3.select("#survivalLoaderDiv").html("");
-  
-  // Clear and set up the survival plot container
-  const loaderDiv = d3.select("#survivalLoaderDiv");
-  
-  // Create a flex container to place elements side by side
-  loaderDiv.append("div")
-      .attr("id", "survivalGridRow")
-      .attr("class", "row")
-      .style("display", "flex")
-      .style("flex-direction", "row")
-      .style("align-items", "flex-start")
-      .style("width", "100%");
-  
-  // Add div for the partition selector (fixed width)
-  loaderDiv.select("#survivalGridRow")
-      .append("div")
-      .attr("id", "survivalPartition")
-      .attr("class", "col s3")
-      .style("flex", "0 0 300px");
-  
-  // Add div for the survival plot (flexible width)
-  loaderDiv.select("#survivalGridRow")
-      .append("div")
-      .attr("id", "survivalPlot")
-      .attr("class", "col s9")
-      .style("flex", "1");
-  
+const buildSurvivalCurvesByStrata = async function(clinical_and_mutation_data, mutation_genes, cohort_barcodes) {
+    // Clear contents of survival curve loader div
+    d3.select("#survivalLoaderDiv").html("");
+    // Clear and set up the survival plot container
+    const loaderDiv = d3.select("#survivalLoaderDiv");
+    // Display number of patients in the cohort as text
+    let cohort_size_element = loaderDiv.node();
+    let displayNumberSamplesInCohort = function () {
+        let existingPara = d3.select("#survival_curve_cohort_size");
+        if(existingPara)
+            existingPara.remove();
+        // build label:
+        let para = document.createElement("p");
+        // Style the paragraph
+        para.style.textAlign = 'center';
+        para.style.color = '#4db6ac';
+        para.style.fontFamily = 'Georgia, "Times New Roman", Times, serif';
+        para.id = "cohort_size";
+        para.innerText = "Number of samples in cohort: " + cohort_barcodes.length;
+        cohort_size_element.appendChild(para);
+    };
+    displayNumberSamplesInCohort();
+    // Create a flex container to place elements side by side
+    loaderDiv.append("div")
+        .attr("id", "survivalGridRow")
+        .attr("class", "row")
+        .style("display", "flex")
+        .style("flex-direction", "row")
+        .style("align-items", "flex-start")
+        .style("width", "100%");
+
+    // Add div for the partition selector (fixed width)
+    loaderDiv.select("#survivalGridRow")
+        .append("div")
+        .attr("id", "survivalPartition")
+        .attr("class", "col s3")
+        .style("flex", "0 0 300px");
+    // Add div for the survival plot (flexible width)
+    loaderDiv.select("#survivalGridRow")
+        .append("div")
+        .attr("id", "survivalPlot")
+        .attr("class", "col s9")
+        .style("flex", "1");
+
   // Create the partition selection box
-  createSurvivalPartitionBox("survivalPartition", clinicalData);
+  createSurvivalPartitionBox("survivalPartition", clinical_and_mutation_data, mutation_genes);
   
   // Create initial plot for all patients (default)
-  const formatted_survival_data = formatSurvivalDate(clinicalData)
+  const formatted_survival_data = formatSurvivalDate(clinical_and_mutation_data);
   const survival_curve_all_patients = calculateSurvivalValuesByCohort(formatted_survival_data);
   
   // Only create plot if we have valid data

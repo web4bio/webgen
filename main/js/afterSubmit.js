@@ -58,7 +58,7 @@ const buildPlots = async function() {
 
   const selectedGene1 = $(".geneOneMultipleSelection").select2("data").map((gene) => gene.text);
   let cacheGe = await getCacheGE(); // Instantiate cache interface for gene expression
-  let expressionData;
+  let expression_data;
 
   // GET CLINICAL DATA:
   // Get clinical data for either intersected barcodes or entire cohort
@@ -68,9 +68,17 @@ const buildPlots = async function() {
   let cacheClin = await getCacheCLIN(); // Instantiate cache interface for clinical data
 
   let intersectedBarcodes = await getBarcodesFromSelectedFeatures(selectedTumorTypes);
+  let cohort_barcodes = [];
 
-  if (intersectedBarcodes.length > 0) {
-
+  if(intersectedBarcodes == null) {
+    // Flatten barcodesByCohort into a 1-D array
+    cohort_barcodes = barcodesByCohort.map(obj => obj.barcodes).flat();
+    expression_data = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
+    // Pass in barcodes from expression_data
+    clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
+  }
+  else if (intersectedBarcodes.length > 0) {
+    cohort_barcodes = intersectedBarcodes;
     // If intersectedBarcodes is populated, then iterate over each cohort's barcodes and filter by the barcodes of interest
     for(let index = 0; index < barcodesByCohort.length; index++) {
       let obj = barcodesByCohort[index];
@@ -78,40 +86,43 @@ const buildPlots = async function() {
       barcodesByCohort[index].barcodes = filteredCohortBarcodes; // Set barcodesByCohort to filtered set of barcodes
     }
     clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
-    expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, intersectedBarcodes); // Extract expression data only at intersectedBarcodes
+    expression_data = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes, cohort_barcodes); // Extract expression data only at intersectedBarcodes
   } 
-  else if(intersectedBarcodes == null) {
-    expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, allSelectedGenes); // Extract expression data for all patients in each cohort
-    // Pass in barcodes from expressionData
-    clinicalData = await cacheClin.fetchWrapperCLIN(selectedTumorTypes, barcodesByCohort); // Fetch clinical data from cache
-  }
+  
   else {
     //Set screen text to indicate that no plots were generated due to lack of patient barcodes
     message = "The gene mutation and/or metadata filter(s) produced a cohort with no patients. To see figures, please change the gene mutation and/or metadata filter(s).";
     handleDataFetchError(message);
     return null;
   }
-  expressionData = (expressionData || []).filter(
+  expression_data = (expression_data || []).filter(
     r => r && allSelectedGenes.includes(r.gene)
   );
-  cache.set('rnaSeq', 'expressionData', expressionData); // Set localStorage entry for expression data
   clinicalData = clinicalData.map(obj => obj.clinical_data); // Extract clinical_data property from each element
   clinicalData = clinicalData.flat();   // Flatten clinicalData into a 1-D array
-  cache.set('rnaSeq', 'clinicalData', clinicalData)
   localStorage.setItem("clinicalFeatureKeys", Object.keys(clinicalData[0]));
 
   let cacheMu = await getCacheMU(); // Instantiate cache interface for mutation data
-  let mutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes, selectedGene1); // Fetch mutation data for selected tumor types and genes
+  let mutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes, selectedGene1, cohort_barcodes); // Fetch mutation data for selected tumor types and genes
   let mutationAndClinicalData = mergeClinicalAndMutationData(selectedGene1, mutationData, clinicalData); // Combine mutation data and clinical data into single array of JSON objects
-  localStorage.setItem("mutationAndClinicalData", JSON.stringify(mutationAndClinicalData));
   localStorage.setItem("mutationAndClinicalFeatureKeys", Object.keys((mutationAndClinicalData[0])).sort());
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  buildHeatmap(expressionData, mutationAndClinicalData);
-  buildViolinPlot(allSelectedGenes, expressionData);
-  buildDownloadButtons(allSelectedGenes, expressionData, clinicalData);
+  buildHeatmap(
+    expData = expression_data, 
+    clinical_and_mutation_data = mutationAndClinicalData,
+    cohort_barcodes = cohort_barcodes,
+    mutation_genes = selectedGene1);
+  buildViolinPlot(geneQuery = allSelectedGenes, 
+    expression_data = expression_data,
+    clinical_and_mutation_data = clinical_and_mutation_data, 
+    mutation_genes = selectedGene1);
+  buildDownloadButtons(allSelectedGenes, expression_data, clinicalData);
   //Construct survival curve
-  buildSurvivalCurvesByStrata(clinicalData)
+  buildSurvivalCurvesByStrata(
+    clinical_and_mutation_data = mutationAndClinicalData, 
+    mutation_genes = selectedGene1,
+    cohort_barcodes = cohort_barcodes);
   return null;
 };
 
@@ -145,7 +156,7 @@ const getAllSelectedGenes = async function(geneSelectionBox) {
 
 /** Build the heatmap given expression data and clinical data.
  *
- * @typedef {Object} ExpressionData
+ * @typedef {Object} expression_data
  * @property {string} cohort
  * @property {number} expression_log2
  * @property {string} gene
@@ -179,12 +190,12 @@ const getAllSelectedGenes = async function(geneSelectionBox) {
  * @property {string} vital_status
  * @property {string} years_to_birth
  *
- * @param {ExpressionData[]} expData - Array of expression data.
+ * @param {expression_data[]} expData - Array of expression data.
  * @param {ClinicalData[]} clinData - Array of clinical data.
  *
  * @returns {undefined}
  */
-const buildHeatmap = function(expData, clinAndMutationData) {
+const buildHeatmap = function(expData, clinical_and_mutation_data, cohort_barcodes, mutation_genes) {
   // Remove the loader
   document.getElementById("heatmapLoaderDiv").classList.remove("loader");
 
@@ -193,18 +204,23 @@ const buildHeatmap = function(expData, clinAndMutationData) {
   const divHeatMap = d3.select("#heatmapLoaderDiv").html("");
 
   // Create the heatmap
-  createHeatmap(expData, clinAndMutationData, divHeatMap);
+  createHeatmap(
+    expressionData = expData, 
+    divObject = divHeatMap, 
+    clinical_and_mutation_data = clinical_and_mutation_data, 
+    cohort_barcodes = cohort_barcodes, 
+    mutation_genes = mutation_genes);
 };
 
 
 /** Build violin plots.
  *
  * @param {string[]} geneQuery - Array of gene names.
- * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {expression_data[]} expression_data - Array of expression data objects.
  *
  * @returns {undefined}
  */
-const buildViolinPlot = function(geneQuery, expressionData) {
+const buildViolinPlot = function(geneQuery, expression_data, clinical_and_mutation_data, mutation_genes) {
   //Remove loader from violin plot container
   var violinLoaderDiv = document.getElementById("violinLoaderDiv");
   violinLoaderDiv.classList.remove("loader");
@@ -233,8 +249,7 @@ const buildViolinPlot = function(geneQuery, expressionData) {
       para.style.color = '#4db6ac';
       para.style.fontFamily = 'Georgia, "Times New Roman", Times, serif';
       para.id = "numSamplesInCohortText2";
-
-      para.innerText = "Number of samples in cohort: " + (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length;
+      para.innerText = `Number of samples in cohort: ${(d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length}`;
       numCohortBarcodes2.appendChild(para);
   };
 
@@ -253,7 +268,12 @@ const buildViolinPlot = function(geneQuery, expressionData) {
   var partitionCol = document.getElementById(partitionDivId);
   partitionCol.classList.add("col", "s3");
   //Generate the partition selector
-  createViolinPartitionBox(partitionDivId, geneQuery);
+  createViolinPartitionBox(
+    expression_data = expression_data,
+    partition_div_id = partitionDivId, 
+    geneQuery = geneQuery, 
+    clinical_and_mutation_data = clinical_and_mutation_data,
+    mutation_genes = mutation_genes);
 
   // Create div for violin plots and add it inside Materialize Grid
   addDivInside("violinPlots", gridRow.id);
@@ -270,8 +290,13 @@ const buildViolinPlot = function(geneQuery, expressionData) {
     addDivInside(`violinPlot${index}`, "violinPlots");
     addDivInside(`svgViolin${index}`, `violinPlot${index}`);
     const violinDiv = document.getElementById(`violinPlot${index}`);
-    createViolinPlot(expressionData, violinDiv, curGene, []);
-
+    createViolinPlot(
+      expression_data = expression_data, 
+      violin_div = violinDiv, 
+      curPlot = curGene, 
+      facet_by_fields = [],
+      clinical_and_mutation_data = clinical_and_mutation_data,
+      mutation_genes = mutation_genes);
   }
 };
 
@@ -294,25 +319,24 @@ const saveFile = function(x, fileName) {
 };
 
 
-let mergeClinicalAndMutationData = function(mutationGenes, mutationData, clinicalData) {
-  let dataToReturn = Array.from(clinicalData);  
+let mergeClinicalAndMutationData = function(mutation_genes, mutation_data, clinical_data) {
+  let dataToReturn = Array.from(clinical_data);
   for(let index = 0; index < dataToReturn.length; index++) {
     let curParticipantBarcode = dataToReturn[index].tcga_participant_barcode;
-    for(let geneIndex = 0; geneIndex < mutationGenes.length; geneIndex++) {
-        let curGeneMutation = mutationGenes[geneIndex] + "_Mutation";
-        let mutationValue = getVariantClassification(mutationData, curParticipantBarcode, mutationGenes[geneIndex]);
+    for(let geneIndex = 0; geneIndex < mutation_genes.length; geneIndex++) {
+        let curGeneMutation = mutation_genes[geneIndex] + "_Mutation";
+        let mutationValue = getVariantClassification(mutation_data, curParticipantBarcode, mutation_genes[geneIndex]);
         //Append feature to JSON object
-        dataToReturn[index][curGeneMutation] = `${mutationGenes[geneIndex]}_${mutationValue}`;
+        dataToReturn[index][curGeneMutation] = `${mutation_genes[geneIndex]}_${mutationValue}`;
     }  
   }
   return dataToReturn;
 };
 
-let getVariantClassification = function (mutationData, barcode, 
-  curGene) {
-    for(let index = 0; index < mutationData.length; index++) {
-      if(mutationData[index]["tcga_participant_barcode"] == barcode && mutationData[index]["gene"] == curGene)
-          return(mutationData[index]["mutation_label"]);
+let getVariantClassification = function (mutation_data, barcode, cur_gene) {
+    for(let index = 0; index < mutation_data.length; index++) {
+      if(mutation_data[index]["tcga_participant_barcode"] == barcode && mutation_data[index]["gene"] == cur_gene)
+          return(mutation_data[index]["mutation_label"]);
   }
   return undefined; // If we have no hits for a participant barcode and gene combination, then return undefined
 };
@@ -320,18 +344,18 @@ let getVariantClassification = function (mutationData, barcode,
 /** Renders downloads buttons and sets up onClick() functions.
  *
  * @param {string[]} cohortID - Names of the cohorts.
- * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {expression_data[]} expression_data - Array of expression data objects.
  * @param {clinicalData[]} clinicalData - Array of clinical data objects.
  *
  * @returns {undefined}
  */
-let buildDownloadButtons = async function(cohortID, expressionData, clinicalData) {
+let buildDownloadButtons = async function(cohortID, expression_data, clinicalData) {
   let genes, barcodes_exp, barcodes_clin;
-  if(expressionData) {
+  if(expression_data) {
     //Extract genes from RNA-seq expression data
-    genes = d3.map(expressionData, d => d.gene).keys();
+    genes = d3.map(expression_data, d => d.gene).keys();
     //Extract participant barcodes for RNA-seq expression data to speed up download functions
-    barcodes_exp = d3.map(expressionData, (d) => {
+    barcodes_exp = d3.map(expression_data, (d) => {
       if (d) return d.tcga_participant_barcode;
       else return d;
     }).keys().sort();
@@ -345,13 +369,13 @@ let buildDownloadButtons = async function(cohortID, expressionData, clinicalData
   }
   // clear div and add new button for json, csv_exp, csv_clin
   $("#downloadAllButton").on("click", function () {
-    downloadAllData(cohortID, expressionData, genes, clinicalData, barcodes_exp, barcodes_clin);
+    downloadAllData(cohortID, expression_data, genes, clinicalData, barcodes_exp, barcodes_clin);
   });
   $("#downloadExpressionZscoreButton").on("click", async function () {
-    downloadExpressionZScore(cohortID, expressionData, genes, barcodes_exp);
+    downloadExpressionZScore(cohortID, expression_data, genes, barcodes_exp);
   });
   $("#downloadExpressionLog2Button").on("click", function () {
-    downloadExpressionLog2(cohortID, expressionData, genes, barcodes_exp)
+    downloadExpressionLog2(cohortID, expression_data, genes, barcodes_exp)
   });
   $("#downloadClinicalButton").on("click", function () {
     downloadClinicalData(cohortID, clinicalData, barcodes_clin)
@@ -364,11 +388,11 @@ let buildDownloadButtons = async function(cohortID, expressionData, clinicalData
 /** Builds downloadable file of the expression and clinical data.
  *
  * @param {string[]} cohortID - Names of the cohorts.
- * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {expression_data[]} expression_data - Array of expression data objects.
  * @param {clinicalData[]} clinicalData - Array of clinical data objects.
  * @returns {undefined}
  */
-let downloadAllData = function(cohortID, expressionData, genes, clinicalData, barcodes_exp, barcodes_clin) {
+let downloadAllData = function(cohortID, expression_data, genes, clinicalData, barcodes_exp, barcodes_clin) {
   const timestamp = new Date().toUTCString().replace(",","");
   const clin_vars = Object.keys(clinicalData[0]);
   //Unique union of expression + clinical barcodes
@@ -411,7 +435,7 @@ let downloadAllData = function(cohortID, expressionData, genes, clinicalData, ba
   //Create saveObject for JSON download
   const saveObject = {
     header: headerObject,
-    expression_data: expressionData,
+    expression_data: expression_data,
     clinical_data: clinicalData,
   };
 
@@ -422,13 +446,13 @@ let downloadAllData = function(cohortID, expressionData, genes, clinicalData, ba
 /** Builds downloadable file of the z-score expression data.
  *
  * @param {string[]} cohortID - Names of the cohorts.
- * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {expression_data[]} expression_data - Array of expression data objects.
  * @param {string[]} genes - Names of the genes.
  * @param {string[]} barcodes_exp - TCGA participant barcodes
  * @returns {undefined}
  */
-let downloadExpressionZScore = async function(cohortID, expressionData, genes, barcodes_exp) {
-  if (typeof(expressionData) === "undefined" || expressionData.length == 0) {
+let downloadExpressionZScore = async function(cohortID, expression_data, genes, barcodes_exp) {
+  if (typeof(expression_data) === "undefined" || expression_data.length == 0) {
     alert("Expression data is empty. Please select genes to save.");
   }
   else {
@@ -445,7 +469,7 @@ let downloadExpressionZScore = async function(cohortID, expressionData, genes, b
       barcodes_exp.forEach((b) => {
         csv_string_expZscore += ",";
         //Filter out one barcode/gene combination and identify z-score value to add to z-score CSV
-        const valZ = expressionData
+        const valZ = expression_data
           .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
           .map((el) => el["z-score"]);
         //Add value to z-score CSV
@@ -464,13 +488,13 @@ let downloadExpressionZScore = async function(cohortID, expressionData, genes, b
 /** Builds downloadable file of the log2 expression data.
  *
  * @param {string[]} cohortID - Names of the cohorts.
- * @param {ExpressionData[]} expressionData - Array of expression data objects.
+ * @param {expression_data[]} expression_data - Array of expression data objects.
  * @param {string[]} genes - Names of the genes.
  * @param {string[]} barcodes_exp - TCGA participant barcodes
  * @returns {undefined}
  */
-let downloadExpressionLog2 = function(cohortID, expressionData, genes, barcodes_exp) {
-  if (typeof(expressionData) === "undefined" || expressionData.length == 0) {
+let downloadExpressionLog2 = function(cohortID, expression_data, genes, barcodes_exp) {
+  if (typeof(expression_data) === "undefined" || expression_data.length == 0) {
     alert("Expression data is empty. Please select genes to save.");
   }
   else {
@@ -485,7 +509,7 @@ let downloadExpressionLog2 = function(cohortID, expressionData, genes, barcodes_
       barcodes_exp.forEach((b) => {
         csv_string_expLog2 += ",";
         //Filter out one barcode/gene combination and identify log2 value to add to log2 CSV
-        const valL = expressionData
+        const valL = expression_data
           .filter((el) => el.tcga_participant_barcode === b && el.gene === g)
           .map((el) => el.expression_log2);
         //Add value to log2 CSV

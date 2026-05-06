@@ -1,19 +1,18 @@
 // Async function to create a d3 heatmap for a given independent variable and a set of genes
 
 // expressionData is the array os JSONs of gene expression data to visualize
-// clinicalAndMutationData is the array containing clinical data
+// clinical_and_mutation_data is the array containing clinical data
 // divObject is the div object on the html page to build the plot
 
 /** Create the heatmap.
  *
  * @param {ExpressionData[]} expressionData - Array of expression data objects.
- * @param {ClinicalData[]} clinicalAndMutationData - Array of clinical and mutation data objects.
+ * @param {ClinicalData[]} clinical_and_mutation_data - Array of clinical and mutation data objects.
  * @param {HTMLDivElement} divObject - An HTML div element in which to put heatmap.
  *
  * @returns {undefined}
 */
-const createHeatmap = async function (expressionData, clinicalAndMutationData, divObject) {
-
+const createHeatmap = async function (expressionData, divObject, clinical_and_mutation_data, cohort_barcodes, mutation_genes) {
     ///////////////////////////////////
     // 0) DISPLAY NUMBER OF SAMPLES IN COHORT
     ///////////////////////////////////
@@ -31,7 +30,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         // build label:
         let numSamplesLabel = "";
         let para;
-        numSamplesLabel = (d3.map(expressionData, d => d.tcga_participant_barcode).keys()).length
+        numSamplesLabel = cohort_barcodes.length
         para = document.createElement("P");
         para.setAttribute(
             "style",
@@ -109,12 +108,41 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
     };
     // populate clinical feature sample track variable selector
     // get unique clinical features
-    var clin_vars = Object.keys(clinicalAndMutationData[0]).sort();
 
-    const unwantedKeys = new Set(['date', 'tcga_participant_barcode', 'tool']);
-    clin_vars = clin_vars.filter(item => !unwantedKeys.has(item));
-
-    clin_vars.forEach(el => renderCB(div_selectBody, el));
+    // Get potential stratification variables
+    // We need to filter to clinical variables that are suitable for stratification
+    let stratificationVars = [];
+    if (clinical_and_mutation_data && clinical_and_mutation_data.length > 0) {
+        // Get all keys from the clinical and mutation data
+        const allKeys = Object.keys(clinical_and_mutation_data[0]);
+        // Filter to variables that make sense for stratification
+        stratificationVars = allKeys.filter(key => {
+            // Skip technical IDs and dates
+            if (key.includes('barcode') || 
+                    key.includes('date') || 
+                    key === 'tool' ||
+                    key.includes('days')) {
+                        return false;
+            }
+            // Skip genes not selected in mutations data explore
+            if (key.includes("Mutation") && !mutation_genes.includes(key.split("_")[0]))
+                return false
+            
+            // Count distinct values for this key
+            const distinctValues = new Set();
+            clinical_and_mutation_data.forEach(patient => {
+                if (patient[key] !== 'NA' && patient[key] !== null && patient[key] !== undefined) {
+                    distinctValues.add(patient[key]);
+                }
+            });
+            // Only use variables with 2-10 distinct values (categorical)
+            return distinctValues.size >= 2 && distinctValues.size <= 10;
+        });
+    }  
+    // Sort variables alphabetically
+    stratificationVars.sort();
+    // Render checkbox for each partition variable
+    stratificationVars.forEach(el => renderCB(div_selectBody, el));
 
     // automatically check off selected boxes from clinical query box
     sampTrackVars = $('.clinicalMultipleSelection').select2('data').map((el) => el.id);
@@ -502,12 +530,12 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         // also for legend: max size of variable name and all unique variable labels (for column width), and number of variables (for legend height)
         let sampTrack_obj = sampTrackVars.map(v => {
             // get all values for variable v
-            let domain = clinicalAndMutationData.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
+            let domain = clinical_and_mutation_data.filter(el => (barcodes.includes(el.tcga_participant_barcode)))
             .map(d =>  d[v]).sort();
             domain = [...new Set(domain)]; // get unique values only
 
             // determine if variable categorical or continuous (numeric)
-            let continuousMap = clinicalAndMutationData.map(x => x[v].match(/^[0-9/.]+$/));
+            let continuousMap = clinical_and_mutation_data.map(x => x[v].match(/^[0-9/.]+$/));
             let percentNull = continuousMap.filter(x => x == null).length / continuousMap.length;
             let type = "categorical"; // assume categorical by default
             if(percentNull < 0.95 & (v != 'vital_status')) {
@@ -561,7 +589,7 @@ const createHeatmap = async function (expressionData, clinicalAndMutationData, d
         svg_sampletrack.html(""); // have to clear to keep some spaces as white
         sampTrackVars.forEach(v => {
             svg_sampletrack.selectAll()
-                .data(clinicalAndMutationData.filter(el => (barcodes.includes(el.tcga_participant_barcode))),
+                .data(clinical_and_mutation_data.filter(el => (barcodes.includes(el.tcga_participant_barcode))),
                     d => (d.tcga_participant_barcode + ":" + v))
                 .enter()
                 .append("rect")

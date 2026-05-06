@@ -112,6 +112,29 @@ function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
 }
 
+// utility function to remove plot divs of unselected features and purge corresponding data from global state
+function purgeAndRemovePlotDiv(divId) {
+    const el=document.getElementById(divId);
+    if(!el) {
+        return;
+    }
+    try {
+        Plotly.purge(el);
+    } catch (error) {
+        console.error(`Error purging plot for ${divId}:`, error);
+    }
+    el.remove();
+}
+
+// utility function to either render new plot or update existing plot with new data
+async function renderOrUpdatePlot(gd, traces, layout, config) {
+    const hasExistingPlot=Array.isArray(gd?.data) && gd.data.length > 0 && gd?.layout;
+    if (hasExistingPlot) {
+        return Plotly.react(gd, traces, layout, config);
+    }
+    return Plotly.newPlot(gd, traces, layout, config);
+}
+
 /** Build and display data explore plots i.e. pie charts and histograms
  *
  * This function fetches the necessary data, builds the pie charts to display discrete data
@@ -152,13 +175,13 @@ let buildDataExplorePlots = async function() {
                 //remove mutation signature plot container
                 const mainPlot=document.getElementById(feature + 'Div');
                 if(mainPlot) {
-                    mainPlot.remove();
+                    purgeAndRemovePlotDiv(feature + 'Div');
                 }
 
                 //remove gene expression histogram container
                 const exprPlot=document.getElementById(feature + 'ExpressionDiv');
                 if(exprPlot) {
-                    exprPlot.remove();
+                    purgeAndRemovePlotDiv(feature + 'ExpressionDiv');
                 }
 
                 //sync with UI
@@ -497,10 +520,13 @@ let setChartDimsAndPlot = async function (uniqueValuesForCurrentFeature, current
             displayModeBar: false
         }
 
+        const gd = document.getElementById(currentFeature + 'Div');
+
         if (continuous) {
-            Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
+            // Plotly.newPlot(currentFeature + 'Div', histo_data, histo_layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
+            await renderOrUpdatePlot(gd, histo_data, histo_layout, config);
         } else {
-            Plotly.newPlot(currentFeature + 'Div', data, layout, config, {scrollZoom: true}).then(gd => {gd.on('plotly_legendclick', () => false)});
+            await renderOrUpdatePlot(gd, data, layout, config);
         }
 
     }
@@ -609,55 +635,58 @@ async function createGeneExpressionHistogram(geneMutationExpression, mutationDat
       modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d', 'autoScale2d'],
       scrollZoom: false
     };
+
+    const plotGd=await renderOrUpdatePlot(gd, [histogramTrace], histogramLayout, plotConfig);
+
+    //TODO: listener removal
     
-    Plotly.newPlot(gd, [histogramTrace], histogramLayout, plotConfig).then(gd => {
-        const dataMin = Math.min(...expressionValues);
-        const dataMax = Math.max(...expressionValues);
-      
-        const updateStateAndUI = (minVal, maxVal, isReset=false) => {
-          // 1) Update global state FIRST
-          const isFullRange = Math.abs(minVal - dataMin) < 0.01 && Math.abs(maxVal - dataMax) < 0.01;
-          if (isFullRange || isReset) {
-            getExpressionRangeValues(currentFeature, null);
-          } else {
-            getExpressionRangeValues(currentFeature, { min: minVal, max: maxVal });
-          }
-      
-          // 2) Then update UI (guard null)
-          const rangeDisplay = document.getElementById(currentFeature + "RangeDisplay");
-          if (rangeDisplay) {
-            if (isFullRange || isReset) {
-              rangeDisplay.textContent = `All patients (${expressionValues.length})`;
-            } else {
-              const filteredCount = expressionValues.filter(v => v >= minVal && v <= maxVal).length;
-              rangeDisplay.textContent =
-                `Range: ${minVal.toFixed(2)} to ${maxVal.toFixed(2)} (${filteredCount} patients)`;
-            }
-          }
-        };
-      
-        // Selection (drag box)
-        gd.on('plotly_selected', ev => {
-          const [minVal, maxVal] = ev?.range?.x ?? [dataMin, dataMax];
-          updateStateAndUI(minVal, maxVal);
-        });
-      
-        // Deselection (click empty space)
-        gd.on('plotly_deselect', () => updateStateAndUI(dataMin, dataMax, true));
-      
-        // Zoom/pan/range changes
-        gd.on('plotly_relayout', ev => {
-          const r0 = ev['xaxis.range[0]'] ?? ev['xaxis.range']?.[0];
-          const r1 = ev['xaxis.range[1]'] ?? ev['xaxis.range']?.[1];
-      
-          if (r0 !== undefined && r1 !== undefined) {
-            updateStateAndUI(r0, r1);
-          }
-          if (ev['xaxis.autorange'] === true) {
-            updateStateAndUI(dataMin, dataMax, true);
-          }
-        });
-      });
+    
+    const dataMin = Math.min(...expressionValues);
+    const dataMax = Math.max(...expressionValues);
+    
+    const updateStateAndUI = (minVal, maxVal, isReset=false) => {
+        // 1) Update global state FIRST
+        const isFullRange = Math.abs(minVal - dataMin) < 0.01 && Math.abs(maxVal - dataMax) < 0.01;
+        if (isFullRange || isReset) {
+        getExpressionRangeValues(currentFeature, null);
+        } else {
+        getExpressionRangeValues(currentFeature, { min: minVal, max: maxVal });
+        }
+    
+        // 2) Then update UI (guard null)
+        const rangeDisplay = document.getElementById(currentFeature + "RangeDisplay");
+        if (rangeDisplay) {
+        if (isFullRange || isReset) {
+            rangeDisplay.textContent = `All patients (${expressionValues.length})`;
+        } else {
+            const filteredCount = expressionValues.filter(v => v >= minVal && v <= maxVal).length;
+            rangeDisplay.textContent =
+            `Range: ${minVal.toFixed(2)} to ${maxVal.toFixed(2)} (${filteredCount} patients)`;
+        }
+        }
+    };
+    
+    // Selection (drag box)
+    plotGd.on('plotly_selected', ev => {
+        const [minVal, maxVal] = ev?.range?.x ?? [dataMin, dataMax];
+        updateStateAndUI(minVal, maxVal);
+    });
+    
+    // Deselection (click empty space)
+    plotGd.on('plotly_deselect', () => updateStateAndUI(dataMin, dataMax, true));
+    
+    // Zoom/pan/range changes
+    plotGd.on('plotly_relayout', ev => {
+        const r0 = ev['xaxis.range[0]'] ?? ev['xaxis.range']?.[0];
+        const r1 = ev['xaxis.range[1]'] ?? ev['xaxis.range']?.[1];
+    
+        if (r0 !== undefined && r1 !== undefined) {
+        updateStateAndUI(r0, r1);
+        }
+        if (ev['xaxis.autorange'] === true) {
+        updateStateAndUI(dataMin, dataMax, true);
+        }
+    });
 
     /**
      * Apply expression level filter to the patient cohort
