@@ -9,6 +9,7 @@ let selectedCategoricalFeatures = [];
 let selectedContinuousFeatures = [];
 let selectedRange = [];
 let previouslySelectedFeatures;
+let previousGeneSignature;                 // tracks the gene set the current charts were built from
 let mutationDataForAllGenesSelected = []
 let sliceColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#90cc54', '#c9bf61'];
@@ -135,11 +136,78 @@ async function renderOrUpdatePlot(gd, traces, layout, config) {
     return Plotly.newPlot(gd, traces, layout, config);
 }
 
+/**
+ * Compute the set of patient barcodes eligible for display.
+ *
+ * A barcode is eligible only if the patient has BOTH:
+ *   - mRNASeq (expression) data, and
+ *   - a MAF record (a real mutation call OR the synthesized "Wild_Type"
+ *     placeholder - Wild_Type is kept so its pie slice survives)
+ * for EVERY gene currently selected in the gene dropdown.
+ *
+ * Because fetchWrapperMU returns a record for every cohort barcode, the MAF
+ * condition holds for all cohort patients; eligibility therefore reduces to
+ * "has mRNASeq data for every selected gene," while retaining Wild_Type patients.
+ *
+ * @param {String[]} selectedGenes - Genes currently selected by the user
+ * @returns {Promise<Set<String>|null>} Set of eligible barcodes, or null if no genes
+ *                                      are selected (meaning: apply no restriction)
+ */
+let computeEligibleBarcodes = async function(selectedGenes) {
+    // No genes selected -> no data-availability restriction to apply
+    if (!selectedGenes || selectedGenes.length === 0) return null;
+
+    const cacheGe = await getCacheGE();
+    const cacheMu = await getCacheMU();
+
+    let eligible = null;
+
+    for (const gene of selectedGenes) {
+        // Patients with expression data for this gene (tumor samples only)
+        const expressionData = await cacheGe.fetchWrapperGE(selectedTumorTypes, [gene]);
+        const expressionBarcodes = new Set(
+            (expressionData || [])
+                .filter(r => r.sample_type === "TP")
+                .map(r => r.tcga_participant_barcode)
+        );
+
+        // Patients represented in the MAF dataset for this gene.
+        // NOTE: fetchWrapperMU returns a record for EVERY cohort barcode - a real
+        // mutation call, or a synthesized "Wild_Type" placeholder for the unmutated.
+        // Wild_Type patients are intentionally kept here so the Wild_Type slice
+        // survives in the pies; the mRNASeq requirement below is what actually
+        // narrows the cohort.
+        const mutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes, [gene]);
+        const mutationBarcodes = new Set(
+            (mutationData || []).map(r => r.tcga_participant_barcode)
+        );
+
+        // Patients with BOTH, for this gene
+        const geneEligible = new Set(
+            [...expressionBarcodes].filter(b => mutationBarcodes.has(b))
+        );
+
+        // Intersect across genes
+        eligible = (eligible === null)
+            ? geneEligible
+            : new Set([...eligible].filter(b => geneEligible.has(b)));
+
+        // Short-circuit: nothing left to intersect
+        if (eligible.size === 0) break;
+    }
+
+    console.log(`Eligible barcodes (mRNASeq + mutation data for ${selectedGenes.join(', ')}): ${eligible ? eligible.size : 'unrestricted'}`);
+    return eligible;
+}
+
 /** Build and display data explore plots i.e. pie charts and histograms
  *
  * This function fetches the necessary data, builds the pie charts to display discrete data
  * and builds histograms to display continunous data.
- * 
+ *
+ * All plots are restricted to patients who have both mRNASeq and mutation data
+ * for every selected gene (see computeEligibleBarcodes).
+ *
  * @returns {undefined}
  */
 let buildDataExplorePlots = async function() {
@@ -162,6 +230,7 @@ let buildDataExplorePlots = async function() {
     // if no features are selected, do not display any pie charts
     if(mySelectedFeatures.length == 0) {
         document.getElementById('dataexploration').innerHTML = ""
+        previousGeneSignature = undefined;
 
     // if feature(s) is/are selected, display pie chart(s)
     } else {
@@ -197,7 +266,22 @@ let buildDataExplorePlots = async function() {
             })
                 
         }
-        previouslySelectedFeatures = mySelectedFeatures;    
+        previouslySelectedFeatures = mySelectedFeatures;
+
+        // Patients with both mRNASeq and mutation data for every selected gene.
+        // null => no genes selected => no restriction.
+        const eligibleBarcodes = await computeEligibleBarcodes(mySelectedGenes);
+
+        // The eligible cohort depends on the WHOLE gene selection, so every existing
+        // chart goes stale when that selection changes. Purge them all and rebuild.
+        const geneSignature = [...mySelectedGenes].sort().join('|');
+        if (geneSignature !== previousGeneSignature) {
+            mySelectedFeatures.forEach(feature => {
+                purgeAndRemovePlotDiv(feature + 'Div');
+                purgeAndRemovePlotDiv(feature + 'ExpressionDiv');
+            });
+            previousGeneSignature = geneSignature;
+        }
 
         // get total number of barcodes for selected cancer type(s)
         let totalNumberBarcodes = 0;
@@ -221,17 +305,29 @@ let buildDataExplorePlots = async function() {
                 if(currentFeature[0] === currentFeature[0].toUpperCase()) {
                     let cacheMu = await getCacheMU(); // Instantiate mutation cache object
                     let mutationData = await cacheMu.fetchWrapperMU(selectedTumorTypes, [currentFeature]); // Retrieve mutation data from cache
+
+                    // Restrict to patients with both mRNASeq and mutation data for all selected genes
+                    if (eligibleBarcodes) {
+                        mutationData = mutationData.filter(m => eligibleBarcodes.has(m.tcga_participant_barcode));
+                    }
+
                     let mutationCounts = computeMutationFrequencies(mutationData); // Obtain map of mutation types and their respective counts
                     uniqueValuesForCurrentFeature = Array.from(mutationCounts.keys()); // Get mutation types from keys()
                     xCounts = Array.from(mutationCounts.values()); // Get corresponding counts from values()
                     let cacheGe = await getCacheGE();
-                    let geneMutationExpression = await cacheGe.fetchWrapperGE(selectedTumorTypes, [currentFeature]);                
+                    let geneMutationExpression = await cacheGe.fetchWrapperGE(selectedTumorTypes, [currentFeature]);
+
+                    // Same restriction for the expression histogram
+                    if (eligibleBarcodes) {
+                        geneMutationExpression = geneMutationExpression.filter(r => eligibleBarcodes.has(r.tcga_participant_barcode));
+                    }
+
                     await createGeneExpressionHistogram(geneMutationExpression, mutationData, currentFeature);
 
                 // if current feature is clinical (i.e., not a gene)
-                // get values and labels for this feature 
+                // get values and labels for this feature
                 } else {
-                    let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous);
+                    let clinicalFeaturesResults = await computeClinicalFeatureFrequencies(xCounts, uniqueValuesForCurrentFeature, currentFeature, continuous, eligibleBarcodes);
                     xCounts = clinicalFeaturesResults[0]
                     uniqueValuesForCurrentFeature = clinicalFeaturesResults[1]
                     continuous = clinicalFeaturesResults[2]
@@ -319,16 +415,23 @@ let computeMutationFrequencies = function(mutationData) {
   *
   * @param {array} xCounts - An empty array
   * @param {array} uniqueValuesForCurrentFeature - An empty array
-  * @param {string|string[]} currentGeneSelected - One of the clinical features that was selected by the user in the clinical feature dropdown
+  * @param {string|string[]} currentClinicalFeatureSelected - One of the clinical features that was selected by the user in the clinical feature dropdown
+  * @param {boolean} continuous - Whether the feature is continuous
+  * @param {Set<String>|null} eligibleBarcodes - Restrict to these patients; null = no restriction
   *
   * @returns {Array} Contains values and labels to input to Plotly data object.
   */
-let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected, continuous) {
+let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesForCurrentFeature, currentClinicalFeatureSelected, continuous, eligibleBarcodes = null) {
+
+    // Restrict the clinical records to patients with mRNASeq + mutation data for all selected genes
+    const clinicalData = eligibleBarcodes
+        ? allClinicalData.filter(p => eligibleBarcodes.has(p.tcga_participant_barcode))
+        : allClinicalData;
 
     let allValuesForCurrentFeature = [];
-    for(let i = 0; i < allClinicalData.length; i++)
-        allValuesForCurrentFeature.push(allClinicalData[i][currentClinicalFeatureSelected]);
-    
+    for(let i = 0; i < clinicalData.length; i++)
+        allValuesForCurrentFeature.push(clinicalData[i][currentClinicalFeatureSelected]);
+
     let index = clinicalType.findIndex(x => x.name == currentClinicalFeatureSelected);
     clinicalType[index].isSelected = true;
     if (clinicalType[index].type === "continuous") {
@@ -341,9 +444,9 @@ let computeClinicalFeatureFrequencies = async function (xCounts, uniqueValuesFor
     xCounts.length = uniqueValuesForCurrentFeature.length;
     for(let i = 0; i < xCounts.length; i++)
         xCounts[i] = 0;
-    for(let i = 0; i < allClinicalData.length; i++)
+    for(let i = 0; i < clinicalData.length; i++)
         for(let k = 0; k < uniqueValuesForCurrentFeature.length; k++)
-            if(allClinicalData[i][currentClinicalFeatureSelected] == uniqueValuesForCurrentFeature[k])
+            if(clinicalData[i][currentClinicalFeatureSelected] == uniqueValuesForCurrentFeature[k])
                 xCounts[k]++;
 
     return [xCounts, uniqueValuesForCurrentFeature, continuous]
